@@ -1,0 +1,2081 @@
+Syntax trees:
+
+
+======= /home/fabric/ArocRevision/Aroc/osirisData/contractSrc/0xfbca29854b821ff37e504578312459286082010d.sol =======
+PragmaDirective
+   Gas costs: 0
+   Source: "pragma solidity ^0.4.11;"
+ContractDefinition "RatingStore"
+   Source: "contract RatingStore {\r\n\r\n    struct Score {\r\n        bool exists;\r\n        int cumulativeScore;\r\n        uint totalRatings;\r\n    }\r\n\r\n    bool internal debug;\r\n    mapping (address => Score) internal scores;\r\n    // The manager with full access\r\n    address internal manager;\r\n    // The contract that has write accees\r\n    address internal controller;\r\n\r\n    /// Events\r\n    event Debug(string message);\r\n\r\n    /**\r\n     * Only the manager or controller can use this method\r\n     */\r\n    modifier restricted() { \r\n        require(msg.sender == manager || tx.origin == manager || msg.sender == controller);\r\n        _; \r\n    }\r\n\r\n    /**\r\n     * Only a certain address can use this modified method\r\n     * @param by The address that can use the method\r\n     */\r\n    modifier onlyBy(address by) { \r\n        require(msg.sender == by);\r\n        _; \r\n    }\r\n\r\n    /**\r\n     * Constructor\r\n     * @param _manager The address that has full access to the contract\r\n     * @param _controller The contract that can make write calls to this contract\r\n     */\r\n    function RatingStore(address _manager, address _controller) {\r\n        manager = _manager;\r\n        controller = _controller;\r\n        debug = false;\r\n    }\r\n\r\n    /**\r\n     * Set a Score\r\n     * @param target The address' score we're setting\r\n     * @param cumulative The cumulative score for the address\r\n     * @param total Total individual ratings for the address\r\n     * @return success If the set was completed successfully\r\n     */\r\n    function set(address target, int cumulative, uint total) external restricted {\r\n        if (!scores[target].exists) {\r\n            scores[target] = Score(true, 0, 0);\r\n        }\r\n        scores[target].cumulativeScore = cumulative;\r\n        scores[target].totalRatings = total;\r\n    }\r\n\r\n    /**\r\n     * Add a rating\r\n     * @param target The address' score we're adding to\r\n     * @param wScore The weighted rating to add to the score\r\n     * @return success\r\n     */\r\n    function add(address target, int wScore) external restricted {\r\n        if (!scores[target].exists) {\r\n            scores[target] = Score(true, 0, 0);\r\n        }\r\n        scores[target].cumulativeScore += wScore;\r\n        scores[target].totalRatings += 1;\r\n    }\r\n\r\n    /**\r\n     * Get the score for an address\r\n     * @param target The address' score to return\r\n     * @return cumulative score\r\n     * @return total ratings\r\n     */\r\n    function get(address target) external constant returns (int, uint) {\r\n        if (scores[target].exists == true) {\r\n            return (scores[target].cumulativeScore, scores[target].totalRatings);\r\n        } else {\r\n            return (0,0);\r\n        }\r\n    }\r\n\r\n    /**\r\n     * Reset an entire score storage\r\n     * @param target The address we're wiping clean\r\n     */\r\n    function reset(address target) external onlyBy(manager) {\r\n        scores[target] = Score(true, 0,0);\r\n    }\r\n\r\n    /**\r\n     * Return the manager\r\n     * @return address The manager address\r\n     */\r\n    function getManager() external constant returns (address) {\r\n        return manager;\r\n    }\r\n\r\n    /**\r\n     * Change the manager\r\n     * @param newManager The address we're setting as manager\r\n     */\r\n    function setManager(address newManager) external onlyBy(manager) {\r\n        manager = newManager;\r\n    }\r\n\r\n    /**\r\n     * Return the controller\r\n     * @return address The manager address\r\n     */\r\n    function getController() external constant returns (address) {\r\n        return controller;\r\n    }\r\n\r\n    /**\r\n     * Change the controller\r\n     * @param newController The address we're setting as controller\r\n     */\r\n    function setController(address newController) external onlyBy(manager) {\r\n        controller = newController;\r\n    }\r\n\r\n    /**\r\n     * Return the debug setting\r\n     * @return bool debug\r\n     */\r\n    function getDebug() external constant returns (bool) {\r\n        return debug;\r\n    }\r\n\r\n    /**\r\n     * Set debug\r\n     * @param _debug The bool value debug should be set to\r\n     */\r\n    function setDebug(bool _debug) external onlyBy(manager) {\r\n        debug = _debug;\r\n    }\r\n\r\n}"
+  StructDefinition "Score"
+     Gas costs: 0
+     Source: "struct Score {\r\n        bool exists;\r\n        int cumulativeScore;\r\n        uint totalRatings;\r\n    }"
+    VariableDeclaration "exists"
+       Type: bool
+       Source: "bool exists"
+      ElementaryTypeName bool
+         Source: "bool"
+    VariableDeclaration "cumulativeScore"
+       Type: int256
+       Source: "int cumulativeScore"
+      ElementaryTypeName int
+         Source: "int"
+    VariableDeclaration "totalRatings"
+       Type: uint256
+       Source: "uint totalRatings"
+      ElementaryTypeName uint
+         Source: "uint"
+  VariableDeclaration "debug"
+     Type: bool
+     Gas costs: 0
+     Source: "bool internal debug"
+    ElementaryTypeName bool
+       Source: "bool"
+  VariableDeclaration "scores"
+     Type: mapping(address => struct RatingStore.Score storage ref)
+     Gas costs: 0
+     Source: "mapping (address => Score) internal scores"
+    Mapping
+       Source: "mapping (address => Score)"
+      ElementaryTypeName address
+         Source: "address"
+      UserDefinedTypeName "Score"
+         Source: "Score"
+  VariableDeclaration "manager"
+     Type: address
+     Gas costs: 0
+     Source: "address internal manager"
+    ElementaryTypeName address
+       Source: "address"
+  VariableDeclaration "controller"
+     Type: address
+     Gas costs: 0
+     Source: "address internal controller"
+    ElementaryTypeName address
+       Source: "address"
+  EventDefinition "Debug"
+     Gas costs: 0
+     Source: "event Debug(string message);"
+    ParameterList
+       Source: "(string message)"
+      VariableDeclaration "message"
+         Type: string memory
+         Source: "string message"
+        ElementaryTypeName string
+           Source: "string"
+  ModifierDefinition "restricted"
+     Source: "modifier restricted() { \r\n        require(msg.sender == manager || tx.origin == manager || msg.sender == controller);\r\n        _; \r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    Block
+       Source: "{ \r\n        require(msg.sender == manager || tx.origin == manager || msg.sender == controller);\r\n        _; \r\n    }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "require(msg.sender == manager || tx.origin == manager || msg.sender == controller)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(msg.sender == manager || tx.origin == manager || msg.sender == controller)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ||
+             Type: bool
+             Source: "msg.sender == manager || tx.origin == manager || msg.sender == controller"
+            BinaryOperation using operator ||
+               Type: bool
+               Source: "msg.sender == manager || tx.origin == manager"
+              BinaryOperation using operator ==
+                 Type: bool
+                 Source: "msg.sender == manager"
+                MemberAccess to member sender
+                   Type: address
+                   Source: "msg.sender"
+                  Identifier msg
+                     Type: msg
+                     Source: "msg"
+                Identifier manager
+                   Type: address
+                   Source: "manager"
+              BinaryOperation using operator ==
+                 Type: bool
+                 Source: "tx.origin == manager"
+                MemberAccess to member origin
+                   Type: address
+                   Source: "tx.origin"
+                  Identifier tx
+                     Type: tx
+                     Source: "tx"
+                Identifier manager
+                   Type: address
+                   Source: "manager"
+            BinaryOperation using operator ==
+               Type: bool
+               Source: "msg.sender == controller"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+              Identifier controller
+                 Type: address
+                 Source: "controller"
+      PlaceholderStatement
+         Gas costs: 0
+         Source: "_"
+  ModifierDefinition "onlyBy"
+     Source: "modifier onlyBy(address by) { \r\n        require(msg.sender == by);\r\n        _; \r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address by)"
+      VariableDeclaration "by"
+         Type: address
+         Source: "address by"
+        ElementaryTypeName address
+           Source: "address"
+    Block
+       Source: "{ \r\n        require(msg.sender == by);\r\n        _; \r\n    }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "require(msg.sender == by)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(msg.sender == by)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "msg.sender == by"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Identifier by
+               Type: address
+               Source: "by"
+      PlaceholderStatement
+         Gas costs: 0
+         Source: "_"
+  FunctionDefinition "RatingStore" - public
+     Source: "function RatingStore(address _manager, address _controller) {\r\n        manager = _manager;\r\n        controller = _controller;\r\n        debug = false;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _manager, address _controller)"
+      VariableDeclaration "_manager"
+         Type: address
+         Source: "address _manager"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_controller"
+         Type: address
+         Source: "address _controller"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        manager = _manager;\r\n        controller = _controller;\r\n        debug = false;\r\n    }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "manager = _manager"
+        Assignment using operator =
+           Type: address
+           Source: "manager = _manager"
+          Identifier manager
+             Type: address
+             Source: "manager"
+          Identifier _manager
+             Type: address
+             Source: "_manager"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "controller = _controller"
+        Assignment using operator =
+           Type: address
+           Source: "controller = _controller"
+          Identifier controller
+             Type: address
+             Source: "controller"
+          Identifier _controller
+             Type: address
+             Source: "_controller"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "debug = false"
+        Assignment using operator =
+           Type: bool
+           Source: "debug = false"
+          Identifier debug
+             Type: bool
+             Source: "debug"
+          Literal, token: false value: false
+             Type: bool
+             Source: "false"
+  FunctionDefinition "set" - public
+     Source: "function set(address target, int cumulative, uint total) external restricted {\r\n        if (!scores[target].exists) {\r\n            scores[target] = Score(true, 0, 0);\r\n        }\r\n        scores[target].cumulativeScore = cumulative;\r\n        scores[target].totalRatings = total;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address target, int cumulative, uint total)"
+      VariableDeclaration "target"
+         Type: address
+         Source: "address target"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "cumulative"
+         Type: int256
+         Source: "int cumulative"
+        ElementaryTypeName int
+           Source: "int"
+      VariableDeclaration "total"
+         Type: uint256
+         Source: "uint total"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "restricted"
+       Gas costs: 0
+       Source: "restricted"
+      Identifier restricted
+         Type: modifier ()
+         Source: "restricted"
+    Block
+       Source: "{\r\n        if (!scores[target].exists) {\r\n            scores[target] = Score(true, 0, 0);\r\n        }\r\n        scores[target].cumulativeScore = cumulative;\r\n        scores[target].totalRatings = total;\r\n    }"
+      IfStatement
+         Source: "if (!scores[target].exists) {\r\n            scores[target] = Score(true, 0, 0);\r\n        }"
+        UnaryOperation (prefix) !
+           Type: bool
+           Gas costs: 0
+           Source: "!scores[target].exists"
+          MemberAccess to member exists
+             Type: bool
+             Source: "scores[target].exists"
+            IndexAccess
+               Type: struct RatingStore.Score storage ref
+               Source: "scores[target]"
+              Identifier scores
+                 Type: mapping(address => struct RatingStore.Score storage ref)
+                 Source: "scores"
+              Identifier target
+                 Type: address
+                 Source: "target"
+        Block
+           Source: "{\r\n            scores[target] = Score(true, 0, 0);\r\n        }"
+          ExpressionStatement
+             Gas costs: 0
+             Source: "scores[target] = Score(true, 0, 0)"
+            Assignment using operator =
+               Type: struct RatingStore.Score storage ref
+               Source: "scores[target] = Score(true, 0, 0)"
+              IndexAccess
+                 Type: struct RatingStore.Score storage ref
+                 Source: "scores[target]"
+                Identifier scores
+                   Type: mapping(address => struct RatingStore.Score storage ref)
+                   Source: "scores"
+                Identifier target
+                   Type: address
+                   Source: "target"
+              FunctionCall
+                 Type: struct RatingStore.Score memory
+                 Source: "Score(true, 0, 0)"
+                Identifier Score
+                   Type: type(struct RatingStore.Score storage pointer)
+                   Source: "Score"
+                Literal, token: true value: true
+                   Type: bool
+                   Source: "true"
+                Literal, token: [no token] value: 0
+                   Type: int_const 0
+                   Source: "0"
+                Literal, token: [no token] value: 0
+                   Type: int_const 0
+                   Source: "0"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "scores[target].cumulativeScore = cumulative"
+        Assignment using operator =
+           Type: int256
+           Source: "scores[target].cumulativeScore = cumulative"
+          MemberAccess to member cumulativeScore
+             Type: int256
+             Source: "scores[target].cumulativeScore"
+            IndexAccess
+               Type: struct RatingStore.Score storage ref
+               Source: "scores[target]"
+              Identifier scores
+                 Type: mapping(address => struct RatingStore.Score storage ref)
+                 Source: "scores"
+              Identifier target
+                 Type: address
+                 Source: "target"
+          Identifier cumulative
+             Type: int256
+             Source: "cumulative"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "scores[target].totalRatings = total"
+        Assignment using operator =
+           Type: uint256
+           Source: "scores[target].totalRatings = total"
+          MemberAccess to member totalRatings
+             Type: uint256
+             Source: "scores[target].totalRatings"
+            IndexAccess
+               Type: struct RatingStore.Score storage ref
+               Source: "scores[target]"
+              Identifier scores
+                 Type: mapping(address => struct RatingStore.Score storage ref)
+                 Source: "scores"
+              Identifier target
+                 Type: address
+                 Source: "target"
+          Identifier total
+             Type: uint256
+             Source: "total"
+  FunctionDefinition "add" - public
+     Source: "function add(address target, int wScore) external restricted {\r\n        if (!scores[target].exists) {\r\n            scores[target] = Score(true, 0, 0);\r\n        }\r\n        scores[target].cumulativeScore += wScore;\r\n        scores[target].totalRatings += 1;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address target, int wScore)"
+      VariableDeclaration "target"
+         Type: address
+         Source: "address target"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "wScore"
+         Type: int256
+         Source: "int wScore"
+        ElementaryTypeName int
+           Source: "int"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "restricted"
+       Gas costs: 0
+       Source: "restricted"
+      Identifier restricted
+         Type: modifier ()
+         Source: "restricted"
+    Block
+       Source: "{\r\n        if (!scores[target].exists) {\r\n            scores[target] = Score(true, 0, 0);\r\n        }\r\n        scores[target].cumulativeScore += wScore;\r\n        scores[target].totalRatings += 1;\r\n    }"
+      IfStatement
+         Source: "if (!scores[target].exists) {\r\n            scores[target] = Score(true, 0, 0);\r\n        }"
+        UnaryOperation (prefix) !
+           Type: bool
+           Gas costs: 0
+           Source: "!scores[target].exists"
+          MemberAccess to member exists
+             Type: bool
+             Source: "scores[target].exists"
+            IndexAccess
+               Type: struct RatingStore.Score storage ref
+               Source: "scores[target]"
+              Identifier scores
+                 Type: mapping(address => struct RatingStore.Score storage ref)
+                 Source: "scores"
+              Identifier target
+                 Type: address
+                 Source: "target"
+        Block
+           Source: "{\r\n            scores[target] = Score(true, 0, 0);\r\n        }"
+          ExpressionStatement
+             Gas costs: 0
+             Source: "scores[target] = Score(true, 0, 0)"
+            Assignment using operator =
+               Type: struct RatingStore.Score storage ref
+               Source: "scores[target] = Score(true, 0, 0)"
+              IndexAccess
+                 Type: struct RatingStore.Score storage ref
+                 Source: "scores[target]"
+                Identifier scores
+                   Type: mapping(address => struct RatingStore.Score storage ref)
+                   Source: "scores"
+                Identifier target
+                   Type: address
+                   Source: "target"
+              FunctionCall
+                 Type: struct RatingStore.Score memory
+                 Source: "Score(true, 0, 0)"
+                Identifier Score
+                   Type: type(struct RatingStore.Score storage pointer)
+                   Source: "Score"
+                Literal, token: true value: true
+                   Type: bool
+                   Source: "true"
+                Literal, token: [no token] value: 0
+                   Type: int_const 0
+                   Source: "0"
+                Literal, token: [no token] value: 0
+                   Type: int_const 0
+                   Source: "0"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "scores[target].cumulativeScore += wScore"
+        Assignment using operator +=
+           Type: int256
+           Source: "scores[target].cumulativeScore += wScore"
+          MemberAccess to member cumulativeScore
+             Type: int256
+             Source: "scores[target].cumulativeScore"
+            IndexAccess
+               Type: struct RatingStore.Score storage ref
+               Source: "scores[target]"
+              Identifier scores
+                 Type: mapping(address => struct RatingStore.Score storage ref)
+                 Source: "scores"
+              Identifier target
+                 Type: address
+                 Source: "target"
+          Identifier wScore
+             Type: int256
+             Source: "wScore"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "scores[target].totalRatings += 1"
+        Assignment using operator +=
+           Type: uint256
+           Source: "scores[target].totalRatings += 1"
+          MemberAccess to member totalRatings
+             Type: uint256
+             Source: "scores[target].totalRatings"
+            IndexAccess
+               Type: struct RatingStore.Score storage ref
+               Source: "scores[target]"
+              Identifier scores
+                 Type: mapping(address => struct RatingStore.Score storage ref)
+                 Source: "scores"
+              Identifier target
+                 Type: address
+                 Source: "target"
+          Literal, token: [no token] value: 1
+             Type: int_const 1
+             Source: "1"
+  FunctionDefinition "get" - public - const
+     Source: "function get(address target) external constant returns (int, uint) {\r\n        if (scores[target].exists == true) {\r\n            return (scores[target].cumulativeScore, scores[target].totalRatings);\r\n        } else {\r\n            return (0,0);\r\n        }\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address target)"
+      VariableDeclaration "target"
+         Type: address
+         Source: "address target"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 0
+       Source: "(int, uint)"
+      VariableDeclaration ""
+         Type: int256
+         Source: "int"
+        ElementaryTypeName int
+           Source: "int"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint"
+        ElementaryTypeName uint
+           Source: "uint"
+    Block
+       Source: "{\r\n        if (scores[target].exists == true) {\r\n            return (scores[target].cumulativeScore, scores[target].totalRatings);\r\n        } else {\r\n            return (0,0);\r\n        }\r\n    }"
+      IfStatement
+         Source: "if (scores[target].exists == true) {\r\n            return (scores[target].cumulativeScore, scores[target].totalRatings);\r\n        } else {\r\n            return (0,0);\r\n        }"
+        BinaryOperation using operator ==
+           Type: bool
+           Gas costs: 0
+           Source: "scores[target].exists == true"
+          MemberAccess to member exists
+             Type: bool
+             Source: "scores[target].exists"
+            IndexAccess
+               Type: struct RatingStore.Score storage ref
+               Source: "scores[target]"
+              Identifier scores
+                 Type: mapping(address => struct RatingStore.Score storage ref)
+                 Source: "scores"
+              Identifier target
+                 Type: address
+                 Source: "target"
+          Literal, token: true value: true
+             Type: bool
+             Source: "true"
+        Block
+           Source: "{\r\n            return (scores[target].cumulativeScore, scores[target].totalRatings);\r\n        }"
+          Return
+             Gas costs: 0
+             Source: "return (scores[target].cumulativeScore, scores[target].totalRatings)"
+            TupleExpression
+               Type: tuple(int256,uint256)
+               Source: "(scores[target].cumulativeScore, scores[target].totalRatings)"
+              MemberAccess to member cumulativeScore
+                 Type: int256
+                 Source: "scores[target].cumulativeScore"
+                IndexAccess
+                   Type: struct RatingStore.Score storage ref
+                   Source: "scores[target]"
+                  Identifier scores
+                     Type: mapping(address => struct RatingStore.Score storage ref)
+                     Source: "scores"
+                  Identifier target
+                     Type: address
+                     Source: "target"
+              MemberAccess to member totalRatings
+                 Type: uint256
+                 Source: "scores[target].totalRatings"
+                IndexAccess
+                   Type: struct RatingStore.Score storage ref
+                   Source: "scores[target]"
+                  Identifier scores
+                     Type: mapping(address => struct RatingStore.Score storage ref)
+                     Source: "scores"
+                  Identifier target
+                     Type: address
+                     Source: "target"
+        Block
+           Source: "{\r\n            return (0,0);\r\n        }"
+          Return
+             Gas costs: 0
+             Source: "return (0,0)"
+            TupleExpression
+               Type: tuple(int_const 0,int_const 0)
+               Source: "(0,0)"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+  FunctionDefinition "reset" - public
+     Source: "function reset(address target) external onlyBy(manager) {\r\n        scores[target] = Score(true, 0,0);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address target)"
+      VariableDeclaration "target"
+         Type: address
+         Source: "address target"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyBy"
+       Gas costs: 0
+       Source: "onlyBy(manager)"
+      Identifier onlyBy
+         Type: modifier (address)
+         Source: "onlyBy"
+      Identifier manager
+         Type: address
+         Source: "manager"
+    Block
+       Source: "{\r\n        scores[target] = Score(true, 0,0);\r\n    }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "scores[target] = Score(true, 0,0)"
+        Assignment using operator =
+           Type: struct RatingStore.Score storage ref
+           Source: "scores[target] = Score(true, 0,0)"
+          IndexAccess
+             Type: struct RatingStore.Score storage ref
+             Source: "scores[target]"
+            Identifier scores
+               Type: mapping(address => struct RatingStore.Score storage ref)
+               Source: "scores"
+            Identifier target
+               Type: address
+               Source: "target"
+          FunctionCall
+             Type: struct RatingStore.Score memory
+             Source: "Score(true, 0,0)"
+            Identifier Score
+               Type: type(struct RatingStore.Score storage pointer)
+               Source: "Score"
+            Literal, token: true value: true
+               Type: bool
+               Source: "true"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+  FunctionDefinition "getManager" - public - const
+     Source: "function getManager() external constant returns (address) {\r\n        return manager;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: "(address)"
+      VariableDeclaration ""
+         Type: address
+         Source: "address"
+        ElementaryTypeName address
+           Source: "address"
+    Block
+       Source: "{\r\n        return manager;\r\n    }"
+      Return
+         Gas costs: 0
+         Source: "return manager"
+        Identifier manager
+           Type: address
+           Source: "manager"
+  FunctionDefinition "setManager" - public
+     Source: "function setManager(address newManager) external onlyBy(manager) {\r\n        manager = newManager;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address newManager)"
+      VariableDeclaration "newManager"
+         Type: address
+         Source: "address newManager"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyBy"
+       Gas costs: 0
+       Source: "onlyBy(manager)"
+      Identifier onlyBy
+         Type: modifier (address)
+         Source: "onlyBy"
+      Identifier manager
+         Type: address
+         Source: "manager"
+    Block
+       Source: "{\r\n        manager = newManager;\r\n    }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "manager = newManager"
+        Assignment using operator =
+           Type: address
+           Source: "manager = newManager"
+          Identifier manager
+             Type: address
+             Source: "manager"
+          Identifier newManager
+             Type: address
+             Source: "newManager"
+  FunctionDefinition "getController" - public - const
+     Source: "function getController() external constant returns (address) {\r\n        return controller;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: "(address)"
+      VariableDeclaration ""
+         Type: address
+         Source: "address"
+        ElementaryTypeName address
+           Source: "address"
+    Block
+       Source: "{\r\n        return controller;\r\n    }"
+      Return
+         Gas costs: 0
+         Source: "return controller"
+        Identifier controller
+           Type: address
+           Source: "controller"
+  FunctionDefinition "setController" - public
+     Source: "function setController(address newController) external onlyBy(manager) {\r\n        controller = newController;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address newController)"
+      VariableDeclaration "newController"
+         Type: address
+         Source: "address newController"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyBy"
+       Gas costs: 0
+       Source: "onlyBy(manager)"
+      Identifier onlyBy
+         Type: modifier (address)
+         Source: "onlyBy"
+      Identifier manager
+         Type: address
+         Source: "manager"
+    Block
+       Source: "{\r\n        controller = newController;\r\n    }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "controller = newController"
+        Assignment using operator =
+           Type: address
+           Source: "controller = newController"
+          Identifier controller
+             Type: address
+             Source: "controller"
+          Identifier newController
+             Type: address
+             Source: "newController"
+  FunctionDefinition "getDebug" - public - const
+     Source: "function getDebug() external constant returns (bool) {\r\n        return debug;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: "(bool)"
+      VariableDeclaration ""
+         Type: bool
+         Source: "bool"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n        return debug;\r\n    }"
+      Return
+         Gas costs: 0
+         Source: "return debug"
+        Identifier debug
+           Type: bool
+           Source: "debug"
+  FunctionDefinition "setDebug" - public
+     Source: "function setDebug(bool _debug) external onlyBy(manager) {\r\n        debug = _debug;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(bool _debug)"
+      VariableDeclaration "_debug"
+         Type: bool
+         Source: "bool _debug"
+        ElementaryTypeName bool
+           Source: "bool"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyBy"
+       Gas costs: 0
+       Source: "onlyBy(manager)"
+      Identifier onlyBy
+         Type: modifier (address)
+         Source: "onlyBy"
+      Identifier manager
+         Type: address
+         Source: "manager"
+    Block
+       Source: "{\r\n        debug = _debug;\r\n    }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "debug = _debug"
+        Assignment using operator =
+           Type: bool
+           Source: "debug = _debug"
+          Identifier debug
+             Type: bool
+             Source: "debug"
+          Identifier _debug
+             Type: bool
+             Source: "_debug"
+ContractDefinition "Etherep"
+   Source: "contract Etherep {\r\n\r\n    bool internal debug;\r\n    address internal manager;\r\n    uint internal fee;\r\n    address internal storageAddress;\r\n    uint internal waitTime;\r\n    mapping (address => uint) internal lastRating;\r\n\r\n    /// Events\r\n    event Error(\r\n        address sender,\r\n        string message\r\n    );\r\n    event Debug(string message);\r\n    event DebugInt(int message);\r\n    event DebugUint(uint message);\r\n    event Rating(\r\n        address by, \r\n        address who, \r\n        int rating\r\n    );\r\n    event FeeChanged(uint f);\r\n    event DelayChanged(uint d);\r\n\r\n    /**\r\n     * Only a certain address can use this modified method\r\n     * @param by The address that can use the method\r\n     */\r\n    modifier onlyBy(address by) { \r\n        require(msg.sender == by);\r\n        _; \r\n    }\r\n\r\n    /**\r\n     * Delay ratings to be at least waitTime apart\r\n     */\r\n    modifier delay() {\r\n        if (debug == false && lastRating[msg.sender] > now - waitTime) {\r\n            Error(msg.sender, \"Rating too often\");\r\n            revert();\r\n        }\r\n        _;\r\n    }\r\n\r\n    /**\r\n     * Require the minimum fee to be met\r\n     */\r\n    modifier requireFee() {\r\n        require(msg.value >= fee);\r\n        _;\r\n    }\r\n\r\n    /** \r\n     * Constructor\r\n     * @param _manager The key that can make changes to this contract\r\n     * @param _fee The variable fee that will be charged per rating\r\n     * @param _storageAddress The address to the storage contract\r\n     * @param _wait The minimum time in seconds a user has to wait between ratings\r\n     */\r\n    function Etherep(address _manager, uint _fee, address _storageAddress, uint _wait) {\r\n        manager = _manager;\r\n        fee = _fee;\r\n        storageAddress = _storageAddress;\r\n        waitTime = _wait;\r\n        debug = false;\r\n    }\r\n\r\n    /**\r\n     * Set debug\r\n     * @param d The debug value that should be set\r\n     */\r\n    function setDebug(bool d) external onlyBy(manager) {\r\n        debug = d;\r\n    }\r\n\r\n    /**\r\n     * Get debug\r\n     * @return debug\r\n     */\r\n    function getDebug() external constant returns (bool) {\r\n        return debug;\r\n    }\r\n\r\n    /**\r\n     * Change the fee\r\n     * @param newFee New rating fee in Wei\r\n     */\r\n    function setFee(uint newFee) external onlyBy(manager) {\r\n        fee = newFee;\r\n        FeeChanged(fee);\r\n    }\r\n\r\n    /**\r\n     * Get the fee\r\n     * @return fee The current fee in Wei\r\n     */\r\n    function getFee() external constant returns (uint) {\r\n        return fee;\r\n    }\r\n\r\n    /**\r\n     * Change the rating delay\r\n     * @param _delay Delay in seconds\r\n     */\r\n    function setDelay(uint _delay) external onlyBy(manager) {\r\n        waitTime = _delay;\r\n        DelayChanged(waitTime);\r\n    }\r\n\r\n    /**\r\n     * Get the delay time\r\n     * @return delay The current rating delay time in seconds\r\n     */\r\n    function getDelay() external constant returns (uint) {\r\n        return waitTime;\r\n    }\r\n\r\n    /**\r\n     * Change the manager\r\n     * @param who The address of the new manager\r\n     */\r\n    function setManager(address who) external onlyBy(manager) {\r\n        manager = who;\r\n    }\r\n\r\n    /**\r\n     * Get the manager\r\n     * @return manager The address of this contract's manager\r\n     */\r\n    function getManager() external constant returns (address) {\r\n        return manager;\r\n    }\r\n\r\n    /**\r\n     * Drain fees\r\n     */\r\n    function drain() external onlyBy(manager) {\r\n        require(this.balance > 0);\r\n        manager.transfer(this.balance);\r\n    }\r\n\r\n    /** \r\n     * Adds a rating to an address' cumulative score\r\n     * @param who The address that is being rated\r\n     * @param rating The rating(-5 to 5)\r\n     * @return success If the rating was processed successfully\r\n     */\r\n    function rate(address who, int rating) external payable delay requireFee {\r\n\r\n        require(rating <= 5 && rating >= -5);\r\n        require(who != msg.sender);\r\n\r\n        RatingStore store = RatingStore(storageAddress);\r\n        \r\n        // Starting weight\r\n        int weight = 0;\r\n\r\n        // Rating multiplier\r\n        int multiplier = 100;\r\n\r\n        // We need the absolute value\r\n        int absRating = rating;\r\n        if (absRating < 0) {\r\n            absRating = -rating;\r\n        }\r\n\r\n        // Get details on sender if available\r\n        int senderScore;\r\n        uint senderRatings;\r\n        int senderCumulative = 0;\r\n        (senderScore, senderRatings) = store.get(msg.sender);\r\n\r\n        // Calculate cumulative score if available\r\n        if (senderScore != 0) {\r\n            senderCumulative = (senderScore / (int(senderRatings) * 100)) * 100;\r\n        }\r\n\r\n        // Calculate the weight if the sender is rated above 0\r\n        if (senderCumulative > 0) {\r\n            weight = (((senderCumulative / 5) * absRating) / 10) + multiplier;\r\n        }\r\n        // Otherwise, unweighted\r\n        else {\r\n            weight = multiplier;\r\n        }\r\n        \r\n        // Calculate weighted rating\r\n        int workRating = rating * weight;\r\n\r\n        // Set last rating timestamp\r\n        lastRating[msg.sender] = now;\r\n\r\n        Rating(msg.sender, who, workRating);\r\n\r\n        // Add the new rating to their score\r\n        store.add(who, workRating);\r\n\r\n    }\r\n\r\n    /**\r\n     * Returns the cumulative score for an address\r\n     * @param who The address to lookup\r\n     * @return score The cumulative score\r\n     */\r\n    function getScore(address who) external constant returns (int score) {\r\n\r\n        RatingStore store = RatingStore(storageAddress);\r\n        \r\n        int cumulative;\r\n        uint ratings;\r\n        (cumulative, ratings) = store.get(who);\r\n        \r\n        // The score should have room for 2 decimal places, but ratings is a \r\n        // single count\r\n        score = cumulative / int(ratings);\r\n\r\n    }\r\n\r\n    /**\r\n     * Returns the cumulative score and count of ratings for an address\r\n     * @param who The address to lookup\r\n     * @return score The cumulative score\r\n     * @return count How many ratings have been made\r\n     */\r\n    function getScoreAndCount(address who) external constant returns (int score, uint ratings) {\r\n\r\n        RatingStore store = RatingStore(storageAddress);\r\n        \r\n        int cumulative;\r\n        (cumulative, ratings) = store.get(who);\r\n        \r\n        // The score should have room for 2 decimal places, but ratings is a \r\n        // single count\r\n        score = cumulative / int(ratings);\r\n\r\n    }\r\n\r\n}"
+  VariableDeclaration "debug"
+     Type: bool
+     Gas costs: 0
+     Source: "bool internal debug"
+    ElementaryTypeName bool
+       Source: "bool"
+  VariableDeclaration "manager"
+     Type: address
+     Gas costs: 0
+     Source: "address internal manager"
+    ElementaryTypeName address
+       Source: "address"
+  VariableDeclaration "fee"
+     Type: uint256
+     Gas costs: 0
+     Source: "uint internal fee"
+    ElementaryTypeName uint
+       Source: "uint"
+  VariableDeclaration "storageAddress"
+     Type: address
+     Gas costs: 0
+     Source: "address internal storageAddress"
+    ElementaryTypeName address
+       Source: "address"
+  VariableDeclaration "waitTime"
+     Type: uint256
+     Gas costs: 0
+     Source: "uint internal waitTime"
+    ElementaryTypeName uint
+       Source: "uint"
+  VariableDeclaration "lastRating"
+     Type: mapping(address => uint256)
+     Gas costs: 0
+     Source: "mapping (address => uint) internal lastRating"
+    Mapping
+       Source: "mapping (address => uint)"
+      ElementaryTypeName address
+         Source: "address"
+      ElementaryTypeName uint
+         Source: "uint"
+  EventDefinition "Error"
+     Gas costs: 0
+     Source: "event Error(\r\n        address sender,\r\n        string message\r\n    );"
+    ParameterList
+       Source: "(\r\n        address sender,\r\n        string message\r\n    )"
+      VariableDeclaration "sender"
+         Type: address
+         Source: "address sender"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "message"
+         Type: string memory
+         Source: "string message"
+        ElementaryTypeName string
+           Source: "string"
+  EventDefinition "Debug"
+     Gas costs: 0
+     Source: "event Debug(string message);"
+    ParameterList
+       Source: "(string message)"
+      VariableDeclaration "message"
+         Type: string memory
+         Source: "string message"
+        ElementaryTypeName string
+           Source: "string"
+  EventDefinition "DebugInt"
+     Gas costs: 0
+     Source: "event DebugInt(int message);"
+    ParameterList
+       Source: "(int message)"
+      VariableDeclaration "message"
+         Type: int256
+         Source: "int message"
+        ElementaryTypeName int
+           Source: "int"
+  EventDefinition "DebugUint"
+     Gas costs: 0
+     Source: "event DebugUint(uint message);"
+    ParameterList
+       Source: "(uint message)"
+      VariableDeclaration "message"
+         Type: uint256
+         Source: "uint message"
+        ElementaryTypeName uint
+           Source: "uint"
+  EventDefinition "Rating"
+     Gas costs: 0
+     Source: "event Rating(\r\n        address by, \r\n        address who, \r\n        int rating\r\n    );"
+    ParameterList
+       Source: "(\r\n        address by, \r\n        address who, \r\n        int rating\r\n    )"
+      VariableDeclaration "by"
+         Type: address
+         Source: "address by"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "who"
+         Type: address
+         Source: "address who"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "rating"
+         Type: int256
+         Source: "int rating"
+        ElementaryTypeName int
+           Source: "int"
+  EventDefinition "FeeChanged"
+     Gas costs: 0
+     Source: "event FeeChanged(uint f);"
+    ParameterList
+       Source: "(uint f)"
+      VariableDeclaration "f"
+         Type: uint256
+         Source: "uint f"
+        ElementaryTypeName uint
+           Source: "uint"
+  EventDefinition "DelayChanged"
+     Gas costs: 0
+     Source: "event DelayChanged(uint d);"
+    ParameterList
+       Source: "(uint d)"
+      VariableDeclaration "d"
+         Type: uint256
+         Source: "uint d"
+        ElementaryTypeName uint
+           Source: "uint"
+  ModifierDefinition "onlyBy"
+     Source: "modifier onlyBy(address by) { \r\n        require(msg.sender == by);\r\n        _; \r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address by)"
+      VariableDeclaration "by"
+         Type: address
+         Source: "address by"
+        ElementaryTypeName address
+           Source: "address"
+    Block
+       Source: "{ \r\n        require(msg.sender == by);\r\n        _; \r\n    }"
+      ExpressionStatement
+         Gas costs: 230
+         Source: "require(msg.sender == by)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(msg.sender == by)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "msg.sender == by"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Identifier by
+               Type: address
+               Source: "by"
+      PlaceholderStatement
+         Gas costs: 0
+         Source: "_"
+  ModifierDefinition "delay"
+     Source: "modifier delay() {\r\n        if (debug == false && lastRating[msg.sender] > now - waitTime) {\r\n            Error(msg.sender, \"Rating too often\");\r\n            revert();\r\n        }\r\n        _;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    Block
+       Source: "{\r\n        if (debug == false && lastRating[msg.sender] > now - waitTime) {\r\n            Error(msg.sender, \"Rating too often\");\r\n            revert();\r\n        }\r\n        _;\r\n    }"
+      IfStatement
+         Source: "if (debug == false && lastRating[msg.sender] > now - waitTime) {\r\n            Error(msg.sender, \"Rating too often\");\r\n            revert();\r\n        }"
+        BinaryOperation using operator &&
+           Type: bool
+           Gas costs: 788
+           Source: "debug == false && lastRating[msg.sender] > now - waitTime"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "debug == false"
+            Identifier debug
+               Type: bool
+               Source: "debug"
+            Literal, token: false value: false
+               Type: bool
+               Source: "false"
+          BinaryOperation using operator >
+             Type: bool
+             Source: "lastRating[msg.sender] > now - waitTime"
+            IndexAccess
+               Type: uint256
+               Source: "lastRating[msg.sender]"
+              Identifier lastRating
+                 Type: mapping(address => uint256)
+                 Source: "lastRating"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+            BinaryOperation using operator -
+               Type: uint256
+               Source: "now - waitTime"
+              Identifier now
+                 Type: uint256
+                 Source: "now"
+              Identifier waitTime
+                 Type: uint256
+                 Source: "waitTime"
+        Block
+           Source: "{\r\n            Error(msg.sender, \"Rating too often\");\r\n            revert();\r\n        }"
+          ExpressionStatement
+             Gas costs: 1925
+             Source: "Error(msg.sender, \"Rating too often\")"
+            FunctionCall
+               Type: tuple()
+               Source: "Error(msg.sender, \"Rating too often\")"
+              Identifier Error
+                 Type: function (address,string memory)
+                 Source: "Error"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+              Literal, token: [no token] value: Rating too often
+                 Type: literal_string "Rating too often"
+                 Source: "\"Rating too often\""
+          ExpressionStatement
+             Gas costs: 6
+             Source: "revert()"
+            FunctionCall
+               Type: tuple()
+               Source: "revert()"
+              Identifier revert
+                 Type: function () pure
+                 Source: "revert"
+      PlaceholderStatement
+         Gas costs: 0
+         Source: "_"
+  ModifierDefinition "requireFee"
+     Source: "modifier requireFee() {\r\n        require(msg.value >= fee);\r\n        _;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    Block
+       Source: "{\r\n        require(msg.value >= fee);\r\n        _;\r\n    }"
+      ExpressionStatement
+         Gas costs: 237
+         Source: "require(msg.value >= fee)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(msg.value >= fee)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "msg.value >= fee"
+            MemberAccess to member value
+               Type: uint256
+               Source: "msg.value"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Identifier fee
+               Type: uint256
+               Source: "fee"
+      PlaceholderStatement
+         Gas costs: 0
+         Source: "_"
+  FunctionDefinition "Etherep" - public
+     Source: "function Etherep(address _manager, uint _fee, address _storageAddress, uint _wait) {\r\n        manager = _manager;\r\n        fee = _fee;\r\n        storageAddress = _storageAddress;\r\n        waitTime = _wait;\r\n        debug = false;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _manager, uint _fee, address _storageAddress, uint _wait)"
+      VariableDeclaration "_manager"
+         Type: address
+         Source: "address _manager"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_fee"
+         Type: uint256
+         Source: "uint _fee"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "_storageAddress"
+         Type: address
+         Source: "address _storageAddress"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_wait"
+         Type: uint256
+         Source: "uint _wait"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        manager = _manager;\r\n        fee = _fee;\r\n        storageAddress = _storageAddress;\r\n        waitTime = _wait;\r\n        debug = false;\r\n    }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "manager = _manager"
+        Assignment using operator =
+           Type: address
+           Source: "manager = _manager"
+          Identifier manager
+             Type: address
+             Source: "manager"
+          Identifier _manager
+             Type: address
+             Source: "_manager"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "fee = _fee"
+        Assignment using operator =
+           Type: uint256
+           Source: "fee = _fee"
+          Identifier fee
+             Type: uint256
+             Source: "fee"
+          Identifier _fee
+             Type: uint256
+             Source: "_fee"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "storageAddress = _storageAddress"
+        Assignment using operator =
+           Type: address
+           Source: "storageAddress = _storageAddress"
+          Identifier storageAddress
+             Type: address
+             Source: "storageAddress"
+          Identifier _storageAddress
+             Type: address
+             Source: "_storageAddress"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "waitTime = _wait"
+        Assignment using operator =
+           Type: uint256
+           Source: "waitTime = _wait"
+          Identifier waitTime
+             Type: uint256
+             Source: "waitTime"
+          Identifier _wait
+             Type: uint256
+             Source: "_wait"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "debug = false"
+        Assignment using operator =
+           Type: bool
+           Source: "debug = false"
+          Identifier debug
+             Type: bool
+             Source: "debug"
+          Literal, token: false value: false
+             Type: bool
+             Source: "false"
+  FunctionDefinition "setDebug" - public
+     Source: "function setDebug(bool d) external onlyBy(manager) {\r\n        debug = d;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(bool d)"
+      VariableDeclaration "d"
+         Type: bool
+         Source: "bool d"
+        ElementaryTypeName bool
+           Source: "bool"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyBy"
+       Gas costs: 289
+       Source: "onlyBy(manager)"
+      Identifier onlyBy
+         Type: modifier (address)
+         Source: "onlyBy"
+      Identifier manager
+         Type: address
+         Source: "manager"
+    Block
+       Source: "{\r\n        debug = d;\r\n    }"
+      ExpressionStatement
+         Gas costs: 20267
+         Source: "debug = d"
+        Assignment using operator =
+           Type: bool
+           Source: "debug = d"
+          Identifier debug
+             Type: bool
+             Source: "debug"
+          Identifier d
+             Type: bool
+             Source: "d"
+  FunctionDefinition "getDebug" - public - const
+     Source: "function getDebug() external constant returns (bool) {\r\n        return debug;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool)"
+      VariableDeclaration ""
+         Type: bool
+         Source: "bool"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n        return debug;\r\n    }"
+      Return
+         Gas costs: 244
+         Source: "return debug"
+        Identifier debug
+           Type: bool
+           Source: "debug"
+  FunctionDefinition "setFee" - public
+     Source: "function setFee(uint newFee) external onlyBy(manager) {\r\n        fee = newFee;\r\n        FeeChanged(fee);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint newFee)"
+      VariableDeclaration "newFee"
+         Type: uint256
+         Source: "uint newFee"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyBy"
+       Gas costs: 289
+       Source: "onlyBy(manager)"
+      Identifier onlyBy
+         Type: modifier (address)
+         Source: "onlyBy"
+      Identifier manager
+         Type: address
+         Source: "manager"
+    Block
+       Source: "{\r\n        fee = newFee;\r\n        FeeChanged(fee);\r\n    }"
+      ExpressionStatement
+         Gas costs: 20014
+         Source: "fee = newFee"
+        Assignment using operator =
+           Type: uint256
+           Source: "fee = newFee"
+          Identifier fee
+             Type: uint256
+             Source: "fee"
+          Identifier newFee
+             Type: uint256
+             Source: "newFee"
+      ExpressionStatement
+         Gas costs: 1276
+         Source: "FeeChanged(fee)"
+        FunctionCall
+           Type: tuple()
+           Source: "FeeChanged(fee)"
+          Identifier FeeChanged
+             Type: function (uint256)
+             Source: "FeeChanged"
+          Identifier fee
+             Type: uint256
+             Source: "fee"
+  FunctionDefinition "getFee" - public - const
+     Source: "function getFee() external constant returns (uint) {\r\n        return fee;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint"
+        ElementaryTypeName uint
+           Source: "uint"
+    Block
+       Source: "{\r\n        return fee;\r\n    }"
+      Return
+         Gas costs: 208
+         Source: "return fee"
+        Identifier fee
+           Type: uint256
+           Source: "fee"
+  FunctionDefinition "setDelay" - public
+     Source: "function setDelay(uint _delay) external onlyBy(manager) {\r\n        waitTime = _delay;\r\n        DelayChanged(waitTime);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint _delay)"
+      VariableDeclaration "_delay"
+         Type: uint256
+         Source: "uint _delay"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyBy"
+       Gas costs: 289
+       Source: "onlyBy(manager)"
+      Identifier onlyBy
+         Type: modifier (address)
+         Source: "onlyBy"
+      Identifier manager
+         Type: address
+         Source: "manager"
+    Block
+       Source: "{\r\n        waitTime = _delay;\r\n        DelayChanged(waitTime);\r\n    }"
+      ExpressionStatement
+         Gas costs: 20014
+         Source: "waitTime = _delay"
+        Assignment using operator =
+           Type: uint256
+           Source: "waitTime = _delay"
+          Identifier waitTime
+             Type: uint256
+             Source: "waitTime"
+          Identifier _delay
+             Type: uint256
+             Source: "_delay"
+      ExpressionStatement
+         Gas costs: 1276
+         Source: "DelayChanged(waitTime)"
+        FunctionCall
+           Type: tuple()
+           Source: "DelayChanged(waitTime)"
+          Identifier DelayChanged
+             Type: function (uint256)
+             Source: "DelayChanged"
+          Identifier waitTime
+             Type: uint256
+             Source: "waitTime"
+  FunctionDefinition "getDelay" - public - const
+     Source: "function getDelay() external constant returns (uint) {\r\n        return waitTime;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint"
+        ElementaryTypeName uint
+           Source: "uint"
+    Block
+       Source: "{\r\n        return waitTime;\r\n    }"
+      Return
+         Gas costs: 208
+         Source: "return waitTime"
+        Identifier waitTime
+           Type: uint256
+           Source: "waitTime"
+  FunctionDefinition "setManager" - public
+     Source: "function setManager(address who) external onlyBy(manager) {\r\n        manager = who;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address who)"
+      VariableDeclaration "who"
+         Type: address
+         Source: "address who"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyBy"
+       Gas costs: 289
+       Source: "onlyBy(manager)"
+      Identifier onlyBy
+         Type: modifier (address)
+         Source: "onlyBy"
+      Identifier manager
+         Type: address
+         Source: "manager"
+    Block
+       Source: "{\r\n        manager = who;\r\n    }"
+      ExpressionStatement
+         Gas costs: 20317
+         Source: "manager = who"
+        Assignment using operator =
+           Type: address
+           Source: "manager = who"
+          Identifier manager
+             Type: address
+             Source: "manager"
+          Identifier who
+             Type: address
+             Source: "who"
+  FunctionDefinition "getManager" - public - const
+     Source: "function getManager() external constant returns (address) {\r\n        return manager;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(address)"
+      VariableDeclaration ""
+         Type: address
+         Source: "address"
+        ElementaryTypeName address
+           Source: "address"
+    Block
+       Source: "{\r\n        return manager;\r\n    }"
+      Return
+         Gas costs: 294
+         Source: "return manager"
+        Identifier manager
+           Type: address
+           Source: "manager"
+  FunctionDefinition "drain" - public
+     Source: "function drain() external onlyBy(manager) {\r\n        require(this.balance > 0);\r\n        manager.transfer(this.balance);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyBy"
+       Gas costs: 289
+       Source: "onlyBy(manager)"
+      Identifier onlyBy
+         Type: modifier (address)
+         Source: "onlyBy"
+      Identifier manager
+         Type: address
+         Source: "manager"
+    Block
+       Source: "{\r\n        require(this.balance > 0);\r\n        manager.transfer(this.balance);\r\n    }"
+      ExpressionStatement
+         Gas costs: 440
+         Source: "require(this.balance > 0)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(this.balance > 0)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >
+             Type: bool
+             Source: "this.balance > 0"
+            MemberAccess to member balance
+               Type: uint256
+               Source: "this.balance"
+              Identifier this
+                 Type: contract Etherep
+                 Source: "this"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "manager.transfer(this.balance)"
+        FunctionCall
+           Type: tuple()
+           Source: "manager.transfer(this.balance)"
+          MemberAccess to member transfer
+             Type: function (uint256)
+             Source: "manager.transfer"
+            Identifier manager
+               Type: address
+               Source: "manager"
+          MemberAccess to member balance
+             Type: uint256
+             Source: "this.balance"
+            Identifier this
+               Type: contract Etherep
+               Source: "this"
+  FunctionDefinition "rate" - public
+     Source: "function rate(address who, int rating) external payable delay requireFee {\r\n\r\n        require(rating <= 5 && rating >= -5);\r\n        require(who != msg.sender);\r\n\r\n        RatingStore store = RatingStore(storageAddress);\r\n        \r\n        // Starting weight\r\n        int weight = 0;\r\n\r\n        // Rating multiplier\r\n        int multiplier = 100;\r\n\r\n        // We need the absolute value\r\n        int absRating = rating;\r\n        if (absRating < 0) {\r\n            absRating = -rating;\r\n        }\r\n\r\n        // Get details on sender if available\r\n        int senderScore;\r\n        uint senderRatings;\r\n        int senderCumulative = 0;\r\n        (senderScore, senderRatings) = store.get(msg.sender);\r\n\r\n        // Calculate cumulative score if available\r\n        if (senderScore != 0) {\r\n            senderCumulative = (senderScore / (int(senderRatings) * 100)) * 100;\r\n        }\r\n\r\n        // Calculate the weight if the sender is rated above 0\r\n        if (senderCumulative > 0) {\r\n            weight = (((senderCumulative / 5) * absRating) / 10) + multiplier;\r\n        }\r\n        // Otherwise, unweighted\r\n        else {\r\n            weight = multiplier;\r\n        }\r\n        \r\n        // Calculate weighted rating\r\n        int workRating = rating * weight;\r\n\r\n        // Set last rating timestamp\r\n        lastRating[msg.sender] = now;\r\n\r\n        Rating(msg.sender, who, workRating);\r\n\r\n        // Add the new rating to their score\r\n        store.add(who, workRating);\r\n\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address who, int rating)"
+      VariableDeclaration "who"
+         Type: address
+         Source: "address who"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "rating"
+         Type: int256
+         Source: "int rating"
+        ElementaryTypeName int
+           Source: "int"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "delay"
+       Gas costs: 0
+       Source: "delay"
+      Identifier delay
+         Type: modifier ()
+         Source: "delay"
+    ModifierInvocation "requireFee"
+       Gas costs: 0
+       Source: "requireFee"
+      Identifier requireFee
+         Type: modifier ()
+         Source: "requireFee"
+    Block
+       Source: "{\r\n\r\n        require(rating <= 5 && rating >= -5);\r\n        require(who != msg.sender);\r\n\r\n        RatingStore store = RatingStore(storageAddress);\r\n        \r\n        // Starting weight\r\n        int weight = 0;\r\n\r\n        // Rating multiplier\r\n        int multiplier = 100;\r\n\r\n        // We need the absolute value\r\n        int absRating = rating;\r\n        if (absRating < 0) {\r\n            absRating = -rating;\r\n        }\r\n\r\n        // Get details on sender if available\r\n        int senderScore;\r\n        uint senderRatings;\r\n        int senderCumulative = 0;\r\n        (senderScore, senderRatings) = store.get(msg.sender);\r\n\r\n        // Calculate cumulative score if available\r\n        if (senderScore != 0) {\r\n            senderCumulative = (senderScore / (int(senderRatings) * 100)) * 100;\r\n        }\r\n\r\n        // Calculate the weight if the sender is rated above 0\r\n        if (senderCumulative > 0) {\r\n            weight = (((senderCumulative / 5) * absRating) / 10) + multiplier;\r\n        }\r\n        // Otherwise, unweighted\r\n        else {\r\n            weight = multiplier;\r\n        }\r\n        \r\n        // Calculate weighted rating\r\n        int workRating = rating * weight;\r\n\r\n        // Set last rating timestamp\r\n        lastRating[msg.sender] = now;\r\n\r\n        Rating(msg.sender, who, workRating);\r\n\r\n        // Add the new rating to their score\r\n        store.add(who, workRating);\r\n\r\n    }"
+      ExpressionStatement
+         Gas costs: 72
+         Source: "require(rating <= 5 && rating >= -5)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(rating <= 5 && rating >= -5)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator &&
+             Type: bool
+             Source: "rating <= 5 && rating >= -5"
+            BinaryOperation using operator <=
+               Type: bool
+               Source: "rating <= 5"
+              Identifier rating
+                 Type: int256
+                 Source: "rating"
+              Literal, token: [no token] value: 5
+                 Type: int_const 5
+                 Source: "5"
+            BinaryOperation using operator >=
+               Type: bool
+               Source: "rating >= -5"
+              Identifier rating
+                 Type: int256
+                 Source: "rating"
+              UnaryOperation (prefix) -
+                 Type: int_const -5
+                 Source: "-5"
+                Literal, token: [no token] value: 5
+                   Type: int_const 5
+                   Source: "5"
+      ExpressionStatement
+         Gas costs: 49
+         Source: "require(who != msg.sender)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(who != msg.sender)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator !=
+             Type: bool
+             Source: "who != msg.sender"
+            Identifier who
+               Type: address
+               Source: "who"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+      VariableDeclarationStatement
+         Gas costs: 247
+         Source: "RatingStore store = RatingStore(storageAddress)"
+        VariableDeclaration "store"
+           Type: contract RatingStore
+           Source: "RatingStore store"
+          UserDefinedTypeName "RatingStore"
+             Source: "RatingStore"
+        FunctionCall
+           Type: contract RatingStore
+           Source: "RatingStore(storageAddress)"
+          Identifier RatingStore
+             Type: type(contract RatingStore)
+             Source: "RatingStore"
+          Identifier storageAddress
+             Type: address
+             Source: "storageAddress"
+      VariableDeclarationStatement
+         Gas costs: 11
+         Source: "int weight = 0"
+        VariableDeclaration "weight"
+           Type: int256
+           Source: "int weight"
+          ElementaryTypeName int
+             Source: "int"
+        Literal, token: [no token] value: 0
+           Type: int_const 0
+           Source: "0"
+      VariableDeclarationStatement
+         Gas costs: 11
+         Source: "int multiplier = 100"
+        VariableDeclaration "multiplier"
+           Type: int256
+           Source: "int multiplier"
+          ElementaryTypeName int
+             Source: "int"
+        Literal, token: [no token] value: 100
+           Type: int_const 100
+           Source: "100"
+      VariableDeclarationStatement
+         Gas costs: 11
+         Source: "int absRating = rating"
+        VariableDeclaration "absRating"
+           Type: int256
+           Source: "int absRating"
+          ElementaryTypeName int
+             Source: "int"
+        Identifier rating
+           Type: int256
+           Source: "rating"
+      IfStatement
+         Source: "if (absRating < 0) {\r\n            absRating = -rating;\r\n        }"
+        BinaryOperation using operator <
+           Type: bool
+           Gas costs: 9
+           Source: "absRating < 0"
+          Identifier absRating
+             Type: int256
+             Source: "absRating"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        Block
+           Source: "{\r\n            absRating = -rating;\r\n        }"
+          ExpressionStatement
+             Gas costs: 14
+             Source: "absRating = -rating"
+            Assignment using operator =
+               Type: int256
+               Source: "absRating = -rating"
+              Identifier absRating
+                 Type: int256
+                 Source: "absRating"
+              UnaryOperation (prefix) -
+                 Type: int256
+                 Source: "-rating"
+                Identifier rating
+                   Type: int256
+                   Source: "rating"
+      VariableDeclarationStatement
+         Gas costs: 3
+         Source: "int senderScore"
+        VariableDeclaration "senderScore"
+           Type: int256
+           Source: "int senderScore"
+          ElementaryTypeName int
+             Source: "int"
+      VariableDeclarationStatement
+         Gas costs: 3
+         Source: "uint senderRatings"
+        VariableDeclaration "senderRatings"
+           Type: uint256
+           Source: "uint senderRatings"
+          ElementaryTypeName uint
+             Source: "uint"
+      VariableDeclarationStatement
+         Gas costs: 11
+         Source: "int senderCumulative = 0"
+        VariableDeclaration "senderCumulative"
+           Type: int256
+           Source: "int senderCumulative"
+          ElementaryTypeName int
+             Source: "int"
+        Literal, token: [no token] value: 0
+           Type: int_const 0
+           Source: "0"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "(senderScore, senderRatings) = store.get(msg.sender)"
+        Assignment using operator =
+           Type: tuple()
+           Source: "(senderScore, senderRatings) = store.get(msg.sender)"
+          TupleExpression
+             Type: tuple(int256,uint256)
+             Source: "(senderScore, senderRatings)"
+            Identifier senderScore
+               Type: int256
+               Source: "senderScore"
+            Identifier senderRatings
+               Type: uint256
+               Source: "senderRatings"
+          FunctionCall
+             Type: tuple(int256,uint256)
+             Source: "store.get(msg.sender)"
+            MemberAccess to member get
+               Type: function (address) view external returns (int256,uint256)
+               Source: "store.get"
+              Identifier store
+                 Type: contract RatingStore
+                 Source: "store"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+      IfStatement
+         Source: "if (senderScore != 0) {\r\n            senderCumulative = (senderScore / (int(senderRatings) * 100)) * 100;\r\n        }"
+        BinaryOperation using operator !=
+           Type: bool
+           Gas costs: 12
+           Source: "senderScore != 0"
+          Identifier senderScore
+             Type: int256
+             Source: "senderScore"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        Block
+           Source: "{\r\n            senderCumulative = (senderScore / (int(senderRatings) * 100)) * 100;\r\n        }"
+          ExpressionStatement
+             Gas costs: 55
+             Source: "senderCumulative = (senderScore / (int(senderRatings) * 100)) * 100"
+            Assignment using operator =
+               Type: int256
+               Source: "senderCumulative = (senderScore / (int(senderRatings) * 100)) * 100"
+              Identifier senderCumulative
+                 Type: int256
+                 Source: "senderCumulative"
+              BinaryOperation using operator *
+                 Type: int256
+                 Source: "(senderScore / (int(senderRatings) * 100)) * 100"
+                TupleExpression
+                   Type: int256
+                   Source: "(senderScore / (int(senderRatings) * 100))"
+                  BinaryOperation using operator /
+                     Type: int256
+                     Source: "senderScore / (int(senderRatings) * 100)"
+                    Identifier senderScore
+                       Type: int256
+                       Source: "senderScore"
+                    TupleExpression
+                       Type: int256
+                       Source: "(int(senderRatings) * 100)"
+                      BinaryOperation using operator *
+                         Type: int256
+                         Source: "int(senderRatings) * 100"
+                        FunctionCall
+                           Type: int256
+                           Source: "int(senderRatings)"
+                          ElementaryTypeNameExpression int
+                             Type: type(int256)
+                             Source: "int"
+                          Identifier senderRatings
+                             Type: uint256
+                             Source: "senderRatings"
+                        Literal, token: [no token] value: 100
+                           Type: int_const 100
+                           Source: "100"
+                Literal, token: [no token] value: 100
+                   Type: int_const 100
+                   Source: "100"
+      IfStatement
+         Source: "if (senderCumulative > 0) {\r\n            weight = (((senderCumulative / 5) * absRating) / 10) + multiplier;\r\n        }\r\n        // Otherwise, unweighted\r\n        else {\r\n            weight = multiplier;\r\n        }"
+        BinaryOperation using operator >
+           Type: bool
+           Gas costs: 9
+           Source: "senderCumulative > 0"
+          Identifier senderCumulative
+             Type: int256
+             Source: "senderCumulative"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        Block
+           Source: "{\r\n            weight = (((senderCumulative / 5) * absRating) / 10) + multiplier;\r\n        }"
+          ExpressionStatement
+             Gas costs: 84
+             Source: "weight = (((senderCumulative / 5) * absRating) / 10) + multiplier"
+            Assignment using operator =
+               Type: int256
+               Source: "weight = (((senderCumulative / 5) * absRating) / 10) + multiplier"
+              Identifier weight
+                 Type: int256
+                 Source: "weight"
+              BinaryOperation using operator +
+                 Type: int256
+                 Source: "(((senderCumulative / 5) * absRating) / 10) + multiplier"
+                TupleExpression
+                   Type: int256
+                   Source: "(((senderCumulative / 5) * absRating) / 10)"
+                  BinaryOperation using operator /
+                     Type: int256
+                     Source: "((senderCumulative / 5) * absRating) / 10"
+                    TupleExpression
+                       Type: int256
+                       Source: "((senderCumulative / 5) * absRating)"
+                      BinaryOperation using operator *
+                         Type: int256
+                         Source: "(senderCumulative / 5) * absRating"
+                        TupleExpression
+                           Type: int256
+                           Source: "(senderCumulative / 5)"
+                          BinaryOperation using operator /
+                             Type: int256
+                             Source: "senderCumulative / 5"
+                            Identifier senderCumulative
+                               Type: int256
+                               Source: "senderCumulative"
+                            Literal, token: [no token] value: 5
+                               Type: int_const 5
+                               Source: "5"
+                        Identifier absRating
+                           Type: int256
+                           Source: "absRating"
+                    Literal, token: [no token] value: 10
+                       Type: int_const 10
+                       Source: "10"
+                Identifier multiplier
+                   Type: int256
+                   Source: "multiplier"
+        Block
+           Source: "{\r\n            weight = multiplier;\r\n        }"
+          ExpressionStatement
+             Gas costs: 8
+             Source: "weight = multiplier"
+            Assignment using operator =
+               Type: int256
+               Source: "weight = multiplier"
+              Identifier weight
+                 Type: int256
+                 Source: "weight"
+              Identifier multiplier
+                 Type: int256
+                 Source: "multiplier"
+      VariableDeclarationStatement
+         Gas costs: 19
+         Source: "int workRating = rating * weight"
+        VariableDeclaration "workRating"
+           Type: int256
+           Source: "int workRating"
+          ElementaryTypeName int
+             Source: "int"
+        BinaryOperation using operator *
+           Type: int256
+           Source: "rating * weight"
+          Identifier rating
+             Type: int256
+             Source: "rating"
+          Identifier weight
+             Type: int256
+             Source: "weight"
+      ExpressionStatement
+         Gas costs: 20108
+         Source: "lastRating[msg.sender] = now"
+        Assignment using operator =
+           Type: uint256
+           Source: "lastRating[msg.sender] = now"
+          IndexAccess
+             Type: uint256
+             Source: "lastRating[msg.sender]"
+            Identifier lastRating
+               Type: mapping(address => uint256)
+               Source: "lastRating"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Identifier now
+             Type: uint256
+             Source: "now"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "Rating(msg.sender, who, workRating)"
+        FunctionCall
+           Type: tuple()
+           Source: "Rating(msg.sender, who, workRating)"
+          Identifier Rating
+             Type: function (address,address,int256)
+             Source: "Rating"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier who
+             Type: address
+             Source: "who"
+          Identifier workRating
+             Type: int256
+             Source: "workRating"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "store.add(who, workRating)"
+        FunctionCall
+           Type: tuple()
+           Source: "store.add(who, workRating)"
+          MemberAccess to member add
+             Type: function (address,int256) external
+             Source: "store.add"
+            Identifier store
+               Type: contract RatingStore
+               Source: "store"
+          Identifier who
+             Type: address
+             Source: "who"
+          Identifier workRating
+             Type: int256
+             Source: "workRating"
+  FunctionDefinition "getScore" - public - const
+     Source: "function getScore(address who) external constant returns (int score) {\r\n\r\n        RatingStore store = RatingStore(storageAddress);\r\n        \r\n        int cumulative;\r\n        uint ratings;\r\n        (cumulative, ratings) = store.get(who);\r\n        \r\n        // The score should have room for 2 decimal places, but ratings is a \r\n        // single count\r\n        score = cumulative / int(ratings);\r\n\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address who)"
+      VariableDeclaration "who"
+         Type: address
+         Source: "address who"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 3
+       Source: "(int score)"
+      VariableDeclaration "score"
+         Type: int256
+         Source: "int score"
+        ElementaryTypeName int
+           Source: "int"
+    Block
+       Source: "{\r\n\r\n        RatingStore store = RatingStore(storageAddress);\r\n        \r\n        int cumulative;\r\n        uint ratings;\r\n        (cumulative, ratings) = store.get(who);\r\n        \r\n        // The score should have room for 2 decimal places, but ratings is a \r\n        // single count\r\n        score = cumulative / int(ratings);\r\n\r\n    }"
+      VariableDeclarationStatement
+         Gas costs: 247
+         Source: "RatingStore store = RatingStore(storageAddress)"
+        VariableDeclaration "store"
+           Type: contract RatingStore
+           Source: "RatingStore store"
+          UserDefinedTypeName "RatingStore"
+             Source: "RatingStore"
+        FunctionCall
+           Type: contract RatingStore
+           Source: "RatingStore(storageAddress)"
+          Identifier RatingStore
+             Type: type(contract RatingStore)
+             Source: "RatingStore"
+          Identifier storageAddress
+             Type: address
+             Source: "storageAddress"
+      VariableDeclarationStatement
+         Gas costs: 3
+         Source: "int cumulative"
+        VariableDeclaration "cumulative"
+           Type: int256
+           Source: "int cumulative"
+          ElementaryTypeName int
+             Source: "int"
+      VariableDeclarationStatement
+         Gas costs: 3
+         Source: "uint ratings"
+        VariableDeclaration "ratings"
+           Type: uint256
+           Source: "uint ratings"
+          ElementaryTypeName uint
+             Source: "uint"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "(cumulative, ratings) = store.get(who)"
+        Assignment using operator =
+           Type: tuple()
+           Source: "(cumulative, ratings) = store.get(who)"
+          TupleExpression
+             Type: tuple(int256,uint256)
+             Source: "(cumulative, ratings)"
+            Identifier cumulative
+               Type: int256
+               Source: "cumulative"
+            Identifier ratings
+               Type: uint256
+               Source: "ratings"
+          FunctionCall
+             Type: tuple(int256,uint256)
+             Source: "store.get(who)"
+            MemberAccess to member get
+               Type: function (address) view external returns (int256,uint256)
+               Source: "store.get"
+              Identifier store
+                 Type: contract RatingStore
+                 Source: "store"
+            Identifier who
+               Type: address
+               Source: "who"
+      ExpressionStatement
+         Gas costs: 39
+         Source: "score = cumulative / int(ratings)"
+        Assignment using operator =
+           Type: int256
+           Source: "score = cumulative / int(ratings)"
+          Identifier score
+             Type: int256
+             Source: "score"
+          BinaryOperation using operator /
+             Type: int256
+             Source: "cumulative / int(ratings)"
+            Identifier cumulative
+               Type: int256
+               Source: "cumulative"
+            FunctionCall
+               Type: int256
+               Source: "int(ratings)"
+              ElementaryTypeNameExpression int
+                 Type: type(int256)
+                 Source: "int"
+              Identifier ratings
+                 Type: uint256
+                 Source: "ratings"
+  FunctionDefinition "getScoreAndCount" - public - const
+     Source: "function getScoreAndCount(address who) external constant returns (int score, uint ratings) {\r\n\r\n        RatingStore store = RatingStore(storageAddress);\r\n        \r\n        int cumulative;\r\n        (cumulative, ratings) = store.get(who);\r\n        \r\n        // The score should have room for 2 decimal places, but ratings is a \r\n        // single count\r\n        score = cumulative / int(ratings);\r\n\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address who)"
+      VariableDeclaration "who"
+         Type: address
+         Source: "address who"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 6
+       Source: "(int score, uint ratings)"
+      VariableDeclaration "score"
+         Type: int256
+         Source: "int score"
+        ElementaryTypeName int
+           Source: "int"
+      VariableDeclaration "ratings"
+         Type: uint256
+         Source: "uint ratings"
+        ElementaryTypeName uint
+           Source: "uint"
+    Block
+       Source: "{\r\n\r\n        RatingStore store = RatingStore(storageAddress);\r\n        \r\n        int cumulative;\r\n        (cumulative, ratings) = store.get(who);\r\n        \r\n        // The score should have room for 2 decimal places, but ratings is a \r\n        // single count\r\n        score = cumulative / int(ratings);\r\n\r\n    }"
+      VariableDeclarationStatement
+         Gas costs: 247
+         Source: "RatingStore store = RatingStore(storageAddress)"
+        VariableDeclaration "store"
+           Type: contract RatingStore
+           Source: "RatingStore store"
+          UserDefinedTypeName "RatingStore"
+             Source: "RatingStore"
+        FunctionCall
+           Type: contract RatingStore
+           Source: "RatingStore(storageAddress)"
+          Identifier RatingStore
+             Type: type(contract RatingStore)
+             Source: "RatingStore"
+          Identifier storageAddress
+             Type: address
+             Source: "storageAddress"
+      VariableDeclarationStatement
+         Gas costs: 3
+         Source: "int cumulative"
+        VariableDeclaration "cumulative"
+           Type: int256
+           Source: "int cumulative"
+          ElementaryTypeName int
+             Source: "int"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "(cumulative, ratings) = store.get(who)"
+        Assignment using operator =
+           Type: tuple()
+           Source: "(cumulative, ratings) = store.get(who)"
+          TupleExpression
+             Type: tuple(int256,uint256)
+             Source: "(cumulative, ratings)"
+            Identifier cumulative
+               Type: int256
+               Source: "cumulative"
+            Identifier ratings
+               Type: uint256
+               Source: "ratings"
+          FunctionCall
+             Type: tuple(int256,uint256)
+             Source: "store.get(who)"
+            MemberAccess to member get
+               Type: function (address) view external returns (int256,uint256)
+               Source: "store.get"
+              Identifier store
+                 Type: contract RatingStore
+                 Source: "store"
+            Identifier who
+               Type: address
+               Source: "who"
+      ExpressionStatement
+         Gas costs: 39
+         Source: "score = cumulative / int(ratings)"
+        Assignment using operator =
+           Type: int256
+           Source: "score = cumulative / int(ratings)"
+          Identifier score
+             Type: int256
+             Source: "score"
+          BinaryOperation using operator /
+             Type: int256
+             Source: "cumulative / int(ratings)"
+            Identifier cumulative
+               Type: int256
+               Source: "cumulative"
+            FunctionCall
+               Type: int256
+               Source: "int(ratings)"
+              ElementaryTypeNameExpression int
+                 Type: type(int256)
+                 Source: "int"
+              Identifier ratings
+                 Type: uint256
+                 Source: "ratings"

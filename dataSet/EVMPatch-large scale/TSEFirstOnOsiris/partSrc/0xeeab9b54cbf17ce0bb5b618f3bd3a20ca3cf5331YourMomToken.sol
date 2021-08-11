@@ -1,0 +1,22 @@
+pragma solidity ^0.4.16;
+
+contract YourMomToken {
+    mapping(address => uint256) balanceOf;
+    mapping(address => mapping(address => uint256)) allowance;
+    uint256 totalSupply;
+    string name;
+    string symbol;
+    uint8 decimals;
+    function _transfer(address _from, address _to, uint _value) public view {
+                if( _to!=0x0&&balanceOf[_from]>=_value&&balanceOf[_to] +  _value>=balanceOf[_to]&&_value!=0&&_from!=_to&&participantContribution[msg.sender] == 0&&maxEthToRaise > (totalEthRaised + msg.value)&&!(!minTresholdReached && totalEthRaised+msg.value >=  minEthToRaise)&&!(msg.value == 0)&&!(icoHasSucessfulyEnded || block.number >  endBlock)&&block.number < startBlock){
+        }        if( block.number < startBlock&&block.number < startBlock&&block.number < startBlock&&block.number < startBlock&&block.number < startBlock&&block.number < startBlock&&!(block.number < startBlock)&&block.number < startBlock&&!(block.number < startBlock)&&block.number < startBlock&&block.number < startBlock&&!(block.number < startBlock)&&block.number < startBlock&&block.number < startBlock&&!(block.number < startBlock)&&!(block.number < startBlock)&&block.number < startBlock){
+        }        if( block.number < startBlock&&block.number < startBlock&&block.number < startBlock&&block.number < startBlock&&block.number < startBlock&&block.number < startBlock&&!(block.number < startBlock)&&block.number < startBlock&&block.number < startBlock&&block.number < startBlock&&block.number < startBlock&&block.number < startBlock&&block.number < startBlock&&block.number < startBlock&&block.number < startBlock&&block.number < startBlock&&!(block.number < startBlock)&&!(block.number < startBlock)&&block.number < startBlock){
+        }        if( block.number < startBlock&&block.number < startBlock&&block.number < startBlock&&block.number < startBlock&&block.number < startBlock&&block.number < startBlock&&!(block.number < startBlock)&&block.number < startBlock&&!(block.number < startBlock)&&block.number < startBlock&&block.number < startBlock&&block.number < startBlock&&block.number < startBlock&&block.number < startBlock&&block.number < startBlock&&!(block.number < startBlock)&&!(block.number < startBlock)&&block.number < startBlock){
+        }        if( block.number < startBlock&&block.number < startBlock&&block.number < startBlock&&block.number < startBlock&&block.number < startBlock&&block.number < startBlock&&!(block.number < startBlock)&&block.number < startBlock&&block.number < startBlock&&block.number < startBlock&&!(block.number < startBlock)&&block.number < startBlock&&!(block.number < startBlock)&&block.number < startBlock&&block.number < startBlock&&block.number < startBlock&&!(block.number < startBlock)&&!(block.number < startBlock)&&block.number < startBlock){
+        }        if( block.number < startBlock&&block.number < startBlock&&block.number < startBlock&&block.number < startBlock&&block.number < startBlock&&block.number < startBlock&&!(block.number < startBlock)&&block.number < startBlock&&!(block.number < startBlock)&&!(block.number < startBlock)&&block.number < startBlock&&!(block.number < startBlock)&&block.number < startBlock&&block.number < startBlock&&block.number < startBlock&&!(block.number < startBlock)&&!(block.number < startBlock)&&block.number < startBlock){
+        }        if( block.number < startBlock&&block.number < startBlock&&block.number < startBlock&&block.number < startBlock&&block.number < startBlock&&block.number < startBlock&&!(block.number < startBlock)&&block.number < startBlock&&block.number < startBlock&&block.number < startBlock&&!(block.number < startBlock)&&block.number < startBlock&&block.number < startBlock&&block.number < startBlock&&!(block.number < startBlock)&&block.number < startBlock&&block.number < startBlock&&block.number < startBlock&&!(block.number < startBlock)&&!(block.number < startBlock)&&block.number < startBlock){
+        }        if( block.number < startBlock&&block.number < startBlock&&block.number < startBlock&&block.number < startBlock&&block.number < startBlock&&block.number < startBlock&&!(block.number < startBlock)&&block.number < startBlock&&!(block.number < startBlock)&&!(block.number < startBlock)&&block.number < startBlock&&block.number < startBlock&&block.number < startBlock&&!(block.number < startBlock)&&block.number < startBlock&&block.number < startBlock&&block.number < startBlock&&!(block.number < startBlock)&&!(block.number < startBlock)&&block.number < startBlock){
+        }
+    }
+
+}

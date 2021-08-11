@@ -1,0 +1,2207 @@
+Syntax trees:
+
+
+======= /home/fabric/ArocRevision/Aroc/osirisData/contractSrc/0xac1ec3143b89d5b263d9194db216ea068e0f3dc9.sol =======
+PragmaDirective
+   Gas costs: 0
+   Source: "pragma solidity ^0.4.13;"
+ContractDefinition "owned"
+   Source: "contract owned {\r\n    /* Owner definition. */\r\n    address public owner; // Owner address.\r\n    function owned() { owner = msg.sender; }\r\n    modifier onlyOwner { require(msg.sender == owner); _; }\r\n    function transferOwnership(address newOwner) onlyOwner { owner = newOwner; }\r\n}"
+  VariableDeclaration "owner"
+     Type: address
+     Gas costs: [???]
+     Source: "address public owner"
+    ElementaryTypeName address
+       Source: "address"
+  FunctionDefinition "owned" - public
+     Source: "function owned() { owner = msg.sender; }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{ owner = msg.sender; }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "owner = msg.sender"
+        Assignment using operator =
+           Type: address
+           Source: "owner = msg.sender"
+          Identifier owner
+             Type: address
+             Source: "owner"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+  ModifierDefinition "onlyOwner"
+     Source: "modifier onlyOwner { require(msg.sender == owner); _; }"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{ require(msg.sender == owner); _; }"
+      ExpressionStatement
+         Gas costs: 1974
+         Source: "require(msg.sender == owner)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(msg.sender == owner)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "msg.sender == owner"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Identifier owner
+               Type: address
+               Source: "owner"
+      PlaceholderStatement
+         Gas costs: 0
+         Source: "_"
+  FunctionDefinition "transferOwnership" - public
+     Source: "function transferOwnership(address newOwner) onlyOwner { owner = newOwner; }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address newOwner)"
+      VariableDeclaration "newOwner"
+         Type: address
+         Source: "address newOwner"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{ owner = newOwner; }"
+      ExpressionStatement
+         Gas costs: 20267
+         Source: "owner = newOwner"
+        Assignment using operator =
+           Type: address
+           Source: "owner = newOwner"
+          Identifier owner
+             Type: address
+             Source: "owner"
+          Identifier newOwner
+             Type: address
+             Source: "newOwner"
+ContractDefinition "token"
+   Source: "contract token { \r\n    /* Base token definition. */\r\n    string  public name;        // Name for the token.\r\n    string  public symbol;      // Symbol for the token.\r\n    uint8   public decimals;    // Number of decimals of the token.\r\n    uint256 public totalSupply; // Total of tokens created.\r\n\r\n    // Array containing the balance foreach address.\r\n    mapping (address => uint256) public balanceOf;\r\n    // Array containing foreach address, an array containing each approved address and the amount of tokens it can spend.\r\n    mapping (address => mapping (address => uint256)) public allowance;\r\n\r\n    /* This generates a public event on the blockchain that will notify about a transfer done. */\r\n    event Transfer(address indexed from, address indexed to, uint256 value);\r\n\r\n    /* Initializes the contract */\r\n    function token(uint256 initialSupply, string tokenName, uint8 decimalUnits, string tokenSymbol) {\r\n        balanceOf[msg.sender] = initialSupply; // Gives the creator all initial tokens.\r\n        totalSupply           = initialSupply; // Update total supply.\r\n        name                  = tokenName;     // Set the name for display purposes.\r\n        symbol                = tokenSymbol;   // Set the symbol for display purposes.\r\n        decimals              = decimalUnits;  // Amount of decimals for display purposes.\r\n    }\r\n\r\n    /* Internal transfer, only can be called by this contract. */\r\n    function _transfer(address _from, address _to, uint _value) internal {\r\n        require(_to != 0x0);                               // Prevent transfer to 0x0 address. Use burn() instead.\r\n        require(balanceOf[_from] > _value);                // Check if the sender has enough.\r\n        require(balanceOf[_to] + _value > balanceOf[_to]); // Check for overflows.\r\n        balanceOf[_from] -= _value; // Subtract from the sender.\r\n        balanceOf[_to]   += _value; // Add the same to the recipient.\r\n        Transfer(_from, _to, _value); // Notifies the blockchain about the transfer.\r\n    }\r\n\r\n    /// @notice Send `_value` tokens to `_to` from your account.\r\n    /// @param _to The address of the recipient.\r\n    /// @param _value The amount to send.\r\n    function transfer(address _to, uint256 _value) {\r\n        _transfer(msg.sender, _to, _value);\r\n    }\r\n\r\n    /// @notice Send `_value` tokens to `_to` in behalf of `_from`.\r\n    /// @param _from The address of the sender.\r\n    /// @param _to The address of the recipient.\r\n    /// @param _value The amount to send.\r\n    function transferFrom(address _from, address _to, uint256 _value) returns (bool success) {\r\n        require(_value <= allowance[_from][msg.sender]); // Check allowance.\r\n        allowance[_from][msg.sender] -= _value; // Updates the allowance array, substracting the amount sent.\r\n        _transfer(_from, _to, _value); // Makes the transfer.\r\n        return true;\r\n    }\r\n\r\n    /// @notice Allows `_spender` to spend a maximum of `_value` tokens in your behalf.\r\n    /// @param _spender The address authorized to spend.\r\n    /// @param _value The max amount they can spend.\r\n    function approve(address _spender, uint256 _value) returns (bool success) {\r\n        allowance[msg.sender][_spender] = _value; // Adds a new register to allowance, permiting _spender to use _value of your tokens.\r\n        return true;\r\n    }\r\n}"
+  VariableDeclaration "name"
+     Type: string storage ref
+     Gas costs: [???]
+     Source: "string  public name"
+    ElementaryTypeName string
+       Source: "string"
+  VariableDeclaration "symbol"
+     Type: string storage ref
+     Gas costs: [???]
+     Source: "string  public symbol"
+    ElementaryTypeName string
+       Source: "string"
+  VariableDeclaration "decimals"
+     Type: uint8
+     Gas costs: [???]
+     Source: "uint8   public decimals"
+    ElementaryTypeName uint8
+       Source: "uint8"
+  VariableDeclaration "totalSupply"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint256 public totalSupply"
+    ElementaryTypeName uint256
+       Source: "uint256"
+  VariableDeclaration "balanceOf"
+     Type: mapping(address => uint256)
+     Gas costs: [???]
+     Source: "mapping (address => uint256) public balanceOf"
+    Mapping
+       Source: "mapping (address => uint256)"
+      ElementaryTypeName address
+         Source: "address"
+      ElementaryTypeName uint256
+         Source: "uint256"
+  VariableDeclaration "allowance"
+     Type: mapping(address => mapping(address => uint256))
+     Gas costs: [???]
+     Source: "mapping (address => mapping (address => uint256)) public allowance"
+    Mapping
+       Source: "mapping (address => mapping (address => uint256))"
+      ElementaryTypeName address
+         Source: "address"
+      Mapping
+         Source: "mapping (address => uint256)"
+        ElementaryTypeName address
+           Source: "address"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  EventDefinition "Transfer"
+     Gas costs: 0
+     Source: "event Transfer(address indexed from, address indexed to, uint256 value);"
+    ParameterList
+       Source: "(address indexed from, address indexed to, uint256 value)"
+      VariableDeclaration "from"
+         Type: address
+         Source: "address indexed from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "to"
+         Type: address
+         Source: "address indexed to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "value"
+         Type: uint256
+         Source: "uint256 value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  FunctionDefinition "token" - public
+     Source: "function token(uint256 initialSupply, string tokenName, uint8 decimalUnits, string tokenSymbol) {\r\n        balanceOf[msg.sender] = initialSupply; // Gives the creator all initial tokens.\r\n        totalSupply           = initialSupply; // Update total supply.\r\n        name                  = tokenName;     // Set the name for display purposes.\r\n        symbol                = tokenSymbol;   // Set the symbol for display purposes.\r\n        decimals              = decimalUnits;  // Amount of decimals for display purposes.\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 initialSupply, string tokenName, uint8 decimalUnits, string tokenSymbol)"
+      VariableDeclaration "initialSupply"
+         Type: uint256
+         Source: "uint256 initialSupply"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "tokenName"
+         Type: string memory
+         Source: "string tokenName"
+        ElementaryTypeName string
+           Source: "string"
+      VariableDeclaration "decimalUnits"
+         Type: uint8
+         Source: "uint8 decimalUnits"
+        ElementaryTypeName uint8
+           Source: "uint8"
+      VariableDeclaration "tokenSymbol"
+         Type: string memory
+         Source: "string tokenSymbol"
+        ElementaryTypeName string
+           Source: "string"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        balanceOf[msg.sender] = initialSupply; // Gives the creator all initial tokens.\r\n        totalSupply           = initialSupply; // Update total supply.\r\n        name                  = tokenName;     // Set the name for display purposes.\r\n        symbol                = tokenSymbol;   // Set the symbol for display purposes.\r\n        decimals              = decimalUnits;  // Amount of decimals for display purposes.\r\n    }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "balanceOf[msg.sender] = initialSupply"
+        Assignment using operator =
+           Type: uint256
+           Source: "balanceOf[msg.sender] = initialSupply"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[msg.sender]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Identifier initialSupply
+             Type: uint256
+             Source: "initialSupply"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "totalSupply           = initialSupply"
+        Assignment using operator =
+           Type: uint256
+           Source: "totalSupply           = initialSupply"
+          Identifier totalSupply
+             Type: uint256
+             Source: "totalSupply"
+          Identifier initialSupply
+             Type: uint256
+             Source: "initialSupply"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "name                  = tokenName"
+        Assignment using operator =
+           Type: string storage ref
+           Source: "name                  = tokenName"
+          Identifier name
+             Type: string storage ref
+             Source: "name"
+          Identifier tokenName
+             Type: string memory
+             Source: "tokenName"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "symbol                = tokenSymbol"
+        Assignment using operator =
+           Type: string storage ref
+           Source: "symbol                = tokenSymbol"
+          Identifier symbol
+             Type: string storage ref
+             Source: "symbol"
+          Identifier tokenSymbol
+             Type: string memory
+             Source: "tokenSymbol"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "decimals              = decimalUnits"
+        Assignment using operator =
+           Type: uint8
+           Source: "decimals              = decimalUnits"
+          Identifier decimals
+             Type: uint8
+             Source: "decimals"
+          Identifier decimalUnits
+             Type: uint8
+             Source: "decimalUnits"
+  FunctionDefinition "_transfer"
+     Source: "function _transfer(address _from, address _to, uint _value) internal {\r\n        require(_to != 0x0);                               // Prevent transfer to 0x0 address. Use burn() instead.\r\n        require(balanceOf[_from] > _value);                // Check if the sender has enough.\r\n        require(balanceOf[_to] + _value > balanceOf[_to]); // Check for overflows.\r\n        balanceOf[_from] -= _value; // Subtract from the sender.\r\n        balanceOf[_to]   += _value; // Add the same to the recipient.\r\n        Transfer(_from, _to, _value); // Notifies the blockchain about the transfer.\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _from, address _to, uint _value)"
+      VariableDeclaration "_from"
+         Type: address
+         Source: "address _from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint _value"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        require(_to != 0x0);                               // Prevent transfer to 0x0 address. Use burn() instead.\r\n        require(balanceOf[_from] > _value);                // Check if the sender has enough.\r\n        require(balanceOf[_to] + _value > balanceOf[_to]); // Check for overflows.\r\n        balanceOf[_from] -= _value; // Subtract from the sender.\r\n        balanceOf[_to]   += _value; // Add the same to the recipient.\r\n        Transfer(_from, _to, _value); // Notifies the blockchain about the transfer.\r\n    }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "require(_to != 0x0)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(_to != 0x0)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator !=
+             Type: bool
+             Source: "_to != 0x0"
+            Identifier _to
+               Type: address
+               Source: "_to"
+            Literal, token: [no token] value: 0x0
+               Type: int_const 0
+               Source: "0x0"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "require(balanceOf[_from] > _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(balanceOf[_from] > _value)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >
+             Type: bool
+             Source: "balanceOf[_from] > _value"
+            IndexAccess
+               Type: uint256
+               Source: "balanceOf[_from]"
+              Identifier balanceOf
+                 Type: mapping(address => uint256)
+                 Source: "balanceOf"
+              Identifier _from
+                 Type: address
+                 Source: "_from"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "require(balanceOf[_to] + _value > balanceOf[_to])"
+        FunctionCall
+           Type: tuple()
+           Source: "require(balanceOf[_to] + _value > balanceOf[_to])"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >
+             Type: bool
+             Source: "balanceOf[_to] + _value > balanceOf[_to]"
+            BinaryOperation using operator +
+               Type: uint256
+               Source: "balanceOf[_to] + _value"
+              IndexAccess
+                 Type: uint256
+                 Source: "balanceOf[_to]"
+                Identifier balanceOf
+                   Type: mapping(address => uint256)
+                   Source: "balanceOf"
+                Identifier _to
+                   Type: address
+                   Source: "_to"
+              Identifier _value
+                 Type: uint256
+                 Source: "_value"
+            IndexAccess
+               Type: uint256
+               Source: "balanceOf[_to]"
+              Identifier balanceOf
+                 Type: mapping(address => uint256)
+                 Source: "balanceOf"
+              Identifier _to
+                 Type: address
+                 Source: "_to"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "balanceOf[_from] -= _value"
+        Assignment using operator -=
+           Type: uint256
+           Source: "balanceOf[_from] -= _value"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[_from]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            Identifier _from
+               Type: address
+               Source: "_from"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "balanceOf[_to]   += _value"
+        Assignment using operator +=
+           Type: uint256
+           Source: "balanceOf[_to]   += _value"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[_to]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            Identifier _to
+               Type: address
+               Source: "_to"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "Transfer(_from, _to, _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "Transfer(_from, _to, _value)"
+          Identifier Transfer
+             Type: function (address,address,uint256)
+             Source: "Transfer"
+          Identifier _from
+             Type: address
+             Source: "_from"
+          Identifier _to
+             Type: address
+             Source: "_to"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+  FunctionDefinition "transfer" - public
+     Source: "function transfer(address _to, uint256 _value) {\r\n        _transfer(msg.sender, _to, _value);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _to, uint256 _value)"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        _transfer(msg.sender, _to, _value);\r\n    }"
+      ExpressionStatement
+         Gas costs: 12
+         Source: "_transfer(msg.sender, _to, _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "_transfer(msg.sender, _to, _value)"
+          Identifier _transfer
+             Type: function (address,address,uint256)
+             Source: "_transfer"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier _to
+             Type: address
+             Source: "_to"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+  FunctionDefinition "transferFrom" - public
+     Source: "function transferFrom(address _from, address _to, uint256 _value) returns (bool success) {\r\n        require(_value <= allowance[_from][msg.sender]); // Check allowance.\r\n        allowance[_from][msg.sender] -= _value; // Updates the allowance array, substracting the amount sent.\r\n        _transfer(_from, _to, _value); // Makes the transfer.\r\n        return true;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _from, address _to, uint256 _value)"
+      VariableDeclaration "_from"
+         Type: address
+         Source: "address _from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n        require(_value <= allowance[_from][msg.sender]); // Check allowance.\r\n        allowance[_from][msg.sender] -= _value; // Updates the allowance array, substracting the amount sent.\r\n        _transfer(_from, _to, _value); // Makes the transfer.\r\n        return true;\r\n    }"
+      ExpressionStatement
+         Gas costs: 423
+         Source: "require(_value <= allowance[_from][msg.sender])"
+        FunctionCall
+           Type: tuple()
+           Source: "require(_value <= allowance[_from][msg.sender])"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator <=
+             Type: bool
+             Source: "_value <= allowance[_from][msg.sender]"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+            IndexAccess
+               Type: uint256
+               Source: "allowance[_from][msg.sender]"
+              IndexAccess
+                 Type: mapping(address => uint256)
+                 Source: "allowance[_from]"
+                Identifier allowance
+                   Type: mapping(address => mapping(address => uint256))
+                   Source: "allowance"
+                Identifier _from
+                   Type: address
+                   Source: "_from"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+      ExpressionStatement
+         Gas costs: 20418
+         Source: "allowance[_from][msg.sender] -= _value"
+        Assignment using operator -=
+           Type: uint256
+           Source: "allowance[_from][msg.sender] -= _value"
+          IndexAccess
+             Type: uint256
+             Source: "allowance[_from][msg.sender]"
+            IndexAccess
+               Type: mapping(address => uint256)
+               Source: "allowance[_from]"
+              Identifier allowance
+                 Type: mapping(address => mapping(address => uint256))
+                 Source: "allowance"
+              Identifier _from
+                 Type: address
+                 Source: "_from"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: 24
+         Source: "_transfer(_from, _to, _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "_transfer(_from, _to, _value)"
+          Identifier _transfer
+             Type: function (address,address,uint256)
+             Source: "_transfer"
+          Identifier _from
+             Type: address
+             Source: "_from"
+          Identifier _to
+             Type: address
+             Source: "_to"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      Return
+         Gas costs: 8
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+  FunctionDefinition "approve" - public
+     Source: "function approve(address _spender, uint256 _value) returns (bool success) {\r\n        allowance[msg.sender][_spender] = _value; // Adds a new register to allowance, permiting _spender to use _value of your tokens.\r\n        return true;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _spender, uint256 _value)"
+      VariableDeclaration "_spender"
+         Type: address
+         Source: "address _spender"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n        allowance[msg.sender][_spender] = _value; // Adds a new register to allowance, permiting _spender to use _value of your tokens.\r\n        return true;\r\n    }"
+      ExpressionStatement
+         Gas costs: 20199
+         Source: "allowance[msg.sender][_spender] = _value"
+        Assignment using operator =
+           Type: uint256
+           Source: "allowance[msg.sender][_spender] = _value"
+          IndexAccess
+             Type: uint256
+             Source: "allowance[msg.sender][_spender]"
+            IndexAccess
+               Type: mapping(address => uint256)
+               Source: "allowance[msg.sender]"
+              Identifier allowance
+                 Type: mapping(address => mapping(address => uint256))
+                 Source: "allowance"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+            Identifier _spender
+               Type: address
+               Source: "_spender"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      Return
+         Gas costs: 8
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+ContractDefinition "BSCToken"
+   Source: "contract BSCToken is owned, token {\r\n    /* Specific token definition for -Bitcoin StartUp Capital S.A.- company. */\r\n    uint256 public sellPrice         = 5000000000000000;  // Price applied if someone wants to sell a token.\r\n    uint256 public buyPrice          = 10000000000000000; // Price applied if someone wants to buy a token.\r\n    bool    public closeBuy          = false;             // If true, nobody will be able to buy.\r\n    bool    public closeSell         = false;             // If true, nobody will be able to sell.\r\n    uint256 public tokensAvailable   = balanceOf[this];   // Number of tokens available for sell.\r\n    uint256 public distributedTokens = 0;                 // Number of tokens distributed.\r\n    uint256 public solvency          = this.balance;      // Amount of Ether available to pay sales.\r\n    uint256 public profit            = 0;                 // Shows the actual profit for the company.\r\n\r\n    // Array containing foreach address if it's frozen or not.\r\n    mapping (address => bool) public frozenAccount;\r\n\r\n    /* This generates a public event on the blockchain that will notify about an address being freezed. */\r\n    event FrozenFunds(address target, bool frozen);\r\n    /* This generates a public event on the blockchain that will notify about an addition of Ether to the contract. */\r\n    event LogDeposit(address sender, uint amount);\r\n    /* This generates a public event on the blockchain that will notify about a migration has been completed. */\r\n    event LogMigration(address receiver, uint amount);\r\n    /* This generates a public event on the blockchain that will notify about a Withdrawal of Ether from the contract. */\r\n    event LogWithdrawal(address receiver, uint amount);\r\n\r\n    /* Initializes the contract */\r\n    function BSCToken( uint256 initialSupply, string tokenName, uint8 decimalUnits, string tokenSymbol ) token (initialSupply, tokenName, decimalUnits, tokenSymbol) {}\r\n\r\n    /* Internal transfer, only can be called by this contract */\r\n    function _transfer(address _from, address _to, uint _value) internal {\r\n        require(_to != 0x0);                               // Prevent transfer to 0x0 address. User should use burn() instead.\r\n        require(balanceOf[_from] >= _value);               // Check if the sender has enough.\r\n        require(balanceOf[_to] + _value > balanceOf[_to]); // Check for overflows.\r\n        require(!frozenAccount[_from]);                    // Check if sender is frozen.\r\n        require(!frozenAccount[_to]);                      // Check if recipient is frozen.\r\n        \r\n        balanceOf[_from] -= _value; // Subtracts from the sender.\r\n        balanceOf[_to]   += _value; // Adds the same to the recipient.\r\n\r\n        _updateTokensAvailable(balanceOf[this]); // Update the balance of tokens available if necessary.\r\n        \r\n        Transfer(_from, _to, _value); // Notifies the blockchain about the transfer.\r\n    }\r\n\r\n    /* Internal, updates the balance of tokens available. */\r\n    function _updateTokensAvailable(uint256 _tokensAvailable) internal {\r\n        tokensAvailable = _tokensAvailable;\r\n    }\r\n\r\n    /* Internal, updates the balance of Ether available in order to cover potential sales. */\r\n    function _updateSolvency(uint256 _solvency) internal {\r\n        solvency = _solvency;\r\n    }\r\n\r\n    /* Internal, updates the profit value */\r\n    function _updateProfit(uint256 _increment, bool add) internal{\r\n        if (add){\r\n            // Increase the profit value\r\n            profit = profit + _increment;\r\n        }else{\r\n            // Decrease the profit value\r\n            if(_increment > profit){\r\n                profit = 0;\r\n            }else{\r\n                profit = profit - _increment;\r\n            }\r\n        }\r\n    }\r\n\r\n    /// @notice The owner sends `_value` tokens to `_to`, because `_to` have the right. The tokens migrated count as pre-distributed ones.\r\n    /// @param _to The address of the recipient.\r\n    /// @param _value The amount to send.\r\n    function completeMigration(address _to, uint256 _value) onlyOwner payable{\r\n        require( msg.value >= (_value * sellPrice) );       // Owner has to send enough ETH to proceed.\r\n        require((this.balance + msg.value) > this.balance); // Checks for overflows.\r\n        \r\n        //Contract has already received the Ether when this function is executed.\r\n        _updateSolvency(this.balance);   // Updates the value of solvency of the contract.\r\n        _updateProfit(msg.value, false); // Decrease profit value.\r\n        // Decrease because the owner invests his own Ether in order to guarantee the solvency.\r\n\r\n        _transfer(msg.sender, _to, _value); // Transfers the tokens to the investor's address.\r\n        distributedTokens = distributedTokens + _value; // Increase the number of tokens distributed.\r\n\r\n        LogMigration( _to, _value); // Notifies the blockchain about the migration taking place.\r\n    }\r\n\r\n    /// @notice Create `mintedAmount` tokens and send it to `target`.\r\n    /// @param target Address to receive the tokens.\r\n    /// @param mintedAmount The amount of tokens target will receive.\r\n    function mintToken(address target, uint256 mintedAmount) onlyOwner {\r\n        balanceOf[target] += mintedAmount; // Updates target's balance.\r\n        totalSupply       += mintedAmount; // Updates totalSupply.\r\n\r\n        _updateTokensAvailable(balanceOf[this]); // Update the balance of tokens available if necessary.\r\n        \r\n        Transfer(0, this, mintedAmount);      // Notifies the blockchain about the tokens created.\r\n        Transfer(this, target, mintedAmount); // Notifies the blockchain about the transfer to target.\r\n    }\r\n\r\n    /// @notice `freeze? Prevent | Allow` `target` from sending & receiving tokens.\r\n    /// @param target Address to be frozen.\r\n    /// @param freeze Either to freeze target or not.\r\n    function freezeAccount(address target, bool freeze) onlyOwner {\r\n        frozenAccount[target] = freeze; // Sets the target status. True if it's frozen, False if it's not.\r\n        FrozenFunds(target, freeze); // Notifies the blockchain about the change of state.\r\n    }\r\n\r\n    /// @notice Allow addresses to pay `newBuyPrice`ETH when buying and receive `newSellPrice`ETH when selling, foreach token bought/sold.\r\n    /// @param newSellPrice Price applied when an address sells its tokens, amount in WEI (1ETH = 10\u00b9\u2078WEI).\r\n    /// @param newBuyPrice Price applied when an address buys tokens, amount in WEI (1ETH = 10\u00b9\u2078WEI).\r\n    function setPrices(uint256 newSellPrice, uint256 newBuyPrice) onlyOwner {\r\n        sellPrice = newSellPrice; // Updates the buying price.\r\n        buyPrice = newBuyPrice;   // Updates the selling price.\r\n    }\r\n\r\n    /// @notice Sets the state of buy and sell operations\r\n    /// @param isClosedBuy True if buy operations are closed, False if opened.\r\n    /// @param isClosedSell True if sell operations are closed, False if opened.\r\n    function setStatus(bool isClosedBuy, bool isClosedSell) onlyOwner {\r\n        closeBuy = isClosedBuy;   // Updates the state of buy operations.\r\n        closeSell = isClosedSell; // Updates the state of sell operations.\r\n    }\r\n\r\n    /// @notice Deposits Ether to the contract\r\n    function deposit() payable returns(bool success) {\r\n        require((this.balance + msg.value) > this.balance); // Checks for overflows.\r\n        \r\n        //Contract has already received the Ether when this function is executed.\r\n        _updateSolvency(this.balance);   // Updates the value of solvency of the contract.\r\n        _updateProfit(msg.value, false); // Decrease profit value.\r\n        // Decrease because deposits will be done mostly by the owner.\r\n        // Possible donations won't count as profit. Atleast not for the company, but in favor of the investors.\r\n\r\n        LogDeposit(msg.sender, msg.value); // Notifies the blockchain about the Ether received.\r\n        return true;\r\n    }\r\n\r\n    /// @notice The owner withdraws Ether from the contract.\r\n    /// @param amountInWeis Amount of ETH in WEI which will be withdrawed.\r\n    function withdraw(uint amountInWeis) onlyOwner {\r\n        LogWithdrawal(msg.sender, amountInWeis); // Notifies the blockchain about the withdrawal.\r\n        _updateSolvency( (this.balance - amountInWeis) ); // Updates the value of solvency of the contract.\r\n        _updateProfit(amountInWeis, true);                // Increase the profit value.\r\n        owner.transfer(amountInWeis); // Sends the Ether to owner address.\r\n    }\r\n\r\n    /// @notice Buy tokens from contract by sending Ether.\r\n    function buy() payable {\r\n        require(!closeBuy); // Buy operations must be opened.\r\n        uint amount = msg.value / buyPrice; // Calculates the amount of tokens to be sent.\r\n        uint256 profit_in_transaction = msg.value - (amount * sellPrice); // Calculates the relative profit for this transaction.\r\n        require( profit_in_transaction > 0 );\r\n\r\n        //Contract has already received the Ether when this function is executed.\r\n        _transfer(this, msg.sender, amount); // Makes the transfer of tokens.\r\n        distributedTokens = distributedTokens + amount; // Increase the number of tokens distributed.\r\n        _updateSolvency(this.balance - profit_in_transaction);   // Updates the value of solvency of the contract.\r\n        _updateProfit(profit_in_transaction, true);              // Increase the profit value.\r\n        owner.transfer(profit_in_transaction); // Sends profit to the owner of the contract.\r\n    }\r\n\r\n    /// @notice Sell `amount` tokens to the contract.\r\n    /// @param amount amount of tokens to be sold.\r\n    function sell(uint256 amount) {\r\n        require(!closeSell); // Sell operations must be opened.\r\n        require(this.balance >= amount * sellPrice); // Checks if the contract has enough Ether to buy.\r\n        \r\n        _transfer(msg.sender, this, amount); // Makes the transfer of tokens, the contract receives the tokens.\r\n        distributedTokens = distributedTokens - amount; // Decrease the number of tokens distributed.\r\n        _updateSolvency( (this.balance - (amount * sellPrice)) ); // Updates the value of solvency of the contract.\r\n        msg.sender.transfer(amount * sellPrice); // Sends Ether to the seller.\r\n    }\r\n}"
+  InheritanceSpecifier
+     Gas costs: 0
+     Source: "owned"
+    UserDefinedTypeName "owned"
+       Source: "owned"
+  InheritanceSpecifier
+     Gas costs: 0
+     Source: "token"
+    UserDefinedTypeName "token"
+       Source: "token"
+  VariableDeclaration "sellPrice"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint256 public sellPrice         = 5000000000000000"
+    ElementaryTypeName uint256
+       Source: "uint256"
+    Literal, token: [no token] value: 5000000000000000
+       Type: int_const 5000000000000000
+       Source: "5000000000000000"
+  VariableDeclaration "buyPrice"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint256 public buyPrice          = 10000000000000000"
+    ElementaryTypeName uint256
+       Source: "uint256"
+    Literal, token: [no token] value: 10000000000000000
+       Type: int_const 10000000000000000
+       Source: "10000000000000000"
+  VariableDeclaration "closeBuy"
+     Type: bool
+     Gas costs: [???]
+     Source: "bool    public closeBuy          = false"
+    ElementaryTypeName bool
+       Source: "bool"
+    Literal, token: false value: false
+       Type: bool
+       Source: "false"
+  VariableDeclaration "closeSell"
+     Type: bool
+     Gas costs: [???]
+     Source: "bool    public closeSell         = false"
+    ElementaryTypeName bool
+       Source: "bool"
+    Literal, token: false value: false
+       Type: bool
+       Source: "false"
+  VariableDeclaration "tokensAvailable"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint256 public tokensAvailable   = balanceOf[this]"
+    ElementaryTypeName uint256
+       Source: "uint256"
+    IndexAccess
+       Type: uint256
+       Source: "balanceOf[this]"
+      Identifier balanceOf
+         Type: mapping(address => uint256)
+         Source: "balanceOf"
+      Identifier this
+         Type: contract BSCToken
+         Source: "this"
+  VariableDeclaration "distributedTokens"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint256 public distributedTokens = 0"
+    ElementaryTypeName uint256
+       Source: "uint256"
+    Literal, token: [no token] value: 0
+       Type: int_const 0
+       Source: "0"
+  VariableDeclaration "solvency"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint256 public solvency          = this.balance"
+    ElementaryTypeName uint256
+       Source: "uint256"
+    MemberAccess to member balance
+       Type: uint256
+       Source: "this.balance"
+      Identifier this
+         Type: contract BSCToken
+         Source: "this"
+  VariableDeclaration "profit"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint256 public profit            = 0"
+    ElementaryTypeName uint256
+       Source: "uint256"
+    Literal, token: [no token] value: 0
+       Type: int_const 0
+       Source: "0"
+  VariableDeclaration "frozenAccount"
+     Type: mapping(address => bool)
+     Gas costs: [???]
+     Source: "mapping (address => bool) public frozenAccount"
+    Mapping
+       Source: "mapping (address => bool)"
+      ElementaryTypeName address
+         Source: "address"
+      ElementaryTypeName bool
+         Source: "bool"
+  EventDefinition "FrozenFunds"
+     Gas costs: 0
+     Source: "event FrozenFunds(address target, bool frozen);"
+    ParameterList
+       Source: "(address target, bool frozen)"
+      VariableDeclaration "target"
+         Type: address
+         Source: "address target"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "frozen"
+         Type: bool
+         Source: "bool frozen"
+        ElementaryTypeName bool
+           Source: "bool"
+  EventDefinition "LogDeposit"
+     Gas costs: 0
+     Source: "event LogDeposit(address sender, uint amount);"
+    ParameterList
+       Source: "(address sender, uint amount)"
+      VariableDeclaration "sender"
+         Type: address
+         Source: "address sender"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "amount"
+         Type: uint256
+         Source: "uint amount"
+        ElementaryTypeName uint
+           Source: "uint"
+  EventDefinition "LogMigration"
+     Gas costs: 0
+     Source: "event LogMigration(address receiver, uint amount);"
+    ParameterList
+       Source: "(address receiver, uint amount)"
+      VariableDeclaration "receiver"
+         Type: address
+         Source: "address receiver"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "amount"
+         Type: uint256
+         Source: "uint amount"
+        ElementaryTypeName uint
+           Source: "uint"
+  EventDefinition "LogWithdrawal"
+     Gas costs: 0
+     Source: "event LogWithdrawal(address receiver, uint amount);"
+    ParameterList
+       Source: "(address receiver, uint amount)"
+      VariableDeclaration "receiver"
+         Type: address
+         Source: "address receiver"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "amount"
+         Type: uint256
+         Source: "uint amount"
+        ElementaryTypeName uint
+           Source: "uint"
+  FunctionDefinition "BSCToken" - public
+     Source: "function BSCToken( uint256 initialSupply, string tokenName, uint8 decimalUnits, string tokenSymbol ) token (initialSupply, tokenName, decimalUnits, tokenSymbol) {}"
+    ParameterList
+       Gas costs: 0
+       Source: "( uint256 initialSupply, string tokenName, uint8 decimalUnits, string tokenSymbol )"
+      VariableDeclaration "initialSupply"
+         Type: uint256
+         Source: "uint256 initialSupply"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "tokenName"
+         Type: string memory
+         Source: "string tokenName"
+        ElementaryTypeName string
+           Source: "string"
+      VariableDeclaration "decimalUnits"
+         Type: uint8
+         Source: "uint8 decimalUnits"
+        ElementaryTypeName uint8
+           Source: "uint8"
+      VariableDeclaration "tokenSymbol"
+         Type: string memory
+         Source: "string tokenSymbol"
+        ElementaryTypeName string
+           Source: "string"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "token"
+       Gas costs: 0
+       Source: "token (initialSupply, tokenName, decimalUnits, tokenSymbol)"
+      Identifier token
+         Type: type(contract token)
+         Source: "token"
+      Identifier initialSupply
+         Type: uint256
+         Source: "initialSupply"
+      Identifier tokenName
+         Type: string memory
+         Source: "tokenName"
+      Identifier decimalUnits
+         Type: uint8
+         Source: "decimalUnits"
+      Identifier tokenSymbol
+         Type: string memory
+         Source: "tokenSymbol"
+    Block
+       Gas costs: 0
+       Source: "{}"
+  FunctionDefinition "_transfer"
+     Source: "function _transfer(address _from, address _to, uint _value) internal {\r\n        require(_to != 0x0);                               // Prevent transfer to 0x0 address. User should use burn() instead.\r\n        require(balanceOf[_from] >= _value);               // Check if the sender has enough.\r\n        require(balanceOf[_to] + _value > balanceOf[_to]); // Check for overflows.\r\n        require(!frozenAccount[_from]);                    // Check if sender is frozen.\r\n        require(!frozenAccount[_to]);                      // Check if recipient is frozen.\r\n        \r\n        balanceOf[_from] -= _value; // Subtracts from the sender.\r\n        balanceOf[_to]   += _value; // Adds the same to the recipient.\r\n\r\n        _updateTokensAvailable(balanceOf[this]); // Update the balance of tokens available if necessary.\r\n        \r\n        Transfer(_from, _to, _value); // Notifies the blockchain about the transfer.\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _from, address _to, uint _value)"
+      VariableDeclaration "_from"
+         Type: address
+         Source: "address _from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint _value"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        require(_to != 0x0);                               // Prevent transfer to 0x0 address. User should use burn() instead.\r\n        require(balanceOf[_from] >= _value);               // Check if the sender has enough.\r\n        require(balanceOf[_to] + _value > balanceOf[_to]); // Check for overflows.\r\n        require(!frozenAccount[_from]);                    // Check if sender is frozen.\r\n        require(!frozenAccount[_to]);                      // Check if recipient is frozen.\r\n        \r\n        balanceOf[_from] -= _value; // Subtracts from the sender.\r\n        balanceOf[_to]   += _value; // Adds the same to the recipient.\r\n\r\n        _updateTokensAvailable(balanceOf[this]); // Update the balance of tokens available if necessary.\r\n        \r\n        Transfer(_from, _to, _value); // Notifies the blockchain about the transfer.\r\n    }"
+      ExpressionStatement
+         Gas costs: 44
+         Source: "require(_to != 0x0)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(_to != 0x0)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator !=
+             Type: bool
+             Source: "_to != 0x0"
+            Identifier _to
+               Type: address
+               Source: "_to"
+            Literal, token: [no token] value: 0x0
+               Type: int_const 0
+               Source: "0x0"
+      ExpressionStatement
+         Gas costs: 334
+         Source: "require(balanceOf[_from] >= _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(balanceOf[_from] >= _value)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "balanceOf[_from] >= _value"
+            IndexAccess
+               Type: uint256
+               Source: "balanceOf[_from]"
+              Identifier balanceOf
+                 Type: mapping(address => uint256)
+                 Source: "balanceOf"
+              Identifier _from
+                 Type: address
+                 Source: "_from"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+      ExpressionStatement
+         Gas costs: 627
+         Source: "require(balanceOf[_to] + _value > balanceOf[_to])"
+        FunctionCall
+           Type: tuple()
+           Source: "require(balanceOf[_to] + _value > balanceOf[_to])"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >
+             Type: bool
+             Source: "balanceOf[_to] + _value > balanceOf[_to]"
+            BinaryOperation using operator +
+               Type: uint256
+               Source: "balanceOf[_to] + _value"
+              IndexAccess
+                 Type: uint256
+                 Source: "balanceOf[_to]"
+                Identifier balanceOf
+                   Type: mapping(address => uint256)
+                   Source: "balanceOf"
+                Identifier _to
+                   Type: address
+                   Source: "_to"
+              Identifier _value
+                 Type: uint256
+                 Source: "_value"
+            IndexAccess
+               Type: uint256
+               Source: "balanceOf[_to]"
+              Identifier balanceOf
+                 Type: mapping(address => uint256)
+                 Source: "balanceOf"
+              Identifier _to
+                 Type: address
+                 Source: "_to"
+      ExpressionStatement
+         Gas costs: 364
+         Source: "require(!frozenAccount[_from])"
+        FunctionCall
+           Type: tuple()
+           Source: "require(!frozenAccount[_from])"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          UnaryOperation (prefix) !
+             Type: bool
+             Source: "!frozenAccount[_from]"
+            IndexAccess
+               Type: bool
+               Source: "frozenAccount[_from]"
+              Identifier frozenAccount
+                 Type: mapping(address => bool)
+                 Source: "frozenAccount"
+              Identifier _from
+                 Type: address
+                 Source: "_from"
+      ExpressionStatement
+         Gas costs: 364
+         Source: "require(!frozenAccount[_to])"
+        FunctionCall
+           Type: tuple()
+           Source: "require(!frozenAccount[_to])"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          UnaryOperation (prefix) !
+             Type: bool
+             Source: "!frozenAccount[_to]"
+            IndexAccess
+               Type: bool
+               Source: "frozenAccount[_to]"
+              Identifier frozenAccount
+                 Type: mapping(address => bool)
+                 Source: "frozenAccount"
+              Identifier _to
+                 Type: address
+                 Source: "_to"
+      ExpressionStatement
+         Gas costs: 20329
+         Source: "balanceOf[_from] -= _value"
+        Assignment using operator -=
+           Type: uint256
+           Source: "balanceOf[_from] -= _value"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[_from]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            Identifier _from
+               Type: address
+               Source: "_from"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: 20323
+         Source: "balanceOf[_to]   += _value"
+        Assignment using operator +=
+           Type: uint256
+           Source: "balanceOf[_to]   += _value"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[_to]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            Identifier _to
+               Type: address
+               Source: "_to"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: 307
+         Source: "_updateTokensAvailable(balanceOf[this])"
+        FunctionCall
+           Type: tuple()
+           Source: "_updateTokensAvailable(balanceOf[this])"
+          Identifier _updateTokensAvailable
+             Type: function (uint256)
+             Source: "_updateTokensAvailable"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[this]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            Identifier this
+               Type: contract BSCToken
+               Source: "this"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "Transfer(_from, _to, _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "Transfer(_from, _to, _value)"
+          Identifier Transfer
+             Type: function (address,address,uint256)
+             Source: "Transfer"
+          Identifier _from
+             Type: address
+             Source: "_from"
+          Identifier _to
+             Type: address
+             Source: "_to"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+  FunctionDefinition "_updateTokensAvailable"
+     Source: "function _updateTokensAvailable(uint256 _tokensAvailable) internal {\r\n        tokensAvailable = _tokensAvailable;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 _tokensAvailable)"
+      VariableDeclaration "_tokensAvailable"
+         Type: uint256
+         Source: "uint256 _tokensAvailable"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        tokensAvailable = _tokensAvailable;\r\n    }"
+      ExpressionStatement
+         Gas costs: 20014
+         Source: "tokensAvailable = _tokensAvailable"
+        Assignment using operator =
+           Type: uint256
+           Source: "tokensAvailable = _tokensAvailable"
+          Identifier tokensAvailable
+             Type: uint256
+             Source: "tokensAvailable"
+          Identifier _tokensAvailable
+             Type: uint256
+             Source: "_tokensAvailable"
+  FunctionDefinition "_updateSolvency"
+     Source: "function _updateSolvency(uint256 _solvency) internal {\r\n        solvency = _solvency;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 _solvency)"
+      VariableDeclaration "_solvency"
+         Type: uint256
+         Source: "uint256 _solvency"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        solvency = _solvency;\r\n    }"
+      ExpressionStatement
+         Gas costs: 20014
+         Source: "solvency = _solvency"
+        Assignment using operator =
+           Type: uint256
+           Source: "solvency = _solvency"
+          Identifier solvency
+             Type: uint256
+             Source: "solvency"
+          Identifier _solvency
+             Type: uint256
+             Source: "_solvency"
+  FunctionDefinition "_updateProfit"
+     Source: "function _updateProfit(uint256 _increment, bool add) internal{\r\n        if (add){\r\n            // Increase the profit value\r\n            profit = profit + _increment;\r\n        }else{\r\n            // Decrease the profit value\r\n            if(_increment > profit){\r\n                profit = 0;\r\n            }else{\r\n                profit = profit - _increment;\r\n            }\r\n        }\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 _increment, bool add)"
+      VariableDeclaration "_increment"
+         Type: uint256
+         Source: "uint256 _increment"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "add"
+         Type: bool
+         Source: "bool add"
+        ElementaryTypeName bool
+           Source: "bool"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        if (add){\r\n            // Increase the profit value\r\n            profit = profit + _increment;\r\n        }else{\r\n            // Decrease the profit value\r\n            if(_increment > profit){\r\n                profit = 0;\r\n            }else{\r\n                profit = profit - _increment;\r\n            }\r\n        }\r\n    }"
+      IfStatement
+         Source: "if (add){\r\n            // Increase the profit value\r\n            profit = profit + _increment;\r\n        }else{\r\n            // Decrease the profit value\r\n            if(_increment > profit){\r\n                profit = 0;\r\n            }else{\r\n                profit = profit - _increment;\r\n            }\r\n        }"
+        Identifier add
+           Type: bool
+           Gas costs: 3
+           Source: "add"
+        Block
+           Source: "{\r\n            // Increase the profit value\r\n            profit = profit + _increment;\r\n        }"
+          ExpressionStatement
+             Gas costs: 20220
+             Source: "profit = profit + _increment"
+            Assignment using operator =
+               Type: uint256
+               Source: "profit = profit + _increment"
+              Identifier profit
+                 Type: uint256
+                 Source: "profit"
+              BinaryOperation using operator +
+                 Type: uint256
+                 Source: "profit + _increment"
+                Identifier profit
+                   Type: uint256
+                   Source: "profit"
+                Identifier _increment
+                   Type: uint256
+                   Source: "_increment"
+        Block
+           Source: "{\r\n            // Decrease the profit value\r\n            if(_increment > profit){\r\n                profit = 0;\r\n            }else{\r\n                profit = profit - _increment;\r\n            }\r\n        }"
+          IfStatement
+             Source: "if(_increment > profit){\r\n                profit = 0;\r\n            }else{\r\n                profit = profit - _increment;\r\n            }"
+            BinaryOperation using operator >
+               Type: bool
+               Gas costs: 209
+               Source: "_increment > profit"
+              Identifier _increment
+                 Type: uint256
+                 Source: "_increment"
+              Identifier profit
+                 Type: uint256
+                 Source: "profit"
+            Block
+               Source: "{\r\n                profit = 0;\r\n            }"
+              ExpressionStatement
+                 Gas costs: 5014
+                 Source: "profit = 0"
+                Assignment using operator =
+                   Type: uint256
+                   Source: "profit = 0"
+                  Identifier profit
+                     Type: uint256
+                     Source: "profit"
+                  Literal, token: [no token] value: 0
+                     Type: int_const 0
+                     Source: "0"
+            Block
+               Source: "{\r\n                profit = profit - _increment;\r\n            }"
+              ExpressionStatement
+                 Gas costs: 20220
+                 Source: "profit = profit - _increment"
+                Assignment using operator =
+                   Type: uint256
+                   Source: "profit = profit - _increment"
+                  Identifier profit
+                     Type: uint256
+                     Source: "profit"
+                  BinaryOperation using operator -
+                     Type: uint256
+                     Source: "profit - _increment"
+                    Identifier profit
+                       Type: uint256
+                       Source: "profit"
+                    Identifier _increment
+                       Type: uint256
+                       Source: "_increment"
+  FunctionDefinition "completeMigration" - public
+     Source: "function completeMigration(address _to, uint256 _value) onlyOwner payable{\r\n        require( msg.value >= (_value * sellPrice) );       // Owner has to send enough ETH to proceed.\r\n        require((this.balance + msg.value) > this.balance); // Checks for overflows.\r\n        \r\n        //Contract has already received the Ether when this function is executed.\r\n        _updateSolvency(this.balance);   // Updates the value of solvency of the contract.\r\n        _updateProfit(msg.value, false); // Decrease profit value.\r\n        // Decrease because the owner invests his own Ether in order to guarantee the solvency.\r\n\r\n        _transfer(msg.sender, _to, _value); // Transfers the tokens to the investor's address.\r\n        distributedTokens = distributedTokens + _value; // Increase the number of tokens distributed.\r\n\r\n        LogMigration( _to, _value); // Notifies the blockchain about the migration taking place.\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _to, uint256 _value)"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n        require( msg.value >= (_value * sellPrice) );       // Owner has to send enough ETH to proceed.\r\n        require((this.balance + msg.value) > this.balance); // Checks for overflows.\r\n        \r\n        //Contract has already received the Ether when this function is executed.\r\n        _updateSolvency(this.balance);   // Updates the value of solvency of the contract.\r\n        _updateProfit(msg.value, false); // Decrease profit value.\r\n        // Decrease because the owner invests his own Ether in order to guarantee the solvency.\r\n\r\n        _transfer(msg.sender, _to, _value); // Transfers the tokens to the investor's address.\r\n        distributedTokens = distributedTokens + _value; // Increase the number of tokens distributed.\r\n\r\n        LogMigration( _to, _value); // Notifies the blockchain about the migration taking place.\r\n    }"
+      ExpressionStatement
+         Gas costs: 245
+         Source: "require( msg.value >= (_value * sellPrice) )"
+        FunctionCall
+           Type: tuple()
+           Source: "require( msg.value >= (_value * sellPrice) )"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "msg.value >= (_value * sellPrice)"
+            MemberAccess to member value
+               Type: uint256
+               Source: "msg.value"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            TupleExpression
+               Type: uint256
+               Source: "(_value * sellPrice)"
+              BinaryOperation using operator *
+                 Type: uint256
+                 Source: "_value * sellPrice"
+                Identifier _value
+                   Type: uint256
+                   Source: "_value"
+                Identifier sellPrice
+                   Type: uint256
+                   Source: "sellPrice"
+      ExpressionStatement
+         Gas costs: 850
+         Source: "require((this.balance + msg.value) > this.balance)"
+        FunctionCall
+           Type: tuple()
+           Source: "require((this.balance + msg.value) > this.balance)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >
+             Type: bool
+             Source: "(this.balance + msg.value) > this.balance"
+            TupleExpression
+               Type: uint256
+               Source: "(this.balance + msg.value)"
+              BinaryOperation using operator +
+                 Type: uint256
+                 Source: "this.balance + msg.value"
+                MemberAccess to member balance
+                   Type: uint256
+                   Source: "this.balance"
+                  Identifier this
+                     Type: contract BSCToken
+                     Source: "this"
+                MemberAccess to member value
+                   Type: uint256
+                   Source: "msg.value"
+                  Identifier msg
+                     Type: msg
+                     Source: "msg"
+            MemberAccess to member balance
+               Type: uint256
+               Source: "this.balance"
+              Identifier this
+                 Type: contract BSCToken
+                 Source: "this"
+      ExpressionStatement
+         Gas costs: 423
+         Source: "_updateSolvency(this.balance)"
+        FunctionCall
+           Type: tuple()
+           Source: "_updateSolvency(this.balance)"
+          Identifier _updateSolvency
+             Type: function (uint256)
+             Source: "_updateSolvency"
+          MemberAccess to member balance
+             Type: uint256
+             Source: "this.balance"
+            Identifier this
+               Type: contract BSCToken
+               Source: "this"
+      ExpressionStatement
+         Gas costs: 20
+         Source: "_updateProfit(msg.value, false)"
+        FunctionCall
+           Type: tuple()
+           Source: "_updateProfit(msg.value, false)"
+          Identifier _updateProfit
+             Type: function (uint256,bool)
+             Source: "_updateProfit"
+          MemberAccess to member value
+             Type: uint256
+             Source: "msg.value"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Literal, token: false value: false
+             Type: bool
+             Source: "false"
+      ExpressionStatement
+         Gas costs: 23
+         Source: "_transfer(msg.sender, _to, _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "_transfer(msg.sender, _to, _value)"
+          Identifier _transfer
+             Type: function (address,address,uint256)
+             Source: "_transfer"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier _to
+             Type: address
+             Source: "_to"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: 20220
+         Source: "distributedTokens = distributedTokens + _value"
+        Assignment using operator =
+           Type: uint256
+           Source: "distributedTokens = distributedTokens + _value"
+          Identifier distributedTokens
+             Type: uint256
+             Source: "distributedTokens"
+          BinaryOperation using operator +
+             Type: uint256
+             Source: "distributedTokens + _value"
+            Identifier distributedTokens
+               Type: uint256
+               Source: "distributedTokens"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "LogMigration( _to, _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "LogMigration( _to, _value)"
+          Identifier LogMigration
+             Type: function (address,uint256)
+             Source: "LogMigration"
+          Identifier _to
+             Type: address
+             Source: "_to"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+  FunctionDefinition "mintToken" - public
+     Source: "function mintToken(address target, uint256 mintedAmount) onlyOwner {\r\n        balanceOf[target] += mintedAmount; // Updates target's balance.\r\n        totalSupply       += mintedAmount; // Updates totalSupply.\r\n\r\n        _updateTokensAvailable(balanceOf[this]); // Update the balance of tokens available if necessary.\r\n        \r\n        Transfer(0, this, mintedAmount);      // Notifies the blockchain about the tokens created.\r\n        Transfer(this, target, mintedAmount); // Notifies the blockchain about the transfer to target.\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address target, uint256 mintedAmount)"
+      VariableDeclaration "target"
+         Type: address
+         Source: "address target"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "mintedAmount"
+         Type: uint256
+         Source: "uint256 mintedAmount"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n        balanceOf[target] += mintedAmount; // Updates target's balance.\r\n        totalSupply       += mintedAmount; // Updates totalSupply.\r\n\r\n        _updateTokensAvailable(balanceOf[this]); // Update the balance of tokens available if necessary.\r\n        \r\n        Transfer(0, this, mintedAmount);      // Notifies the blockchain about the tokens created.\r\n        Transfer(this, target, mintedAmount); // Notifies the blockchain about the transfer to target.\r\n    }"
+      ExpressionStatement
+         Gas costs: 20329
+         Source: "balanceOf[target] += mintedAmount"
+        Assignment using operator +=
+           Type: uint256
+           Source: "balanceOf[target] += mintedAmount"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[target]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            Identifier target
+               Type: address
+               Source: "target"
+          Identifier mintedAmount
+             Type: uint256
+             Source: "mintedAmount"
+      ExpressionStatement
+         Gas costs: 20233
+         Source: "totalSupply       += mintedAmount"
+        Assignment using operator +=
+           Type: uint256
+           Source: "totalSupply       += mintedAmount"
+          Identifier totalSupply
+             Type: uint256
+             Source: "totalSupply"
+          Identifier mintedAmount
+             Type: uint256
+             Source: "mintedAmount"
+      ExpressionStatement
+         Gas costs: 296
+         Source: "_updateTokensAvailable(balanceOf[this])"
+        FunctionCall
+           Type: tuple()
+           Source: "_updateTokensAvailable(balanceOf[this])"
+          Identifier _updateTokensAvailable
+             Type: function (uint256)
+             Source: "_updateTokensAvailable"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[this]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            Identifier this
+               Type: contract BSCToken
+               Source: "this"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "Transfer(0, this, mintedAmount)"
+        FunctionCall
+           Type: tuple()
+           Source: "Transfer(0, this, mintedAmount)"
+          Identifier Transfer
+             Type: function (address,address,uint256)
+             Source: "Transfer"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+          Identifier this
+             Type: contract BSCToken
+             Source: "this"
+          Identifier mintedAmount
+             Type: uint256
+             Source: "mintedAmount"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "Transfer(this, target, mintedAmount)"
+        FunctionCall
+           Type: tuple()
+           Source: "Transfer(this, target, mintedAmount)"
+          Identifier Transfer
+             Type: function (address,address,uint256)
+             Source: "Transfer"
+          Identifier this
+             Type: contract BSCToken
+             Source: "this"
+          Identifier target
+             Type: address
+             Source: "target"
+          Identifier mintedAmount
+             Type: uint256
+             Source: "mintedAmount"
+  FunctionDefinition "freezeAccount" - public
+     Source: "function freezeAccount(address target, bool freeze) onlyOwner {\r\n        frozenAccount[target] = freeze; // Sets the target status. True if it's frozen, False if it's not.\r\n        FrozenFunds(target, freeze); // Notifies the blockchain about the change of state.\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address target, bool freeze)"
+      VariableDeclaration "target"
+         Type: address
+         Source: "address target"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "freeze"
+         Type: bool
+         Source: "bool freeze"
+        ElementaryTypeName bool
+           Source: "bool"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n        frozenAccount[target] = freeze; // Sets the target status. True if it's frozen, False if it's not.\r\n        FrozenFunds(target, freeze); // Notifies the blockchain about the change of state.\r\n    }"
+      ExpressionStatement
+         Gas costs: 20363
+         Source: "frozenAccount[target] = freeze"
+        Assignment using operator =
+           Type: bool
+           Source: "frozenAccount[target] = freeze"
+          IndexAccess
+             Type: bool
+             Source: "frozenAccount[target]"
+            Identifier frozenAccount
+               Type: mapping(address => bool)
+               Source: "frozenAccount"
+            Identifier target
+               Type: address
+               Source: "target"
+          Identifier freeze
+             Type: bool
+             Source: "freeze"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "FrozenFunds(target, freeze)"
+        FunctionCall
+           Type: tuple()
+           Source: "FrozenFunds(target, freeze)"
+          Identifier FrozenFunds
+             Type: function (address,bool)
+             Source: "FrozenFunds"
+          Identifier target
+             Type: address
+             Source: "target"
+          Identifier freeze
+             Type: bool
+             Source: "freeze"
+  FunctionDefinition "setPrices" - public
+     Source: "function setPrices(uint256 newSellPrice, uint256 newBuyPrice) onlyOwner {\r\n        sellPrice = newSellPrice; // Updates the buying price.\r\n        buyPrice = newBuyPrice;   // Updates the selling price.\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 newSellPrice, uint256 newBuyPrice)"
+      VariableDeclaration "newSellPrice"
+         Type: uint256
+         Source: "uint256 newSellPrice"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "newBuyPrice"
+         Type: uint256
+         Source: "uint256 newBuyPrice"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n        sellPrice = newSellPrice; // Updates the buying price.\r\n        buyPrice = newBuyPrice;   // Updates the selling price.\r\n    }"
+      ExpressionStatement
+         Gas costs: 20014
+         Source: "sellPrice = newSellPrice"
+        Assignment using operator =
+           Type: uint256
+           Source: "sellPrice = newSellPrice"
+          Identifier sellPrice
+             Type: uint256
+             Source: "sellPrice"
+          Identifier newSellPrice
+             Type: uint256
+             Source: "newSellPrice"
+      ExpressionStatement
+         Gas costs: 20014
+         Source: "buyPrice = newBuyPrice"
+        Assignment using operator =
+           Type: uint256
+           Source: "buyPrice = newBuyPrice"
+          Identifier buyPrice
+             Type: uint256
+             Source: "buyPrice"
+          Identifier newBuyPrice
+             Type: uint256
+             Source: "newBuyPrice"
+  FunctionDefinition "setStatus" - public
+     Source: "function setStatus(bool isClosedBuy, bool isClosedSell) onlyOwner {\r\n        closeBuy = isClosedBuy;   // Updates the state of buy operations.\r\n        closeSell = isClosedSell; // Updates the state of sell operations.\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(bool isClosedBuy, bool isClosedSell)"
+      VariableDeclaration "isClosedBuy"
+         Type: bool
+         Source: "bool isClosedBuy"
+        ElementaryTypeName bool
+           Source: "bool"
+      VariableDeclaration "isClosedSell"
+         Type: bool
+         Source: "bool isClosedSell"
+        ElementaryTypeName bool
+           Source: "bool"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n        closeBuy = isClosedBuy;   // Updates the state of buy operations.\r\n        closeSell = isClosedSell; // Updates the state of sell operations.\r\n    }"
+      ExpressionStatement
+         Gas costs: 20267
+         Source: "closeBuy = isClosedBuy"
+        Assignment using operator =
+           Type: bool
+           Source: "closeBuy = isClosedBuy"
+          Identifier closeBuy
+             Type: bool
+             Source: "closeBuy"
+          Identifier isClosedBuy
+             Type: bool
+             Source: "isClosedBuy"
+      ExpressionStatement
+         Gas costs: 20317
+         Source: "closeSell = isClosedSell"
+        Assignment using operator =
+           Type: bool
+           Source: "closeSell = isClosedSell"
+          Identifier closeSell
+             Type: bool
+             Source: "closeSell"
+          Identifier isClosedSell
+             Type: bool
+             Source: "isClosedSell"
+  FunctionDefinition "deposit" - public
+     Source: "function deposit() payable returns(bool success) {\r\n        require((this.balance + msg.value) > this.balance); // Checks for overflows.\r\n        \r\n        //Contract has already received the Ether when this function is executed.\r\n        _updateSolvency(this.balance);   // Updates the value of solvency of the contract.\r\n        _updateProfit(msg.value, false); // Decrease profit value.\r\n        // Decrease because deposits will be done mostly by the owner.\r\n        // Possible donations won't count as profit. Atleast not for the company, but in favor of the investors.\r\n\r\n        LogDeposit(msg.sender, msg.value); // Notifies the blockchain about the Ether received.\r\n        return true;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n        require((this.balance + msg.value) > this.balance); // Checks for overflows.\r\n        \r\n        //Contract has already received the Ether when this function is executed.\r\n        _updateSolvency(this.balance);   // Updates the value of solvency of the contract.\r\n        _updateProfit(msg.value, false); // Decrease profit value.\r\n        // Decrease because deposits will be done mostly by the owner.\r\n        // Possible donations won't count as profit. Atleast not for the company, but in favor of the investors.\r\n\r\n        LogDeposit(msg.sender, msg.value); // Notifies the blockchain about the Ether received.\r\n        return true;\r\n    }"
+      ExpressionStatement
+         Gas costs: 850
+         Source: "require((this.balance + msg.value) > this.balance)"
+        FunctionCall
+           Type: tuple()
+           Source: "require((this.balance + msg.value) > this.balance)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >
+             Type: bool
+             Source: "(this.balance + msg.value) > this.balance"
+            TupleExpression
+               Type: uint256
+               Source: "(this.balance + msg.value)"
+              BinaryOperation using operator +
+                 Type: uint256
+                 Source: "this.balance + msg.value"
+                MemberAccess to member balance
+                   Type: uint256
+                   Source: "this.balance"
+                  Identifier this
+                     Type: contract BSCToken
+                     Source: "this"
+                MemberAccess to member value
+                   Type: uint256
+                   Source: "msg.value"
+                  Identifier msg
+                     Type: msg
+                     Source: "msg"
+            MemberAccess to member balance
+               Type: uint256
+               Source: "this.balance"
+              Identifier this
+                 Type: contract BSCToken
+                 Source: "this"
+      ExpressionStatement
+         Gas costs: 423
+         Source: "_updateSolvency(this.balance)"
+        FunctionCall
+           Type: tuple()
+           Source: "_updateSolvency(this.balance)"
+          Identifier _updateSolvency
+             Type: function (uint256)
+             Source: "_updateSolvency"
+          MemberAccess to member balance
+             Type: uint256
+             Source: "this.balance"
+            Identifier this
+               Type: contract BSCToken
+               Source: "this"
+      ExpressionStatement
+         Gas costs: 20
+         Source: "_updateProfit(msg.value, false)"
+        FunctionCall
+           Type: tuple()
+           Source: "_updateProfit(msg.value, false)"
+          Identifier _updateProfit
+             Type: function (uint256,bool)
+             Source: "_updateProfit"
+          MemberAccess to member value
+             Type: uint256
+             Source: "msg.value"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Literal, token: false value: false
+             Type: bool
+             Source: "false"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "LogDeposit(msg.sender, msg.value)"
+        FunctionCall
+           Type: tuple()
+           Source: "LogDeposit(msg.sender, msg.value)"
+          Identifier LogDeposit
+             Type: function (address,uint256)
+             Source: "LogDeposit"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          MemberAccess to member value
+             Type: uint256
+             Source: "msg.value"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+      Return
+         Gas costs: 8
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+  FunctionDefinition "withdraw" - public
+     Source: "function withdraw(uint amountInWeis) onlyOwner {\r\n        LogWithdrawal(msg.sender, amountInWeis); // Notifies the blockchain about the withdrawal.\r\n        _updateSolvency( (this.balance - amountInWeis) ); // Updates the value of solvency of the contract.\r\n        _updateProfit(amountInWeis, true);                // Increase the profit value.\r\n        owner.transfer(amountInWeis); // Sends the Ether to owner address.\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint amountInWeis)"
+      VariableDeclaration "amountInWeis"
+         Type: uint256
+         Source: "uint amountInWeis"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n        LogWithdrawal(msg.sender, amountInWeis); // Notifies the blockchain about the withdrawal.\r\n        _updateSolvency( (this.balance - amountInWeis) ); // Updates the value of solvency of the contract.\r\n        _updateProfit(amountInWeis, true);                // Increase the profit value.\r\n        owner.transfer(amountInWeis); // Sends the Ether to owner address.\r\n    }"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "LogWithdrawal(msg.sender, amountInWeis)"
+        FunctionCall
+           Type: tuple()
+           Source: "LogWithdrawal(msg.sender, amountInWeis)"
+          Identifier LogWithdrawal
+             Type: function (address,uint256)
+             Source: "LogWithdrawal"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier amountInWeis
+             Type: uint256
+             Source: "amountInWeis"
+      ExpressionStatement
+         Gas costs: 418
+         Source: "_updateSolvency( (this.balance - amountInWeis) )"
+        FunctionCall
+           Type: tuple()
+           Source: "_updateSolvency( (this.balance - amountInWeis) )"
+          Identifier _updateSolvency
+             Type: function (uint256)
+             Source: "_updateSolvency"
+          TupleExpression
+             Type: uint256
+             Source: "(this.balance - amountInWeis)"
+            BinaryOperation using operator -
+               Type: uint256
+               Source: "this.balance - amountInWeis"
+              MemberAccess to member balance
+                 Type: uint256
+                 Source: "this.balance"
+                Identifier this
+                   Type: contract BSCToken
+                   Source: "this"
+              Identifier amountInWeis
+                 Type: uint256
+                 Source: "amountInWeis"
+      ExpressionStatement
+         Gas costs: 10
+         Source: "_updateProfit(amountInWeis, true)"
+        FunctionCall
+           Type: tuple()
+           Source: "_updateProfit(amountInWeis, true)"
+          Identifier _updateProfit
+             Type: function (uint256,bool)
+             Source: "_updateProfit"
+          Identifier amountInWeis
+             Type: uint256
+             Source: "amountInWeis"
+          Literal, token: true value: true
+             Type: bool
+             Source: "true"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "owner.transfer(amountInWeis)"
+        FunctionCall
+           Type: tuple()
+           Source: "owner.transfer(amountInWeis)"
+          MemberAccess to member transfer
+             Type: function (uint256)
+             Source: "owner.transfer"
+            Identifier owner
+               Type: address
+               Source: "owner"
+          Identifier amountInWeis
+             Type: uint256
+             Source: "amountInWeis"
+  FunctionDefinition "buy" - public
+     Source: "function buy() payable {\r\n        require(!closeBuy); // Buy operations must be opened.\r\n        uint amount = msg.value / buyPrice; // Calculates the amount of tokens to be sent.\r\n        uint256 profit_in_transaction = msg.value - (amount * sellPrice); // Calculates the relative profit for this transaction.\r\n        require( profit_in_transaction > 0 );\r\n\r\n        //Contract has already received the Ether when this function is executed.\r\n        _transfer(this, msg.sender, amount); // Makes the transfer of tokens.\r\n        distributedTokens = distributedTokens + amount; // Increase the number of tokens distributed.\r\n        _updateSolvency(this.balance - profit_in_transaction);   // Updates the value of solvency of the contract.\r\n        _updateProfit(profit_in_transaction, true);              // Increase the profit value.\r\n        owner.transfer(profit_in_transaction); // Sends profit to the owner of the contract.\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        require(!closeBuy); // Buy operations must be opened.\r\n        uint amount = msg.value / buyPrice; // Calculates the amount of tokens to be sent.\r\n        uint256 profit_in_transaction = msg.value - (amount * sellPrice); // Calculates the relative profit for this transaction.\r\n        require( profit_in_transaction > 0 );\r\n\r\n        //Contract has already received the Ether when this function is executed.\r\n        _transfer(this, msg.sender, amount); // Makes the transfer of tokens.\r\n        distributedTokens = distributedTokens + amount; // Increase the number of tokens distributed.\r\n        _updateSolvency(this.balance - profit_in_transaction);   // Updates the value of solvency of the contract.\r\n        _updateProfit(profit_in_transaction, true);              // Increase the profit value.\r\n        owner.transfer(profit_in_transaction); // Sends profit to the owner of the contract.\r\n    }"
+      ExpressionStatement
+         Gas costs: 268
+         Source: "require(!closeBuy)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(!closeBuy)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          UnaryOperation (prefix) !
+             Type: bool
+             Source: "!closeBuy"
+            Identifier closeBuy
+               Type: bool
+               Source: "closeBuy"
+      VariableDeclarationStatement
+         Gas costs: 241
+         Source: "uint amount = msg.value / buyPrice"
+        VariableDeclaration "amount"
+           Type: uint256
+           Source: "uint amount"
+          ElementaryTypeName uint
+             Source: "uint"
+        BinaryOperation using operator /
+           Type: uint256
+           Source: "msg.value / buyPrice"
+          MemberAccess to member value
+             Type: uint256
+             Source: "msg.value"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier buyPrice
+             Type: uint256
+             Source: "buyPrice"
+      VariableDeclarationStatement
+         Gas costs: 224
+         Source: "uint256 profit_in_transaction = msg.value - (amount * sellPrice)"
+        VariableDeclaration "profit_in_transaction"
+           Type: uint256
+           Source: "uint256 profit_in_transaction"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        BinaryOperation using operator -
+           Type: uint256
+           Source: "msg.value - (amount * sellPrice)"
+          MemberAccess to member value
+             Type: uint256
+             Source: "msg.value"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          TupleExpression
+             Type: uint256
+             Source: "(amount * sellPrice)"
+            BinaryOperation using operator *
+               Type: uint256
+               Source: "amount * sellPrice"
+              Identifier amount
+                 Type: uint256
+                 Source: "amount"
+              Identifier sellPrice
+                 Type: uint256
+                 Source: "sellPrice"
+      ExpressionStatement
+         Gas costs: 35
+         Source: "require( profit_in_transaction > 0 )"
+        FunctionCall
+           Type: tuple()
+           Source: "require( profit_in_transaction > 0 )"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >
+             Type: bool
+             Source: "profit_in_transaction > 0"
+            Identifier profit_in_transaction
+               Type: uint256
+               Source: "profit_in_transaction"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+      ExpressionStatement
+         Gas costs: 22
+         Source: "_transfer(this, msg.sender, amount)"
+        FunctionCall
+           Type: tuple()
+           Source: "_transfer(this, msg.sender, amount)"
+          Identifier _transfer
+             Type: function (address,address,uint256)
+             Source: "_transfer"
+          Identifier this
+             Type: contract BSCToken
+             Source: "this"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier amount
+             Type: uint256
+             Source: "amount"
+      ExpressionStatement
+         Gas costs: 20220
+         Source: "distributedTokens = distributedTokens + amount"
+        Assignment using operator =
+           Type: uint256
+           Source: "distributedTokens = distributedTokens + amount"
+          Identifier distributedTokens
+             Type: uint256
+             Source: "distributedTokens"
+          BinaryOperation using operator +
+             Type: uint256
+             Source: "distributedTokens + amount"
+            Identifier distributedTokens
+               Type: uint256
+               Source: "distributedTokens"
+            Identifier amount
+               Type: uint256
+               Source: "amount"
+      ExpressionStatement
+         Gas costs: 429
+         Source: "_updateSolvency(this.balance - profit_in_transaction)"
+        FunctionCall
+           Type: tuple()
+           Source: "_updateSolvency(this.balance - profit_in_transaction)"
+          Identifier _updateSolvency
+             Type: function (uint256)
+             Source: "_updateSolvency"
+          BinaryOperation using operator -
+             Type: uint256
+             Source: "this.balance - profit_in_transaction"
+            MemberAccess to member balance
+               Type: uint256
+               Source: "this.balance"
+              Identifier this
+                 Type: contract BSCToken
+                 Source: "this"
+            Identifier profit_in_transaction
+               Type: uint256
+               Source: "profit_in_transaction"
+      ExpressionStatement
+         Gas costs: 21
+         Source: "_updateProfit(profit_in_transaction, true)"
+        FunctionCall
+           Type: tuple()
+           Source: "_updateProfit(profit_in_transaction, true)"
+          Identifier _updateProfit
+             Type: function (uint256,bool)
+             Source: "_updateProfit"
+          Identifier profit_in_transaction
+             Type: uint256
+             Source: "profit_in_transaction"
+          Literal, token: true value: true
+             Type: bool
+             Source: "true"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "owner.transfer(profit_in_transaction)"
+        FunctionCall
+           Type: tuple()
+           Source: "owner.transfer(profit_in_transaction)"
+          MemberAccess to member transfer
+             Type: function (uint256)
+             Source: "owner.transfer"
+            Identifier owner
+               Type: address
+               Source: "owner"
+          Identifier profit_in_transaction
+             Type: uint256
+             Source: "profit_in_transaction"
+  FunctionDefinition "sell" - public
+     Source: "function sell(uint256 amount) {\r\n        require(!closeSell); // Sell operations must be opened.\r\n        require(this.balance >= amount * sellPrice); // Checks if the contract has enough Ether to buy.\r\n        \r\n        _transfer(msg.sender, this, amount); // Makes the transfer of tokens, the contract receives the tokens.\r\n        distributedTokens = distributedTokens - amount; // Decrease the number of tokens distributed.\r\n        _updateSolvency( (this.balance - (amount * sellPrice)) ); // Updates the value of solvency of the contract.\r\n        msg.sender.transfer(amount * sellPrice); // Sends Ether to the seller.\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 amount)"
+      VariableDeclaration "amount"
+         Type: uint256
+         Source: "uint256 amount"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        require(!closeSell); // Sell operations must be opened.\r\n        require(this.balance >= amount * sellPrice); // Checks if the contract has enough Ether to buy.\r\n        \r\n        _transfer(msg.sender, this, amount); // Makes the transfer of tokens, the contract receives the tokens.\r\n        distributedTokens = distributedTokens - amount; // Decrease the number of tokens distributed.\r\n        _updateSolvency( (this.balance - (amount * sellPrice)) ); // Updates the value of solvency of the contract.\r\n        msg.sender.transfer(amount * sellPrice); // Sends Ether to the seller.\r\n    }"
+      ExpressionStatement
+         Gas costs: 318
+         Source: "require(!closeSell)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(!closeSell)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          UnaryOperation (prefix) !
+             Type: bool
+             Source: "!closeSell"
+            Identifier closeSell
+               Type: bool
+               Source: "closeSell"
+      ExpressionStatement
+         Gas costs: 651
+         Source: "require(this.balance >= amount * sellPrice)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(this.balance >= amount * sellPrice)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "this.balance >= amount * sellPrice"
+            MemberAccess to member balance
+               Type: uint256
+               Source: "this.balance"
+              Identifier this
+                 Type: contract BSCToken
+                 Source: "this"
+            BinaryOperation using operator *
+               Type: uint256
+               Source: "amount * sellPrice"
+              Identifier amount
+                 Type: uint256
+                 Source: "amount"
+              Identifier sellPrice
+                 Type: uint256
+                 Source: "sellPrice"
+      ExpressionStatement
+         Gas costs: 22
+         Source: "_transfer(msg.sender, this, amount)"
+        FunctionCall
+           Type: tuple()
+           Source: "_transfer(msg.sender, this, amount)"
+          Identifier _transfer
+             Type: function (address,address,uint256)
+             Source: "_transfer"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier this
+             Type: contract BSCToken
+             Source: "this"
+          Identifier amount
+             Type: uint256
+             Source: "amount"
+      ExpressionStatement
+         Gas costs: 20220
+         Source: "distributedTokens = distributedTokens - amount"
+        Assignment using operator =
+           Type: uint256
+           Source: "distributedTokens = distributedTokens - amount"
+          Identifier distributedTokens
+             Type: uint256
+             Source: "distributedTokens"
+          BinaryOperation using operator -
+             Type: uint256
+             Source: "distributedTokens - amount"
+            Identifier distributedTokens
+               Type: uint256
+               Source: "distributedTokens"
+            Identifier amount
+               Type: uint256
+               Source: "amount"
+      ExpressionStatement
+         Gas costs: 637
+         Source: "_updateSolvency( (this.balance - (amount * sellPrice)) )"
+        FunctionCall
+           Type: tuple()
+           Source: "_updateSolvency( (this.balance - (amount * sellPrice)) )"
+          Identifier _updateSolvency
+             Type: function (uint256)
+             Source: "_updateSolvency"
+          TupleExpression
+             Type: uint256
+             Source: "(this.balance - (amount * sellPrice))"
+            BinaryOperation using operator -
+               Type: uint256
+               Source: "this.balance - (amount * sellPrice)"
+              MemberAccess to member balance
+                 Type: uint256
+                 Source: "this.balance"
+                Identifier this
+                   Type: contract BSCToken
+                   Source: "this"
+              TupleExpression
+                 Type: uint256
+                 Source: "(amount * sellPrice)"
+                BinaryOperation using operator *
+                   Type: uint256
+                   Source: "amount * sellPrice"
+                  Identifier amount
+                     Type: uint256
+                     Source: "amount"
+                  Identifier sellPrice
+                     Type: uint256
+                     Source: "sellPrice"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "msg.sender.transfer(amount * sellPrice)"
+        FunctionCall
+           Type: tuple()
+           Source: "msg.sender.transfer(amount * sellPrice)"
+          MemberAccess to member transfer
+             Type: function (uint256)
+             Source: "msg.sender.transfer"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          BinaryOperation using operator *
+             Type: uint256
+             Source: "amount * sellPrice"
+            Identifier amount
+               Type: uint256
+               Source: "amount"
+            Identifier sellPrice
+               Type: uint256
+               Source: "sellPrice"

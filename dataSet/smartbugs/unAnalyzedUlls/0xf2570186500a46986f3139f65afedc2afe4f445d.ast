@@ -1,0 +1,103 @@
+Syntax trees:
+
+
+======= /home/fabric/ArocRevision/Aroc/dataSet/smartbugs-21-7-13/unAnalyzedUlls/0xf2570186500a46986f3139f65afedc2afe4f445d.sol =======
+PragmaDirective
+   Gas costs: 0
+   Source: "pragma solidity ^0.4.16;"
+ContractDefinition "RealOldFuckMaker"
+   Source: "contract RealOldFuckMaker {\r\n    address fuck = 0xc63e7b1DEcE63A77eD7E4Aeef5efb3b05C81438D;\r\n    \r\n    // this can make OVER 9,000 OLD FUCKS\r\n    // (just pass in 129)\r\n    function makeOldFucks(uint32 number) {\r\n        uint32 i;\r\n        for (i = 0; i < number; i++) {\r\n            // <yes> <report> UNCHECKED_LL_CALLS\r\n            fuck.call(bytes4(sha3(\"giveBlockReward()\")));\r\n        }\r\n    }\r\n}"
+  VariableDeclaration "fuck"
+     Type: address
+     Gas costs: 0
+     Source: "address fuck = 0xc63e7b1DEcE63A77eD7E4Aeef5efb3b05C81438D"
+    ElementaryTypeName address
+       Source: "address"
+    Literal, token: [no token] value: 0xc63e7b1DEcE63A77eD7E4Aeef5efb3b05C81438D
+       Type: address
+       Source: "0xc63e7b1DEcE63A77eD7E4Aeef5efb3b05C81438D"
+  FunctionDefinition "makeOldFucks" - public
+     Source: "function makeOldFucks(uint32 number) {\r\n        uint32 i;\r\n        for (i = 0; i < number; i++) {\r\n            // <yes> <report> UNCHECKED_LL_CALLS\r\n            fuck.call(bytes4(sha3(\"giveBlockReward()\")));\r\n        }\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint32 number)"
+      VariableDeclaration "number"
+         Type: uint32
+         Source: "uint32 number"
+        ElementaryTypeName uint32
+           Source: "uint32"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        uint32 i;\r\n        for (i = 0; i < number; i++) {\r\n            // <yes> <report> UNCHECKED_LL_CALLS\r\n            fuck.call(bytes4(sha3(\"giveBlockReward()\")));\r\n        }\r\n    }"
+      VariableDeclarationStatement
+         Gas costs: 3
+         Source: "uint32 i"
+        VariableDeclaration "i"
+           Type: uint32
+           Source: "uint32 i"
+          ElementaryTypeName uint32
+             Source: "uint32"
+      ForStatement
+         Source: "for (i = 0; i < number; i++) {\r\n            // <yes> <report> UNCHECKED_LL_CALLS\r\n            fuck.call(bytes4(sha3(\"giveBlockReward()\")));\r\n        }"
+        ExpressionStatement
+           Gas costs: 8
+           Source: "i = 0"
+          Assignment using operator =
+             Type: uint32
+             Source: "i = 0"
+            Identifier i
+               Type: uint32
+               Source: "i"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+        BinaryOperation using operator <
+           Type: bool
+           Gas costs: 21
+           Source: "i < number"
+          Identifier i
+             Type: uint32
+             Source: "i"
+          Identifier number
+             Type: uint32
+             Source: "number"
+        ExpressionStatement
+           Gas costs: 19
+           Source: "i++"
+          UnaryOperation (postfix) ++
+             Type: uint32
+             Source: "i++"
+            Identifier i
+               Type: uint32
+               Source: "i"
+        Block
+           Source: "{\r\n            // <yes> <report> UNCHECKED_LL_CALLS\r\n            fuck.call(bytes4(sha3(\"giveBlockReward()\")));\r\n        }"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "fuck.call(bytes4(sha3(\"giveBlockReward()\")))"
+            FunctionCall
+               Type: bool
+               Source: "fuck.call(bytes4(sha3(\"giveBlockReward()\")))"
+              MemberAccess to member call
+                 Type: function () payable returns (bool)
+                 Source: "fuck.call"
+                Identifier fuck
+                   Type: address
+                   Source: "fuck"
+              FunctionCall
+                 Type: bytes4
+                 Source: "bytes4(sha3(\"giveBlockReward()\"))"
+                ElementaryTypeNameExpression bytes4
+                   Type: type(bytes4)
+                   Source: "bytes4"
+                FunctionCall
+                   Type: bytes32
+                   Source: "sha3(\"giveBlockReward()\")"
+                  Identifier sha3
+                     Type: function () pure returns (bytes32)
+                     Source: "sha3"
+                  Literal, token: [no token] value: giveBlockReward()
+                     Type: literal_string "giveBlockReward()"
+                     Source: "\"giveBlockReward()\""

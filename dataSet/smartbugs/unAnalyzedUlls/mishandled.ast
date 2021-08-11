@@ -1,0 +1,88 @@
+Syntax trees:
+
+
+======= /home/fabric/ArocRevision/Aroc/dataSet/smartbugs-21-7-13/unAnalyzedUlls/mishandled.sol =======
+PragmaDirective
+   Gas costs: 0
+   Source: "pragma solidity ^0.4.0;"
+ContractDefinition "SendBack"
+   Source: "contract SendBack {\n    mapping (address => uint) userBalances;\n    function withdrawBalance() {  \n\t\tuint amountToWithdraw = userBalances[msg.sender];\n\t\tuserBalances[msg.sender] = 0;\n        // <yes> <report> UNCHECKED_LL_CALLS\n\t\tmsg.sender.send(amountToWithdraw);\n\t}\n}"
+  VariableDeclaration "userBalances"
+     Type: mapping(address => uint256)
+     Gas costs: 0
+     Source: "mapping (address => uint) userBalances"
+    Mapping
+       Source: "mapping (address => uint)"
+      ElementaryTypeName address
+         Source: "address"
+      ElementaryTypeName uint
+         Source: "uint"
+  FunctionDefinition "withdrawBalance" - public
+     Source: "function withdrawBalance() {  \n\t\tuint amountToWithdraw = userBalances[msg.sender];\n\t\tuserBalances[msg.sender] = 0;\n        // <yes> <report> UNCHECKED_LL_CALLS\n\t\tmsg.sender.send(amountToWithdraw);\n\t}"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{  \n\t\tuint amountToWithdraw = userBalances[msg.sender];\n\t\tuserBalances[msg.sender] = 0;\n        // <yes> <report> UNCHECKED_LL_CALLS\n\t\tmsg.sender.send(amountToWithdraw);\n\t}"
+      VariableDeclarationStatement
+         Gas costs: 306
+         Source: "uint amountToWithdraw = userBalances[msg.sender]"
+        VariableDeclaration "amountToWithdraw"
+           Type: uint256
+           Source: "uint amountToWithdraw"
+          ElementaryTypeName uint
+             Source: "uint"
+        IndexAccess
+           Type: uint256
+           Source: "userBalances[msg.sender]"
+          Identifier userBalances
+             Type: mapping(address => uint256)
+             Source: "userBalances"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+      ExpressionStatement
+         Gas costs: 5103
+         Source: "userBalances[msg.sender] = 0"
+        Assignment using operator =
+           Type: uint256
+           Source: "userBalances[msg.sender] = 0"
+          IndexAccess
+             Type: uint256
+             Source: "userBalances[msg.sender]"
+            Identifier userBalances
+               Type: mapping(address => uint256)
+               Source: "userBalances"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "msg.sender.send(amountToWithdraw)"
+        FunctionCall
+           Type: bool
+           Source: "msg.sender.send(amountToWithdraw)"
+          MemberAccess to member send
+             Type: function (uint256) returns (bool)
+             Source: "msg.sender.send"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Identifier amountToWithdraw
+             Type: uint256
+             Source: "amountToWithdraw"

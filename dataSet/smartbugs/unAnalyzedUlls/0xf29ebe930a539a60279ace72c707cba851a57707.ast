@@ -1,0 +1,101 @@
+Syntax trees:
+
+
+======= /home/fabric/ArocRevision/Aroc/dataSet/smartbugs-21-7-13/unAnalyzedUlls/0xf29ebe930a539a60279ace72c707cba851a57707.sol =======
+PragmaDirective
+   Gas costs: 0
+   Source: "pragma solidity ^0.4.24;"
+ContractDefinition "B"
+   Source: "contract B {\r\n    address public owner = msg.sender;\r\n    \r\n    function go() public payable {\r\n        address target = 0xC8A60C51967F4022BF9424C337e9c6F0bD220E1C;\r\n        // <yes> <report> UNCHECKED_LL_CALLS\r\n        target.call.value(msg.value)();\r\n        owner.transfer(address(this).balance);\r\n    }\r\n    \r\n    function() public payable {\r\n    }\r\n}"
+  VariableDeclaration "owner"
+     Type: address
+     Gas costs: 335
+     Source: "address public owner = msg.sender"
+    ElementaryTypeName address
+       Source: "address"
+    MemberAccess to member sender
+       Type: address
+       Source: "msg.sender"
+      Identifier msg
+         Type: msg
+         Source: "msg"
+  FunctionDefinition "go" - public
+     Source: "function go() public payable {\r\n        address target = 0xC8A60C51967F4022BF9424C337e9c6F0bD220E1C;\r\n        // <yes> <report> UNCHECKED_LL_CALLS\r\n        target.call.value(msg.value)();\r\n        owner.transfer(address(this).balance);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        address target = 0xC8A60C51967F4022BF9424C337e9c6F0bD220E1C;\r\n        // <yes> <report> UNCHECKED_LL_CALLS\r\n        target.call.value(msg.value)();\r\n        owner.transfer(address(this).balance);\r\n    }"
+      VariableDeclarationStatement
+         Gas costs: 11
+         Source: "address target = 0xC8A60C51967F4022BF9424C337e9c6F0bD220E1C"
+        VariableDeclaration "target"
+           Type: address
+           Source: "address target"
+          ElementaryTypeName address
+             Source: "address"
+        Literal, token: [no token] value: 0xC8A60C51967F4022BF9424C337e9c6F0bD220E1C
+           Type: address
+           Source: "0xC8A60C51967F4022BF9424C337e9c6F0bD220E1C"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "target.call.value(msg.value)()"
+        FunctionCall
+           Type: bool
+           Source: "target.call.value(msg.value)()"
+          FunctionCall
+             Type: function () payable returns (bool)
+             Source: "target.call.value(msg.value)"
+            MemberAccess to member value
+               Type: function (uint256) returns (function () payable returns (bool))
+               Source: "target.call.value"
+              MemberAccess to member call
+                 Type: function () payable returns (bool)
+                 Source: "target.call"
+                Identifier target
+                   Type: address
+                   Source: "target"
+            MemberAccess to member value
+               Type: uint256
+               Source: "msg.value"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "owner.transfer(address(this).balance)"
+        FunctionCall
+           Type: tuple()
+           Source: "owner.transfer(address(this).balance)"
+          MemberAccess to member transfer
+             Type: function (uint256)
+             Source: "owner.transfer"
+            Identifier owner
+               Type: address
+               Source: "owner"
+          MemberAccess to member balance
+             Type: uint256
+             Source: "address(this).balance"
+            FunctionCall
+               Type: address
+               Source: "address(this)"
+              ElementaryTypeNameExpression address
+                 Type: type(address)
+                 Source: "address"
+              Identifier this
+                 Type: contract B
+                 Source: "this"
+  FunctionDefinition "" - public
+     Source: "function() public payable {\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Gas costs: 0
+       Source: "{\r\n    }"

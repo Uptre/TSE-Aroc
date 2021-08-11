@@ -1,0 +1,3102 @@
+Syntax trees:
+
+
+======= /home/fabric/ArocRevision/Aroc/osirisData/contractSrc/0x48c1b2f3efa85fbafb2ab951bf4ba860a08cdbb7.sol =======
+PragmaDirective
+   Gas costs: 0
+   Source: "pragma solidity ^0.4.19;"
+ContractDefinition "SafeMath"
+   Source: "library SafeMath {\r\n  function mul(uint256 a, uint256 b) internal constant returns (uint256) {\r\n    uint256 c = a * b;\r\n    assert(a == 0 || c / a == b);\r\n    return c;\r\n  }\r\n\r\n  function div(uint256 a, uint256 b) internal constant returns (uint256) {\r\n    // assert(b > 0); // Solidity automatically throws when dividing by 0\r\n    uint256 c = a / b;\r\n    return c;\r\n  }\r\n\r\n  function sub(uint256 a, uint256 b) internal constant returns (uint256) {\r\n    assert(b <= a);\r\n    return a - b;\r\n  }\r\n\r\n  function add(uint256 a, uint256 b) internal constant returns (uint256) {\r\n    uint256 c = a + b;\r\n    assert(c >= a);\r\n    return c;\r\n  }\r\n}"
+  FunctionDefinition "mul" - const
+     Source: "function mul(uint256 a, uint256 b) internal constant returns (uint256) {\r\n    uint256 c = a * b;\r\n    assert(a == 0 || c / a == b);\r\n    return c;\r\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 a, uint256 b)"
+      VariableDeclaration "a"
+         Type: uint256
+         Source: "uint256 a"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "b"
+         Type: uint256
+         Source: "uint256 b"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint256"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{\r\n    uint256 c = a * b;\r\n    assert(a == 0 || c / a == b);\r\n    return c;\r\n  }"
+      VariableDeclarationStatement
+         Gas costs: 0
+         Source: "uint256 c = a * b"
+        VariableDeclaration "c"
+           Type: uint256
+           Source: "uint256 c"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        BinaryOperation using operator *
+           Type: uint256
+           Source: "a * b"
+          Identifier a
+             Type: uint256
+             Source: "a"
+          Identifier b
+             Type: uint256
+             Source: "b"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "assert(a == 0 || c / a == b)"
+        FunctionCall
+           Type: tuple()
+           Source: "assert(a == 0 || c / a == b)"
+          Identifier assert
+             Type: function (bool) pure
+             Source: "assert"
+          BinaryOperation using operator ||
+             Type: bool
+             Source: "a == 0 || c / a == b"
+            BinaryOperation using operator ==
+               Type: bool
+               Source: "a == 0"
+              Identifier a
+                 Type: uint256
+                 Source: "a"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+            BinaryOperation using operator ==
+               Type: bool
+               Source: "c / a == b"
+              BinaryOperation using operator /
+                 Type: uint256
+                 Source: "c / a"
+                Identifier c
+                   Type: uint256
+                   Source: "c"
+                Identifier a
+                   Type: uint256
+                   Source: "a"
+              Identifier b
+                 Type: uint256
+                 Source: "b"
+      Return
+         Gas costs: 0
+         Source: "return c"
+        Identifier c
+           Type: uint256
+           Source: "c"
+  FunctionDefinition "div" - const
+     Source: "function div(uint256 a, uint256 b) internal constant returns (uint256) {\r\n    // assert(b > 0); // Solidity automatically throws when dividing by 0\r\n    uint256 c = a / b;\r\n    return c;\r\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 a, uint256 b)"
+      VariableDeclaration "a"
+         Type: uint256
+         Source: "uint256 a"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "b"
+         Type: uint256
+         Source: "uint256 b"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint256)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint256"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{\r\n    // assert(b > 0); // Solidity automatically throws when dividing by 0\r\n    uint256 c = a / b;\r\n    return c;\r\n  }"
+      VariableDeclarationStatement
+         Gas costs: 42
+         Source: "uint256 c = a / b"
+        VariableDeclaration "c"
+           Type: uint256
+           Source: "uint256 c"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        BinaryOperation using operator /
+           Type: uint256
+           Source: "a / b"
+          Identifier a
+             Type: uint256
+             Source: "a"
+          Identifier b
+             Type: uint256
+             Source: "b"
+      Return
+         Gas costs: 8
+         Source: "return c"
+        Identifier c
+           Type: uint256
+           Source: "c"
+  FunctionDefinition "sub" - const
+     Source: "function sub(uint256 a, uint256 b) internal constant returns (uint256) {\r\n    assert(b <= a);\r\n    return a - b;\r\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 a, uint256 b)"
+      VariableDeclaration "a"
+         Type: uint256
+         Source: "uint256 a"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "b"
+         Type: uint256
+         Source: "uint256 b"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint256)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint256"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{\r\n    assert(b <= a);\r\n    return a - b;\r\n  }"
+      ExpressionStatement
+         Gas costs: 32
+         Source: "assert(b <= a)"
+        FunctionCall
+           Type: tuple()
+           Source: "assert(b <= a)"
+          Identifier assert
+             Type: function (bool) pure
+             Source: "assert"
+          BinaryOperation using operator <=
+             Type: bool
+             Source: "b <= a"
+            Identifier b
+               Type: uint256
+               Source: "b"
+            Identifier a
+               Type: uint256
+               Source: "a"
+      Return
+         Gas costs: 14
+         Source: "return a - b"
+        BinaryOperation using operator -
+           Type: uint256
+           Source: "a - b"
+          Identifier a
+             Type: uint256
+             Source: "a"
+          Identifier b
+             Type: uint256
+             Source: "b"
+  FunctionDefinition "add" - const
+     Source: "function add(uint256 a, uint256 b) internal constant returns (uint256) {\r\n    uint256 c = a + b;\r\n    assert(c >= a);\r\n    return c;\r\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 a, uint256 b)"
+      VariableDeclaration "a"
+         Type: uint256
+         Source: "uint256 a"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "b"
+         Type: uint256
+         Source: "uint256 b"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint256"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{\r\n    uint256 c = a + b;\r\n    assert(c >= a);\r\n    return c;\r\n  }"
+      VariableDeclarationStatement
+         Gas costs: 0
+         Source: "uint256 c = a + b"
+        VariableDeclaration "c"
+           Type: uint256
+           Source: "uint256 c"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        BinaryOperation using operator +
+           Type: uint256
+           Source: "a + b"
+          Identifier a
+             Type: uint256
+             Source: "a"
+          Identifier b
+             Type: uint256
+             Source: "b"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "assert(c >= a)"
+        FunctionCall
+           Type: tuple()
+           Source: "assert(c >= a)"
+          Identifier assert
+             Type: function (bool) pure
+             Source: "assert"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "c >= a"
+            Identifier c
+               Type: uint256
+               Source: "c"
+            Identifier a
+               Type: uint256
+               Source: "a"
+      Return
+         Gas costs: 0
+         Source: "return c"
+        Identifier c
+           Type: uint256
+           Source: "c"
+ContractDefinition "HAND"
+   Source: "contract HAND{\r\n    using SafeMath for uint256;\r\n\r\n    uint256 constant MAX_UINT256 = 2**256 - 1;\r\n    uint256 _initialAmount = 0;\r\n    uint256 public publicToken = 4*10**11;                // 40% of total, for public sale\r\n    uint256 public maxSupply = 10**12;\r\n    address  public contract_owner;\r\n    uint256 public exchangeRate = 3900000;                    // exchangeRate for public sale, token per ETH\r\n    bool public icoOpen = false;                           // whether ICO is open and accept public investment\r\n\r\n\r\n    address privateSaleAdd = 0x85e4FE33c590b8A5812fBF926a0f9fe64E6d8b35;\r\n    \r\n    mapping (address => uint256) balances;\r\n    mapping (address => mapping (address => uint256)) allowed;\r\n\r\n    \r\n      \r\n    // lock struct for founder\r\n    struct founderLock {\r\n        uint256 amount;\r\n        uint256 startTime;\r\n        uint remainRound;\r\n        uint totalRound;\r\n        uint256 period;\r\n    }\r\n    \r\n    mapping (address => founderLock) public founderLockance;\r\n    mapping (address => bool) isFreezed;\r\n    \r\n\r\n    \r\n    // uint256 totalSupply;\r\n    event Transfer(address indexed _from, address indexed _to, uint256 _value); \r\n    event Approval(address indexed _owner, address indexed _spender, uint256 _value);\r\n    event FounderUnlock(address _sender, uint256 _amount);\r\n            \r\n    /*\r\n    NOTE:\r\n    The following variables are OPTIONAL vanities. One does not have to include them.\r\n    */\r\n    string public name = \"ShowHand\";               //fancy name: eg Simon Bucks\r\n    uint8 public decimals = 0;                     //How many decimals to show.\r\n    string public symbol = \"HAND\";                 //An identifier: eg SBX\r\n\r\n    /**\r\n      * @dev Fix for the ERC20 short address attack.\r\n      */\r\n      modifier onlyPayloadSize(uint size) {\r\n          require(msg.data.length >= size + 4);\r\n          _;\r\n      }\r\n      modifier  onlyOwner() { \r\n          require(msg.sender == contract_owner); \r\n          _; \r\n      }\r\n      modifier inIco() { \r\n          require(icoOpen==true); \r\n          _; \r\n      }\r\n      \r\n      \r\n    // token distribution, 60% in this part\r\n        address address1 = 0x85e4FE33c590b8A5812fBF926a0f9fe64E6d8b35;\r\n        address address2 = 0x5af6353F2BB222DF6FCD82065ed2e6db1bB12291;\r\n        address address3 = 0x6c24A6EfdfF15230EE284E2E72D86656ac752e48;\r\n        address address4 = 0xCB946d83617eDb6fbCa19148AD83e17Ea7B67294;\r\n        address address5 = 0x76360A75dC6e4bC5c6C0a20A4B74b8823fAFad8C;\r\n        address address6 = 0x356399eE0ebCB6AfB13dF33168fD2CC54Ba219C2;\r\n        address address7 = 0x8b46b43cA5412311A5Dfa08EF1149B5942B5FE22;\r\n        address address8 = 0xA51551B57CB4e37Ea20B3226ceA61ebc7135a11a;\r\n        address address9 = 0x174bC643442bE89265500E6C2c236D32248A4FaE;\r\n        address address10 = 0x0D78E82ECEd57aC3CE65fE3B828f4d52fF712f31;\r\n        address address11 = 0xe31062592358Cd489Bdc09e8217543C8cc3D5C1C;\r\n        address address12 = 0x0DB8c855C4BB0efd5a1c32de2362c5ABCFa4CA33;\r\n        address address13 = 0xF25A3ccDC54A746d56A90197d911d9a1f27cF512;\r\n        address address14 = 0x102d36210d312FB9A9Cf5f5c3A293a8f6598BD50;\r\n\r\n        address address15 = 0x8Dd1cDD513b05D07726a6F8C75b57602991a9c34;\r\n        address address16 = 0x9d566BCc1BDda779a00a1D44E0b4cA07FB68EFEF;\r\n        address address17 = 0x1cfCe9A13aBC3381100e85BFA21160C98f8B103D;\r\n        address address18 = 0x61F0c924C0F91f4d17c82C534cfaF716A7893c13;\r\n        address address19 = 0xE76c0618Dd52403ad1907D3BCbF930226bFEa46B;\r\n        address address20 = 0xeF2f04dbd3E3aD126979646383c94Fd29E29de9F;\r\n\r\n    function HAND() public {\r\n        // set sender as contract_owner\r\n        contract_owner = msg.sender;\r\n        _initialAmount += publicToken;\r\n\r\n        \r\n\r\n        setFounderLock(address1, 800*10**8, 4, 180 days);\r\n        setFounderLock(address2, 40*10**8, 4, 180 days);\r\n        setFounderLock(address3, 5*10**8, 4, 180 days);\r\n        setFounderLock(address4, 5*10**8, 4, 180 days);\r\n        setFounderLock(address5, 300*10**8, 4, 180 days);\r\n        setFounderLock(address6, 200*10**8, 4, 180 days);\r\n        setFounderLock(address7, 100*10**8, 4, 180 days);\r\n        setFounderLock(address8, 50*10**8, 4, 180 days);\r\n        setFounderLock(address9, 600*10**8, 4, 180 days);\r\n        setFounderLock(address10, 150*10**8, 4, 180 days);\r\n        setFounderLock(address11, 100*10**8, 4, 180 days);\r\n        setFounderLock(address12, 800*10**8, 4, 180 days);\r\n        setFounderLock(address13, 2400*10**8, 4, 180 days);\r\n        setFounderLock(address14, 100*10**8, 4, 180 days);\r\n\r\n        setFounderLock(address15, 135*10**8, 4, 180 days);\r\n        setFounderLock(address16, 25*10**8, 4, 180 days);\r\n        setFounderLock(address17, 20*10**8, 4, 180 days);\r\n        setFounderLock(address18, 40*10**8, 4, 180 days);\r\n        setFounderLock(address19, 20*10**8, 4, 180 days);\r\n        setFounderLock(address20, 110*10**8, 4, 180 days);\r\n    }\r\n    function totalSupply() constant returns (uint256 _totalSupply){\r\n        _totalSupply = _initialAmount;\r\n      }\r\n    function transfer(address _to, uint256 _value) public returns (bool success) {\r\n        //Default assumes totalSupply can't be over max (2^256 - 1).\r\n        //If your token leaves out totalSupply and can issue more tokens as time goes on, you need to check if it doesn't wrap.\r\n        //Replace the if with this one instead.\r\n        //require(balances[msg.sender] >= _value && balances[_to] + _value > balances[_to]);\r\n        require(balances[msg.sender] >= _value);\r\n        require(isFreezed[msg.sender]==false);\r\n        balances[msg.sender] -= _value;\r\n        balances[_to] += _value;\r\n        Transfer(msg.sender, _to, _value);\r\n        return true;\r\n        }\r\n    function transferFrom(address _from, address _to, uint256 _value) public returns (bool success) {\r\n        //same as above. Replace this line with the following if you want to protect against wrapping uints.\r\n        //require(balances[_from] >= _value && allowed[_from][msg.sender] >= _value && balances[_to] + _value > balances[_to]);\r\n        uint256 allowance = allowed[_from][msg.sender];\r\n        require(balances[_from] >= _value && allowance >= _value);\r\n        balances[_to] += _value;\r\n        balances[_from] -= _value;\r\n        if (allowance < MAX_UINT256) {\r\n            allowed[_from][msg.sender] -= _value;\r\n        }\r\n        Transfer(_from, _to, _value);\r\n        return true;\r\n        }\r\n\r\n    function balanceOf(address _owner) view public returns (uint256 balance) {\r\n        return balances[_owner];\r\n        }\r\n\r\n    function approve(address _spender, uint256 _value) public returns (bool success) {\r\n        require(isFreezed[msg.sender]==false);\r\n        allowed[msg.sender][_spender] = _value;\r\n        Approval(msg.sender, _spender, _value);\r\n        return true;\r\n        }\r\n\r\n    function allowance(address _owner, address _spender)\r\n    view public returns (uint256 remaining) {\r\n      return allowed[_owner][_spender];\r\n        }\r\n\r\n    function multisend(address[] addrs,  uint256 _value)\r\n    {\r\n        uint length = addrs.length;\r\n        require(_value * length <= balances[msg.sender]);\r\n        uint i = 0;\r\n        while (i < length) {\r\n           transfer(addrs[i], _value);\r\n           i ++;\r\n        }\r\n        \r\n      }\r\n    \r\n    \r\n    \r\n    // lock token of founder for periodically release\r\n    // _address: founder address; \r\n    // _value: totoal locked token; \r\n    // _round: rounds founder could withdraw; \r\n    // _period: interval time between two rounds\r\n    function setFounderLock(address _address, uint256 _value, uint _round, uint256 _period)  internal onlyOwner{\r\n        founderLockance[_address].amount = _value;\r\n        founderLockance[_address].startTime = now;\r\n        founderLockance[_address].remainRound = _round;\r\n        founderLockance[_address].totalRound = _round;\r\n        founderLockance[_address].period = _period;\r\n    }\r\n    \r\n    \r\n    // allow locked token to be obtained for founder \r\n    function unlockFounder () {\r\n        require(now >= founderLockance[msg.sender].startTime + (founderLockance[msg.sender].totalRound - founderLockance[msg.sender].remainRound + 1) * founderLockance[msg.sender].period);\r\n        require(founderLockance[msg.sender].remainRound > 0);\r\n        uint256 changeAmount = founderLockance[msg.sender].amount.div(founderLockance[msg.sender].remainRound);\r\n        balances[msg.sender] += changeAmount;\r\n        founderLockance[msg.sender].amount -= changeAmount;\r\n        _initialAmount += changeAmount;\r\n        founderLockance[msg.sender].remainRound --;\r\n        FounderUnlock(msg.sender, changeAmount);\r\n    }\r\n    \r\n    function freezeAccount (address _target) onlyOwner {\r\n        isFreezed[_target] = true;\r\n    }\r\n    function unfreezeAccount (address _target) onlyOwner {\r\n        isFreezed[_target] = false;\r\n    }\r\n    function ownerUnlock (address _target, uint256 _value) onlyOwner {\r\n        require(founderLockance[_target].amount >= _value);\r\n        founderLockance[_target].amount -= _value;\r\n        balances[_target] += _value;\r\n        _initialAmount += _value;\r\n    }\r\n    \r\n    // starts ICO\r\n    function openIco () onlyOwner{\r\n        icoOpen = true;\r\n      }\r\n    // ends ICO \r\n    function closeIco () onlyOwner inIco{\r\n        icoOpen = false;\r\n      }\r\n\r\n    // transfer all unsold token to bounty balance;\r\n    function weAreClosed () onlyOwner{\r\n        balances[contract_owner] += publicToken;\r\n        transfer(privateSaleAdd, publicToken);\r\n        publicToken = 0;\r\n    }\r\n    // change rate of public sale\r\n    function changeRate (uint256 _rate) onlyOwner{\r\n        exchangeRate = _rate;\r\n    }    \r\n    \r\n    //  withdraw ETH from contract\r\n    function withdraw() onlyOwner{\r\n        contract_owner.transfer(this.balance);\r\n      }\r\n    // fallback function for receive ETH during ICO\r\n    function () payable inIco{\r\n        require(msg.value >= 10**18);\r\n        uint256 tokenChange = (msg.value * exchangeRate).div(10**18);\r\n        require(tokenChange <= publicToken);\r\n        balances[msg.sender] += tokenChange;\r\n        publicToken = publicToken.sub(tokenChange);\r\n      }\r\n}"
+  UsingForDirective
+     Gas costs: 0
+     Source: "using SafeMath for uint256;"
+    UserDefinedTypeName "SafeMath"
+       Source: "SafeMath"
+    ElementaryTypeName uint256
+       Source: "uint256"
+  VariableDeclaration "MAX_UINT256"
+     Type: uint256
+     Gas costs: 3
+     Source: "uint256 constant MAX_UINT256 = 2**256 - 1"
+    ElementaryTypeName uint256
+       Source: "uint256"
+    BinaryOperation using operator -
+       Type: int_const 1157...(70 digits omitted)...9935
+       Source: "2**256 - 1"
+      BinaryOperation using operator **
+         Type: int_const 1157...(70 digits omitted)...9936
+         Source: "2**256"
+        Literal, token: [no token] value: 2
+           Type: int_const 2
+           Source: "2"
+        Literal, token: [no token] value: 256
+           Type: int_const 256
+           Source: "256"
+      Literal, token: [no token] value: 1
+         Type: int_const 1
+         Source: "1"
+  VariableDeclaration "_initialAmount"
+     Type: uint256
+     Gas costs: 0
+     Source: "uint256 _initialAmount = 0"
+    ElementaryTypeName uint256
+       Source: "uint256"
+    Literal, token: [no token] value: 0
+       Type: int_const 0
+       Source: "0"
+  VariableDeclaration "publicToken"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint256 public publicToken = 4*10**11"
+    ElementaryTypeName uint256
+       Source: "uint256"
+    BinaryOperation using operator *
+       Type: int_const 400000000000
+       Source: "4*10**11"
+      Literal, token: [no token] value: 4
+         Type: int_const 4
+         Source: "4"
+      BinaryOperation using operator **
+         Type: int_const 100000000000
+         Source: "10**11"
+        Literal, token: [no token] value: 10
+           Type: int_const 10
+           Source: "10"
+        Literal, token: [no token] value: 11
+           Type: int_const 11
+           Source: "11"
+  VariableDeclaration "maxSupply"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint256 public maxSupply = 10**12"
+    ElementaryTypeName uint256
+       Source: "uint256"
+    BinaryOperation using operator **
+       Type: int_const 1000000000000
+       Source: "10**12"
+      Literal, token: [no token] value: 10
+         Type: int_const 10
+         Source: "10"
+      Literal, token: [no token] value: 12
+         Type: int_const 12
+         Source: "12"
+  VariableDeclaration "contract_owner"
+     Type: address
+     Gas costs: [???]
+     Source: "address  public contract_owner"
+    ElementaryTypeName address
+       Source: "address"
+  VariableDeclaration "exchangeRate"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint256 public exchangeRate = 3900000"
+    ElementaryTypeName uint256
+       Source: "uint256"
+    Literal, token: [no token] value: 3900000
+       Type: int_const 3900000
+       Source: "3900000"
+  VariableDeclaration "icoOpen"
+     Type: bool
+     Gas costs: [???]
+     Source: "bool public icoOpen = false"
+    ElementaryTypeName bool
+       Source: "bool"
+    Literal, token: false value: false
+       Type: bool
+       Source: "false"
+  VariableDeclaration "privateSaleAdd"
+     Type: address
+     Gas costs: 0
+     Source: "address privateSaleAdd = 0x85e4FE33c590b8A5812fBF926a0f9fe64E6d8b35"
+    ElementaryTypeName address
+       Source: "address"
+    Literal, token: [no token] value: 0x85e4FE33c590b8A5812fBF926a0f9fe64E6d8b35
+       Type: address
+       Source: "0x85e4FE33c590b8A5812fBF926a0f9fe64E6d8b35"
+  VariableDeclaration "balances"
+     Type: mapping(address => uint256)
+     Gas costs: 0
+     Source: "mapping (address => uint256) balances"
+    Mapping
+       Source: "mapping (address => uint256)"
+      ElementaryTypeName address
+         Source: "address"
+      ElementaryTypeName uint256
+         Source: "uint256"
+  VariableDeclaration "allowed"
+     Type: mapping(address => mapping(address => uint256))
+     Gas costs: 0
+     Source: "mapping (address => mapping (address => uint256)) allowed"
+    Mapping
+       Source: "mapping (address => mapping (address => uint256))"
+      ElementaryTypeName address
+         Source: "address"
+      Mapping
+         Source: "mapping (address => uint256)"
+        ElementaryTypeName address
+           Source: "address"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  StructDefinition "founderLock"
+     Gas costs: 0
+     Source: "struct founderLock {\r\n        uint256 amount;\r\n        uint256 startTime;\r\n        uint remainRound;\r\n        uint totalRound;\r\n        uint256 period;\r\n    }"
+    VariableDeclaration "amount"
+       Type: uint256
+       Source: "uint256 amount"
+      ElementaryTypeName uint256
+         Source: "uint256"
+    VariableDeclaration "startTime"
+       Type: uint256
+       Source: "uint256 startTime"
+      ElementaryTypeName uint256
+         Source: "uint256"
+    VariableDeclaration "remainRound"
+       Type: uint256
+       Source: "uint remainRound"
+      ElementaryTypeName uint
+         Source: "uint"
+    VariableDeclaration "totalRound"
+       Type: uint256
+       Source: "uint totalRound"
+      ElementaryTypeName uint
+         Source: "uint"
+    VariableDeclaration "period"
+       Type: uint256
+       Source: "uint256 period"
+      ElementaryTypeName uint256
+         Source: "uint256"
+  VariableDeclaration "founderLockance"
+     Type: mapping(address => struct HAND.founderLock storage ref)
+     Gas costs: [???]
+     Source: "mapping (address => founderLock) public founderLockance"
+    Mapping
+       Source: "mapping (address => founderLock)"
+      ElementaryTypeName address
+         Source: "address"
+      UserDefinedTypeName "founderLock"
+         Source: "founderLock"
+  VariableDeclaration "isFreezed"
+     Type: mapping(address => bool)
+     Gas costs: 0
+     Source: "mapping (address => bool) isFreezed"
+    Mapping
+       Source: "mapping (address => bool)"
+      ElementaryTypeName address
+         Source: "address"
+      ElementaryTypeName bool
+         Source: "bool"
+  EventDefinition "Transfer"
+     Gas costs: 0
+     Source: "event Transfer(address indexed _from, address indexed _to, uint256 _value);"
+    ParameterList
+       Source: "(address indexed _from, address indexed _to, uint256 _value)"
+      VariableDeclaration "_from"
+         Type: address
+         Source: "address indexed _from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address indexed _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  EventDefinition "Approval"
+     Gas costs: 0
+     Source: "event Approval(address indexed _owner, address indexed _spender, uint256 _value);"
+    ParameterList
+       Source: "(address indexed _owner, address indexed _spender, uint256 _value)"
+      VariableDeclaration "_owner"
+         Type: address
+         Source: "address indexed _owner"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_spender"
+         Type: address
+         Source: "address indexed _spender"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  EventDefinition "FounderUnlock"
+     Gas costs: 0
+     Source: "event FounderUnlock(address _sender, uint256 _amount);"
+    ParameterList
+       Source: "(address _sender, uint256 _amount)"
+      VariableDeclaration "_sender"
+         Type: address
+         Source: "address _sender"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_amount"
+         Type: uint256
+         Source: "uint256 _amount"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  VariableDeclaration "name"
+     Type: string storage ref
+     Gas costs: [???]
+     Source: "string public name = \"ShowHand\""
+    ElementaryTypeName string
+       Source: "string"
+    Literal, token: [no token] value: ShowHand
+       Type: literal_string "ShowHand"
+       Source: "\"ShowHand\""
+  VariableDeclaration "decimals"
+     Type: uint8
+     Gas costs: [???]
+     Source: "uint8 public decimals = 0"
+    ElementaryTypeName uint8
+       Source: "uint8"
+    Literal, token: [no token] value: 0
+       Type: int_const 0
+       Source: "0"
+  VariableDeclaration "symbol"
+     Type: string storage ref
+     Gas costs: [???]
+     Source: "string public symbol = \"HAND\""
+    ElementaryTypeName string
+       Source: "string"
+    Literal, token: [no token] value: HAND
+       Type: literal_string "HAND"
+       Source: "\"HAND\""
+  ModifierDefinition "onlyPayloadSize"
+     Source: "modifier onlyPayloadSize(uint size) {\r\n          require(msg.data.length >= size + 4);\r\n          _;\r\n      }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint size)"
+      VariableDeclaration "size"
+         Type: uint256
+         Source: "uint size"
+        ElementaryTypeName uint
+           Source: "uint"
+    Block
+       Source: "{\r\n          require(msg.data.length >= size + 4);\r\n          _;\r\n      }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "require(msg.data.length >= size + 4)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(msg.data.length >= size + 4)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "msg.data.length >= size + 4"
+            MemberAccess to member length
+               Type: uint256
+               Source: "msg.data.length"
+              MemberAccess to member data
+                 Type: bytes calldata
+                 Source: "msg.data"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+            BinaryOperation using operator +
+               Type: uint256
+               Source: "size + 4"
+              Identifier size
+                 Type: uint256
+                 Source: "size"
+              Literal, token: [no token] value: 4
+                 Type: int_const 4
+                 Source: "4"
+      PlaceholderStatement
+         Gas costs: 0
+         Source: "_"
+  ModifierDefinition "onlyOwner"
+     Source: "modifier  onlyOwner() { \r\n          require(msg.sender == contract_owner); \r\n          _; \r\n      }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    Block
+       Source: "{ \r\n          require(msg.sender == contract_owner); \r\n          _; \r\n      }"
+      ExpressionStatement
+         Gas costs: 2256
+         Source: "require(msg.sender == contract_owner)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(msg.sender == contract_owner)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "msg.sender == contract_owner"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Identifier contract_owner
+               Type: address
+               Source: "contract_owner"
+      PlaceholderStatement
+         Gas costs: 0
+         Source: "_"
+  ModifierDefinition "inIco"
+     Source: "modifier inIco() { \r\n          require(icoOpen==true); \r\n          _; \r\n      }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    Block
+       Source: "{ \r\n          require(icoOpen==true); \r\n          _; \r\n      }"
+      ExpressionStatement
+         Gas costs: 566
+         Source: "require(icoOpen==true)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(icoOpen==true)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "icoOpen==true"
+            Identifier icoOpen
+               Type: bool
+               Source: "icoOpen"
+            Literal, token: true value: true
+               Type: bool
+               Source: "true"
+      PlaceholderStatement
+         Gas costs: 0
+         Source: "_"
+  VariableDeclaration "address1"
+     Type: address
+     Gas costs: 0
+     Source: "address address1 = 0x85e4FE33c590b8A5812fBF926a0f9fe64E6d8b35"
+    ElementaryTypeName address
+       Source: "address"
+    Literal, token: [no token] value: 0x85e4FE33c590b8A5812fBF926a0f9fe64E6d8b35
+       Type: address
+       Source: "0x85e4FE33c590b8A5812fBF926a0f9fe64E6d8b35"
+  VariableDeclaration "address2"
+     Type: address
+     Gas costs: 0
+     Source: "address address2 = 0x5af6353F2BB222DF6FCD82065ed2e6db1bB12291"
+    ElementaryTypeName address
+       Source: "address"
+    Literal, token: [no token] value: 0x5af6353F2BB222DF6FCD82065ed2e6db1bB12291
+       Type: address
+       Source: "0x5af6353F2BB222DF6FCD82065ed2e6db1bB12291"
+  VariableDeclaration "address3"
+     Type: address
+     Gas costs: 0
+     Source: "address address3 = 0x6c24A6EfdfF15230EE284E2E72D86656ac752e48"
+    ElementaryTypeName address
+       Source: "address"
+    Literal, token: [no token] value: 0x6c24A6EfdfF15230EE284E2E72D86656ac752e48
+       Type: address
+       Source: "0x6c24A6EfdfF15230EE284E2E72D86656ac752e48"
+  VariableDeclaration "address4"
+     Type: address
+     Gas costs: 0
+     Source: "address address4 = 0xCB946d83617eDb6fbCa19148AD83e17Ea7B67294"
+    ElementaryTypeName address
+       Source: "address"
+    Literal, token: [no token] value: 0xCB946d83617eDb6fbCa19148AD83e17Ea7B67294
+       Type: address
+       Source: "0xCB946d83617eDb6fbCa19148AD83e17Ea7B67294"
+  VariableDeclaration "address5"
+     Type: address
+     Gas costs: 0
+     Source: "address address5 = 0x76360A75dC6e4bC5c6C0a20A4B74b8823fAFad8C"
+    ElementaryTypeName address
+       Source: "address"
+    Literal, token: [no token] value: 0x76360A75dC6e4bC5c6C0a20A4B74b8823fAFad8C
+       Type: address
+       Source: "0x76360A75dC6e4bC5c6C0a20A4B74b8823fAFad8C"
+  VariableDeclaration "address6"
+     Type: address
+     Gas costs: 0
+     Source: "address address6 = 0x356399eE0ebCB6AfB13dF33168fD2CC54Ba219C2"
+    ElementaryTypeName address
+       Source: "address"
+    Literal, token: [no token] value: 0x356399eE0ebCB6AfB13dF33168fD2CC54Ba219C2
+       Type: address
+       Source: "0x356399eE0ebCB6AfB13dF33168fD2CC54Ba219C2"
+  VariableDeclaration "address7"
+     Type: address
+     Gas costs: 0
+     Source: "address address7 = 0x8b46b43cA5412311A5Dfa08EF1149B5942B5FE22"
+    ElementaryTypeName address
+       Source: "address"
+    Literal, token: [no token] value: 0x8b46b43cA5412311A5Dfa08EF1149B5942B5FE22
+       Type: address
+       Source: "0x8b46b43cA5412311A5Dfa08EF1149B5942B5FE22"
+  VariableDeclaration "address8"
+     Type: address
+     Gas costs: 0
+     Source: "address address8 = 0xA51551B57CB4e37Ea20B3226ceA61ebc7135a11a"
+    ElementaryTypeName address
+       Source: "address"
+    Literal, token: [no token] value: 0xA51551B57CB4e37Ea20B3226ceA61ebc7135a11a
+       Type: address
+       Source: "0xA51551B57CB4e37Ea20B3226ceA61ebc7135a11a"
+  VariableDeclaration "address9"
+     Type: address
+     Gas costs: 0
+     Source: "address address9 = 0x174bC643442bE89265500E6C2c236D32248A4FaE"
+    ElementaryTypeName address
+       Source: "address"
+    Literal, token: [no token] value: 0x174bC643442bE89265500E6C2c236D32248A4FaE
+       Type: address
+       Source: "0x174bC643442bE89265500E6C2c236D32248A4FaE"
+  VariableDeclaration "address10"
+     Type: address
+     Gas costs: 0
+     Source: "address address10 = 0x0D78E82ECEd57aC3CE65fE3B828f4d52fF712f31"
+    ElementaryTypeName address
+       Source: "address"
+    Literal, token: [no token] value: 0x0D78E82ECEd57aC3CE65fE3B828f4d52fF712f31
+       Type: address
+       Source: "0x0D78E82ECEd57aC3CE65fE3B828f4d52fF712f31"
+  VariableDeclaration "address11"
+     Type: address
+     Gas costs: 0
+     Source: "address address11 = 0xe31062592358Cd489Bdc09e8217543C8cc3D5C1C"
+    ElementaryTypeName address
+       Source: "address"
+    Literal, token: [no token] value: 0xe31062592358Cd489Bdc09e8217543C8cc3D5C1C
+       Type: address
+       Source: "0xe31062592358Cd489Bdc09e8217543C8cc3D5C1C"
+  VariableDeclaration "address12"
+     Type: address
+     Gas costs: 0
+     Source: "address address12 = 0x0DB8c855C4BB0efd5a1c32de2362c5ABCFa4CA33"
+    ElementaryTypeName address
+       Source: "address"
+    Literal, token: [no token] value: 0x0DB8c855C4BB0efd5a1c32de2362c5ABCFa4CA33
+       Type: address
+       Source: "0x0DB8c855C4BB0efd5a1c32de2362c5ABCFa4CA33"
+  VariableDeclaration "address13"
+     Type: address
+     Gas costs: 0
+     Source: "address address13 = 0xF25A3ccDC54A746d56A90197d911d9a1f27cF512"
+    ElementaryTypeName address
+       Source: "address"
+    Literal, token: [no token] value: 0xF25A3ccDC54A746d56A90197d911d9a1f27cF512
+       Type: address
+       Source: "0xF25A3ccDC54A746d56A90197d911d9a1f27cF512"
+  VariableDeclaration "address14"
+     Type: address
+     Gas costs: 0
+     Source: "address address14 = 0x102d36210d312FB9A9Cf5f5c3A293a8f6598BD50"
+    ElementaryTypeName address
+       Source: "address"
+    Literal, token: [no token] value: 0x102d36210d312FB9A9Cf5f5c3A293a8f6598BD50
+       Type: address
+       Source: "0x102d36210d312FB9A9Cf5f5c3A293a8f6598BD50"
+  VariableDeclaration "address15"
+     Type: address
+     Gas costs: 0
+     Source: "address address15 = 0x8Dd1cDD513b05D07726a6F8C75b57602991a9c34"
+    ElementaryTypeName address
+       Source: "address"
+    Literal, token: [no token] value: 0x8Dd1cDD513b05D07726a6F8C75b57602991a9c34
+       Type: address
+       Source: "0x8Dd1cDD513b05D07726a6F8C75b57602991a9c34"
+  VariableDeclaration "address16"
+     Type: address
+     Gas costs: 0
+     Source: "address address16 = 0x9d566BCc1BDda779a00a1D44E0b4cA07FB68EFEF"
+    ElementaryTypeName address
+       Source: "address"
+    Literal, token: [no token] value: 0x9d566BCc1BDda779a00a1D44E0b4cA07FB68EFEF
+       Type: address
+       Source: "0x9d566BCc1BDda779a00a1D44E0b4cA07FB68EFEF"
+  VariableDeclaration "address17"
+     Type: address
+     Gas costs: 0
+     Source: "address address17 = 0x1cfCe9A13aBC3381100e85BFA21160C98f8B103D"
+    ElementaryTypeName address
+       Source: "address"
+    Literal, token: [no token] value: 0x1cfCe9A13aBC3381100e85BFA21160C98f8B103D
+       Type: address
+       Source: "0x1cfCe9A13aBC3381100e85BFA21160C98f8B103D"
+  VariableDeclaration "address18"
+     Type: address
+     Gas costs: 0
+     Source: "address address18 = 0x61F0c924C0F91f4d17c82C534cfaF716A7893c13"
+    ElementaryTypeName address
+       Source: "address"
+    Literal, token: [no token] value: 0x61F0c924C0F91f4d17c82C534cfaF716A7893c13
+       Type: address
+       Source: "0x61F0c924C0F91f4d17c82C534cfaF716A7893c13"
+  VariableDeclaration "address19"
+     Type: address
+     Gas costs: 0
+     Source: "address address19 = 0xE76c0618Dd52403ad1907D3BCbF930226bFEa46B"
+    ElementaryTypeName address
+       Source: "address"
+    Literal, token: [no token] value: 0xE76c0618Dd52403ad1907D3BCbF930226bFEa46B
+       Type: address
+       Source: "0xE76c0618Dd52403ad1907D3BCbF930226bFEa46B"
+  VariableDeclaration "address20"
+     Type: address
+     Gas costs: 0
+     Source: "address address20 = 0xeF2f04dbd3E3aD126979646383c94Fd29E29de9F"
+    ElementaryTypeName address
+       Source: "address"
+    Literal, token: [no token] value: 0xeF2f04dbd3E3aD126979646383c94Fd29E29de9F
+       Type: address
+       Source: "0xeF2f04dbd3E3aD126979646383c94Fd29E29de9F"
+  FunctionDefinition "HAND" - public
+     Source: "function HAND() public {\r\n        // set sender as contract_owner\r\n        contract_owner = msg.sender;\r\n        _initialAmount += publicToken;\r\n\r\n        \r\n\r\n        setFounderLock(address1, 800*10**8, 4, 180 days);\r\n        setFounderLock(address2, 40*10**8, 4, 180 days);\r\n        setFounderLock(address3, 5*10**8, 4, 180 days);\r\n        setFounderLock(address4, 5*10**8, 4, 180 days);\r\n        setFounderLock(address5, 300*10**8, 4, 180 days);\r\n        setFounderLock(address6, 200*10**8, 4, 180 days);\r\n        setFounderLock(address7, 100*10**8, 4, 180 days);\r\n        setFounderLock(address8, 50*10**8, 4, 180 days);\r\n        setFounderLock(address9, 600*10**8, 4, 180 days);\r\n        setFounderLock(address10, 150*10**8, 4, 180 days);\r\n        setFounderLock(address11, 100*10**8, 4, 180 days);\r\n        setFounderLock(address12, 800*10**8, 4, 180 days);\r\n        setFounderLock(address13, 2400*10**8, 4, 180 days);\r\n        setFounderLock(address14, 100*10**8, 4, 180 days);\r\n\r\n        setFounderLock(address15, 135*10**8, 4, 180 days);\r\n        setFounderLock(address16, 25*10**8, 4, 180 days);\r\n        setFounderLock(address17, 20*10**8, 4, 180 days);\r\n        setFounderLock(address18, 40*10**8, 4, 180 days);\r\n        setFounderLock(address19, 20*10**8, 4, 180 days);\r\n        setFounderLock(address20, 110*10**8, 4, 180 days);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        // set sender as contract_owner\r\n        contract_owner = msg.sender;\r\n        _initialAmount += publicToken;\r\n\r\n        \r\n\r\n        setFounderLock(address1, 800*10**8, 4, 180 days);\r\n        setFounderLock(address2, 40*10**8, 4, 180 days);\r\n        setFounderLock(address3, 5*10**8, 4, 180 days);\r\n        setFounderLock(address4, 5*10**8, 4, 180 days);\r\n        setFounderLock(address5, 300*10**8, 4, 180 days);\r\n        setFounderLock(address6, 200*10**8, 4, 180 days);\r\n        setFounderLock(address7, 100*10**8, 4, 180 days);\r\n        setFounderLock(address8, 50*10**8, 4, 180 days);\r\n        setFounderLock(address9, 600*10**8, 4, 180 days);\r\n        setFounderLock(address10, 150*10**8, 4, 180 days);\r\n        setFounderLock(address11, 100*10**8, 4, 180 days);\r\n        setFounderLock(address12, 800*10**8, 4, 180 days);\r\n        setFounderLock(address13, 2400*10**8, 4, 180 days);\r\n        setFounderLock(address14, 100*10**8, 4, 180 days);\r\n\r\n        setFounderLock(address15, 135*10**8, 4, 180 days);\r\n        setFounderLock(address16, 25*10**8, 4, 180 days);\r\n        setFounderLock(address17, 20*10**8, 4, 180 days);\r\n        setFounderLock(address18, 40*10**8, 4, 180 days);\r\n        setFounderLock(address19, 20*10**8, 4, 180 days);\r\n        setFounderLock(address20, 110*10**8, 4, 180 days);\r\n    }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "contract_owner = msg.sender"
+        Assignment using operator =
+           Type: address
+           Source: "contract_owner = msg.sender"
+          Identifier contract_owner
+             Type: address
+             Source: "contract_owner"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "_initialAmount += publicToken"
+        Assignment using operator +=
+           Type: uint256
+           Source: "_initialAmount += publicToken"
+          Identifier _initialAmount
+             Type: uint256
+             Source: "_initialAmount"
+          Identifier publicToken
+             Type: uint256
+             Source: "publicToken"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "setFounderLock(address1, 800*10**8, 4, 180 days)"
+        FunctionCall
+           Type: tuple()
+           Source: "setFounderLock(address1, 800*10**8, 4, 180 days)"
+          Identifier setFounderLock
+             Type: function (address,uint256,uint256,uint256)
+             Source: "setFounderLock"
+          Identifier address1
+             Type: address
+             Source: "address1"
+          BinaryOperation using operator *
+             Type: int_const 80000000000
+             Source: "800*10**8"
+            Literal, token: [no token] value: 800
+               Type: int_const 800
+               Source: "800"
+            BinaryOperation using operator **
+               Type: int_const 100000000
+               Source: "10**8"
+              Literal, token: [no token] value: 10
+                 Type: int_const 10
+                 Source: "10"
+              Literal, token: [no token] value: 8
+                 Type: int_const 8
+                 Source: "8"
+          Literal, token: [no token] value: 4
+             Type: int_const 4
+             Source: "4"
+          Literal, token: [no token] value: 180
+             Type: int_const 15552000
+             Source: "180 days"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "setFounderLock(address2, 40*10**8, 4, 180 days)"
+        FunctionCall
+           Type: tuple()
+           Source: "setFounderLock(address2, 40*10**8, 4, 180 days)"
+          Identifier setFounderLock
+             Type: function (address,uint256,uint256,uint256)
+             Source: "setFounderLock"
+          Identifier address2
+             Type: address
+             Source: "address2"
+          BinaryOperation using operator *
+             Type: int_const 4000000000
+             Source: "40*10**8"
+            Literal, token: [no token] value: 40
+               Type: int_const 40
+               Source: "40"
+            BinaryOperation using operator **
+               Type: int_const 100000000
+               Source: "10**8"
+              Literal, token: [no token] value: 10
+                 Type: int_const 10
+                 Source: "10"
+              Literal, token: [no token] value: 8
+                 Type: int_const 8
+                 Source: "8"
+          Literal, token: [no token] value: 4
+             Type: int_const 4
+             Source: "4"
+          Literal, token: [no token] value: 180
+             Type: int_const 15552000
+             Source: "180 days"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "setFounderLock(address3, 5*10**8, 4, 180 days)"
+        FunctionCall
+           Type: tuple()
+           Source: "setFounderLock(address3, 5*10**8, 4, 180 days)"
+          Identifier setFounderLock
+             Type: function (address,uint256,uint256,uint256)
+             Source: "setFounderLock"
+          Identifier address3
+             Type: address
+             Source: "address3"
+          BinaryOperation using operator *
+             Type: int_const 500000000
+             Source: "5*10**8"
+            Literal, token: [no token] value: 5
+               Type: int_const 5
+               Source: "5"
+            BinaryOperation using operator **
+               Type: int_const 100000000
+               Source: "10**8"
+              Literal, token: [no token] value: 10
+                 Type: int_const 10
+                 Source: "10"
+              Literal, token: [no token] value: 8
+                 Type: int_const 8
+                 Source: "8"
+          Literal, token: [no token] value: 4
+             Type: int_const 4
+             Source: "4"
+          Literal, token: [no token] value: 180
+             Type: int_const 15552000
+             Source: "180 days"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "setFounderLock(address4, 5*10**8, 4, 180 days)"
+        FunctionCall
+           Type: tuple()
+           Source: "setFounderLock(address4, 5*10**8, 4, 180 days)"
+          Identifier setFounderLock
+             Type: function (address,uint256,uint256,uint256)
+             Source: "setFounderLock"
+          Identifier address4
+             Type: address
+             Source: "address4"
+          BinaryOperation using operator *
+             Type: int_const 500000000
+             Source: "5*10**8"
+            Literal, token: [no token] value: 5
+               Type: int_const 5
+               Source: "5"
+            BinaryOperation using operator **
+               Type: int_const 100000000
+               Source: "10**8"
+              Literal, token: [no token] value: 10
+                 Type: int_const 10
+                 Source: "10"
+              Literal, token: [no token] value: 8
+                 Type: int_const 8
+                 Source: "8"
+          Literal, token: [no token] value: 4
+             Type: int_const 4
+             Source: "4"
+          Literal, token: [no token] value: 180
+             Type: int_const 15552000
+             Source: "180 days"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "setFounderLock(address5, 300*10**8, 4, 180 days)"
+        FunctionCall
+           Type: tuple()
+           Source: "setFounderLock(address5, 300*10**8, 4, 180 days)"
+          Identifier setFounderLock
+             Type: function (address,uint256,uint256,uint256)
+             Source: "setFounderLock"
+          Identifier address5
+             Type: address
+             Source: "address5"
+          BinaryOperation using operator *
+             Type: int_const 30000000000
+             Source: "300*10**8"
+            Literal, token: [no token] value: 300
+               Type: int_const 300
+               Source: "300"
+            BinaryOperation using operator **
+               Type: int_const 100000000
+               Source: "10**8"
+              Literal, token: [no token] value: 10
+                 Type: int_const 10
+                 Source: "10"
+              Literal, token: [no token] value: 8
+                 Type: int_const 8
+                 Source: "8"
+          Literal, token: [no token] value: 4
+             Type: int_const 4
+             Source: "4"
+          Literal, token: [no token] value: 180
+             Type: int_const 15552000
+             Source: "180 days"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "setFounderLock(address6, 200*10**8, 4, 180 days)"
+        FunctionCall
+           Type: tuple()
+           Source: "setFounderLock(address6, 200*10**8, 4, 180 days)"
+          Identifier setFounderLock
+             Type: function (address,uint256,uint256,uint256)
+             Source: "setFounderLock"
+          Identifier address6
+             Type: address
+             Source: "address6"
+          BinaryOperation using operator *
+             Type: int_const 20000000000
+             Source: "200*10**8"
+            Literal, token: [no token] value: 200
+               Type: int_const 200
+               Source: "200"
+            BinaryOperation using operator **
+               Type: int_const 100000000
+               Source: "10**8"
+              Literal, token: [no token] value: 10
+                 Type: int_const 10
+                 Source: "10"
+              Literal, token: [no token] value: 8
+                 Type: int_const 8
+                 Source: "8"
+          Literal, token: [no token] value: 4
+             Type: int_const 4
+             Source: "4"
+          Literal, token: [no token] value: 180
+             Type: int_const 15552000
+             Source: "180 days"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "setFounderLock(address7, 100*10**8, 4, 180 days)"
+        FunctionCall
+           Type: tuple()
+           Source: "setFounderLock(address7, 100*10**8, 4, 180 days)"
+          Identifier setFounderLock
+             Type: function (address,uint256,uint256,uint256)
+             Source: "setFounderLock"
+          Identifier address7
+             Type: address
+             Source: "address7"
+          BinaryOperation using operator *
+             Type: int_const 10000000000
+             Source: "100*10**8"
+            Literal, token: [no token] value: 100
+               Type: int_const 100
+               Source: "100"
+            BinaryOperation using operator **
+               Type: int_const 100000000
+               Source: "10**8"
+              Literal, token: [no token] value: 10
+                 Type: int_const 10
+                 Source: "10"
+              Literal, token: [no token] value: 8
+                 Type: int_const 8
+                 Source: "8"
+          Literal, token: [no token] value: 4
+             Type: int_const 4
+             Source: "4"
+          Literal, token: [no token] value: 180
+             Type: int_const 15552000
+             Source: "180 days"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "setFounderLock(address8, 50*10**8, 4, 180 days)"
+        FunctionCall
+           Type: tuple()
+           Source: "setFounderLock(address8, 50*10**8, 4, 180 days)"
+          Identifier setFounderLock
+             Type: function (address,uint256,uint256,uint256)
+             Source: "setFounderLock"
+          Identifier address8
+             Type: address
+             Source: "address8"
+          BinaryOperation using operator *
+             Type: int_const 5000000000
+             Source: "50*10**8"
+            Literal, token: [no token] value: 50
+               Type: int_const 50
+               Source: "50"
+            BinaryOperation using operator **
+               Type: int_const 100000000
+               Source: "10**8"
+              Literal, token: [no token] value: 10
+                 Type: int_const 10
+                 Source: "10"
+              Literal, token: [no token] value: 8
+                 Type: int_const 8
+                 Source: "8"
+          Literal, token: [no token] value: 4
+             Type: int_const 4
+             Source: "4"
+          Literal, token: [no token] value: 180
+             Type: int_const 15552000
+             Source: "180 days"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "setFounderLock(address9, 600*10**8, 4, 180 days)"
+        FunctionCall
+           Type: tuple()
+           Source: "setFounderLock(address9, 600*10**8, 4, 180 days)"
+          Identifier setFounderLock
+             Type: function (address,uint256,uint256,uint256)
+             Source: "setFounderLock"
+          Identifier address9
+             Type: address
+             Source: "address9"
+          BinaryOperation using operator *
+             Type: int_const 60000000000
+             Source: "600*10**8"
+            Literal, token: [no token] value: 600
+               Type: int_const 600
+               Source: "600"
+            BinaryOperation using operator **
+               Type: int_const 100000000
+               Source: "10**8"
+              Literal, token: [no token] value: 10
+                 Type: int_const 10
+                 Source: "10"
+              Literal, token: [no token] value: 8
+                 Type: int_const 8
+                 Source: "8"
+          Literal, token: [no token] value: 4
+             Type: int_const 4
+             Source: "4"
+          Literal, token: [no token] value: 180
+             Type: int_const 15552000
+             Source: "180 days"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "setFounderLock(address10, 150*10**8, 4, 180 days)"
+        FunctionCall
+           Type: tuple()
+           Source: "setFounderLock(address10, 150*10**8, 4, 180 days)"
+          Identifier setFounderLock
+             Type: function (address,uint256,uint256,uint256)
+             Source: "setFounderLock"
+          Identifier address10
+             Type: address
+             Source: "address10"
+          BinaryOperation using operator *
+             Type: int_const 15000000000
+             Source: "150*10**8"
+            Literal, token: [no token] value: 150
+               Type: int_const 150
+               Source: "150"
+            BinaryOperation using operator **
+               Type: int_const 100000000
+               Source: "10**8"
+              Literal, token: [no token] value: 10
+                 Type: int_const 10
+                 Source: "10"
+              Literal, token: [no token] value: 8
+                 Type: int_const 8
+                 Source: "8"
+          Literal, token: [no token] value: 4
+             Type: int_const 4
+             Source: "4"
+          Literal, token: [no token] value: 180
+             Type: int_const 15552000
+             Source: "180 days"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "setFounderLock(address11, 100*10**8, 4, 180 days)"
+        FunctionCall
+           Type: tuple()
+           Source: "setFounderLock(address11, 100*10**8, 4, 180 days)"
+          Identifier setFounderLock
+             Type: function (address,uint256,uint256,uint256)
+             Source: "setFounderLock"
+          Identifier address11
+             Type: address
+             Source: "address11"
+          BinaryOperation using operator *
+             Type: int_const 10000000000
+             Source: "100*10**8"
+            Literal, token: [no token] value: 100
+               Type: int_const 100
+               Source: "100"
+            BinaryOperation using operator **
+               Type: int_const 100000000
+               Source: "10**8"
+              Literal, token: [no token] value: 10
+                 Type: int_const 10
+                 Source: "10"
+              Literal, token: [no token] value: 8
+                 Type: int_const 8
+                 Source: "8"
+          Literal, token: [no token] value: 4
+             Type: int_const 4
+             Source: "4"
+          Literal, token: [no token] value: 180
+             Type: int_const 15552000
+             Source: "180 days"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "setFounderLock(address12, 800*10**8, 4, 180 days)"
+        FunctionCall
+           Type: tuple()
+           Source: "setFounderLock(address12, 800*10**8, 4, 180 days)"
+          Identifier setFounderLock
+             Type: function (address,uint256,uint256,uint256)
+             Source: "setFounderLock"
+          Identifier address12
+             Type: address
+             Source: "address12"
+          BinaryOperation using operator *
+             Type: int_const 80000000000
+             Source: "800*10**8"
+            Literal, token: [no token] value: 800
+               Type: int_const 800
+               Source: "800"
+            BinaryOperation using operator **
+               Type: int_const 100000000
+               Source: "10**8"
+              Literal, token: [no token] value: 10
+                 Type: int_const 10
+                 Source: "10"
+              Literal, token: [no token] value: 8
+                 Type: int_const 8
+                 Source: "8"
+          Literal, token: [no token] value: 4
+             Type: int_const 4
+             Source: "4"
+          Literal, token: [no token] value: 180
+             Type: int_const 15552000
+             Source: "180 days"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "setFounderLock(address13, 2400*10**8, 4, 180 days)"
+        FunctionCall
+           Type: tuple()
+           Source: "setFounderLock(address13, 2400*10**8, 4, 180 days)"
+          Identifier setFounderLock
+             Type: function (address,uint256,uint256,uint256)
+             Source: "setFounderLock"
+          Identifier address13
+             Type: address
+             Source: "address13"
+          BinaryOperation using operator *
+             Type: int_const 240000000000
+             Source: "2400*10**8"
+            Literal, token: [no token] value: 2400
+               Type: int_const 2400
+               Source: "2400"
+            BinaryOperation using operator **
+               Type: int_const 100000000
+               Source: "10**8"
+              Literal, token: [no token] value: 10
+                 Type: int_const 10
+                 Source: "10"
+              Literal, token: [no token] value: 8
+                 Type: int_const 8
+                 Source: "8"
+          Literal, token: [no token] value: 4
+             Type: int_const 4
+             Source: "4"
+          Literal, token: [no token] value: 180
+             Type: int_const 15552000
+             Source: "180 days"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "setFounderLock(address14, 100*10**8, 4, 180 days)"
+        FunctionCall
+           Type: tuple()
+           Source: "setFounderLock(address14, 100*10**8, 4, 180 days)"
+          Identifier setFounderLock
+             Type: function (address,uint256,uint256,uint256)
+             Source: "setFounderLock"
+          Identifier address14
+             Type: address
+             Source: "address14"
+          BinaryOperation using operator *
+             Type: int_const 10000000000
+             Source: "100*10**8"
+            Literal, token: [no token] value: 100
+               Type: int_const 100
+               Source: "100"
+            BinaryOperation using operator **
+               Type: int_const 100000000
+               Source: "10**8"
+              Literal, token: [no token] value: 10
+                 Type: int_const 10
+                 Source: "10"
+              Literal, token: [no token] value: 8
+                 Type: int_const 8
+                 Source: "8"
+          Literal, token: [no token] value: 4
+             Type: int_const 4
+             Source: "4"
+          Literal, token: [no token] value: 180
+             Type: int_const 15552000
+             Source: "180 days"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "setFounderLock(address15, 135*10**8, 4, 180 days)"
+        FunctionCall
+           Type: tuple()
+           Source: "setFounderLock(address15, 135*10**8, 4, 180 days)"
+          Identifier setFounderLock
+             Type: function (address,uint256,uint256,uint256)
+             Source: "setFounderLock"
+          Identifier address15
+             Type: address
+             Source: "address15"
+          BinaryOperation using operator *
+             Type: int_const 13500000000
+             Source: "135*10**8"
+            Literal, token: [no token] value: 135
+               Type: int_const 135
+               Source: "135"
+            BinaryOperation using operator **
+               Type: int_const 100000000
+               Source: "10**8"
+              Literal, token: [no token] value: 10
+                 Type: int_const 10
+                 Source: "10"
+              Literal, token: [no token] value: 8
+                 Type: int_const 8
+                 Source: "8"
+          Literal, token: [no token] value: 4
+             Type: int_const 4
+             Source: "4"
+          Literal, token: [no token] value: 180
+             Type: int_const 15552000
+             Source: "180 days"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "setFounderLock(address16, 25*10**8, 4, 180 days)"
+        FunctionCall
+           Type: tuple()
+           Source: "setFounderLock(address16, 25*10**8, 4, 180 days)"
+          Identifier setFounderLock
+             Type: function (address,uint256,uint256,uint256)
+             Source: "setFounderLock"
+          Identifier address16
+             Type: address
+             Source: "address16"
+          BinaryOperation using operator *
+             Type: int_const 2500000000
+             Source: "25*10**8"
+            Literal, token: [no token] value: 25
+               Type: int_const 25
+               Source: "25"
+            BinaryOperation using operator **
+               Type: int_const 100000000
+               Source: "10**8"
+              Literal, token: [no token] value: 10
+                 Type: int_const 10
+                 Source: "10"
+              Literal, token: [no token] value: 8
+                 Type: int_const 8
+                 Source: "8"
+          Literal, token: [no token] value: 4
+             Type: int_const 4
+             Source: "4"
+          Literal, token: [no token] value: 180
+             Type: int_const 15552000
+             Source: "180 days"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "setFounderLock(address17, 20*10**8, 4, 180 days)"
+        FunctionCall
+           Type: tuple()
+           Source: "setFounderLock(address17, 20*10**8, 4, 180 days)"
+          Identifier setFounderLock
+             Type: function (address,uint256,uint256,uint256)
+             Source: "setFounderLock"
+          Identifier address17
+             Type: address
+             Source: "address17"
+          BinaryOperation using operator *
+             Type: int_const 2000000000
+             Source: "20*10**8"
+            Literal, token: [no token] value: 20
+               Type: int_const 20
+               Source: "20"
+            BinaryOperation using operator **
+               Type: int_const 100000000
+               Source: "10**8"
+              Literal, token: [no token] value: 10
+                 Type: int_const 10
+                 Source: "10"
+              Literal, token: [no token] value: 8
+                 Type: int_const 8
+                 Source: "8"
+          Literal, token: [no token] value: 4
+             Type: int_const 4
+             Source: "4"
+          Literal, token: [no token] value: 180
+             Type: int_const 15552000
+             Source: "180 days"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "setFounderLock(address18, 40*10**8, 4, 180 days)"
+        FunctionCall
+           Type: tuple()
+           Source: "setFounderLock(address18, 40*10**8, 4, 180 days)"
+          Identifier setFounderLock
+             Type: function (address,uint256,uint256,uint256)
+             Source: "setFounderLock"
+          Identifier address18
+             Type: address
+             Source: "address18"
+          BinaryOperation using operator *
+             Type: int_const 4000000000
+             Source: "40*10**8"
+            Literal, token: [no token] value: 40
+               Type: int_const 40
+               Source: "40"
+            BinaryOperation using operator **
+               Type: int_const 100000000
+               Source: "10**8"
+              Literal, token: [no token] value: 10
+                 Type: int_const 10
+                 Source: "10"
+              Literal, token: [no token] value: 8
+                 Type: int_const 8
+                 Source: "8"
+          Literal, token: [no token] value: 4
+             Type: int_const 4
+             Source: "4"
+          Literal, token: [no token] value: 180
+             Type: int_const 15552000
+             Source: "180 days"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "setFounderLock(address19, 20*10**8, 4, 180 days)"
+        FunctionCall
+           Type: tuple()
+           Source: "setFounderLock(address19, 20*10**8, 4, 180 days)"
+          Identifier setFounderLock
+             Type: function (address,uint256,uint256,uint256)
+             Source: "setFounderLock"
+          Identifier address19
+             Type: address
+             Source: "address19"
+          BinaryOperation using operator *
+             Type: int_const 2000000000
+             Source: "20*10**8"
+            Literal, token: [no token] value: 20
+               Type: int_const 20
+               Source: "20"
+            BinaryOperation using operator **
+               Type: int_const 100000000
+               Source: "10**8"
+              Literal, token: [no token] value: 10
+                 Type: int_const 10
+                 Source: "10"
+              Literal, token: [no token] value: 8
+                 Type: int_const 8
+                 Source: "8"
+          Literal, token: [no token] value: 4
+             Type: int_const 4
+             Source: "4"
+          Literal, token: [no token] value: 180
+             Type: int_const 15552000
+             Source: "180 days"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "setFounderLock(address20, 110*10**8, 4, 180 days)"
+        FunctionCall
+           Type: tuple()
+           Source: "setFounderLock(address20, 110*10**8, 4, 180 days)"
+          Identifier setFounderLock
+             Type: function (address,uint256,uint256,uint256)
+             Source: "setFounderLock"
+          Identifier address20
+             Type: address
+             Source: "address20"
+          BinaryOperation using operator *
+             Type: int_const 11000000000
+             Source: "110*10**8"
+            Literal, token: [no token] value: 110
+               Type: int_const 110
+               Source: "110"
+            BinaryOperation using operator **
+               Type: int_const 100000000
+               Source: "10**8"
+              Literal, token: [no token] value: 10
+                 Type: int_const 10
+                 Source: "10"
+              Literal, token: [no token] value: 8
+                 Type: int_const 8
+                 Source: "8"
+          Literal, token: [no token] value: 4
+             Type: int_const 4
+             Source: "4"
+          Literal, token: [no token] value: 180
+             Type: int_const 15552000
+             Source: "180 days"
+  FunctionDefinition "totalSupply" - public - const
+     Source: "function totalSupply() constant returns (uint256 _totalSupply){\r\n        _totalSupply = _initialAmount;\r\n      }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint256 _totalSupply)"
+      VariableDeclaration "_totalSupply"
+         Type: uint256
+         Source: "uint256 _totalSupply"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{\r\n        _totalSupply = _initialAmount;\r\n      }"
+      ExpressionStatement
+         Gas costs: 208
+         Source: "_totalSupply = _initialAmount"
+        Assignment using operator =
+           Type: uint256
+           Source: "_totalSupply = _initialAmount"
+          Identifier _totalSupply
+             Type: uint256
+             Source: "_totalSupply"
+          Identifier _initialAmount
+             Type: uint256
+             Source: "_initialAmount"
+  FunctionDefinition "transfer" - public
+     Source: "function transfer(address _to, uint256 _value) public returns (bool success) {\r\n        //Default assumes totalSupply can't be over max (2^256 - 1).\r\n        //If your token leaves out totalSupply and can issue more tokens as time goes on, you need to check if it doesn't wrap.\r\n        //Replace the if with this one instead.\r\n        //require(balances[msg.sender] >= _value && balances[_to] + _value > balances[_to]);\r\n        require(balances[msg.sender] >= _value);\r\n        require(isFreezed[msg.sender]==false);\r\n        balances[msg.sender] -= _value;\r\n        balances[_to] += _value;\r\n        Transfer(msg.sender, _to, _value);\r\n        return true;\r\n        }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _to, uint256 _value)"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n        //Default assumes totalSupply can't be over max (2^256 - 1).\r\n        //If your token leaves out totalSupply and can issue more tokens as time goes on, you need to check if it doesn't wrap.\r\n        //Replace the if with this one instead.\r\n        //require(balances[msg.sender] >= _value && balances[_to] + _value > balances[_to]);\r\n        require(balances[msg.sender] >= _value);\r\n        require(isFreezed[msg.sender]==false);\r\n        balances[msg.sender] -= _value;\r\n        balances[_to] += _value;\r\n        Transfer(msg.sender, _to, _value);\r\n        return true;\r\n        }"
+      ExpressionStatement
+         Gas costs: 333
+         Source: "require(balances[msg.sender] >= _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(balances[msg.sender] >= _value)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "balances[msg.sender] >= _value"
+            IndexAccess
+               Type: uint256
+               Source: "balances[msg.sender]"
+              Identifier balances
+                 Type: mapping(address => uint256)
+                 Source: "balances"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+      ExpressionStatement
+         Gas costs: 378
+         Source: "require(isFreezed[msg.sender]==false)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(isFreezed[msg.sender]==false)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "isFreezed[msg.sender]==false"
+            IndexAccess
+               Type: bool
+               Source: "isFreezed[msg.sender]"
+              Identifier isFreezed
+                 Type: mapping(address => bool)
+                 Source: "isFreezed"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+            Literal, token: false value: false
+               Type: bool
+               Source: "false"
+      ExpressionStatement
+         Gas costs: 20328
+         Source: "balances[msg.sender] -= _value"
+        Assignment using operator -=
+           Type: uint256
+           Source: "balances[msg.sender] -= _value"
+          IndexAccess
+             Type: uint256
+             Source: "balances[msg.sender]"
+            Identifier balances
+               Type: mapping(address => uint256)
+               Source: "balances"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: 20323
+         Source: "balances[_to] += _value"
+        Assignment using operator +=
+           Type: uint256
+           Source: "balances[_to] += _value"
+          IndexAccess
+             Type: uint256
+             Source: "balances[_to]"
+            Identifier balances
+               Type: mapping(address => uint256)
+               Source: "balances"
+            Identifier _to
+               Type: address
+               Source: "_to"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "Transfer(msg.sender, _to, _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "Transfer(msg.sender, _to, _value)"
+          Identifier Transfer
+             Type: function (address,address,uint256)
+             Source: "Transfer"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier _to
+             Type: address
+             Source: "_to"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      Return
+         Gas costs: 8
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+  FunctionDefinition "transferFrom" - public
+     Source: "function transferFrom(address _from, address _to, uint256 _value) public returns (bool success) {\r\n        //same as above. Replace this line with the following if you want to protect against wrapping uints.\r\n        //require(balances[_from] >= _value && allowed[_from][msg.sender] >= _value && balances[_to] + _value > balances[_to]);\r\n        uint256 allowance = allowed[_from][msg.sender];\r\n        require(balances[_from] >= _value && allowance >= _value);\r\n        balances[_to] += _value;\r\n        balances[_from] -= _value;\r\n        if (allowance < MAX_UINT256) {\r\n            allowed[_from][msg.sender] -= _value;\r\n        }\r\n        Transfer(_from, _to, _value);\r\n        return true;\r\n        }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _from, address _to, uint256 _value)"
+      VariableDeclaration "_from"
+         Type: address
+         Source: "address _from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n        //same as above. Replace this line with the following if you want to protect against wrapping uints.\r\n        //require(balances[_from] >= _value && allowed[_from][msg.sender] >= _value && balances[_to] + _value > balances[_to]);\r\n        uint256 allowance = allowed[_from][msg.sender];\r\n        require(balances[_from] >= _value && allowance >= _value);\r\n        balances[_to] += _value;\r\n        balances[_from] -= _value;\r\n        if (allowance < MAX_UINT256) {\r\n            allowed[_from][msg.sender] -= _value;\r\n        }\r\n        Transfer(_from, _to, _value);\r\n        return true;\r\n        }"
+      VariableDeclarationStatement
+         Gas costs: 396
+         Source: "uint256 allowance = allowed[_from][msg.sender]"
+        VariableDeclaration "allowance"
+           Type: uint256
+           Source: "uint256 allowance"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        IndexAccess
+           Type: uint256
+           Source: "allowed[_from][msg.sender]"
+          IndexAccess
+             Type: mapping(address => uint256)
+             Source: "allowed[_from]"
+            Identifier allowed
+               Type: mapping(address => mapping(address => uint256))
+               Source: "allowed"
+            Identifier _from
+               Type: address
+               Source: "_from"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+      ExpressionStatement
+         Gas costs: 362
+         Source: "require(balances[_from] >= _value && allowance >= _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(balances[_from] >= _value && allowance >= _value)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator &&
+             Type: bool
+             Source: "balances[_from] >= _value && allowance >= _value"
+            BinaryOperation using operator >=
+               Type: bool
+               Source: "balances[_from] >= _value"
+              IndexAccess
+                 Type: uint256
+                 Source: "balances[_from]"
+                Identifier balances
+                   Type: mapping(address => uint256)
+                   Source: "balances"
+                Identifier _from
+                   Type: address
+                   Source: "_from"
+              Identifier _value
+                 Type: uint256
+                 Source: "_value"
+            BinaryOperation using operator >=
+               Type: bool
+               Source: "allowance >= _value"
+              Identifier allowance
+                 Type: uint256
+                 Source: "allowance"
+              Identifier _value
+                 Type: uint256
+                 Source: "_value"
+      ExpressionStatement
+         Gas costs: 20329
+         Source: "balances[_to] += _value"
+        Assignment using operator +=
+           Type: uint256
+           Source: "balances[_to] += _value"
+          IndexAccess
+             Type: uint256
+             Source: "balances[_to]"
+            Identifier balances
+               Type: mapping(address => uint256)
+               Source: "balances"
+            Identifier _to
+               Type: address
+               Source: "_to"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: 20323
+         Source: "balances[_from] -= _value"
+        Assignment using operator -=
+           Type: uint256
+           Source: "balances[_from] -= _value"
+          IndexAccess
+             Type: uint256
+             Source: "balances[_from]"
+            Identifier balances
+               Type: mapping(address => uint256)
+               Source: "balances"
+            Identifier _from
+               Type: address
+               Source: "_from"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      IfStatement
+         Source: "if (allowance < MAX_UINT256) {\r\n            allowed[_from][msg.sender] -= _value;\r\n        }"
+        BinaryOperation using operator <
+           Type: bool
+           Gas costs: 6
+           Source: "allowance < MAX_UINT256"
+          Identifier allowance
+             Type: uint256
+             Source: "allowance"
+          Identifier MAX_UINT256
+             Type: uint256
+             Source: "MAX_UINT256"
+        Block
+           Source: "{\r\n            allowed[_from][msg.sender] -= _value;\r\n        }"
+          ExpressionStatement
+             Gas costs: 20418
+             Source: "allowed[_from][msg.sender] -= _value"
+            Assignment using operator -=
+               Type: uint256
+               Source: "allowed[_from][msg.sender] -= _value"
+              IndexAccess
+                 Type: uint256
+                 Source: "allowed[_from][msg.sender]"
+                IndexAccess
+                   Type: mapping(address => uint256)
+                   Source: "allowed[_from]"
+                  Identifier allowed
+                     Type: mapping(address => mapping(address => uint256))
+                     Source: "allowed"
+                  Identifier _from
+                     Type: address
+                     Source: "_from"
+                MemberAccess to member sender
+                   Type: address
+                   Source: "msg.sender"
+                  Identifier msg
+                     Type: msg
+                     Source: "msg"
+              Identifier _value
+                 Type: uint256
+                 Source: "_value"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "Transfer(_from, _to, _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "Transfer(_from, _to, _value)"
+          Identifier Transfer
+             Type: function (address,address,uint256)
+             Source: "Transfer"
+          Identifier _from
+             Type: address
+             Source: "_from"
+          Identifier _to
+             Type: address
+             Source: "_to"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      Return
+         Gas costs: 8
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+  FunctionDefinition "balanceOf" - public - const
+     Source: "function balanceOf(address _owner) view public returns (uint256 balance) {\r\n        return balances[_owner];\r\n        }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _owner)"
+      VariableDeclaration "_owner"
+         Type: address
+         Source: "address _owner"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint256 balance)"
+      VariableDeclaration "balance"
+         Type: uint256
+         Source: "uint256 balance"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{\r\n        return balances[_owner];\r\n        }"
+      Return
+         Gas costs: 304
+         Source: "return balances[_owner]"
+        IndexAccess
+           Type: uint256
+           Source: "balances[_owner]"
+          Identifier balances
+             Type: mapping(address => uint256)
+             Source: "balances"
+          Identifier _owner
+             Type: address
+             Source: "_owner"
+  FunctionDefinition "approve" - public
+     Source: "function approve(address _spender, uint256 _value) public returns (bool success) {\r\n        require(isFreezed[msg.sender]==false);\r\n        allowed[msg.sender][_spender] = _value;\r\n        Approval(msg.sender, _spender, _value);\r\n        return true;\r\n        }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _spender, uint256 _value)"
+      VariableDeclaration "_spender"
+         Type: address
+         Source: "address _spender"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n        require(isFreezed[msg.sender]==false);\r\n        allowed[msg.sender][_spender] = _value;\r\n        Approval(msg.sender, _spender, _value);\r\n        return true;\r\n        }"
+      ExpressionStatement
+         Gas costs: 378
+         Source: "require(isFreezed[msg.sender]==false)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(isFreezed[msg.sender]==false)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "isFreezed[msg.sender]==false"
+            IndexAccess
+               Type: bool
+               Source: "isFreezed[msg.sender]"
+              Identifier isFreezed
+                 Type: mapping(address => bool)
+                 Source: "isFreezed"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+            Literal, token: false value: false
+               Type: bool
+               Source: "false"
+      ExpressionStatement
+         Gas costs: 20199
+         Source: "allowed[msg.sender][_spender] = _value"
+        Assignment using operator =
+           Type: uint256
+           Source: "allowed[msg.sender][_spender] = _value"
+          IndexAccess
+             Type: uint256
+             Source: "allowed[msg.sender][_spender]"
+            IndexAccess
+               Type: mapping(address => uint256)
+               Source: "allowed[msg.sender]"
+              Identifier allowed
+                 Type: mapping(address => mapping(address => uint256))
+                 Source: "allowed"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+            Identifier _spender
+               Type: address
+               Source: "_spender"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "Approval(msg.sender, _spender, _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "Approval(msg.sender, _spender, _value)"
+          Identifier Approval
+             Type: function (address,address,uint256)
+             Source: "Approval"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier _spender
+             Type: address
+             Source: "_spender"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      Return
+         Gas costs: 8
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+  FunctionDefinition "allowance" - public - const
+     Source: "function allowance(address _owner, address _spender)\r\n    view public returns (uint256 remaining) {\r\n      return allowed[_owner][_spender];\r\n        }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _owner, address _spender)"
+      VariableDeclaration "_owner"
+         Type: address
+         Source: "address _owner"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_spender"
+         Type: address
+         Source: "address _spender"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint256 remaining)"
+      VariableDeclaration "remaining"
+         Type: uint256
+         Source: "uint256 remaining"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{\r\n      return allowed[_owner][_spender];\r\n        }"
+      Return
+         Gas costs: 394
+         Source: "return allowed[_owner][_spender]"
+        IndexAccess
+           Type: uint256
+           Source: "allowed[_owner][_spender]"
+          IndexAccess
+             Type: mapping(address => uint256)
+             Source: "allowed[_owner]"
+            Identifier allowed
+               Type: mapping(address => mapping(address => uint256))
+               Source: "allowed"
+            Identifier _owner
+               Type: address
+               Source: "_owner"
+          Identifier _spender
+             Type: address
+             Source: "_spender"
+  FunctionDefinition "multisend" - public
+     Source: "function multisend(address[] addrs,  uint256 _value)\r\n    {\r\n        uint length = addrs.length;\r\n        require(_value * length <= balances[msg.sender]);\r\n        uint i = 0;\r\n        while (i < length) {\r\n           transfer(addrs[i], _value);\r\n           i ++;\r\n        }\r\n        \r\n      }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address[] addrs,  uint256 _value)"
+      VariableDeclaration "addrs"
+         Type: address[] memory
+         Source: "address[] addrs"
+        ArrayTypeName
+           Source: "address[]"
+          ElementaryTypeName address
+             Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        uint length = addrs.length;\r\n        require(_value * length <= balances[msg.sender]);\r\n        uint i = 0;\r\n        while (i < length) {\r\n           transfer(addrs[i], _value);\r\n           i ++;\r\n        }\r\n        \r\n      }"
+      VariableDeclarationStatement
+         Gas costs: [???]
+         Source: "uint length = addrs.length"
+        VariableDeclaration "length"
+           Type: uint256
+           Source: "uint length"
+          ElementaryTypeName uint
+             Source: "uint"
+        MemberAccess to member length
+           Type: uint256
+           Source: "addrs.length"
+          Identifier addrs
+             Type: address[] memory
+             Source: "addrs"
+      ExpressionStatement
+         Gas costs: 341
+         Source: "require(_value * length <= balances[msg.sender])"
+        FunctionCall
+           Type: tuple()
+           Source: "require(_value * length <= balances[msg.sender])"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator <=
+             Type: bool
+             Source: "_value * length <= balances[msg.sender]"
+            BinaryOperation using operator *
+               Type: uint256
+               Source: "_value * length"
+              Identifier _value
+                 Type: uint256
+                 Source: "_value"
+              Identifier length
+                 Type: uint256
+                 Source: "length"
+            IndexAccess
+               Type: uint256
+               Source: "balances[msg.sender]"
+              Identifier balances
+                 Type: mapping(address => uint256)
+                 Source: "balances"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+      VariableDeclarationStatement
+         Gas costs: 11
+         Source: "uint i = 0"
+        VariableDeclaration "i"
+           Type: uint256
+           Source: "uint i"
+          ElementaryTypeName uint
+             Source: "uint"
+        Literal, token: [no token] value: 0
+           Type: int_const 0
+           Source: "0"
+      WhileStatement
+         Source: "while (i < length) {\r\n           transfer(addrs[i], _value);\r\n           i ++;\r\n        }"
+        BinaryOperation using operator <
+           Type: bool
+           Gas costs: 9
+           Source: "i < length"
+          Identifier i
+             Type: uint256
+             Source: "i"
+          Identifier length
+             Type: uint256
+             Source: "length"
+        Block
+           Source: "{\r\n           transfer(addrs[i], _value);\r\n           i ++;\r\n        }"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "transfer(addrs[i], _value)"
+            FunctionCall
+               Type: bool
+               Source: "transfer(addrs[i], _value)"
+              Identifier transfer
+                 Type: function (address,uint256) returns (bool)
+                 Source: "transfer"
+              IndexAccess
+                 Type: address
+                 Source: "addrs[i]"
+                Identifier addrs
+                   Type: address[] memory
+                   Source: "addrs"
+                Identifier i
+                   Type: uint256
+                   Source: "i"
+              Identifier _value
+                 Type: uint256
+                 Source: "_value"
+          ExpressionStatement
+             Gas costs: 19
+             Source: "i ++"
+            UnaryOperation (postfix) ++
+               Type: uint256
+               Source: "i ++"
+              Identifier i
+                 Type: uint256
+                 Source: "i"
+  FunctionDefinition "setFounderLock"
+     Source: "function setFounderLock(address _address, uint256 _value, uint _round, uint256 _period)  internal onlyOwner{\r\n        founderLockance[_address].amount = _value;\r\n        founderLockance[_address].startTime = now;\r\n        founderLockance[_address].remainRound = _round;\r\n        founderLockance[_address].totalRound = _round;\r\n        founderLockance[_address].period = _period;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _address, uint256 _value, uint _round, uint256 _period)"
+      VariableDeclaration "_address"
+         Type: address
+         Source: "address _address"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "_round"
+         Type: uint256
+         Source: "uint _round"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "_period"
+         Type: uint256
+         Source: "uint256 _period"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n        founderLockance[_address].amount = _value;\r\n        founderLockance[_address].startTime = now;\r\n        founderLockance[_address].remainRound = _round;\r\n        founderLockance[_address].totalRound = _round;\r\n        founderLockance[_address].period = _period;\r\n    }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "founderLockance[_address].amount = _value"
+        Assignment using operator =
+           Type: uint256
+           Source: "founderLockance[_address].amount = _value"
+          MemberAccess to member amount
+             Type: uint256
+             Source: "founderLockance[_address].amount"
+            IndexAccess
+               Type: struct HAND.founderLock storage ref
+               Source: "founderLockance[_address]"
+              Identifier founderLockance
+                 Type: mapping(address => struct HAND.founderLock storage ref)
+                 Source: "founderLockance"
+              Identifier _address
+                 Type: address
+                 Source: "_address"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "founderLockance[_address].startTime = now"
+        Assignment using operator =
+           Type: uint256
+           Source: "founderLockance[_address].startTime = now"
+          MemberAccess to member startTime
+             Type: uint256
+             Source: "founderLockance[_address].startTime"
+            IndexAccess
+               Type: struct HAND.founderLock storage ref
+               Source: "founderLockance[_address]"
+              Identifier founderLockance
+                 Type: mapping(address => struct HAND.founderLock storage ref)
+                 Source: "founderLockance"
+              Identifier _address
+                 Type: address
+                 Source: "_address"
+          Identifier now
+             Type: uint256
+             Source: "now"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "founderLockance[_address].remainRound = _round"
+        Assignment using operator =
+           Type: uint256
+           Source: "founderLockance[_address].remainRound = _round"
+          MemberAccess to member remainRound
+             Type: uint256
+             Source: "founderLockance[_address].remainRound"
+            IndexAccess
+               Type: struct HAND.founderLock storage ref
+               Source: "founderLockance[_address]"
+              Identifier founderLockance
+                 Type: mapping(address => struct HAND.founderLock storage ref)
+                 Source: "founderLockance"
+              Identifier _address
+                 Type: address
+                 Source: "_address"
+          Identifier _round
+             Type: uint256
+             Source: "_round"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "founderLockance[_address].totalRound = _round"
+        Assignment using operator =
+           Type: uint256
+           Source: "founderLockance[_address].totalRound = _round"
+          MemberAccess to member totalRound
+             Type: uint256
+             Source: "founderLockance[_address].totalRound"
+            IndexAccess
+               Type: struct HAND.founderLock storage ref
+               Source: "founderLockance[_address]"
+              Identifier founderLockance
+                 Type: mapping(address => struct HAND.founderLock storage ref)
+                 Source: "founderLockance"
+              Identifier _address
+                 Type: address
+                 Source: "_address"
+          Identifier _round
+             Type: uint256
+             Source: "_round"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "founderLockance[_address].period = _period"
+        Assignment using operator =
+           Type: uint256
+           Source: "founderLockance[_address].period = _period"
+          MemberAccess to member period
+             Type: uint256
+             Source: "founderLockance[_address].period"
+            IndexAccess
+               Type: struct HAND.founderLock storage ref
+               Source: "founderLockance[_address]"
+              Identifier founderLockance
+                 Type: mapping(address => struct HAND.founderLock storage ref)
+                 Source: "founderLockance"
+              Identifier _address
+                 Type: address
+                 Source: "_address"
+          Identifier _period
+             Type: uint256
+             Source: "_period"
+  FunctionDefinition "unlockFounder" - public
+     Source: "function unlockFounder () {\r\n        require(now >= founderLockance[msg.sender].startTime + (founderLockance[msg.sender].totalRound - founderLockance[msg.sender].remainRound + 1) * founderLockance[msg.sender].period);\r\n        require(founderLockance[msg.sender].remainRound > 0);\r\n        uint256 changeAmount = founderLockance[msg.sender].amount.div(founderLockance[msg.sender].remainRound);\r\n        balances[msg.sender] += changeAmount;\r\n        founderLockance[msg.sender].amount -= changeAmount;\r\n        _initialAmount += changeAmount;\r\n        founderLockance[msg.sender].remainRound --;\r\n        FounderUnlock(msg.sender, changeAmount);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        require(now >= founderLockance[msg.sender].startTime + (founderLockance[msg.sender].totalRound - founderLockance[msg.sender].remainRound + 1) * founderLockance[msg.sender].period);\r\n        require(founderLockance[msg.sender].remainRound > 0);\r\n        uint256 changeAmount = founderLockance[msg.sender].amount.div(founderLockance[msg.sender].remainRound);\r\n        balances[msg.sender] += changeAmount;\r\n        founderLockance[msg.sender].amount -= changeAmount;\r\n        _initialAmount += changeAmount;\r\n        founderLockance[msg.sender].remainRound --;\r\n        FounderUnlock(msg.sender, changeAmount);\r\n    }"
+      ExpressionStatement
+         Gas costs: 1249
+         Source: "require(now >= founderLockance[msg.sender].startTime + (founderLockance[msg.sender].totalRound - founderLockance[msg.sender].remainRound + 1) * founderLockance[msg.sender].period)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(now >= founderLockance[msg.sender].startTime + (founderLockance[msg.sender].totalRound - founderLockance[msg.sender].remainRound + 1) * founderLockance[msg.sender].period)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "now >= founderLockance[msg.sender].startTime + (founderLockance[msg.sender].totalRound - founderLockance[msg.sender].remainRound + 1) * founderLockance[msg.sender].period"
+            Identifier now
+               Type: uint256
+               Source: "now"
+            BinaryOperation using operator +
+               Type: uint256
+               Source: "founderLockance[msg.sender].startTime + (founderLockance[msg.sender].totalRound - founderLockance[msg.sender].remainRound + 1) * founderLockance[msg.sender].period"
+              MemberAccess to member startTime
+                 Type: uint256
+                 Source: "founderLockance[msg.sender].startTime"
+                IndexAccess
+                   Type: struct HAND.founderLock storage ref
+                   Source: "founderLockance[msg.sender]"
+                  Identifier founderLockance
+                     Type: mapping(address => struct HAND.founderLock storage ref)
+                     Source: "founderLockance"
+                  MemberAccess to member sender
+                     Type: address
+                     Source: "msg.sender"
+                    Identifier msg
+                       Type: msg
+                       Source: "msg"
+              BinaryOperation using operator *
+                 Type: uint256
+                 Source: "(founderLockance[msg.sender].totalRound - founderLockance[msg.sender].remainRound + 1) * founderLockance[msg.sender].period"
+                TupleExpression
+                   Type: uint256
+                   Source: "(founderLockance[msg.sender].totalRound - founderLockance[msg.sender].remainRound + 1)"
+                  BinaryOperation using operator +
+                     Type: uint256
+                     Source: "founderLockance[msg.sender].totalRound - founderLockance[msg.sender].remainRound + 1"
+                    BinaryOperation using operator -
+                       Type: uint256
+                       Source: "founderLockance[msg.sender].totalRound - founderLockance[msg.sender].remainRound"
+                      MemberAccess to member totalRound
+                         Type: uint256
+                         Source: "founderLockance[msg.sender].totalRound"
+                        IndexAccess
+                           Type: struct HAND.founderLock storage ref
+                           Source: "founderLockance[msg.sender]"
+                          Identifier founderLockance
+                             Type: mapping(address => struct HAND.founderLock storage ref)
+                             Source: "founderLockance"
+                          MemberAccess to member sender
+                             Type: address
+                             Source: "msg.sender"
+                            Identifier msg
+                               Type: msg
+                               Source: "msg"
+                      MemberAccess to member remainRound
+                         Type: uint256
+                         Source: "founderLockance[msg.sender].remainRound"
+                        IndexAccess
+                           Type: struct HAND.founderLock storage ref
+                           Source: "founderLockance[msg.sender]"
+                          Identifier founderLockance
+                             Type: mapping(address => struct HAND.founderLock storage ref)
+                             Source: "founderLockance"
+                          MemberAccess to member sender
+                             Type: address
+                             Source: "msg.sender"
+                            Identifier msg
+                               Type: msg
+                               Source: "msg"
+                    Literal, token: [no token] value: 1
+                       Type: int_const 1
+                       Source: "1"
+                MemberAccess to member period
+                   Type: uint256
+                   Source: "founderLockance[msg.sender].period"
+                  IndexAccess
+                     Type: struct HAND.founderLock storage ref
+                     Source: "founderLockance[msg.sender]"
+                    Identifier founderLockance
+                       Type: mapping(address => struct HAND.founderLock storage ref)
+                       Source: "founderLockance"
+                    MemberAccess to member sender
+                       Type: address
+                       Source: "msg.sender"
+                      Identifier msg
+                         Type: msg
+                         Source: "msg"
+      ExpressionStatement
+         Gas costs: 336
+         Source: "require(founderLockance[msg.sender].remainRound > 0)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(founderLockance[msg.sender].remainRound > 0)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >
+             Type: bool
+             Source: "founderLockance[msg.sender].remainRound > 0"
+            MemberAccess to member remainRound
+               Type: uint256
+               Source: "founderLockance[msg.sender].remainRound"
+              IndexAccess
+                 Type: struct HAND.founderLock storage ref
+                 Source: "founderLockance[msg.sender]"
+                Identifier founderLockance
+                   Type: mapping(address => struct HAND.founderLock storage ref)
+                   Source: "founderLockance"
+                MemberAccess to member sender
+                   Type: address
+                   Source: "msg.sender"
+                  Identifier msg
+                     Type: msg
+                     Source: "msg"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+      VariableDeclarationStatement
+         Gas costs: 640
+         Source: "uint256 changeAmount = founderLockance[msg.sender].amount.div(founderLockance[msg.sender].remainRound)"
+        VariableDeclaration "changeAmount"
+           Type: uint256
+           Source: "uint256 changeAmount"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        FunctionCall
+           Type: uint256
+           Source: "founderLockance[msg.sender].amount.div(founderLockance[msg.sender].remainRound)"
+          MemberAccess to member div
+             Type: function (uint256,uint256) view returns (uint256)
+             Source: "founderLockance[msg.sender].amount.div"
+            MemberAccess to member amount
+               Type: uint256
+               Source: "founderLockance[msg.sender].amount"
+              IndexAccess
+                 Type: struct HAND.founderLock storage ref
+                 Source: "founderLockance[msg.sender]"
+                Identifier founderLockance
+                   Type: mapping(address => struct HAND.founderLock storage ref)
+                   Source: "founderLockance"
+                MemberAccess to member sender
+                   Type: address
+                   Source: "msg.sender"
+                  Identifier msg
+                     Type: msg
+                     Source: "msg"
+          MemberAccess to member remainRound
+             Type: uint256
+             Source: "founderLockance[msg.sender].remainRound"
+            IndexAccess
+               Type: struct HAND.founderLock storage ref
+               Source: "founderLockance[msg.sender]"
+              Identifier founderLockance
+                 Type: mapping(address => struct HAND.founderLock storage ref)
+                 Source: "founderLockance"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+      ExpressionStatement
+         Gas costs: 20328
+         Source: "balances[msg.sender] += changeAmount"
+        Assignment using operator +=
+           Type: uint256
+           Source: "balances[msg.sender] += changeAmount"
+          IndexAccess
+             Type: uint256
+             Source: "balances[msg.sender]"
+            Identifier balances
+               Type: mapping(address => uint256)
+               Source: "balances"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Identifier changeAmount
+             Type: uint256
+             Source: "changeAmount"
+      ExpressionStatement
+         Gas costs: 20328
+         Source: "founderLockance[msg.sender].amount -= changeAmount"
+        Assignment using operator -=
+           Type: uint256
+           Source: "founderLockance[msg.sender].amount -= changeAmount"
+          MemberAccess to member amount
+             Type: uint256
+             Source: "founderLockance[msg.sender].amount"
+            IndexAccess
+               Type: struct HAND.founderLock storage ref
+               Source: "founderLockance[msg.sender]"
+              Identifier founderLockance
+                 Type: mapping(address => struct HAND.founderLock storage ref)
+                 Source: "founderLockance"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+          Identifier changeAmount
+             Type: uint256
+             Source: "changeAmount"
+      ExpressionStatement
+         Gas costs: 20233
+         Source: "_initialAmount += changeAmount"
+        Assignment using operator +=
+           Type: uint256
+           Source: "_initialAmount += changeAmount"
+          Identifier _initialAmount
+             Type: uint256
+             Source: "_initialAmount"
+          Identifier changeAmount
+             Type: uint256
+             Source: "changeAmount"
+      ExpressionStatement
+         Gas costs: 20335
+         Source: "founderLockance[msg.sender].remainRound --"
+        UnaryOperation (postfix) --
+           Type: uint256
+           Source: "founderLockance[msg.sender].remainRound --"
+          MemberAccess to member remainRound
+             Type: uint256
+             Source: "founderLockance[msg.sender].remainRound"
+            IndexAccess
+               Type: struct HAND.founderLock storage ref
+               Source: "founderLockance[msg.sender]"
+              Identifier founderLockance
+                 Type: mapping(address => struct HAND.founderLock storage ref)
+                 Source: "founderLockance"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "FounderUnlock(msg.sender, changeAmount)"
+        FunctionCall
+           Type: tuple()
+           Source: "FounderUnlock(msg.sender, changeAmount)"
+          Identifier FounderUnlock
+             Type: function (address,uint256)
+             Source: "FounderUnlock"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier changeAmount
+             Type: uint256
+             Source: "changeAmount"
+  FunctionDefinition "freezeAccount" - public
+     Source: "function freezeAccount (address _target) onlyOwner {\r\n        isFreezed[_target] = true;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _target)"
+      VariableDeclaration "_target"
+         Type: address
+         Source: "address _target"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n        isFreezed[_target] = true;\r\n    }"
+      ExpressionStatement
+         Gas costs: 20363
+         Source: "isFreezed[_target] = true"
+        Assignment using operator =
+           Type: bool
+           Source: "isFreezed[_target] = true"
+          IndexAccess
+             Type: bool
+             Source: "isFreezed[_target]"
+            Identifier isFreezed
+               Type: mapping(address => bool)
+               Source: "isFreezed"
+            Identifier _target
+               Type: address
+               Source: "_target"
+          Literal, token: true value: true
+             Type: bool
+             Source: "true"
+  FunctionDefinition "unfreezeAccount" - public
+     Source: "function unfreezeAccount (address _target) onlyOwner {\r\n        isFreezed[_target] = false;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _target)"
+      VariableDeclaration "_target"
+         Type: address
+         Source: "address _target"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n        isFreezed[_target] = false;\r\n    }"
+      ExpressionStatement
+         Gas costs: 20363
+         Source: "isFreezed[_target] = false"
+        Assignment using operator =
+           Type: bool
+           Source: "isFreezed[_target] = false"
+          IndexAccess
+             Type: bool
+             Source: "isFreezed[_target]"
+            Identifier isFreezed
+               Type: mapping(address => bool)
+               Source: "isFreezed"
+            Identifier _target
+               Type: address
+               Source: "_target"
+          Literal, token: false value: false
+             Type: bool
+             Source: "false"
+  FunctionDefinition "ownerUnlock" - public
+     Source: "function ownerUnlock (address _target, uint256 _value) onlyOwner {\r\n        require(founderLockance[_target].amount >= _value);\r\n        founderLockance[_target].amount -= _value;\r\n        balances[_target] += _value;\r\n        _initialAmount += _value;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _target, uint256 _value)"
+      VariableDeclaration "_target"
+         Type: address
+         Source: "address _target"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n        require(founderLockance[_target].amount >= _value);\r\n        founderLockance[_target].amount -= _value;\r\n        balances[_target] += _value;\r\n        _initialAmount += _value;\r\n    }"
+      ExpressionStatement
+         Gas costs: 340
+         Source: "require(founderLockance[_target].amount >= _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(founderLockance[_target].amount >= _value)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "founderLockance[_target].amount >= _value"
+            MemberAccess to member amount
+               Type: uint256
+               Source: "founderLockance[_target].amount"
+              IndexAccess
+                 Type: struct HAND.founderLock storage ref
+                 Source: "founderLockance[_target]"
+                Identifier founderLockance
+                   Type: mapping(address => struct HAND.founderLock storage ref)
+                   Source: "founderLockance"
+                Identifier _target
+                   Type: address
+                   Source: "_target"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+      ExpressionStatement
+         Gas costs: 20335
+         Source: "founderLockance[_target].amount -= _value"
+        Assignment using operator -=
+           Type: uint256
+           Source: "founderLockance[_target].amount -= _value"
+          MemberAccess to member amount
+             Type: uint256
+             Source: "founderLockance[_target].amount"
+            IndexAccess
+               Type: struct HAND.founderLock storage ref
+               Source: "founderLockance[_target]"
+              Identifier founderLockance
+                 Type: mapping(address => struct HAND.founderLock storage ref)
+                 Source: "founderLockance"
+              Identifier _target
+                 Type: address
+                 Source: "_target"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: 20323
+         Source: "balances[_target] += _value"
+        Assignment using operator +=
+           Type: uint256
+           Source: "balances[_target] += _value"
+          IndexAccess
+             Type: uint256
+             Source: "balances[_target]"
+            Identifier balances
+               Type: mapping(address => uint256)
+               Source: "balances"
+            Identifier _target
+               Type: address
+               Source: "_target"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: 20233
+         Source: "_initialAmount += _value"
+        Assignment using operator +=
+           Type: uint256
+           Source: "_initialAmount += _value"
+          Identifier _initialAmount
+             Type: uint256
+             Source: "_initialAmount"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+  FunctionDefinition "openIco" - public
+     Source: "function openIco () onlyOwner{\r\n        icoOpen = true;\r\n      }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n        icoOpen = true;\r\n      }"
+      ExpressionStatement
+         Gas costs: 20267
+         Source: "icoOpen = true"
+        Assignment using operator =
+           Type: bool
+           Source: "icoOpen = true"
+          Identifier icoOpen
+             Type: bool
+             Source: "icoOpen"
+          Literal, token: true value: true
+             Type: bool
+             Source: "true"
+  FunctionDefinition "closeIco" - public
+     Source: "function closeIco () onlyOwner inIco{\r\n        icoOpen = false;\r\n      }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    ModifierInvocation "inIco"
+       Gas costs: 0
+       Source: "inIco"
+      Identifier inIco
+         Type: modifier ()
+         Source: "inIco"
+    Block
+       Source: "{\r\n        icoOpen = false;\r\n      }"
+      ExpressionStatement
+         Gas costs: 20267
+         Source: "icoOpen = false"
+        Assignment using operator =
+           Type: bool
+           Source: "icoOpen = false"
+          Identifier icoOpen
+             Type: bool
+             Source: "icoOpen"
+          Literal, token: false value: false
+             Type: bool
+             Source: "false"
+  FunctionDefinition "weAreClosed" - public
+     Source: "function weAreClosed () onlyOwner{\r\n        balances[contract_owner] += publicToken;\r\n        transfer(privateSaleAdd, publicToken);\r\n        publicToken = 0;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n        balances[contract_owner] += publicToken;\r\n        transfer(privateSaleAdd, publicToken);\r\n        publicToken = 0;\r\n    }"
+      ExpressionStatement
+         Gas costs: 20765
+         Source: "balances[contract_owner] += publicToken"
+        Assignment using operator +=
+           Type: uint256
+           Source: "balances[contract_owner] += publicToken"
+          IndexAccess
+             Type: uint256
+             Source: "balances[contract_owner]"
+            Identifier balances
+               Type: mapping(address => uint256)
+               Source: "balances"
+            Identifier contract_owner
+               Type: address
+               Source: "contract_owner"
+          Identifier publicToken
+             Type: uint256
+             Source: "publicToken"
+      ExpressionStatement
+         Gas costs: 509
+         Source: "transfer(privateSaleAdd, publicToken)"
+        FunctionCall
+           Type: bool
+           Source: "transfer(privateSaleAdd, publicToken)"
+          Identifier transfer
+             Type: function (address,uint256) returns (bool)
+             Source: "transfer"
+          Identifier privateSaleAdd
+             Type: address
+             Source: "privateSaleAdd"
+          Identifier publicToken
+             Type: uint256
+             Source: "publicToken"
+      ExpressionStatement
+         Gas costs: 5014
+         Source: "publicToken = 0"
+        Assignment using operator =
+           Type: uint256
+           Source: "publicToken = 0"
+          Identifier publicToken
+             Type: uint256
+             Source: "publicToken"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+  FunctionDefinition "changeRate" - public
+     Source: "function changeRate (uint256 _rate) onlyOwner{\r\n        exchangeRate = _rate;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 _rate)"
+      VariableDeclaration "_rate"
+         Type: uint256
+         Source: "uint256 _rate"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n        exchangeRate = _rate;\r\n    }"
+      ExpressionStatement
+         Gas costs: 20014
+         Source: "exchangeRate = _rate"
+        Assignment using operator =
+           Type: uint256
+           Source: "exchangeRate = _rate"
+          Identifier exchangeRate
+             Type: uint256
+             Source: "exchangeRate"
+          Identifier _rate
+             Type: uint256
+             Source: "_rate"
+  FunctionDefinition "withdraw" - public
+     Source: "function withdraw() onlyOwner{\r\n        contract_owner.transfer(this.balance);\r\n      }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n        contract_owner.transfer(this.balance);\r\n      }"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "contract_owner.transfer(this.balance)"
+        FunctionCall
+           Type: tuple()
+           Source: "contract_owner.transfer(this.balance)"
+          MemberAccess to member transfer
+             Type: function (uint256)
+             Source: "contract_owner.transfer"
+            Identifier contract_owner
+               Type: address
+               Source: "contract_owner"
+          MemberAccess to member balance
+             Type: uint256
+             Source: "this.balance"
+            Identifier this
+               Type: contract HAND
+               Source: "this"
+  FunctionDefinition "" - public
+     Source: "function () payable inIco{\r\n        require(msg.value >= 10**18);\r\n        uint256 tokenChange = (msg.value * exchangeRate).div(10**18);\r\n        require(tokenChange <= publicToken);\r\n        balances[msg.sender] += tokenChange;\r\n        publicToken = publicToken.sub(tokenChange);\r\n      }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "inIco"
+       Gas costs: 0
+       Source: "inIco"
+      Identifier inIco
+         Type: modifier ()
+         Source: "inIco"
+    Block
+       Source: "{\r\n        require(msg.value >= 10**18);\r\n        uint256 tokenChange = (msg.value * exchangeRate).div(10**18);\r\n        require(tokenChange <= publicToken);\r\n        balances[msg.sender] += tokenChange;\r\n        publicToken = publicToken.sub(tokenChange);\r\n      }"
+      ExpressionStatement
+         Gas costs: 37
+         Source: "require(msg.value >= 10**18)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(msg.value >= 10**18)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "msg.value >= 10**18"
+            MemberAccess to member value
+               Type: uint256
+               Source: "msg.value"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            BinaryOperation using operator **
+               Type: int_const 1000000000000000000
+               Source: "10**18"
+              Literal, token: [no token] value: 10
+                 Type: int_const 10
+                 Source: "10"
+              Literal, token: [no token] value: 18
+                 Type: int_const 18
+                 Source: "18"
+      VariableDeclarationStatement
+         Gas costs: 251
+         Source: "uint256 tokenChange = (msg.value * exchangeRate).div(10**18)"
+        VariableDeclaration "tokenChange"
+           Type: uint256
+           Source: "uint256 tokenChange"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        FunctionCall
+           Type: uint256
+           Source: "(msg.value * exchangeRate).div(10**18)"
+          MemberAccess to member div
+             Type: function (uint256,uint256) view returns (uint256)
+             Source: "(msg.value * exchangeRate).div"
+            TupleExpression
+               Type: uint256
+               Source: "(msg.value * exchangeRate)"
+              BinaryOperation using operator *
+                 Type: uint256
+                 Source: "msg.value * exchangeRate"
+                MemberAccess to member value
+                   Type: uint256
+                   Source: "msg.value"
+                  Identifier msg
+                     Type: msg
+                     Source: "msg"
+                Identifier exchangeRate
+                   Type: uint256
+                   Source: "exchangeRate"
+          BinaryOperation using operator **
+             Type: int_const 1000000000000000000
+             Source: "10**18"
+            Literal, token: [no token] value: 10
+               Type: int_const 10
+               Source: "10"
+            Literal, token: [no token] value: 18
+               Type: int_const 18
+               Source: "18"
+      ExpressionStatement
+         Gas costs: 238
+         Source: "require(tokenChange <= publicToken)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(tokenChange <= publicToken)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator <=
+             Type: bool
+             Source: "tokenChange <= publicToken"
+            Identifier tokenChange
+               Type: uint256
+               Source: "tokenChange"
+            Identifier publicToken
+               Type: uint256
+               Source: "publicToken"
+      ExpressionStatement
+         Gas costs: 20328
+         Source: "balances[msg.sender] += tokenChange"
+        Assignment using operator +=
+           Type: uint256
+           Source: "balances[msg.sender] += tokenChange"
+          IndexAccess
+             Type: uint256
+             Source: "balances[msg.sender]"
+            Identifier balances
+               Type: mapping(address => uint256)
+               Source: "balances"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Identifier tokenChange
+             Type: uint256
+             Source: "tokenChange"
+      ExpressionStatement
+         Gas costs: 20247
+         Source: "publicToken = publicToken.sub(tokenChange)"
+        Assignment using operator =
+           Type: uint256
+           Source: "publicToken = publicToken.sub(tokenChange)"
+          Identifier publicToken
+             Type: uint256
+             Source: "publicToken"
+          FunctionCall
+             Type: uint256
+             Source: "publicToken.sub(tokenChange)"
+            MemberAccess to member sub
+               Type: function (uint256,uint256) view returns (uint256)
+               Source: "publicToken.sub"
+              Identifier publicToken
+                 Type: uint256
+                 Source: "publicToken"
+            Identifier tokenChange
+               Type: uint256
+               Source: "tokenChange"

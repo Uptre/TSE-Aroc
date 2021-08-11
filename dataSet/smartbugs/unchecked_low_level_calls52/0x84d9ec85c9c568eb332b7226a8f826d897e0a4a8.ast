@@ -1,0 +1,423 @@
+Syntax trees:
+
+
+======= /home/fabric/ArocRevision/Aroc/dataSet/smartbugs-21-7-13/unchecked_low_level_calls52/0x84d9ec85c9c568eb332b7226a8f826d897e0a4a8.sol =======
+PragmaDirective
+   Gas costs: 0
+   Source: "pragma solidity ^0.4.16;"
+ContractDefinition "Owned"
+   Source: "contract Owned {\r\n\r\n    /// @dev `owner` is the only address that can call a function with this\r\n    /// modifier\r\n    modifier onlyOwner() {\r\n        require(msg.sender == owner);\r\n        _;\r\n    }\r\n\r\n    address public owner;\r\n\r\n    /// @notice The Constructor assigns the message sender to be `owner`\r\n    function Owned() {\r\n        owner = msg.sender;\r\n    }\r\n\r\n    address public newOwner;\r\n\r\n    /// @notice `owner` can step down and assign some other address to this role\r\n    /// @param _newOwner The address of the new owner\r\n    ///  an unowned neutral vault, however that cannot be undone\r\n    function changeOwner(address _newOwner) onlyOwner {\r\n        newOwner = _newOwner;\r\n    }\r\n    /// @notice `newOwner` has to accept the ownership before it is transferred\r\n    ///  Any account or any contract with the ability to call `acceptOwnership`\r\n    ///  can be used to accept ownership of this contract, including a contract\r\n    ///  with no other functions\r\n    function acceptOwnership() {\r\n        if (msg.sender == newOwner) {\r\n            owner = newOwner;\r\n        }\r\n    }\r\n\r\n    // This is a general safty function that allows the owner to do a lot\r\n    //  of things in the unlikely event that something goes wrong\r\n    // _dst is the contract being called making this like a 1/1 multisig\r\n    function execute(address _dst, uint _value, bytes _data) onlyOwner {\r\n         // <yes> <report> UNCHECKED_LL_CALLS\r\n        _dst.call.value(_value)(_data);\r\n    }\r\n}"
+  ModifierDefinition "onlyOwner"
+     Source: "modifier onlyOwner() {\r\n        require(msg.sender == owner);\r\n        _;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    Block
+       Source: "{\r\n        require(msg.sender == owner);\r\n        _;\r\n    }"
+      ExpressionStatement
+         Gas costs: 564
+         Source: "require(msg.sender == owner)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(msg.sender == owner)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "msg.sender == owner"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Identifier owner
+               Type: address
+               Source: "owner"
+      PlaceholderStatement
+         Gas costs: 0
+         Source: "_"
+  VariableDeclaration "owner"
+     Type: address
+     Gas costs: [???]
+     Source: "address public owner"
+    ElementaryTypeName address
+       Source: "address"
+  FunctionDefinition "Owned" - public
+     Source: "function Owned() {\r\n        owner = msg.sender;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        owner = msg.sender;\r\n    }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "owner = msg.sender"
+        Assignment using operator =
+           Type: address
+           Source: "owner = msg.sender"
+          Identifier owner
+             Type: address
+             Source: "owner"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+  VariableDeclaration "newOwner"
+     Type: address
+     Gas costs: [???]
+     Source: "address public newOwner"
+    ElementaryTypeName address
+       Source: "address"
+  FunctionDefinition "changeOwner" - public
+     Source: "function changeOwner(address _newOwner) onlyOwner {\r\n        newOwner = _newOwner;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _newOwner)"
+      VariableDeclaration "_newOwner"
+         Type: address
+         Source: "address _newOwner"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n        newOwner = _newOwner;\r\n    }"
+      ExpressionStatement
+         Gas costs: 20267
+         Source: "newOwner = _newOwner"
+        Assignment using operator =
+           Type: address
+           Source: "newOwner = _newOwner"
+          Identifier newOwner
+             Type: address
+             Source: "newOwner"
+          Identifier _newOwner
+             Type: address
+             Source: "_newOwner"
+  FunctionDefinition "acceptOwnership" - public
+     Source: "function acceptOwnership() {\r\n        if (msg.sender == newOwner) {\r\n            owner = newOwner;\r\n        }\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        if (msg.sender == newOwner) {\r\n            owner = newOwner;\r\n        }\r\n    }"
+      IfStatement
+         Source: "if (msg.sender == newOwner) {\r\n            owner = newOwner;\r\n        }"
+        BinaryOperation using operator ==
+           Type: bool
+           Gas costs: 256
+           Source: "msg.sender == newOwner"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier newOwner
+             Type: address
+             Source: "newOwner"
+        Block
+           Source: "{\r\n            owner = newOwner;\r\n        }"
+          ExpressionStatement
+             Gas costs: 20503
+             Source: "owner = newOwner"
+            Assignment using operator =
+               Type: address
+               Source: "owner = newOwner"
+              Identifier owner
+                 Type: address
+                 Source: "owner"
+              Identifier newOwner
+                 Type: address
+                 Source: "newOwner"
+  FunctionDefinition "execute" - public
+     Source: "function execute(address _dst, uint _value, bytes _data) onlyOwner {\r\n         // <yes> <report> UNCHECKED_LL_CALLS\r\n        _dst.call.value(_value)(_data);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _dst, uint _value, bytes _data)"
+      VariableDeclaration "_dst"
+         Type: address
+         Source: "address _dst"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint _value"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "_data"
+         Type: bytes memory
+         Source: "bytes _data"
+        ElementaryTypeName bytes
+           Source: "bytes"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n         // <yes> <report> UNCHECKED_LL_CALLS\r\n        _dst.call.value(_value)(_data);\r\n    }"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "_dst.call.value(_value)(_data)"
+        FunctionCall
+           Type: bool
+           Source: "_dst.call.value(_value)(_data)"
+          FunctionCall
+             Type: function () payable returns (bool)
+             Source: "_dst.call.value(_value)"
+            MemberAccess to member value
+               Type: function (uint256) returns (function () payable returns (bool))
+               Source: "_dst.call.value"
+              MemberAccess to member call
+                 Type: function () payable returns (bool)
+                 Source: "_dst.call"
+                Identifier _dst
+                   Type: address
+                   Source: "_dst"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+          Identifier _data
+             Type: bytes memory
+             Source: "_data"
+ContractDefinition "WedIndex"
+   Source: "contract WedIndex is Owned {\r\n\r\n    // declare index data variables\r\n    string public wedaddress;\r\n    string public partnernames;\r\n    uint public indexdate;\r\n    uint public weddingdate;\r\n    uint public displaymultisig;\r\n\r\n    IndexArray[] public indexarray;\r\n\r\n    struct IndexArray {\r\n        uint indexdate;\r\n        string wedaddress;\r\n        string partnernames;\r\n        uint weddingdate;\r\n        uint displaymultisig;\r\n    }\r\n    \r\n    function numberOfIndex() constant public returns (uint) {\r\n        return indexarray.length;\r\n    }\r\n\r\n\r\n    // make functions to write and read index entries and nubmer of entries\r\n    function writeIndex(uint indexdate, string wedaddress, string partnernames, uint weddingdate, uint displaymultisig) {\r\n        indexarray.push(IndexArray(now, wedaddress, partnernames, weddingdate, displaymultisig));\r\n        IndexWritten(now, wedaddress, partnernames, weddingdate, displaymultisig);\r\n    }\r\n\r\n    // declare events\r\n    event IndexWritten (uint time, string contractaddress, string partners, uint weddingdate, uint display);\r\n}"
+  InheritanceSpecifier
+     Gas costs: 0
+     Source: "Owned"
+    UserDefinedTypeName "Owned"
+       Source: "Owned"
+  VariableDeclaration "wedaddress"
+     Type: string storage ref
+     Gas costs: [???]
+     Source: "string public wedaddress"
+    ElementaryTypeName string
+       Source: "string"
+  VariableDeclaration "partnernames"
+     Type: string storage ref
+     Gas costs: [???]
+     Source: "string public partnernames"
+    ElementaryTypeName string
+       Source: "string"
+  VariableDeclaration "indexdate"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint public indexdate"
+    ElementaryTypeName uint
+       Source: "uint"
+  VariableDeclaration "weddingdate"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint public weddingdate"
+    ElementaryTypeName uint
+       Source: "uint"
+  VariableDeclaration "displaymultisig"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint public displaymultisig"
+    ElementaryTypeName uint
+       Source: "uint"
+  VariableDeclaration "indexarray"
+     Type: struct WedIndex.IndexArray storage ref[] storage ref
+     Gas costs: [???]
+     Source: "IndexArray[] public indexarray"
+    ArrayTypeName
+       Source: "IndexArray[]"
+      UserDefinedTypeName "IndexArray"
+         Source: "IndexArray"
+  StructDefinition "IndexArray"
+     Gas costs: 0
+     Source: "struct IndexArray {\r\n        uint indexdate;\r\n        string wedaddress;\r\n        string partnernames;\r\n        uint weddingdate;\r\n        uint displaymultisig;\r\n    }"
+    VariableDeclaration "indexdate"
+       Type: uint256
+       Source: "uint indexdate"
+      ElementaryTypeName uint
+         Source: "uint"
+    VariableDeclaration "wedaddress"
+       Type: string storage pointer
+       Source: "string wedaddress"
+      ElementaryTypeName string
+         Source: "string"
+    VariableDeclaration "partnernames"
+       Type: string storage pointer
+       Source: "string partnernames"
+      ElementaryTypeName string
+         Source: "string"
+    VariableDeclaration "weddingdate"
+       Type: uint256
+       Source: "uint weddingdate"
+      ElementaryTypeName uint
+         Source: "uint"
+    VariableDeclaration "displaymultisig"
+       Type: uint256
+       Source: "uint displaymultisig"
+      ElementaryTypeName uint
+         Source: "uint"
+  FunctionDefinition "numberOfIndex" - public - const
+     Source: "function numberOfIndex() constant public returns (uint) {\r\n        return indexarray.length;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint"
+        ElementaryTypeName uint
+           Source: "uint"
+    Block
+       Source: "{\r\n        return indexarray.length;\r\n    }"
+      Return
+         Gas costs: 216
+         Source: "return indexarray.length"
+        MemberAccess to member length
+           Type: uint256
+           Source: "indexarray.length"
+          Identifier indexarray
+             Type: struct WedIndex.IndexArray storage ref[] storage ref
+             Source: "indexarray"
+  FunctionDefinition "writeIndex" - public
+     Source: "function writeIndex(uint indexdate, string wedaddress, string partnernames, uint weddingdate, uint displaymultisig) {\r\n        indexarray.push(IndexArray(now, wedaddress, partnernames, weddingdate, displaymultisig));\r\n        IndexWritten(now, wedaddress, partnernames, weddingdate, displaymultisig);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint indexdate, string wedaddress, string partnernames, uint weddingdate, uint displaymultisig)"
+      VariableDeclaration "indexdate"
+         Type: uint256
+         Source: "uint indexdate"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "wedaddress"
+         Type: string memory
+         Source: "string wedaddress"
+        ElementaryTypeName string
+           Source: "string"
+      VariableDeclaration "partnernames"
+         Type: string memory
+         Source: "string partnernames"
+        ElementaryTypeName string
+           Source: "string"
+      VariableDeclaration "weddingdate"
+         Type: uint256
+         Source: "uint weddingdate"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "displaymultisig"
+         Type: uint256
+         Source: "uint displaymultisig"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        indexarray.push(IndexArray(now, wedaddress, partnernames, weddingdate, displaymultisig));\r\n        IndexWritten(now, wedaddress, partnernames, weddingdate, displaymultisig);\r\n    }"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "indexarray.push(IndexArray(now, wedaddress, partnernames, weddingdate, displaymultisig))"
+        FunctionCall
+           Type: uint256
+           Source: "indexarray.push(IndexArray(now, wedaddress, partnernames, weddingdate, displaymultisig))"
+          MemberAccess to member push
+             Type: function (struct WedIndex.IndexArray storage ref) returns (uint256)
+             Source: "indexarray.push"
+            Identifier indexarray
+               Type: struct WedIndex.IndexArray storage ref[] storage ref
+               Source: "indexarray"
+          FunctionCall
+             Type: struct WedIndex.IndexArray memory
+             Source: "IndexArray(now, wedaddress, partnernames, weddingdate, displaymultisig)"
+            Identifier IndexArray
+               Type: type(struct WedIndex.IndexArray storage pointer)
+               Source: "IndexArray"
+            Identifier now
+               Type: uint256
+               Source: "now"
+            Identifier wedaddress
+               Type: string memory
+               Source: "wedaddress"
+            Identifier partnernames
+               Type: string memory
+               Source: "partnernames"
+            Identifier weddingdate
+               Type: uint256
+               Source: "weddingdate"
+            Identifier displaymultisig
+               Type: uint256
+               Source: "displaymultisig"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "IndexWritten(now, wedaddress, partnernames, weddingdate, displaymultisig)"
+        FunctionCall
+           Type: tuple()
+           Source: "IndexWritten(now, wedaddress, partnernames, weddingdate, displaymultisig)"
+          Identifier IndexWritten
+             Type: function (uint256,string memory,string memory,uint256,uint256)
+             Source: "IndexWritten"
+          Identifier now
+             Type: uint256
+             Source: "now"
+          Identifier wedaddress
+             Type: string memory
+             Source: "wedaddress"
+          Identifier partnernames
+             Type: string memory
+             Source: "partnernames"
+          Identifier weddingdate
+             Type: uint256
+             Source: "weddingdate"
+          Identifier displaymultisig
+             Type: uint256
+             Source: "displaymultisig"
+  EventDefinition "IndexWritten"
+     Gas costs: 0
+     Source: "event IndexWritten (uint time, string contractaddress, string partners, uint weddingdate, uint display);"
+    ParameterList
+       Source: "(uint time, string contractaddress, string partners, uint weddingdate, uint display)"
+      VariableDeclaration "time"
+         Type: uint256
+         Source: "uint time"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "contractaddress"
+         Type: string memory
+         Source: "string contractaddress"
+        ElementaryTypeName string
+           Source: "string"
+      VariableDeclaration "partners"
+         Type: string memory
+         Source: "string partners"
+        ElementaryTypeName string
+           Source: "string"
+      VariableDeclaration "weddingdate"
+         Type: uint256
+         Source: "uint weddingdate"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "display"
+         Type: uint256
+         Source: "uint display"
+        ElementaryTypeName uint
+           Source: "uint"

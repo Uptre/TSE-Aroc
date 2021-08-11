@@ -1,0 +1,3133 @@
+Syntax trees:
+
+
+======= /home/fabric/ArocRevision/Aroc/osirisData/contractSrc/0x2d4c0a94ecc29513972b302ea143aa6e0412fcde.sol =======
+PragmaDirective
+   Gas costs: 0
+   Source: "pragma solidity ^0.4.18;"
+ContractDefinition "SafeMath"
+   Source: "library SafeMath {\r\n\r\n  function mul(uint a, uint b) internal pure returns (uint) {\r\n    uint256 c = a * b;\r\n    assert(a == 0 || c / a == b);\r\n    return c;\r\n  }\r\n\r\n  function div(uint256 a, uint256 b) internal pure returns (uint256) {\r\n    // assert(b > 0); // Solidity automatically throws when dividing by 0\r\n    uint256 c = a / b;\r\n    // assert(a == b * c + a % b); // There is no case in which this doesn't hold\r\n    return c;\r\n  }\r\n\r\n  function sub(uint256 a, uint256 b) internal pure returns (uint256) {\r\n    assert(b <= a);\r\n    return a - b;\r\n  }\r\n\r\n  function add(uint a, uint b) internal pure returns (uint256) {\r\n    uint256 c = a + b;\r\n    assert(c >= a);\r\n    return c;\r\n  }\r\n\r\n}"
+  FunctionDefinition "mul"
+     Source: "function mul(uint a, uint b) internal pure returns (uint) {\r\n    uint256 c = a * b;\r\n    assert(a == 0 || c / a == b);\r\n    return c;\r\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint a, uint b)"
+      VariableDeclaration "a"
+         Type: uint256
+         Source: "uint a"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "b"
+         Type: uint256
+         Source: "uint b"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint"
+        ElementaryTypeName uint
+           Source: "uint"
+    Block
+       Source: "{\r\n    uint256 c = a * b;\r\n    assert(a == 0 || c / a == b);\r\n    return c;\r\n  }"
+      VariableDeclarationStatement
+         Gas costs: 19
+         Source: "uint256 c = a * b"
+        VariableDeclaration "c"
+           Type: uint256
+           Source: "uint256 c"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        BinaryOperation using operator *
+           Type: uint256
+           Source: "a * b"
+          Identifier a
+             Type: uint256
+             Source: "a"
+          Identifier b
+             Type: uint256
+             Source: "b"
+      ExpressionStatement
+         Gas costs: 88
+         Source: "assert(a == 0 || c / a == b)"
+        FunctionCall
+           Type: tuple()
+           Source: "assert(a == 0 || c / a == b)"
+          Identifier assert
+             Type: function (bool) pure
+             Source: "assert"
+          BinaryOperation using operator ||
+             Type: bool
+             Source: "a == 0 || c / a == b"
+            BinaryOperation using operator ==
+               Type: bool
+               Source: "a == 0"
+              Identifier a
+                 Type: uint256
+                 Source: "a"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+            BinaryOperation using operator ==
+               Type: bool
+               Source: "c / a == b"
+              BinaryOperation using operator /
+                 Type: uint256
+                 Source: "c / a"
+                Identifier c
+                   Type: uint256
+                   Source: "c"
+                Identifier a
+                   Type: uint256
+                   Source: "a"
+              Identifier b
+                 Type: uint256
+                 Source: "b"
+      Return
+         Gas costs: 8
+         Source: "return c"
+        Identifier c
+           Type: uint256
+           Source: "c"
+  FunctionDefinition "div"
+     Source: "function div(uint256 a, uint256 b) internal pure returns (uint256) {\r\n    // assert(b > 0); // Solidity automatically throws when dividing by 0\r\n    uint256 c = a / b;\r\n    // assert(a == b * c + a % b); // There is no case in which this doesn't hold\r\n    return c;\r\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 a, uint256 b)"
+      VariableDeclaration "a"
+         Type: uint256
+         Source: "uint256 a"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "b"
+         Type: uint256
+         Source: "uint256 b"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint256)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint256"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{\r\n    // assert(b > 0); // Solidity automatically throws when dividing by 0\r\n    uint256 c = a / b;\r\n    // assert(a == b * c + a % b); // There is no case in which this doesn't hold\r\n    return c;\r\n  }"
+      VariableDeclarationStatement
+         Gas costs: 42
+         Source: "uint256 c = a / b"
+        VariableDeclaration "c"
+           Type: uint256
+           Source: "uint256 c"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        BinaryOperation using operator /
+           Type: uint256
+           Source: "a / b"
+          Identifier a
+             Type: uint256
+             Source: "a"
+          Identifier b
+             Type: uint256
+             Source: "b"
+      Return
+         Gas costs: 8
+         Source: "return c"
+        Identifier c
+           Type: uint256
+           Source: "c"
+  FunctionDefinition "sub"
+     Source: "function sub(uint256 a, uint256 b) internal pure returns (uint256) {\r\n    assert(b <= a);\r\n    return a - b;\r\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 a, uint256 b)"
+      VariableDeclaration "a"
+         Type: uint256
+         Source: "uint256 a"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "b"
+         Type: uint256
+         Source: "uint256 b"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint256)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint256"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{\r\n    assert(b <= a);\r\n    return a - b;\r\n  }"
+      ExpressionStatement
+         Gas costs: 32
+         Source: "assert(b <= a)"
+        FunctionCall
+           Type: tuple()
+           Source: "assert(b <= a)"
+          Identifier assert
+             Type: function (bool) pure
+             Source: "assert"
+          BinaryOperation using operator <=
+             Type: bool
+             Source: "b <= a"
+            Identifier b
+               Type: uint256
+               Source: "b"
+            Identifier a
+               Type: uint256
+               Source: "a"
+      Return
+         Gas costs: 14
+         Source: "return a - b"
+        BinaryOperation using operator -
+           Type: uint256
+           Source: "a - b"
+          Identifier a
+             Type: uint256
+             Source: "a"
+          Identifier b
+             Type: uint256
+             Source: "b"
+  FunctionDefinition "add"
+     Source: "function add(uint a, uint b) internal pure returns (uint256) {\r\n    uint256 c = a + b;\r\n    assert(c >= a);\r\n    return c;\r\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint a, uint b)"
+      VariableDeclaration "a"
+         Type: uint256
+         Source: "uint a"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "b"
+         Type: uint256
+         Source: "uint b"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint256)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint256"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{\r\n    uint256 c = a + b;\r\n    assert(c >= a);\r\n    return c;\r\n  }"
+      VariableDeclarationStatement
+         Gas costs: 17
+         Source: "uint256 c = a + b"
+        VariableDeclaration "c"
+           Type: uint256
+           Source: "uint256 c"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        BinaryOperation using operator +
+           Type: uint256
+           Source: "a + b"
+          Identifier a
+             Type: uint256
+             Source: "a"
+          Identifier b
+             Type: uint256
+             Source: "b"
+      ExpressionStatement
+         Gas costs: 32
+         Source: "assert(c >= a)"
+        FunctionCall
+           Type: tuple()
+           Source: "assert(c >= a)"
+          Identifier assert
+             Type: function (bool) pure
+             Source: "assert"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "c >= a"
+            Identifier c
+               Type: uint256
+               Source: "c"
+            Identifier a
+               Type: uint256
+               Source: "a"
+      Return
+         Gas costs: 8
+         Source: "return c"
+        Identifier c
+           Type: uint256
+           Source: "c"
+ContractDefinition "Ownable"
+   Source: "contract Ownable {\r\n\r\n  address public owner;\r\n\r\n  /**\r\n   * @dev The Ownable constructor sets the original `owner` of the contract to the sender\r\n   * account.\r\n   */\r\n  function Ownable() public {\r\n    owner = msg.sender;\r\n  }\r\n\r\n  /**\r\n   * @dev Throws if called by any account other than the owner.\r\n   */\r\n  modifier onlyOwner() {\r\n     address inp_sender = msg.sender;\r\n     bool chekk = msg.sender == owner;\r\n    require(chekk);\r\n    _;\r\n  }\r\n\r\n  /**\r\n   * @dev Allows the current owner to transfer control of the contract to a newOwner.\r\n   * @param newOwner The address to transfer ownership to.\r\n   */\r\n  function transferOwnership(address newOwner) public onlyOwner {\r\n    require(newOwner != address(0));\r\n    owner = newOwner;\r\n  }\r\n\r\n}"
+  VariableDeclaration "owner"
+     Type: address
+     Gas costs: 0
+     Source: "address public owner"
+    ElementaryTypeName address
+       Source: "address"
+  FunctionDefinition "Ownable" - public
+     Source: "function Ownable() public {\r\n    owner = msg.sender;\r\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n    owner = msg.sender;\r\n  }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "owner = msg.sender"
+        Assignment using operator =
+           Type: address
+           Source: "owner = msg.sender"
+          Identifier owner
+             Type: address
+             Source: "owner"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+  ModifierDefinition "onlyOwner"
+     Source: "modifier onlyOwner() {\r\n     address inp_sender = msg.sender;\r\n     bool chekk = msg.sender == owner;\r\n    require(chekk);\r\n    _;\r\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    Block
+       Source: "{\r\n     address inp_sender = msg.sender;\r\n     bool chekk = msg.sender == owner;\r\n    require(chekk);\r\n    _;\r\n  }"
+      VariableDeclarationStatement
+         Gas costs: 0
+         Source: "address inp_sender = msg.sender"
+        VariableDeclaration "inp_sender"
+           Type: address
+           Source: "address inp_sender"
+          ElementaryTypeName address
+             Source: "address"
+        MemberAccess to member sender
+           Type: address
+           Source: "msg.sender"
+          Identifier msg
+             Type: msg
+             Source: "msg"
+      VariableDeclarationStatement
+         Gas costs: 0
+         Source: "bool chekk = msg.sender == owner"
+        VariableDeclaration "chekk"
+           Type: bool
+           Source: "bool chekk"
+          ElementaryTypeName bool
+             Source: "bool"
+        BinaryOperation using operator ==
+           Type: bool
+           Source: "msg.sender == owner"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier owner
+             Type: address
+             Source: "owner"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "require(chekk)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(chekk)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          Identifier chekk
+             Type: bool
+             Source: "chekk"
+      PlaceholderStatement
+         Gas costs: 0
+         Source: "_"
+  FunctionDefinition "transferOwnership" - public
+     Source: "function transferOwnership(address newOwner) public onlyOwner {\r\n    require(newOwner != address(0));\r\n    owner = newOwner;\r\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address newOwner)"
+      VariableDeclaration "newOwner"
+         Type: address
+         Source: "address newOwner"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n    require(newOwner != address(0));\r\n    owner = newOwner;\r\n  }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "require(newOwner != address(0))"
+        FunctionCall
+           Type: tuple()
+           Source: "require(newOwner != address(0))"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator !=
+             Type: bool
+             Source: "newOwner != address(0)"
+            Identifier newOwner
+               Type: address
+               Source: "newOwner"
+            FunctionCall
+               Type: address
+               Source: "address(0)"
+              ElementaryTypeNameExpression address
+                 Type: type(address)
+                 Source: "address"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "owner = newOwner"
+        Assignment using operator =
+           Type: address
+           Source: "owner = newOwner"
+          Identifier owner
+             Type: address
+             Source: "owner"
+          Identifier newOwner
+             Type: address
+             Source: "newOwner"
+ContractDefinition "BasisIco"
+   Source: "contract BasisIco  {\r\n\r\n  using SafeMath for uint;\r\n  \r\n    string public constant name = \"Basis Token\";\r\n\r\n    string public constant symbol = \"BSS\";\r\n\r\n    uint32 public constant decimals = 0;  \r\n    \r\n    struct Investor {\r\n        address holder;\r\n        uint tokens;\r\n\r\n    }\r\n  \r\n    Investor[] internal Cast_Arr;\r\n     \r\n    Investor tmp_investor;  \r\n      \r\n  \r\n  // Used to set wallet for owner, bounty and developer\r\n  // To that address Ether will be sended if Ico will have sucsess done\r\n  // Untill Ico is no finish and is no sucsess, all Ether are closed from anybody on ICO contract wallet\r\n  address internal constant owner_wallet = 0x79d8af6eEA6Aeeaf7a3a92D348457a5C4f0eEe1B;\r\n  address public constant owner = 0x79d8af6eEA6Aeeaf7a3a92D348457a5C4f0eEe1B;\r\n  address internal constant developer = 0xf2F1A92AD7f1124ef8900931ED00683f0B3A5da7;\r\n\r\n  //\r\n  //address public bounty_wallet = 0x79d8af6eEA6Aeeaf7a3a92D348457a5C4f0eEe1B;\r\n\r\n  uint public constant bountyPercent = 4;\r\n  \r\n\r\n  //address public bounty_reatricted_addr;\r\n  //Base price for BSS ICO. Show how much Wei is in 1 BSS. During ICO price calculate from the $rate\r\n  uint internal constant rate = 3300000000000000;\r\n  \r\n    uint public token_iso_price;\r\n// \u0413\u0435\u043d\u0435\u0440\u0438\u0440\u0443\u0435\u0442\u0441\u044f \u0432 Crowdsale constructor\r\n//  BasisToken public token = new BasisToken();\r\n\r\n  // Time sructure of Basis ico\r\n  // start_declaration of first round of Basis ico - Presale ( start_declaration of token creation and ico Presale )\r\n  uint public start_declaration = 1511384400;\r\n  // The period for calculate the time structure of Basis ico, amount of the days\r\n  uint public ico_period = 15;\r\n  // First round finish - Presale finish\r\n  uint public presale_finish;\r\n  // ico Second raund start.\r\n  uint public second_round_start;\r\n  // Basis ico finish, all mint are closed\r\n  uint public ico_finish = start_declaration + (ico_period * 1 days).mul(6);\r\n\r\n\r\n  // Limmits and callculation of total minted Basis token\r\n    uint public constant hardcap = 1536000;\r\n    // minimal for softcap\r\n    uint public softcap = 150000;\r\n    // Total suplied Basis token during ICO\r\n    uint public bssTotalSuply;\r\n    // Wei raised during ICO\r\n    uint public weiRaised;\r\n  //  list of owners and token balances \r\n    mapping(address => uint) public ico_balances;\r\n  //  list of owners and ether balances for refund    \r\n    mapping(address => uint) public ico_investor;\r\n   \r\n    event TokenPurchase(address indexed purchaser, address indexed beneficiary, uint256 value, uint256 amount);\r\n    event  Finalized();  \r\n    event Transfer(address indexed from, address indexed to, uint256 value);    \r\n    event Approval(address indexed owner, address indexed spender, uint256 value);\r\n\r\n    \r\n    bool RefundICO =false;\r\n    bool isFinalized =false;\r\n    // The map of allowed tokens for external address access\r\n    mapping (address => mapping (address => uint256)) allowed;\r\n    \r\n// The constractor of contract ...\r\n  function BasisIco() public     {\r\n\r\n \r\n    weiRaised = 0;\r\n    bssTotalSuply = 0;\r\n  \r\n    \r\n    token_iso_price = rate.mul(80).div(100); \r\n\r\n\r\n\r\n    presale_finish = start_declaration + (ico_period * 1 days);\r\n    second_round_start = start_declaration + (ico_period * 1 days).mul(2);\r\n  }\r\n  \r\n    modifier saleIsOn() {\r\n      require(now > start_declaration && now < ico_finish);\r\n      _;\r\n    }\r\n\r\n    modifier NoBreak() {\r\n      require(now < presale_finish  || now > second_round_start);\r\n      _;\r\n    }\r\n\r\n    modifier isUnderHardCap() {\r\n      require (bssTotalSuply <= hardcap);\r\n      _;\r\n    }  \r\n    \r\n    modifier onlyOwner() {\r\n         address inp_sender = msg.sender;\r\n         bool chekk = msg.sender == owner;\r\n        require(chekk);\r\n    _;\r\n     }\r\n  \r\n    function setPrice () public isUnderHardCap saleIsOn {\r\n          if  (now < presale_finish ){\r\n               // Chek total supply BSS for price level changes\r\n              if( bssTotalSuply > 50000 && bssTotalSuply <= 100000 ) {\r\n                  token_iso_price = rate.mul(85).div(100);\r\n              }\r\n                if( bssTotalSuply > 100000 && bssTotalSuply <= 150000 ) {\r\n                  token_iso_price = rate.mul(90).div(100);\r\n                  }\r\n\r\n          }\r\n          else {\r\n               if(bssTotalSuply <= 200000) {\r\n                   token_iso_price = rate.mul(90).div(100);\r\n               } else { if(bssTotalSuply <= 400000) {\r\n                        token_iso_price = rate.mul(95).div(100);\r\n                        }\r\n                        else {\r\n                        token_iso_price = rate;\r\n                        }\r\n                      }\r\n           }\r\n    } \r\n    \r\n    function getActualPrice() public returns (uint) {\r\n        setPrice ();        \r\n        return token_iso_price;\r\n    }  \r\n    \r\n     function validPurchase(uint _msg_value) internal constant returns (bool) {\r\n     bool withinPeriod = now >= start_declaration && now <= ico_finish;\r\n     bool nonZeroPurchase = _msg_value != 0;\r\n     return withinPeriod && nonZeroPurchase;\r\n   }\r\n   \r\n   function token_mint(address _investor, uint _tokens, uint _wei) internal {\r\n       \r\n       ico_balances[_investor] = ico_balances[_investor].add(_tokens);\r\n       tmp_investor.holder = _investor;\r\n       tmp_investor.tokens = _tokens;\r\n       Cast_Arr.push(tmp_investor);\r\n       ico_investor[_investor]= ico_investor[_investor].add(_wei);\r\n   }\r\n    \r\n   function buyTokens() external payable saleIsOn NoBreak {\r\n     \r\n     //require(beneficiary != address(0));\r\n     require(validPurchase(msg.value));\r\n\r\n     uint256 weiAmount = msg.value;\r\n\r\n     // calculate token amount to be created\r\n     uint256 tokens = weiAmount.div(token_iso_price);\r\n     if  (now < presale_finish ){\r\n         require ((bssTotalSuply + tokens) <= softcap);\r\n     }\r\n    require ((bssTotalSuply + tokens) < hardcap);\r\n     // update state\r\n     weiRaised = weiRaised.add(weiAmount);\r\n\r\n     token_mint( msg.sender, tokens, msg.value);\r\n     TokenPurchase(msg.sender, msg.sender, weiAmount, tokens);\r\n\r\n     //forwardFunds();\r\n     bssTotalSuply += tokens;\r\n    }\r\n\r\n   // fallback function can be used to buy tokens\r\n   function () external payable {\r\n     buyTokensFor(msg.sender);\r\n   } \r\n\r\n   function buyTokensFor(address beneficiary) public payable saleIsOn NoBreak {\r\n     \r\n     require(beneficiary != address(0));\r\n     require(validPurchase(msg.value));\r\n\r\n     uint256 weiAmount = msg.value;\r\n\r\n     // calculate token amount to be created\r\n     uint256 tokens = weiAmount.div(token_iso_price);\r\n      if  (now < presale_finish ){\r\n         require ((bssTotalSuply + tokens) <= softcap);\r\n     }\r\n    require ((bssTotalSuply + tokens) < hardcap);\r\n     // update state\r\n     weiRaised = weiRaised.add(weiAmount);\r\n\r\n     token_mint( beneficiary, tokens, msg.value);\r\n     TokenPurchase(msg.sender, beneficiary, weiAmount, tokens);\r\n\r\n     //forwardFunds();\r\n     bssTotalSuply += tokens;\r\n }\r\n \r\n   function extraTokenMint(address beneficiary, uint _tokens) external payable saleIsOn onlyOwner {\r\n     \r\n    require(beneficiary != address(0));\r\n    require ((bssTotalSuply + _tokens) < hardcap);\r\n    \r\n    uint weiAmount = _tokens.mul(token_iso_price);\r\n     // update state\r\n    weiRaised = weiRaised.add(weiAmount);\r\n\r\n     token_mint( beneficiary, _tokens, msg.value);\r\n     TokenPurchase(msg.sender, beneficiary, weiAmount, _tokens);\r\n\r\n     //forwardFunds();\r\n     bssTotalSuply += _tokens;\r\n  }\r\n\r\n  function goalReached() public constant returns (bool) {\r\n    return bssTotalSuply >= softcap;\r\n  }\r\n  \r\n  function bounty_mining () internal {\r\n    uint bounty_tokens = bssTotalSuply.mul(bountyPercent).div(100);\r\n    uint tmp_z = 0;\r\n    token_mint(owner_wallet, bounty_tokens, tmp_z);\r\n    bssTotalSuply += bounty_tokens;\r\n    }  \r\n  \r\n  // vault finalization task, called when owner calls finalize()\r\n  function finalization() public onlyOwner {\r\n    require (now > ico_finish);\r\n    if (goalReached()) {\r\n        bounty_mining ();\r\n        EtherTakeAfterSoftcap ();\r\n        } \r\n    else {\r\n        RefundICO = true;    \r\n    }\r\n    isFinalized = true;\r\n    Finalized();\r\n  }  \r\n\r\n  function investor_Refund()  public {\r\n        require (RefundICO && isFinalized);\r\n        address investor = msg.sender;\r\n        uint for_refund = ico_investor[msg.sender];\r\n        investor.transfer(for_refund);\r\n\r\n  }\r\n  \r\n  function EtherTakeAfterSoftcap () onlyOwner public {\r\n      require ( bssTotalSuply >= softcap );\r\n      uint for_developer = this.balance;\r\n      for_developer = for_developer.mul(6).div(100);\r\n      developer.transfer(for_developer);\r\n      owner.transfer(this.balance);\r\n  }\r\n\r\n  function balanceOf(address _owner) constant public returns (uint256 balance) {\r\n    return ico_balances[_owner];\r\n  }\r\n  \r\n   function transfer(address _to, uint256 _value) public returns (bool) {\r\n    ico_balances[msg.sender] = ico_balances[msg.sender].sub(_value);\r\n    ico_balances[_to] = ico_balances[_to].add(_value);\r\n    Transfer(msg.sender, _to, _value);\r\n    return true;\r\n  } \r\n\r\n  function transferFrom(address _from, address _to, uint256 _value) public returns (bool) {\r\n    var _allowance = allowed[_from][msg.sender];\r\n\r\n    // Check is not needed because sub(_allowance, _value) will already throw if this condition is not met\r\n    require (_value <= _allowance);\r\n\r\n    ico_balances[_to] = ico_balances[_to].add(_value);\r\n    ico_balances[_from] = ico_balances[_from].sub(_value);\r\n    allowed[_from][msg.sender] = _allowance.sub(_value);\r\n    Transfer(_from, _to, _value);\r\n    return true;\r\n  }\r\n  \r\n  function approve(address _spender, uint256 _value) public returns (bool) {\r\n\r\n    require((_value == 0) || (allowed[msg.sender][_spender] == 0));\r\n\r\n    allowed[msg.sender][_spender] = _value;\r\n    Approval(msg.sender, _spender, _value);\r\n    return true;\r\n  }  \r\n\r\n  function allowance(address _owner, address _spender) constant public returns (uint256 remaining) {\r\n    return allowed[_owner][_spender];\r\n  }\r\n\r\n}"
+  UsingForDirective
+     Gas costs: 0
+     Source: "using SafeMath for uint;"
+    UserDefinedTypeName "SafeMath"
+       Source: "SafeMath"
+    ElementaryTypeName uint
+       Source: "uint"
+  VariableDeclaration "name"
+     Type: string memory
+     Gas costs: [???]
+     Source: "string public constant name = \"Basis Token\""
+    ElementaryTypeName string
+       Source: "string"
+    Literal, token: [no token] value: Basis Token
+       Type: literal_string "Basis Token"
+       Source: "\"Basis Token\""
+  VariableDeclaration "symbol"
+     Type: string memory
+     Gas costs: [???]
+     Source: "string public constant symbol = \"BSS\""
+    ElementaryTypeName string
+       Source: "string"
+    Literal, token: [no token] value: BSS
+       Type: literal_string "BSS"
+       Source: "\"BSS\""
+  VariableDeclaration "decimals"
+     Type: uint32
+     Gas costs: [???]
+     Source: "uint32 public constant decimals = 0"
+    ElementaryTypeName uint32
+       Source: "uint32"
+    Literal, token: [no token] value: 0
+       Type: int_const 0
+       Source: "0"
+  StructDefinition "Investor"
+     Gas costs: 0
+     Source: "struct Investor {\r\n        address holder;\r\n        uint tokens;\r\n\r\n    }"
+    VariableDeclaration "holder"
+       Type: address
+       Source: "address holder"
+      ElementaryTypeName address
+         Source: "address"
+    VariableDeclaration "tokens"
+       Type: uint256
+       Source: "uint tokens"
+      ElementaryTypeName uint
+         Source: "uint"
+  VariableDeclaration "Cast_Arr"
+     Type: struct BasisIco.Investor storage ref[] storage ref
+     Gas costs: 0
+     Source: "Investor[] internal Cast_Arr"
+    ArrayTypeName
+       Source: "Investor[]"
+      UserDefinedTypeName "Investor"
+         Source: "Investor"
+  VariableDeclaration "tmp_investor"
+     Type: struct BasisIco.Investor storage ref
+     Gas costs: 0
+     Source: "Investor tmp_investor"
+    UserDefinedTypeName "Investor"
+       Source: "Investor"
+  VariableDeclaration "owner_wallet"
+     Type: address
+     Gas costs: 3
+     Source: "address internal constant owner_wallet = 0x79d8af6eEA6Aeeaf7a3a92D348457a5C4f0eEe1B"
+    ElementaryTypeName address
+       Source: "address"
+    Literal, token: [no token] value: 0x79d8af6eEA6Aeeaf7a3a92D348457a5C4f0eEe1B
+       Type: address
+       Source: "0x79d8af6eEA6Aeeaf7a3a92D348457a5C4f0eEe1B"
+  VariableDeclaration "owner"
+     Type: address
+     Gas costs: [???]
+     Source: "address public constant owner = 0x79d8af6eEA6Aeeaf7a3a92D348457a5C4f0eEe1B"
+    ElementaryTypeName address
+       Source: "address"
+    Literal, token: [no token] value: 0x79d8af6eEA6Aeeaf7a3a92D348457a5C4f0eEe1B
+       Type: address
+       Source: "0x79d8af6eEA6Aeeaf7a3a92D348457a5C4f0eEe1B"
+  VariableDeclaration "developer"
+     Type: address
+     Gas costs: 3
+     Source: "address internal constant developer = 0xf2F1A92AD7f1124ef8900931ED00683f0B3A5da7"
+    ElementaryTypeName address
+       Source: "address"
+    Literal, token: [no token] value: 0xf2F1A92AD7f1124ef8900931ED00683f0B3A5da7
+       Type: address
+       Source: "0xf2F1A92AD7f1124ef8900931ED00683f0B3A5da7"
+  VariableDeclaration "bountyPercent"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint public constant bountyPercent = 4"
+    ElementaryTypeName uint
+       Source: "uint"
+    Literal, token: [no token] value: 4
+       Type: int_const 4
+       Source: "4"
+  VariableDeclaration "rate"
+     Type: uint256
+     Gas costs: 15
+     Source: "uint internal constant rate = 3300000000000000"
+    ElementaryTypeName uint
+       Source: "uint"
+    Literal, token: [no token] value: 3300000000000000
+       Type: int_const 3300000000000000
+       Source: "3300000000000000"
+  VariableDeclaration "token_iso_price"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint public token_iso_price"
+    ElementaryTypeName uint
+       Source: "uint"
+  VariableDeclaration "start_declaration"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint public start_declaration = 1511384400"
+    ElementaryTypeName uint
+       Source: "uint"
+    Literal, token: [no token] value: 1511384400
+       Type: int_const 1511384400
+       Source: "1511384400"
+  VariableDeclaration "ico_period"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint public ico_period = 15"
+    ElementaryTypeName uint
+       Source: "uint"
+    Literal, token: [no token] value: 15
+       Type: int_const 15
+       Source: "15"
+  VariableDeclaration "presale_finish"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint public presale_finish"
+    ElementaryTypeName uint
+       Source: "uint"
+  VariableDeclaration "second_round_start"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint public second_round_start"
+    ElementaryTypeName uint
+       Source: "uint"
+  VariableDeclaration "ico_finish"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint public ico_finish = start_declaration + (ico_period * 1 days).mul(6)"
+    ElementaryTypeName uint
+       Source: "uint"
+    BinaryOperation using operator +
+       Type: uint256
+       Source: "start_declaration + (ico_period * 1 days).mul(6)"
+      Identifier start_declaration
+         Type: uint256
+         Source: "start_declaration"
+      FunctionCall
+         Type: uint256
+         Source: "(ico_period * 1 days).mul(6)"
+        MemberAccess to member mul
+           Type: function (uint256,uint256) pure returns (uint256)
+           Source: "(ico_period * 1 days).mul"
+          TupleExpression
+             Type: uint256
+             Source: "(ico_period * 1 days)"
+            BinaryOperation using operator *
+               Type: uint256
+               Source: "ico_period * 1 days"
+              Identifier ico_period
+                 Type: uint256
+                 Source: "ico_period"
+              Literal, token: [no token] value: 1
+                 Type: int_const 86400
+                 Source: "1 days"
+        Literal, token: [no token] value: 6
+           Type: int_const 6
+           Source: "6"
+  VariableDeclaration "hardcap"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint public constant hardcap = 1536000"
+    ElementaryTypeName uint
+       Source: "uint"
+    Literal, token: [no token] value: 1536000
+       Type: int_const 1536000
+       Source: "1536000"
+  VariableDeclaration "softcap"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint public softcap = 150000"
+    ElementaryTypeName uint
+       Source: "uint"
+    Literal, token: [no token] value: 150000
+       Type: int_const 150000
+       Source: "150000"
+  VariableDeclaration "bssTotalSuply"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint public bssTotalSuply"
+    ElementaryTypeName uint
+       Source: "uint"
+  VariableDeclaration "weiRaised"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint public weiRaised"
+    ElementaryTypeName uint
+       Source: "uint"
+  VariableDeclaration "ico_balances"
+     Type: mapping(address => uint256)
+     Gas costs: [???]
+     Source: "mapping(address => uint) public ico_balances"
+    Mapping
+       Source: "mapping(address => uint)"
+      ElementaryTypeName address
+         Source: "address"
+      ElementaryTypeName uint
+         Source: "uint"
+  VariableDeclaration "ico_investor"
+     Type: mapping(address => uint256)
+     Gas costs: [???]
+     Source: "mapping(address => uint) public ico_investor"
+    Mapping
+       Source: "mapping(address => uint)"
+      ElementaryTypeName address
+         Source: "address"
+      ElementaryTypeName uint
+         Source: "uint"
+  EventDefinition "TokenPurchase"
+     Gas costs: 0
+     Source: "event TokenPurchase(address indexed purchaser, address indexed beneficiary, uint256 value, uint256 amount);"
+    ParameterList
+       Source: "(address indexed purchaser, address indexed beneficiary, uint256 value, uint256 amount)"
+      VariableDeclaration "purchaser"
+         Type: address
+         Source: "address indexed purchaser"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "beneficiary"
+         Type: address
+         Source: "address indexed beneficiary"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "value"
+         Type: uint256
+         Source: "uint256 value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "amount"
+         Type: uint256
+         Source: "uint256 amount"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  EventDefinition "Finalized"
+     Gas costs: 0
+     Source: "event  Finalized();"
+    ParameterList
+       Source: "()"
+  EventDefinition "Transfer"
+     Gas costs: 0
+     Source: "event Transfer(address indexed from, address indexed to, uint256 value);"
+    ParameterList
+       Source: "(address indexed from, address indexed to, uint256 value)"
+      VariableDeclaration "from"
+         Type: address
+         Source: "address indexed from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "to"
+         Type: address
+         Source: "address indexed to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "value"
+         Type: uint256
+         Source: "uint256 value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  EventDefinition "Approval"
+     Gas costs: 0
+     Source: "event Approval(address indexed owner, address indexed spender, uint256 value);"
+    ParameterList
+       Source: "(address indexed owner, address indexed spender, uint256 value)"
+      VariableDeclaration "owner"
+         Type: address
+         Source: "address indexed owner"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "spender"
+         Type: address
+         Source: "address indexed spender"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "value"
+         Type: uint256
+         Source: "uint256 value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  VariableDeclaration "RefundICO"
+     Type: bool
+     Gas costs: 0
+     Source: "bool RefundICO =false"
+    ElementaryTypeName bool
+       Source: "bool"
+    Literal, token: false value: false
+       Type: bool
+       Source: "false"
+  VariableDeclaration "isFinalized"
+     Type: bool
+     Gas costs: 0
+     Source: "bool isFinalized =false"
+    ElementaryTypeName bool
+       Source: "bool"
+    Literal, token: false value: false
+       Type: bool
+       Source: "false"
+  VariableDeclaration "allowed"
+     Type: mapping(address => mapping(address => uint256))
+     Gas costs: 0
+     Source: "mapping (address => mapping (address => uint256)) allowed"
+    Mapping
+       Source: "mapping (address => mapping (address => uint256))"
+      ElementaryTypeName address
+         Source: "address"
+      Mapping
+         Source: "mapping (address => uint256)"
+        ElementaryTypeName address
+           Source: "address"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  FunctionDefinition "BasisIco" - public
+     Source: "function BasisIco() public     {\r\n\r\n \r\n    weiRaised = 0;\r\n    bssTotalSuply = 0;\r\n  \r\n    \r\n    token_iso_price = rate.mul(80).div(100); \r\n\r\n\r\n\r\n    presale_finish = start_declaration + (ico_period * 1 days);\r\n    second_round_start = start_declaration + (ico_period * 1 days).mul(2);\r\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n\r\n \r\n    weiRaised = 0;\r\n    bssTotalSuply = 0;\r\n  \r\n    \r\n    token_iso_price = rate.mul(80).div(100); \r\n\r\n\r\n\r\n    presale_finish = start_declaration + (ico_period * 1 days);\r\n    second_round_start = start_declaration + (ico_period * 1 days).mul(2);\r\n  }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "weiRaised = 0"
+        Assignment using operator =
+           Type: uint256
+           Source: "weiRaised = 0"
+          Identifier weiRaised
+             Type: uint256
+             Source: "weiRaised"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "bssTotalSuply = 0"
+        Assignment using operator =
+           Type: uint256
+           Source: "bssTotalSuply = 0"
+          Identifier bssTotalSuply
+             Type: uint256
+             Source: "bssTotalSuply"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "token_iso_price = rate.mul(80).div(100)"
+        Assignment using operator =
+           Type: uint256
+           Source: "token_iso_price = rate.mul(80).div(100)"
+          Identifier token_iso_price
+             Type: uint256
+             Source: "token_iso_price"
+          FunctionCall
+             Type: uint256
+             Source: "rate.mul(80).div(100)"
+            MemberAccess to member div
+               Type: function (uint256,uint256) pure returns (uint256)
+               Source: "rate.mul(80).div"
+              FunctionCall
+                 Type: uint256
+                 Source: "rate.mul(80)"
+                MemberAccess to member mul
+                   Type: function (uint256,uint256) pure returns (uint256)
+                   Source: "rate.mul"
+                  Identifier rate
+                     Type: uint256
+                     Source: "rate"
+                Literal, token: [no token] value: 80
+                   Type: int_const 80
+                   Source: "80"
+            Literal, token: [no token] value: 100
+               Type: int_const 100
+               Source: "100"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "presale_finish = start_declaration + (ico_period * 1 days)"
+        Assignment using operator =
+           Type: uint256
+           Source: "presale_finish = start_declaration + (ico_period * 1 days)"
+          Identifier presale_finish
+             Type: uint256
+             Source: "presale_finish"
+          BinaryOperation using operator +
+             Type: uint256
+             Source: "start_declaration + (ico_period * 1 days)"
+            Identifier start_declaration
+               Type: uint256
+               Source: "start_declaration"
+            TupleExpression
+               Type: uint256
+               Source: "(ico_period * 1 days)"
+              BinaryOperation using operator *
+                 Type: uint256
+                 Source: "ico_period * 1 days"
+                Identifier ico_period
+                   Type: uint256
+                   Source: "ico_period"
+                Literal, token: [no token] value: 1
+                   Type: int_const 86400
+                   Source: "1 days"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "second_round_start = start_declaration + (ico_period * 1 days).mul(2)"
+        Assignment using operator =
+           Type: uint256
+           Source: "second_round_start = start_declaration + (ico_period * 1 days).mul(2)"
+          Identifier second_round_start
+             Type: uint256
+             Source: "second_round_start"
+          BinaryOperation using operator +
+             Type: uint256
+             Source: "start_declaration + (ico_period * 1 days).mul(2)"
+            Identifier start_declaration
+               Type: uint256
+               Source: "start_declaration"
+            FunctionCall
+               Type: uint256
+               Source: "(ico_period * 1 days).mul(2)"
+              MemberAccess to member mul
+                 Type: function (uint256,uint256) pure returns (uint256)
+                 Source: "(ico_period * 1 days).mul"
+                TupleExpression
+                   Type: uint256
+                   Source: "(ico_period * 1 days)"
+                  BinaryOperation using operator *
+                     Type: uint256
+                     Source: "ico_period * 1 days"
+                    Identifier ico_period
+                       Type: uint256
+                       Source: "ico_period"
+                    Literal, token: [no token] value: 1
+                       Type: int_const 86400
+                       Source: "1 days"
+              Literal, token: [no token] value: 2
+                 Type: int_const 2
+                 Source: "2"
+  ModifierDefinition "saleIsOn"
+     Source: "modifier saleIsOn() {\r\n      require(now > start_declaration && now < ico_finish);\r\n      _;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    Block
+       Source: "{\r\n      require(now > start_declaration && now < ico_finish);\r\n      _;\r\n    }"
+      ExpressionStatement
+         Gas costs: 1856
+         Source: "require(now > start_declaration && now < ico_finish)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(now > start_declaration && now < ico_finish)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator &&
+             Type: bool
+             Source: "now > start_declaration && now < ico_finish"
+            BinaryOperation using operator >
+               Type: bool
+               Source: "now > start_declaration"
+              Identifier now
+                 Type: uint256
+                 Source: "now"
+              Identifier start_declaration
+                 Type: uint256
+                 Source: "start_declaration"
+            BinaryOperation using operator <
+               Type: bool
+               Source: "now < ico_finish"
+              Identifier now
+                 Type: uint256
+                 Source: "now"
+              Identifier ico_finish
+                 Type: uint256
+                 Source: "ico_finish"
+      PlaceholderStatement
+         Gas costs: 4
+         Source: "_"
+  ModifierDefinition "NoBreak"
+     Source: "modifier NoBreak() {\r\n      require(now < presale_finish  || now > second_round_start);\r\n      _;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    Block
+       Source: "{\r\n      require(now < presale_finish  || now > second_round_start);\r\n      _;\r\n    }"
+      ExpressionStatement
+         Gas costs: 922
+         Source: "require(now < presale_finish  || now > second_round_start)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(now < presale_finish  || now > second_round_start)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ||
+             Type: bool
+             Source: "now < presale_finish  || now > second_round_start"
+            BinaryOperation using operator <
+               Type: bool
+               Source: "now < presale_finish"
+              Identifier now
+                 Type: uint256
+                 Source: "now"
+              Identifier presale_finish
+                 Type: uint256
+                 Source: "presale_finish"
+            BinaryOperation using operator >
+               Type: bool
+               Source: "now > second_round_start"
+              Identifier now
+                 Type: uint256
+                 Source: "now"
+              Identifier second_round_start
+                 Type: uint256
+                 Source: "second_round_start"
+      PlaceholderStatement
+         Gas costs: 0
+         Source: "_"
+  ModifierDefinition "isUnderHardCap"
+     Source: "modifier isUnderHardCap() {\r\n      require (bssTotalSuply <= hardcap);\r\n      _;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    Block
+       Source: "{\r\n      require (bssTotalSuply <= hardcap);\r\n      _;\r\n    }"
+      ExpressionStatement
+         Gas costs: 235
+         Source: "require (bssTotalSuply <= hardcap)"
+        FunctionCall
+           Type: tuple()
+           Source: "require (bssTotalSuply <= hardcap)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator <=
+             Type: bool
+             Source: "bssTotalSuply <= hardcap"
+            Identifier bssTotalSuply
+               Type: uint256
+               Source: "bssTotalSuply"
+            Identifier hardcap
+               Type: uint256
+               Source: "hardcap"
+      PlaceholderStatement
+         Gas costs: 0
+         Source: "_"
+  ModifierDefinition "onlyOwner"
+     Source: "modifier onlyOwner() {\r\n         address inp_sender = msg.sender;\r\n         bool chekk = msg.sender == owner;\r\n        require(chekk);\r\n    _;\r\n     }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    Block
+       Source: "{\r\n         address inp_sender = msg.sender;\r\n         bool chekk = msg.sender == owner;\r\n        require(chekk);\r\n    _;\r\n     }"
+      VariableDeclarationStatement
+         Gas costs: 30
+         Source: "address inp_sender = msg.sender"
+        VariableDeclaration "inp_sender"
+           Type: address
+           Source: "address inp_sender"
+          ElementaryTypeName address
+             Source: "address"
+        MemberAccess to member sender
+           Type: address
+           Source: "msg.sender"
+          Identifier msg
+             Type: msg
+             Source: "msg"
+      VariableDeclarationStatement
+         Gas costs: 75
+         Source: "bool chekk = msg.sender == owner"
+        VariableDeclaration "chekk"
+           Type: bool
+           Source: "bool chekk"
+          ElementaryTypeName bool
+             Source: "bool"
+        BinaryOperation using operator ==
+           Type: bool
+           Source: "msg.sender == owner"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier owner
+             Type: address
+             Source: "owner"
+      ExpressionStatement
+         Gas costs: 87
+         Source: "require(chekk)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(chekk)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          Identifier chekk
+             Type: bool
+             Source: "chekk"
+      PlaceholderStatement
+         Gas costs: 0
+         Source: "_"
+  FunctionDefinition "setPrice" - public
+     Source: "function setPrice () public isUnderHardCap saleIsOn {\r\n          if  (now < presale_finish ){\r\n               // Chek total supply BSS for price level changes\r\n              if( bssTotalSuply > 50000 && bssTotalSuply <= 100000 ) {\r\n                  token_iso_price = rate.mul(85).div(100);\r\n              }\r\n                if( bssTotalSuply > 100000 && bssTotalSuply <= 150000 ) {\r\n                  token_iso_price = rate.mul(90).div(100);\r\n                  }\r\n\r\n          }\r\n          else {\r\n               if(bssTotalSuply <= 200000) {\r\n                   token_iso_price = rate.mul(90).div(100);\r\n               } else { if(bssTotalSuply <= 400000) {\r\n                        token_iso_price = rate.mul(95).div(100);\r\n                        }\r\n                        else {\r\n                        token_iso_price = rate;\r\n                        }\r\n                      }\r\n           }\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "isUnderHardCap"
+       Gas costs: 0
+       Source: "isUnderHardCap"
+      Identifier isUnderHardCap
+         Type: modifier ()
+         Source: "isUnderHardCap"
+    ModifierInvocation "saleIsOn"
+       Gas costs: 0
+       Source: "saleIsOn"
+      Identifier saleIsOn
+         Type: modifier ()
+         Source: "saleIsOn"
+    Block
+       Source: "{\r\n          if  (now < presale_finish ){\r\n               // Chek total supply BSS for price level changes\r\n              if( bssTotalSuply > 50000 && bssTotalSuply <= 100000 ) {\r\n                  token_iso_price = rate.mul(85).div(100);\r\n              }\r\n                if( bssTotalSuply > 100000 && bssTotalSuply <= 150000 ) {\r\n                  token_iso_price = rate.mul(90).div(100);\r\n                  }\r\n\r\n          }\r\n          else {\r\n               if(bssTotalSuply <= 200000) {\r\n                   token_iso_price = rate.mul(90).div(100);\r\n               } else { if(bssTotalSuply <= 400000) {\r\n                        token_iso_price = rate.mul(95).div(100);\r\n                        }\r\n                        else {\r\n                        token_iso_price = rate;\r\n                        }\r\n                      }\r\n           }\r\n    }"
+      IfStatement
+         Source: "if  (now < presale_finish ){\r\n               // Chek total supply BSS for price level changes\r\n              if( bssTotalSuply > 50000 && bssTotalSuply <= 100000 ) {\r\n                  token_iso_price = rate.mul(85).div(100);\r\n              }\r\n                if( bssTotalSuply > 100000 && bssTotalSuply <= 150000 ) {\r\n                  token_iso_price = rate.mul(90).div(100);\r\n                  }\r\n\r\n          }\r\n          else {\r\n               if(bssTotalSuply <= 200000) {\r\n                   token_iso_price = rate.mul(90).div(100);\r\n               } else { if(bssTotalSuply <= 400000) {\r\n                        token_iso_price = rate.mul(95).div(100);\r\n                        }\r\n                        else {\r\n                        token_iso_price = rate;\r\n                        }\r\n                      }\r\n           }"
+        BinaryOperation using operator <
+           Type: bool
+           Gas costs: 208
+           Source: "now < presale_finish"
+          Identifier now
+             Type: uint256
+             Source: "now"
+          Identifier presale_finish
+             Type: uint256
+             Source: "presale_finish"
+        Block
+           Source: "{\r\n               // Chek total supply BSS for price level changes\r\n              if( bssTotalSuply > 50000 && bssTotalSuply <= 100000 ) {\r\n                  token_iso_price = rate.mul(85).div(100);\r\n              }\r\n                if( bssTotalSuply > 100000 && bssTotalSuply <= 150000 ) {\r\n                  token_iso_price = rate.mul(90).div(100);\r\n                  }\r\n\r\n          }"
+          IfStatement
+             Source: "if( bssTotalSuply > 50000 && bssTotalSuply <= 100000 ) {\r\n                  token_iso_price = rate.mul(85).div(100);\r\n              }"
+            BinaryOperation using operator &&
+               Type: bool
+               Gas costs: 443
+               Source: "bssTotalSuply > 50000 && bssTotalSuply <= 100000"
+              BinaryOperation using operator >
+                 Type: bool
+                 Source: "bssTotalSuply > 50000"
+                Identifier bssTotalSuply
+                   Type: uint256
+                   Source: "bssTotalSuply"
+                Literal, token: [no token] value: 50000
+                   Type: int_const 50000
+                   Source: "50000"
+              BinaryOperation using operator <=
+                 Type: bool
+                 Source: "bssTotalSuply <= 100000"
+                Identifier bssTotalSuply
+                   Type: uint256
+                   Source: "bssTotalSuply"
+                Literal, token: [no token] value: 100000
+                   Type: int_const 100000
+                   Source: "100000"
+            Block
+               Source: "{\r\n                  token_iso_price = rate.mul(85).div(100);\r\n              }"
+              ExpressionStatement
+                 Gas costs: 20077
+                 Source: "token_iso_price = rate.mul(85).div(100)"
+                Assignment using operator =
+                   Type: uint256
+                   Source: "token_iso_price = rate.mul(85).div(100)"
+                  Identifier token_iso_price
+                     Type: uint256
+                     Source: "token_iso_price"
+                  FunctionCall
+                     Type: uint256
+                     Source: "rate.mul(85).div(100)"
+                    MemberAccess to member div
+                       Type: function (uint256,uint256) pure returns (uint256)
+                       Source: "rate.mul(85).div"
+                      FunctionCall
+                         Type: uint256
+                         Source: "rate.mul(85)"
+                        MemberAccess to member mul
+                           Type: function (uint256,uint256) pure returns (uint256)
+                           Source: "rate.mul"
+                          Identifier rate
+                             Type: uint256
+                             Source: "rate"
+                        Literal, token: [no token] value: 85
+                           Type: int_const 85
+                           Source: "85"
+                    Literal, token: [no token] value: 100
+                       Type: int_const 100
+                       Source: "100"
+          IfStatement
+             Source: "if( bssTotalSuply > 100000 && bssTotalSuply <= 150000 ) {\r\n                  token_iso_price = rate.mul(90).div(100);\r\n                  }"
+            BinaryOperation using operator &&
+               Type: bool
+               Gas costs: 443
+               Source: "bssTotalSuply > 100000 && bssTotalSuply <= 150000"
+              BinaryOperation using operator >
+                 Type: bool
+                 Source: "bssTotalSuply > 100000"
+                Identifier bssTotalSuply
+                   Type: uint256
+                   Source: "bssTotalSuply"
+                Literal, token: [no token] value: 100000
+                   Type: int_const 100000
+                   Source: "100000"
+              BinaryOperation using operator <=
+                 Type: bool
+                 Source: "bssTotalSuply <= 150000"
+                Identifier bssTotalSuply
+                   Type: uint256
+                   Source: "bssTotalSuply"
+                Literal, token: [no token] value: 150000
+                   Type: int_const 150000
+                   Source: "150000"
+            Block
+               Source: "{\r\n                  token_iso_price = rate.mul(90).div(100);\r\n                  }"
+              ExpressionStatement
+                 Gas costs: 20077
+                 Source: "token_iso_price = rate.mul(90).div(100)"
+                Assignment using operator =
+                   Type: uint256
+                   Source: "token_iso_price = rate.mul(90).div(100)"
+                  Identifier token_iso_price
+                     Type: uint256
+                     Source: "token_iso_price"
+                  FunctionCall
+                     Type: uint256
+                     Source: "rate.mul(90).div(100)"
+                    MemberAccess to member div
+                       Type: function (uint256,uint256) pure returns (uint256)
+                       Source: "rate.mul(90).div"
+                      FunctionCall
+                         Type: uint256
+                         Source: "rate.mul(90)"
+                        MemberAccess to member mul
+                           Type: function (uint256,uint256) pure returns (uint256)
+                           Source: "rate.mul"
+                          Identifier rate
+                             Type: uint256
+                             Source: "rate"
+                        Literal, token: [no token] value: 90
+                           Type: int_const 90
+                           Source: "90"
+                    Literal, token: [no token] value: 100
+                       Type: int_const 100
+                       Source: "100"
+        Block
+           Source: "{\r\n               if(bssTotalSuply <= 200000) {\r\n                   token_iso_price = rate.mul(90).div(100);\r\n               } else { if(bssTotalSuply <= 400000) {\r\n                        token_iso_price = rate.mul(95).div(100);\r\n                        }\r\n                        else {\r\n                        token_iso_price = rate;\r\n                        }\r\n                      }\r\n           }"
+          IfStatement
+             Source: "if(bssTotalSuply <= 200000) {\r\n                   token_iso_price = rate.mul(90).div(100);\r\n               } else { if(bssTotalSuply <= 400000) {\r\n                        token_iso_price = rate.mul(95).div(100);\r\n                        }\r\n                        else {\r\n                        token_iso_price = rate;\r\n                        }\r\n                      }"
+            BinaryOperation using operator <=
+               Type: bool
+               Gas costs: 212
+               Source: "bssTotalSuply <= 200000"
+              Identifier bssTotalSuply
+                 Type: uint256
+                 Source: "bssTotalSuply"
+              Literal, token: [no token] value: 200000
+                 Type: int_const 200000
+                 Source: "200000"
+            Block
+               Source: "{\r\n                   token_iso_price = rate.mul(90).div(100);\r\n               }"
+              ExpressionStatement
+                 Gas costs: 20077
+                 Source: "token_iso_price = rate.mul(90).div(100)"
+                Assignment using operator =
+                   Type: uint256
+                   Source: "token_iso_price = rate.mul(90).div(100)"
+                  Identifier token_iso_price
+                     Type: uint256
+                     Source: "token_iso_price"
+                  FunctionCall
+                     Type: uint256
+                     Source: "rate.mul(90).div(100)"
+                    MemberAccess to member div
+                       Type: function (uint256,uint256) pure returns (uint256)
+                       Source: "rate.mul(90).div"
+                      FunctionCall
+                         Type: uint256
+                         Source: "rate.mul(90)"
+                        MemberAccess to member mul
+                           Type: function (uint256,uint256) pure returns (uint256)
+                           Source: "rate.mul"
+                          Identifier rate
+                             Type: uint256
+                             Source: "rate"
+                        Literal, token: [no token] value: 90
+                           Type: int_const 90
+                           Source: "90"
+                    Literal, token: [no token] value: 100
+                       Type: int_const 100
+                       Source: "100"
+            Block
+               Source: "{ if(bssTotalSuply <= 400000) {\r\n                        token_iso_price = rate.mul(95).div(100);\r\n                        }\r\n                        else {\r\n                        token_iso_price = rate;\r\n                        }\r\n                      }"
+              IfStatement
+                 Source: "if(bssTotalSuply <= 400000) {\r\n                        token_iso_price = rate.mul(95).div(100);\r\n                        }\r\n                        else {\r\n                        token_iso_price = rate;\r\n                        }"
+                BinaryOperation using operator <=
+                   Type: bool
+                   Gas costs: 212
+                   Source: "bssTotalSuply <= 400000"
+                  Identifier bssTotalSuply
+                     Type: uint256
+                     Source: "bssTotalSuply"
+                  Literal, token: [no token] value: 400000
+                     Type: int_const 400000
+                     Source: "400000"
+                Block
+                   Source: "{\r\n                        token_iso_price = rate.mul(95).div(100);\r\n                        }"
+                  ExpressionStatement
+                     Gas costs: 20077
+                     Source: "token_iso_price = rate.mul(95).div(100)"
+                    Assignment using operator =
+                       Type: uint256
+                       Source: "token_iso_price = rate.mul(95).div(100)"
+                      Identifier token_iso_price
+                         Type: uint256
+                         Source: "token_iso_price"
+                      FunctionCall
+                         Type: uint256
+                         Source: "rate.mul(95).div(100)"
+                        MemberAccess to member div
+                           Type: function (uint256,uint256) pure returns (uint256)
+                           Source: "rate.mul(95).div"
+                          FunctionCall
+                             Type: uint256
+                             Source: "rate.mul(95)"
+                            MemberAccess to member mul
+                               Type: function (uint256,uint256) pure returns (uint256)
+                               Source: "rate.mul"
+                              Identifier rate
+                                 Type: uint256
+                                 Source: "rate"
+                            Literal, token: [no token] value: 95
+                               Type: int_const 95
+                               Source: "95"
+                        Literal, token: [no token] value: 100
+                           Type: int_const 100
+                           Source: "100"
+                Block
+                   Source: "{\r\n                        token_iso_price = rate;\r\n                        }"
+                  ExpressionStatement
+                     Gas costs: 20011
+                     Source: "token_iso_price = rate"
+                    Assignment using operator =
+                       Type: uint256
+                       Source: "token_iso_price = rate"
+                      Identifier token_iso_price
+                         Type: uint256
+                         Source: "token_iso_price"
+                      Identifier rate
+                         Type: uint256
+                         Source: "rate"
+  FunctionDefinition "getActualPrice" - public
+     Source: "function getActualPrice() public returns (uint) {\r\n        setPrice ();        \r\n        return token_iso_price;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint"
+        ElementaryTypeName uint
+           Source: "uint"
+    Block
+       Source: "{\r\n        setPrice ();        \r\n        return token_iso_price;\r\n    }"
+      ExpressionStatement
+         Gas costs: 4
+         Source: "setPrice ()"
+        FunctionCall
+           Type: tuple()
+           Source: "setPrice ()"
+          Identifier setPrice
+             Type: function ()
+             Source: "setPrice"
+      Return
+         Gas costs: 208
+         Source: "return token_iso_price"
+        Identifier token_iso_price
+           Type: uint256
+           Source: "token_iso_price"
+  FunctionDefinition "validPurchase" - const
+     Source: "function validPurchase(uint _msg_value) internal constant returns (bool) {\r\n     bool withinPeriod = now >= start_declaration && now <= ico_finish;\r\n     bool nonZeroPurchase = _msg_value != 0;\r\n     return withinPeriod && nonZeroPurchase;\r\n   }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint _msg_value)"
+      VariableDeclaration "_msg_value"
+         Type: uint256
+         Source: "uint _msg_value"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool)"
+      VariableDeclaration ""
+         Type: bool
+         Source: "bool"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n     bool withinPeriod = now >= start_declaration && now <= ico_finish;\r\n     bool nonZeroPurchase = _msg_value != 0;\r\n     return withinPeriod && nonZeroPurchase;\r\n   }"
+      VariableDeclarationStatement
+         Gas costs: 452
+         Source: "bool withinPeriod = now >= start_declaration && now <= ico_finish"
+        VariableDeclaration "withinPeriod"
+           Type: bool
+           Source: "bool withinPeriod"
+          ElementaryTypeName bool
+             Source: "bool"
+        BinaryOperation using operator &&
+           Type: bool
+           Source: "now >= start_declaration && now <= ico_finish"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "now >= start_declaration"
+            Identifier now
+               Type: uint256
+               Source: "now"
+            Identifier start_declaration
+               Type: uint256
+               Source: "start_declaration"
+          BinaryOperation using operator <=
+             Type: bool
+             Source: "now <= ico_finish"
+            Identifier now
+               Type: uint256
+               Source: "now"
+            Identifier ico_finish
+               Type: uint256
+               Source: "ico_finish"
+      VariableDeclarationStatement
+         Gas costs: 20
+         Source: "bool nonZeroPurchase = _msg_value != 0"
+        VariableDeclaration "nonZeroPurchase"
+           Type: bool
+           Source: "bool nonZeroPurchase"
+          ElementaryTypeName bool
+             Source: "bool"
+        BinaryOperation using operator !=
+           Type: bool
+           Source: "_msg_value != 0"
+          Identifier _msg_value
+             Type: uint256
+             Source: "_msg_value"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+      Return
+         Gas costs: 33
+         Source: "return withinPeriod && nonZeroPurchase"
+        BinaryOperation using operator &&
+           Type: bool
+           Source: "withinPeriod && nonZeroPurchase"
+          Identifier withinPeriod
+             Type: bool
+             Source: "withinPeriod"
+          Identifier nonZeroPurchase
+             Type: bool
+             Source: "nonZeroPurchase"
+  FunctionDefinition "token_mint"
+     Source: "function token_mint(address _investor, uint _tokens, uint _wei) internal {\r\n       \r\n       ico_balances[_investor] = ico_balances[_investor].add(_tokens);\r\n       tmp_investor.holder = _investor;\r\n       tmp_investor.tokens = _tokens;\r\n       Cast_Arr.push(tmp_investor);\r\n       ico_investor[_investor]= ico_investor[_investor].add(_wei);\r\n   }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _investor, uint _tokens, uint _wei)"
+      VariableDeclaration "_investor"
+         Type: address
+         Source: "address _investor"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_tokens"
+         Type: uint256
+         Source: "uint _tokens"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "_wei"
+         Type: uint256
+         Source: "uint _wei"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n       \r\n       ico_balances[_investor] = ico_balances[_investor].add(_tokens);\r\n       tmp_investor.holder = _investor;\r\n       tmp_investor.tokens = _tokens;\r\n       Cast_Arr.push(tmp_investor);\r\n       ico_investor[_investor]= ico_investor[_investor].add(_wei);\r\n   }"
+      ExpressionStatement
+         Gas costs: 20439
+         Source: "ico_balances[_investor] = ico_balances[_investor].add(_tokens)"
+        Assignment using operator =
+           Type: uint256
+           Source: "ico_balances[_investor] = ico_balances[_investor].add(_tokens)"
+          IndexAccess
+             Type: uint256
+             Source: "ico_balances[_investor]"
+            Identifier ico_balances
+               Type: mapping(address => uint256)
+               Source: "ico_balances"
+            Identifier _investor
+               Type: address
+               Source: "_investor"
+          FunctionCall
+             Type: uint256
+             Source: "ico_balances[_investor].add(_tokens)"
+            MemberAccess to member add
+               Type: function (uint256,uint256) pure returns (uint256)
+               Source: "ico_balances[_investor].add"
+              IndexAccess
+                 Type: uint256
+                 Source: "ico_balances[_investor]"
+                Identifier ico_balances
+                   Type: mapping(address => uint256)
+                   Source: "ico_balances"
+                Identifier _investor
+                   Type: address
+                   Source: "_investor"
+            Identifier _tokens
+               Type: uint256
+               Source: "_tokens"
+      ExpressionStatement
+         Gas costs: 20273
+         Source: "tmp_investor.holder = _investor"
+        Assignment using operator =
+           Type: address
+           Source: "tmp_investor.holder = _investor"
+          MemberAccess to member holder
+             Type: address
+             Source: "tmp_investor.holder"
+            Identifier tmp_investor
+               Type: struct BasisIco.Investor storage ref
+               Source: "tmp_investor"
+          Identifier _investor
+             Type: address
+             Source: "_investor"
+      ExpressionStatement
+         Gas costs: 20020
+         Source: "tmp_investor.tokens = _tokens"
+        Assignment using operator =
+           Type: uint256
+           Source: "tmp_investor.tokens = _tokens"
+          MemberAccess to member tokens
+             Type: uint256
+             Source: "tmp_investor.tokens"
+            Identifier tmp_investor
+               Type: struct BasisIco.Investor storage ref
+               Source: "tmp_investor"
+          Identifier _tokens
+             Type: uint256
+             Source: "_tokens"
+      ExpressionStatement
+         Gas costs: 40854
+         Source: "Cast_Arr.push(tmp_investor)"
+        FunctionCall
+           Type: uint256
+           Source: "Cast_Arr.push(tmp_investor)"
+          MemberAccess to member push
+             Type: function (struct BasisIco.Investor storage ref) returns (uint256)
+             Source: "Cast_Arr.push"
+            Identifier Cast_Arr
+               Type: struct BasisIco.Investor storage ref[] storage ref
+               Source: "Cast_Arr"
+          Identifier tmp_investor
+             Type: struct BasisIco.Investor storage ref
+             Source: "tmp_investor"
+      ExpressionStatement
+         Gas costs: 20433
+         Source: "ico_investor[_investor]= ico_investor[_investor].add(_wei)"
+        Assignment using operator =
+           Type: uint256
+           Source: "ico_investor[_investor]= ico_investor[_investor].add(_wei)"
+          IndexAccess
+             Type: uint256
+             Source: "ico_investor[_investor]"
+            Identifier ico_investor
+               Type: mapping(address => uint256)
+               Source: "ico_investor"
+            Identifier _investor
+               Type: address
+               Source: "_investor"
+          FunctionCall
+             Type: uint256
+             Source: "ico_investor[_investor].add(_wei)"
+            MemberAccess to member add
+               Type: function (uint256,uint256) pure returns (uint256)
+               Source: "ico_investor[_investor].add"
+              IndexAccess
+                 Type: uint256
+                 Source: "ico_investor[_investor]"
+                Identifier ico_investor
+                   Type: mapping(address => uint256)
+                   Source: "ico_investor"
+                Identifier _investor
+                   Type: address
+                   Source: "_investor"
+            Identifier _wei
+               Type: uint256
+               Source: "_wei"
+  FunctionDefinition "buyTokens" - public
+     Source: "function buyTokens() external payable saleIsOn NoBreak {\r\n     \r\n     //require(beneficiary != address(0));\r\n     require(validPurchase(msg.value));\r\n\r\n     uint256 weiAmount = msg.value;\r\n\r\n     // calculate token amount to be created\r\n     uint256 tokens = weiAmount.div(token_iso_price);\r\n     if  (now < presale_finish ){\r\n         require ((bssTotalSuply + tokens) <= softcap);\r\n     }\r\n    require ((bssTotalSuply + tokens) < hardcap);\r\n     // update state\r\n     weiRaised = weiRaised.add(weiAmount);\r\n\r\n     token_mint( msg.sender, tokens, msg.value);\r\n     TokenPurchase(msg.sender, msg.sender, weiAmount, tokens);\r\n\r\n     //forwardFunds();\r\n     bssTotalSuply += tokens;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "saleIsOn"
+       Gas costs: 0
+       Source: "saleIsOn"
+      Identifier saleIsOn
+         Type: modifier ()
+         Source: "saleIsOn"
+    ModifierInvocation "NoBreak"
+       Gas costs: 0
+       Source: "NoBreak"
+      Identifier NoBreak
+         Type: modifier ()
+         Source: "NoBreak"
+    Block
+       Source: "{\r\n     \r\n     //require(beneficiary != address(0));\r\n     require(validPurchase(msg.value));\r\n\r\n     uint256 weiAmount = msg.value;\r\n\r\n     // calculate token amount to be created\r\n     uint256 tokens = weiAmount.div(token_iso_price);\r\n     if  (now < presale_finish ){\r\n         require ((bssTotalSuply + tokens) <= softcap);\r\n     }\r\n    require ((bssTotalSuply + tokens) < hardcap);\r\n     // update state\r\n     weiRaised = weiRaised.add(weiAmount);\r\n\r\n     token_mint( msg.sender, tokens, msg.value);\r\n     TokenPurchase(msg.sender, msg.sender, weiAmount, tokens);\r\n\r\n     //forwardFunds();\r\n     bssTotalSuply += tokens;\r\n    }"
+      ExpressionStatement
+         Gas costs: 43
+         Source: "require(validPurchase(msg.value))"
+        FunctionCall
+           Type: tuple()
+           Source: "require(validPurchase(msg.value))"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          FunctionCall
+             Type: bool
+             Source: "validPurchase(msg.value)"
+            Identifier validPurchase
+               Type: function (uint256) view returns (bool)
+               Source: "validPurchase"
+            MemberAccess to member value
+               Type: uint256
+               Source: "msg.value"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+      VariableDeclarationStatement
+         Gas costs: 10
+         Source: "uint256 weiAmount = msg.value"
+        VariableDeclaration "weiAmount"
+           Type: uint256
+           Source: "uint256 weiAmount"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        MemberAccess to member value
+           Type: uint256
+           Source: "msg.value"
+          Identifier msg
+             Type: msg
+             Source: "msg"
+      VariableDeclarationStatement
+         Gas costs: 244
+         Source: "uint256 tokens = weiAmount.div(token_iso_price)"
+        VariableDeclaration "tokens"
+           Type: uint256
+           Source: "uint256 tokens"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        FunctionCall
+           Type: uint256
+           Source: "weiAmount.div(token_iso_price)"
+          MemberAccess to member div
+             Type: function (uint256,uint256) pure returns (uint256)
+             Source: "weiAmount.div"
+            Identifier weiAmount
+               Type: uint256
+               Source: "weiAmount"
+          Identifier token_iso_price
+             Type: uint256
+             Source: "token_iso_price"
+      IfStatement
+         Source: "if  (now < presale_finish ){\r\n         require ((bssTotalSuply + tokens) <= softcap);\r\n     }"
+        BinaryOperation using operator <
+           Type: bool
+           Gas costs: 208
+           Source: "now < presale_finish"
+          Identifier now
+             Type: uint256
+             Source: "now"
+          Identifier presale_finish
+             Type: uint256
+             Source: "presale_finish"
+        Block
+           Source: "{\r\n         require ((bssTotalSuply + tokens) <= softcap);\r\n     }"
+          ExpressionStatement
+             Gas costs: 444
+             Source: "require ((bssTotalSuply + tokens) <= softcap)"
+            FunctionCall
+               Type: tuple()
+               Source: "require ((bssTotalSuply + tokens) <= softcap)"
+              Identifier require
+                 Type: function (bool) pure
+                 Source: "require"
+              BinaryOperation using operator <=
+                 Type: bool
+                 Source: "(bssTotalSuply + tokens) <= softcap"
+                TupleExpression
+                   Type: uint256
+                   Source: "(bssTotalSuply + tokens)"
+                  BinaryOperation using operator +
+                     Type: uint256
+                     Source: "bssTotalSuply + tokens"
+                    Identifier bssTotalSuply
+                       Type: uint256
+                       Source: "bssTotalSuply"
+                    Identifier tokens
+                       Type: uint256
+                       Source: "tokens"
+                Identifier softcap
+                   Type: uint256
+                   Source: "softcap"
+      ExpressionStatement
+         Gas costs: 238
+         Source: "require ((bssTotalSuply + tokens) < hardcap)"
+        FunctionCall
+           Type: tuple()
+           Source: "require ((bssTotalSuply + tokens) < hardcap)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator <
+             Type: bool
+             Source: "(bssTotalSuply + tokens) < hardcap"
+            TupleExpression
+               Type: uint256
+               Source: "(bssTotalSuply + tokens)"
+              BinaryOperation using operator +
+                 Type: uint256
+                 Source: "bssTotalSuply + tokens"
+                Identifier bssTotalSuply
+                   Type: uint256
+                   Source: "bssTotalSuply"
+                Identifier tokens
+                   Type: uint256
+                   Source: "tokens"
+            Identifier hardcap
+               Type: uint256
+               Source: "hardcap"
+      ExpressionStatement
+         Gas costs: 20247
+         Source: "weiRaised = weiRaised.add(weiAmount)"
+        Assignment using operator =
+           Type: uint256
+           Source: "weiRaised = weiRaised.add(weiAmount)"
+          Identifier weiRaised
+             Type: uint256
+             Source: "weiRaised"
+          FunctionCall
+             Type: uint256
+             Source: "weiRaised.add(weiAmount)"
+            MemberAccess to member add
+               Type: function (uint256,uint256) pure returns (uint256)
+               Source: "weiRaised.add"
+              Identifier weiRaised
+                 Type: uint256
+                 Source: "weiRaised"
+            Identifier weiAmount
+               Type: uint256
+               Source: "weiAmount"
+      ExpressionStatement
+         Gas costs: 22
+         Source: "token_mint( msg.sender, tokens, msg.value)"
+        FunctionCall
+           Type: tuple()
+           Source: "token_mint( msg.sender, tokens, msg.value)"
+          Identifier token_mint
+             Type: function (address,uint256,uint256)
+             Source: "token_mint"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier tokens
+             Type: uint256
+             Source: "tokens"
+          MemberAccess to member value
+             Type: uint256
+             Source: "msg.value"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "TokenPurchase(msg.sender, msg.sender, weiAmount, tokens)"
+        FunctionCall
+           Type: tuple()
+           Source: "TokenPurchase(msg.sender, msg.sender, weiAmount, tokens)"
+          Identifier TokenPurchase
+             Type: function (address,address,uint256,uint256)
+             Source: "TokenPurchase"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier weiAmount
+             Type: uint256
+             Source: "weiAmount"
+          Identifier tokens
+             Type: uint256
+             Source: "tokens"
+      ExpressionStatement
+         Gas costs: 20233
+         Source: "bssTotalSuply += tokens"
+        Assignment using operator +=
+           Type: uint256
+           Source: "bssTotalSuply += tokens"
+          Identifier bssTotalSuply
+             Type: uint256
+             Source: "bssTotalSuply"
+          Identifier tokens
+             Type: uint256
+             Source: "tokens"
+  FunctionDefinition "" - public
+     Source: "function () external payable {\r\n     buyTokensFor(msg.sender);\r\n   }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n     buyTokensFor(msg.sender);\r\n   }"
+      ExpressionStatement
+         Gas costs: 6
+         Source: "buyTokensFor(msg.sender)"
+        FunctionCall
+           Type: tuple()
+           Source: "buyTokensFor(msg.sender)"
+          Identifier buyTokensFor
+             Type: function (address)
+             Source: "buyTokensFor"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+  FunctionDefinition "buyTokensFor" - public
+     Source: "function buyTokensFor(address beneficiary) public payable saleIsOn NoBreak {\r\n     \r\n     require(beneficiary != address(0));\r\n     require(validPurchase(msg.value));\r\n\r\n     uint256 weiAmount = msg.value;\r\n\r\n     // calculate token amount to be created\r\n     uint256 tokens = weiAmount.div(token_iso_price);\r\n      if  (now < presale_finish ){\r\n         require ((bssTotalSuply + tokens) <= softcap);\r\n     }\r\n    require ((bssTotalSuply + tokens) < hardcap);\r\n     // update state\r\n     weiRaised = weiRaised.add(weiAmount);\r\n\r\n     token_mint( beneficiary, tokens, msg.value);\r\n     TokenPurchase(msg.sender, beneficiary, weiAmount, tokens);\r\n\r\n     //forwardFunds();\r\n     bssTotalSuply += tokens;\r\n }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address beneficiary)"
+      VariableDeclaration "beneficiary"
+         Type: address
+         Source: "address beneficiary"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "saleIsOn"
+       Gas costs: 0
+       Source: "saleIsOn"
+      Identifier saleIsOn
+         Type: modifier ()
+         Source: "saleIsOn"
+    ModifierInvocation "NoBreak"
+       Gas costs: 0
+       Source: "NoBreak"
+      Identifier NoBreak
+         Type: modifier ()
+         Source: "NoBreak"
+    Block
+       Source: "{\r\n     \r\n     require(beneficiary != address(0));\r\n     require(validPurchase(msg.value));\r\n\r\n     uint256 weiAmount = msg.value;\r\n\r\n     // calculate token amount to be created\r\n     uint256 tokens = weiAmount.div(token_iso_price);\r\n      if  (now < presale_finish ){\r\n         require ((bssTotalSuply + tokens) <= softcap);\r\n     }\r\n    require ((bssTotalSuply + tokens) < hardcap);\r\n     // update state\r\n     weiRaised = weiRaised.add(weiAmount);\r\n\r\n     token_mint( beneficiary, tokens, msg.value);\r\n     TokenPurchase(msg.sender, beneficiary, weiAmount, tokens);\r\n\r\n     //forwardFunds();\r\n     bssTotalSuply += tokens;\r\n }"
+      ExpressionStatement
+         Gas costs: 50
+         Source: "require(beneficiary != address(0))"
+        FunctionCall
+           Type: tuple()
+           Source: "require(beneficiary != address(0))"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator !=
+             Type: bool
+             Source: "beneficiary != address(0)"
+            Identifier beneficiary
+               Type: address
+               Source: "beneficiary"
+            FunctionCall
+               Type: address
+               Source: "address(0)"
+              ElementaryTypeNameExpression address
+                 Type: type(address)
+                 Source: "address"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+      ExpressionStatement
+         Gas costs: 32
+         Source: "require(validPurchase(msg.value))"
+        FunctionCall
+           Type: tuple()
+           Source: "require(validPurchase(msg.value))"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          FunctionCall
+             Type: bool
+             Source: "validPurchase(msg.value)"
+            Identifier validPurchase
+               Type: function (uint256) view returns (bool)
+               Source: "validPurchase"
+            MemberAccess to member value
+               Type: uint256
+               Source: "msg.value"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+      VariableDeclarationStatement
+         Gas costs: 10
+         Source: "uint256 weiAmount = msg.value"
+        VariableDeclaration "weiAmount"
+           Type: uint256
+           Source: "uint256 weiAmount"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        MemberAccess to member value
+           Type: uint256
+           Source: "msg.value"
+          Identifier msg
+             Type: msg
+             Source: "msg"
+      VariableDeclarationStatement
+         Gas costs: 244
+         Source: "uint256 tokens = weiAmount.div(token_iso_price)"
+        VariableDeclaration "tokens"
+           Type: uint256
+           Source: "uint256 tokens"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        FunctionCall
+           Type: uint256
+           Source: "weiAmount.div(token_iso_price)"
+          MemberAccess to member div
+             Type: function (uint256,uint256) pure returns (uint256)
+             Source: "weiAmount.div"
+            Identifier weiAmount
+               Type: uint256
+               Source: "weiAmount"
+          Identifier token_iso_price
+             Type: uint256
+             Source: "token_iso_price"
+      IfStatement
+         Source: "if  (now < presale_finish ){\r\n         require ((bssTotalSuply + tokens) <= softcap);\r\n     }"
+        BinaryOperation using operator <
+           Type: bool
+           Gas costs: 208
+           Source: "now < presale_finish"
+          Identifier now
+             Type: uint256
+             Source: "now"
+          Identifier presale_finish
+             Type: uint256
+             Source: "presale_finish"
+        Block
+           Source: "{\r\n         require ((bssTotalSuply + tokens) <= softcap);\r\n     }"
+          ExpressionStatement
+             Gas costs: 444
+             Source: "require ((bssTotalSuply + tokens) <= softcap)"
+            FunctionCall
+               Type: tuple()
+               Source: "require ((bssTotalSuply + tokens) <= softcap)"
+              Identifier require
+                 Type: function (bool) pure
+                 Source: "require"
+              BinaryOperation using operator <=
+                 Type: bool
+                 Source: "(bssTotalSuply + tokens) <= softcap"
+                TupleExpression
+                   Type: uint256
+                   Source: "(bssTotalSuply + tokens)"
+                  BinaryOperation using operator +
+                     Type: uint256
+                     Source: "bssTotalSuply + tokens"
+                    Identifier bssTotalSuply
+                       Type: uint256
+                       Source: "bssTotalSuply"
+                    Identifier tokens
+                       Type: uint256
+                       Source: "tokens"
+                Identifier softcap
+                   Type: uint256
+                   Source: "softcap"
+      ExpressionStatement
+         Gas costs: 238
+         Source: "require ((bssTotalSuply + tokens) < hardcap)"
+        FunctionCall
+           Type: tuple()
+           Source: "require ((bssTotalSuply + tokens) < hardcap)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator <
+             Type: bool
+             Source: "(bssTotalSuply + tokens) < hardcap"
+            TupleExpression
+               Type: uint256
+               Source: "(bssTotalSuply + tokens)"
+              BinaryOperation using operator +
+                 Type: uint256
+                 Source: "bssTotalSuply + tokens"
+                Identifier bssTotalSuply
+                   Type: uint256
+                   Source: "bssTotalSuply"
+                Identifier tokens
+                   Type: uint256
+                   Source: "tokens"
+            Identifier hardcap
+               Type: uint256
+               Source: "hardcap"
+      ExpressionStatement
+         Gas costs: 20247
+         Source: "weiRaised = weiRaised.add(weiAmount)"
+        Assignment using operator =
+           Type: uint256
+           Source: "weiRaised = weiRaised.add(weiAmount)"
+          Identifier weiRaised
+             Type: uint256
+             Source: "weiRaised"
+          FunctionCall
+             Type: uint256
+             Source: "weiRaised.add(weiAmount)"
+            MemberAccess to member add
+               Type: function (uint256,uint256) pure returns (uint256)
+               Source: "weiRaised.add"
+              Identifier weiRaised
+                 Type: uint256
+                 Source: "weiRaised"
+            Identifier weiAmount
+               Type: uint256
+               Source: "weiAmount"
+      ExpressionStatement
+         Gas costs: 12
+         Source: "token_mint( beneficiary, tokens, msg.value)"
+        FunctionCall
+           Type: tuple()
+           Source: "token_mint( beneficiary, tokens, msg.value)"
+          Identifier token_mint
+             Type: function (address,uint256,uint256)
+             Source: "token_mint"
+          Identifier beneficiary
+             Type: address
+             Source: "beneficiary"
+          Identifier tokens
+             Type: uint256
+             Source: "tokens"
+          MemberAccess to member value
+             Type: uint256
+             Source: "msg.value"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "TokenPurchase(msg.sender, beneficiary, weiAmount, tokens)"
+        FunctionCall
+           Type: tuple()
+           Source: "TokenPurchase(msg.sender, beneficiary, weiAmount, tokens)"
+          Identifier TokenPurchase
+             Type: function (address,address,uint256,uint256)
+             Source: "TokenPurchase"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier beneficiary
+             Type: address
+             Source: "beneficiary"
+          Identifier weiAmount
+             Type: uint256
+             Source: "weiAmount"
+          Identifier tokens
+             Type: uint256
+             Source: "tokens"
+      ExpressionStatement
+         Gas costs: 20233
+         Source: "bssTotalSuply += tokens"
+        Assignment using operator +=
+           Type: uint256
+           Source: "bssTotalSuply += tokens"
+          Identifier bssTotalSuply
+             Type: uint256
+             Source: "bssTotalSuply"
+          Identifier tokens
+             Type: uint256
+             Source: "tokens"
+  FunctionDefinition "extraTokenMint" - public
+     Source: "function extraTokenMint(address beneficiary, uint _tokens) external payable saleIsOn onlyOwner {\r\n     \r\n    require(beneficiary != address(0));\r\n    require ((bssTotalSuply + _tokens) < hardcap);\r\n    \r\n    uint weiAmount = _tokens.mul(token_iso_price);\r\n     // update state\r\n    weiRaised = weiRaised.add(weiAmount);\r\n\r\n     token_mint( beneficiary, _tokens, msg.value);\r\n     TokenPurchase(msg.sender, beneficiary, weiAmount, _tokens);\r\n\r\n     //forwardFunds();\r\n     bssTotalSuply += _tokens;\r\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address beneficiary, uint _tokens)"
+      VariableDeclaration "beneficiary"
+         Type: address
+         Source: "address beneficiary"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_tokens"
+         Type: uint256
+         Source: "uint _tokens"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "saleIsOn"
+       Gas costs: 0
+       Source: "saleIsOn"
+      Identifier saleIsOn
+         Type: modifier ()
+         Source: "saleIsOn"
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n     \r\n    require(beneficiary != address(0));\r\n    require ((bssTotalSuply + _tokens) < hardcap);\r\n    \r\n    uint weiAmount = _tokens.mul(token_iso_price);\r\n     // update state\r\n    weiRaised = weiRaised.add(weiAmount);\r\n\r\n     token_mint( beneficiary, _tokens, msg.value);\r\n     TokenPurchase(msg.sender, beneficiary, weiAmount, _tokens);\r\n\r\n     //forwardFunds();\r\n     bssTotalSuply += _tokens;\r\n  }"
+      ExpressionStatement
+         Gas costs: 50
+         Source: "require(beneficiary != address(0))"
+        FunctionCall
+           Type: tuple()
+           Source: "require(beneficiary != address(0))"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator !=
+             Type: bool
+             Source: "beneficiary != address(0)"
+            Identifier beneficiary
+               Type: address
+               Source: "beneficiary"
+            FunctionCall
+               Type: address
+               Source: "address(0)"
+              ElementaryTypeNameExpression address
+                 Type: type(address)
+                 Source: "address"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+      ExpressionStatement
+         Gas costs: 238
+         Source: "require ((bssTotalSuply + _tokens) < hardcap)"
+        FunctionCall
+           Type: tuple()
+           Source: "require ((bssTotalSuply + _tokens) < hardcap)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator <
+             Type: bool
+             Source: "(bssTotalSuply + _tokens) < hardcap"
+            TupleExpression
+               Type: uint256
+               Source: "(bssTotalSuply + _tokens)"
+              BinaryOperation using operator +
+                 Type: uint256
+                 Source: "bssTotalSuply + _tokens"
+                Identifier bssTotalSuply
+                   Type: uint256
+                   Source: "bssTotalSuply"
+                Identifier _tokens
+                   Type: uint256
+                   Source: "_tokens"
+            Identifier hardcap
+               Type: uint256
+               Source: "hardcap"
+      VariableDeclarationStatement
+         Gas costs: 244
+         Source: "uint weiAmount = _tokens.mul(token_iso_price)"
+        VariableDeclaration "weiAmount"
+           Type: uint256
+           Source: "uint weiAmount"
+          ElementaryTypeName uint
+             Source: "uint"
+        FunctionCall
+           Type: uint256
+           Source: "_tokens.mul(token_iso_price)"
+          MemberAccess to member mul
+             Type: function (uint256,uint256) pure returns (uint256)
+             Source: "_tokens.mul"
+            Identifier _tokens
+               Type: uint256
+               Source: "_tokens"
+          Identifier token_iso_price
+             Type: uint256
+             Source: "token_iso_price"
+      ExpressionStatement
+         Gas costs: 20247
+         Source: "weiRaised = weiRaised.add(weiAmount)"
+        Assignment using operator =
+           Type: uint256
+           Source: "weiRaised = weiRaised.add(weiAmount)"
+          Identifier weiRaised
+             Type: uint256
+             Source: "weiRaised"
+          FunctionCall
+             Type: uint256
+             Source: "weiRaised.add(weiAmount)"
+            MemberAccess to member add
+               Type: function (uint256,uint256) pure returns (uint256)
+               Source: "weiRaised.add"
+              Identifier weiRaised
+                 Type: uint256
+                 Source: "weiRaised"
+            Identifier weiAmount
+               Type: uint256
+               Source: "weiAmount"
+      ExpressionStatement
+         Gas costs: 23
+         Source: "token_mint( beneficiary, _tokens, msg.value)"
+        FunctionCall
+           Type: tuple()
+           Source: "token_mint( beneficiary, _tokens, msg.value)"
+          Identifier token_mint
+             Type: function (address,uint256,uint256)
+             Source: "token_mint"
+          Identifier beneficiary
+             Type: address
+             Source: "beneficiary"
+          Identifier _tokens
+             Type: uint256
+             Source: "_tokens"
+          MemberAccess to member value
+             Type: uint256
+             Source: "msg.value"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "TokenPurchase(msg.sender, beneficiary, weiAmount, _tokens)"
+        FunctionCall
+           Type: tuple()
+           Source: "TokenPurchase(msg.sender, beneficiary, weiAmount, _tokens)"
+          Identifier TokenPurchase
+             Type: function (address,address,uint256,uint256)
+             Source: "TokenPurchase"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier beneficiary
+             Type: address
+             Source: "beneficiary"
+          Identifier weiAmount
+             Type: uint256
+             Source: "weiAmount"
+          Identifier _tokens
+             Type: uint256
+             Source: "_tokens"
+      ExpressionStatement
+         Gas costs: 20233
+         Source: "bssTotalSuply += _tokens"
+        Assignment using operator +=
+           Type: uint256
+           Source: "bssTotalSuply += _tokens"
+          Identifier bssTotalSuply
+             Type: uint256
+             Source: "bssTotalSuply"
+          Identifier _tokens
+             Type: uint256
+             Source: "_tokens"
+  FunctionDefinition "goalReached" - public - const
+     Source: "function goalReached() public constant returns (bool) {\r\n    return bssTotalSuply >= softcap;\r\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool)"
+      VariableDeclaration ""
+         Type: bool
+         Source: "bool"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n    return bssTotalSuply >= softcap;\r\n  }"
+      Return
+         Gas costs: 417
+         Source: "return bssTotalSuply >= softcap"
+        BinaryOperation using operator >=
+           Type: bool
+           Source: "bssTotalSuply >= softcap"
+          Identifier bssTotalSuply
+             Type: uint256
+             Source: "bssTotalSuply"
+          Identifier softcap
+             Type: uint256
+             Source: "softcap"
+  FunctionDefinition "bounty_mining"
+     Source: "function bounty_mining () internal {\r\n    uint bounty_tokens = bssTotalSuply.mul(bountyPercent).div(100);\r\n    uint tmp_z = 0;\r\n    token_mint(owner_wallet, bounty_tokens, tmp_z);\r\n    bssTotalSuply += bounty_tokens;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n    uint bounty_tokens = bssTotalSuply.mul(bountyPercent).div(100);\r\n    uint tmp_z = 0;\r\n    token_mint(owner_wallet, bounty_tokens, tmp_z);\r\n    bssTotalSuply += bounty_tokens;\r\n    }"
+      VariableDeclarationStatement
+         Gas costs: 274
+         Source: "uint bounty_tokens = bssTotalSuply.mul(bountyPercent).div(100)"
+        VariableDeclaration "bounty_tokens"
+           Type: uint256
+           Source: "uint bounty_tokens"
+          ElementaryTypeName uint
+             Source: "uint"
+        FunctionCall
+           Type: uint256
+           Source: "bssTotalSuply.mul(bountyPercent).div(100)"
+          MemberAccess to member div
+             Type: function (uint256,uint256) pure returns (uint256)
+             Source: "bssTotalSuply.mul(bountyPercent).div"
+            FunctionCall
+               Type: uint256
+               Source: "bssTotalSuply.mul(bountyPercent)"
+              MemberAccess to member mul
+                 Type: function (uint256,uint256) pure returns (uint256)
+                 Source: "bssTotalSuply.mul"
+                Identifier bssTotalSuply
+                   Type: uint256
+                   Source: "bssTotalSuply"
+              Identifier bountyPercent
+                 Type: uint256
+                 Source: "bountyPercent"
+          Literal, token: [no token] value: 100
+             Type: int_const 100
+             Source: "100"
+      VariableDeclarationStatement
+         Gas costs: 11
+         Source: "uint tmp_z = 0"
+        VariableDeclaration "tmp_z"
+           Type: uint256
+           Source: "uint tmp_z"
+          ElementaryTypeName uint
+             Source: "uint"
+        Literal, token: [no token] value: 0
+           Type: int_const 0
+           Source: "0"
+      ExpressionStatement
+         Gas costs: 21
+         Source: "token_mint(owner_wallet, bounty_tokens, tmp_z)"
+        FunctionCall
+           Type: tuple()
+           Source: "token_mint(owner_wallet, bounty_tokens, tmp_z)"
+          Identifier token_mint
+             Type: function (address,uint256,uint256)
+             Source: "token_mint"
+          Identifier owner_wallet
+             Type: address
+             Source: "owner_wallet"
+          Identifier bounty_tokens
+             Type: uint256
+             Source: "bounty_tokens"
+          Identifier tmp_z
+             Type: uint256
+             Source: "tmp_z"
+      ExpressionStatement
+         Gas costs: 20233
+         Source: "bssTotalSuply += bounty_tokens"
+        Assignment using operator +=
+           Type: uint256
+           Source: "bssTotalSuply += bounty_tokens"
+          Identifier bssTotalSuply
+             Type: uint256
+             Source: "bssTotalSuply"
+          Identifier bounty_tokens
+             Type: uint256
+             Source: "bounty_tokens"
+  FunctionDefinition "finalization" - public
+     Source: "function finalization() public onlyOwner {\r\n    require (now > ico_finish);\r\n    if (goalReached()) {\r\n        bounty_mining ();\r\n        EtherTakeAfterSoftcap ();\r\n        } \r\n    else {\r\n        RefundICO = true;    \r\n    }\r\n    isFinalized = true;\r\n    Finalized();\r\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n    require (now > ico_finish);\r\n    if (goalReached()) {\r\n        bounty_mining ();\r\n        EtherTakeAfterSoftcap ();\r\n        } \r\n    else {\r\n        RefundICO = true;    \r\n    }\r\n    isFinalized = true;\r\n    Finalized();\r\n  }"
+      ExpressionStatement
+         Gas costs: 234
+         Source: "require (now > ico_finish)"
+        FunctionCall
+           Type: tuple()
+           Source: "require (now > ico_finish)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >
+             Type: bool
+             Source: "now > ico_finish"
+            Identifier now
+               Type: uint256
+               Source: "now"
+            Identifier ico_finish
+               Type: uint256
+               Source: "ico_finish"
+      IfStatement
+         Source: "if (goalReached()) {\r\n        bounty_mining ();\r\n        EtherTakeAfterSoftcap ();\r\n        } \r\n    else {\r\n        RefundICO = true;    \r\n    }"
+        FunctionCall
+           Type: bool
+           Gas costs: 15
+           Source: "goalReached()"
+          Identifier goalReached
+             Type: function () view returns (bool)
+             Source: "goalReached"
+        Block
+           Source: "{\r\n        bounty_mining ();\r\n        EtherTakeAfterSoftcap ();\r\n        }"
+          ExpressionStatement
+             Gas costs: 4
+             Source: "bounty_mining ()"
+            FunctionCall
+               Type: tuple()
+               Source: "bounty_mining ()"
+              Identifier bounty_mining
+                 Type: function ()
+                 Source: "bounty_mining"
+          ExpressionStatement
+             Gas costs: 15
+             Source: "EtherTakeAfterSoftcap ()"
+            FunctionCall
+               Type: tuple()
+               Source: "EtherTakeAfterSoftcap ()"
+              Identifier EtherTakeAfterSoftcap
+                 Type: function ()
+                 Source: "EtherTakeAfterSoftcap"
+        Block
+           Source: "{\r\n        RefundICO = true;    \r\n    }"
+          ExpressionStatement
+             Gas costs: 20267
+             Source: "RefundICO = true"
+            Assignment using operator =
+               Type: bool
+               Source: "RefundICO = true"
+              Identifier RefundICO
+                 Type: bool
+                 Source: "RefundICO"
+              Literal, token: true value: true
+                 Type: bool
+                 Source: "true"
+      ExpressionStatement
+         Gas costs: 20317
+         Source: "isFinalized = true"
+        Assignment using operator =
+           Type: bool
+           Source: "isFinalized = true"
+          Identifier isFinalized
+             Type: bool
+             Source: "isFinalized"
+          Literal, token: true value: true
+             Type: bool
+             Source: "true"
+      ExpressionStatement
+         Gas costs: 786
+         Source: "Finalized()"
+        FunctionCall
+           Type: tuple()
+           Source: "Finalized()"
+          Identifier Finalized
+             Type: function ()
+             Source: "Finalized"
+  FunctionDefinition "investor_Refund" - public
+     Source: "function investor_Refund()  public {\r\n        require (RefundICO && isFinalized);\r\n        address investor = msg.sender;\r\n        uint for_refund = ico_investor[msg.sender];\r\n        investor.transfer(for_refund);\r\n\r\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        require (RefundICO && isFinalized);\r\n        address investor = msg.sender;\r\n        uint for_refund = ico_investor[msg.sender];\r\n        investor.transfer(for_refund);\r\n\r\n  }"
+      ExpressionStatement
+         Gas costs: 576
+         Source: "require (RefundICO && isFinalized)"
+        FunctionCall
+           Type: tuple()
+           Source: "require (RefundICO && isFinalized)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator &&
+             Type: bool
+             Source: "RefundICO && isFinalized"
+            Identifier RefundICO
+               Type: bool
+               Source: "RefundICO"
+            Identifier isFinalized
+               Type: bool
+               Source: "isFinalized"
+      VariableDeclarationStatement
+         Gas costs: 10
+         Source: "address investor = msg.sender"
+        VariableDeclaration "investor"
+           Type: address
+           Source: "address investor"
+          ElementaryTypeName address
+             Source: "address"
+        MemberAccess to member sender
+           Type: address
+           Source: "msg.sender"
+          Identifier msg
+             Type: msg
+             Source: "msg"
+      VariableDeclarationStatement
+         Gas costs: 306
+         Source: "uint for_refund = ico_investor[msg.sender]"
+        VariableDeclaration "for_refund"
+           Type: uint256
+           Source: "uint for_refund"
+          ElementaryTypeName uint
+             Source: "uint"
+        IndexAccess
+           Type: uint256
+           Source: "ico_investor[msg.sender]"
+          Identifier ico_investor
+             Type: mapping(address => uint256)
+             Source: "ico_investor"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "investor.transfer(for_refund)"
+        FunctionCall
+           Type: tuple()
+           Source: "investor.transfer(for_refund)"
+          MemberAccess to member transfer
+             Type: function (uint256)
+             Source: "investor.transfer"
+            Identifier investor
+               Type: address
+               Source: "investor"
+          Identifier for_refund
+             Type: uint256
+             Source: "for_refund"
+  FunctionDefinition "EtherTakeAfterSoftcap" - public
+     Source: "function EtherTakeAfterSoftcap () onlyOwner public {\r\n      require ( bssTotalSuply >= softcap );\r\n      uint for_developer = this.balance;\r\n      for_developer = for_developer.mul(6).div(100);\r\n      developer.transfer(for_developer);\r\n      owner.transfer(this.balance);\r\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n      require ( bssTotalSuply >= softcap );\r\n      uint for_developer = this.balance;\r\n      for_developer = for_developer.mul(6).div(100);\r\n      developer.transfer(for_developer);\r\n      owner.transfer(this.balance);\r\n  }"
+      ExpressionStatement
+         Gas costs: 438
+         Source: "require ( bssTotalSuply >= softcap )"
+        FunctionCall
+           Type: tuple()
+           Source: "require ( bssTotalSuply >= softcap )"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "bssTotalSuply >= softcap"
+            Identifier bssTotalSuply
+               Type: uint256
+               Source: "bssTotalSuply"
+            Identifier softcap
+               Type: uint256
+               Source: "softcap"
+      VariableDeclarationStatement
+         Gas costs: 416
+         Source: "uint for_developer = this.balance"
+        VariableDeclaration "for_developer"
+           Type: uint256
+           Source: "uint for_developer"
+          ElementaryTypeName uint
+             Source: "uint"
+        MemberAccess to member balance
+           Type: uint256
+           Source: "this.balance"
+          Identifier this
+             Type: contract BasisIco
+             Source: "this"
+      ExpressionStatement
+         Gas costs: 74
+         Source: "for_developer = for_developer.mul(6).div(100)"
+        Assignment using operator =
+           Type: uint256
+           Source: "for_developer = for_developer.mul(6).div(100)"
+          Identifier for_developer
+             Type: uint256
+             Source: "for_developer"
+          FunctionCall
+             Type: uint256
+             Source: "for_developer.mul(6).div(100)"
+            MemberAccess to member div
+               Type: function (uint256,uint256) pure returns (uint256)
+               Source: "for_developer.mul(6).div"
+              FunctionCall
+                 Type: uint256
+                 Source: "for_developer.mul(6)"
+                MemberAccess to member mul
+                   Type: function (uint256,uint256) pure returns (uint256)
+                   Source: "for_developer.mul"
+                  Identifier for_developer
+                     Type: uint256
+                     Source: "for_developer"
+                Literal, token: [no token] value: 6
+                   Type: int_const 6
+                   Source: "6"
+            Literal, token: [no token] value: 100
+               Type: int_const 100
+               Source: "100"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "developer.transfer(for_developer)"
+        FunctionCall
+           Type: tuple()
+           Source: "developer.transfer(for_developer)"
+          MemberAccess to member transfer
+             Type: function (uint256)
+             Source: "developer.transfer"
+            Identifier developer
+               Type: address
+               Source: "developer"
+          Identifier for_developer
+             Type: uint256
+             Source: "for_developer"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "owner.transfer(this.balance)"
+        FunctionCall
+           Type: tuple()
+           Source: "owner.transfer(this.balance)"
+          MemberAccess to member transfer
+             Type: function (uint256)
+             Source: "owner.transfer"
+            Identifier owner
+               Type: address
+               Source: "owner"
+          MemberAccess to member balance
+             Type: uint256
+             Source: "this.balance"
+            Identifier this
+               Type: contract BasisIco
+               Source: "this"
+  FunctionDefinition "balanceOf" - public - const
+     Source: "function balanceOf(address _owner) constant public returns (uint256 balance) {\r\n    return ico_balances[_owner];\r\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _owner)"
+      VariableDeclaration "_owner"
+         Type: address
+         Source: "address _owner"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint256 balance)"
+      VariableDeclaration "balance"
+         Type: uint256
+         Source: "uint256 balance"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{\r\n    return ico_balances[_owner];\r\n  }"
+      Return
+         Gas costs: 304
+         Source: "return ico_balances[_owner]"
+        IndexAccess
+           Type: uint256
+           Source: "ico_balances[_owner]"
+          Identifier ico_balances
+             Type: mapping(address => uint256)
+             Source: "ico_balances"
+          Identifier _owner
+             Type: address
+             Source: "_owner"
+  FunctionDefinition "transfer" - public
+     Source: "function transfer(address _to, uint256 _value) public returns (bool) {\r\n    ico_balances[msg.sender] = ico_balances[msg.sender].sub(_value);\r\n    ico_balances[_to] = ico_balances[_to].add(_value);\r\n    Transfer(msg.sender, _to, _value);\r\n    return true;\r\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _to, uint256 _value)"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool)"
+      VariableDeclaration ""
+         Type: bool
+         Source: "bool"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n    ico_balances[msg.sender] = ico_balances[msg.sender].sub(_value);\r\n    ico_balances[_to] = ico_balances[_to].add(_value);\r\n    Transfer(msg.sender, _to, _value);\r\n    return true;\r\n  }"
+      ExpressionStatement
+         Gas costs: 20437
+         Source: "ico_balances[msg.sender] = ico_balances[msg.sender].sub(_value)"
+        Assignment using operator =
+           Type: uint256
+           Source: "ico_balances[msg.sender] = ico_balances[msg.sender].sub(_value)"
+          IndexAccess
+             Type: uint256
+             Source: "ico_balances[msg.sender]"
+            Identifier ico_balances
+               Type: mapping(address => uint256)
+               Source: "ico_balances"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          FunctionCall
+             Type: uint256
+             Source: "ico_balances[msg.sender].sub(_value)"
+            MemberAccess to member sub
+               Type: function (uint256,uint256) pure returns (uint256)
+               Source: "ico_balances[msg.sender].sub"
+              IndexAccess
+                 Type: uint256
+                 Source: "ico_balances[msg.sender]"
+                Identifier ico_balances
+                   Type: mapping(address => uint256)
+                   Source: "ico_balances"
+                MemberAccess to member sender
+                   Type: address
+                   Source: "msg.sender"
+                  Identifier msg
+                     Type: msg
+                     Source: "msg"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+      ExpressionStatement
+         Gas costs: 20433
+         Source: "ico_balances[_to] = ico_balances[_to].add(_value)"
+        Assignment using operator =
+           Type: uint256
+           Source: "ico_balances[_to] = ico_balances[_to].add(_value)"
+          IndexAccess
+             Type: uint256
+             Source: "ico_balances[_to]"
+            Identifier ico_balances
+               Type: mapping(address => uint256)
+               Source: "ico_balances"
+            Identifier _to
+               Type: address
+               Source: "_to"
+          FunctionCall
+             Type: uint256
+             Source: "ico_balances[_to].add(_value)"
+            MemberAccess to member add
+               Type: function (uint256,uint256) pure returns (uint256)
+               Source: "ico_balances[_to].add"
+              IndexAccess
+                 Type: uint256
+                 Source: "ico_balances[_to]"
+                Identifier ico_balances
+                   Type: mapping(address => uint256)
+                   Source: "ico_balances"
+                Identifier _to
+                   Type: address
+                   Source: "_to"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "Transfer(msg.sender, _to, _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "Transfer(msg.sender, _to, _value)"
+          Identifier Transfer
+             Type: function (address,address,uint256)
+             Source: "Transfer"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier _to
+             Type: address
+             Source: "_to"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      Return
+         Gas costs: 8
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+  FunctionDefinition "transferFrom" - public
+     Source: "function transferFrom(address _from, address _to, uint256 _value) public returns (bool) {\r\n    var _allowance = allowed[_from][msg.sender];\r\n\r\n    // Check is not needed because sub(_allowance, _value) will already throw if this condition is not met\r\n    require (_value <= _allowance);\r\n\r\n    ico_balances[_to] = ico_balances[_to].add(_value);\r\n    ico_balances[_from] = ico_balances[_from].sub(_value);\r\n    allowed[_from][msg.sender] = _allowance.sub(_value);\r\n    Transfer(_from, _to, _value);\r\n    return true;\r\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _from, address _to, uint256 _value)"
+      VariableDeclaration "_from"
+         Type: address
+         Source: "address _from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool)"
+      VariableDeclaration ""
+         Type: bool
+         Source: "bool"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n    var _allowance = allowed[_from][msg.sender];\r\n\r\n    // Check is not needed because sub(_allowance, _value) will already throw if this condition is not met\r\n    require (_value <= _allowance);\r\n\r\n    ico_balances[_to] = ico_balances[_to].add(_value);\r\n    ico_balances[_from] = ico_balances[_from].sub(_value);\r\n    allowed[_from][msg.sender] = _allowance.sub(_value);\r\n    Transfer(_from, _to, _value);\r\n    return true;\r\n  }"
+      VariableDeclarationStatement
+         Gas costs: 396
+         Source: "var _allowance = allowed[_from][msg.sender]"
+        VariableDeclaration "_allowance"
+           Type: uint256
+           Source: "var _allowance"
+        IndexAccess
+           Type: uint256
+           Source: "allowed[_from][msg.sender]"
+          IndexAccess
+             Type: mapping(address => uint256)
+             Source: "allowed[_from]"
+            Identifier allowed
+               Type: mapping(address => mapping(address => uint256))
+               Source: "allowed"
+            Identifier _from
+               Type: address
+               Source: "_from"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+      ExpressionStatement
+         Gas costs: 38
+         Source: "require (_value <= _allowance)"
+        FunctionCall
+           Type: tuple()
+           Source: "require (_value <= _allowance)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator <=
+             Type: bool
+             Source: "_value <= _allowance"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+            Identifier _allowance
+               Type: uint256
+               Source: "_allowance"
+      ExpressionStatement
+         Gas costs: 20439
+         Source: "ico_balances[_to] = ico_balances[_to].add(_value)"
+        Assignment using operator =
+           Type: uint256
+           Source: "ico_balances[_to] = ico_balances[_to].add(_value)"
+          IndexAccess
+             Type: uint256
+             Source: "ico_balances[_to]"
+            Identifier ico_balances
+               Type: mapping(address => uint256)
+               Source: "ico_balances"
+            Identifier _to
+               Type: address
+               Source: "_to"
+          FunctionCall
+             Type: uint256
+             Source: "ico_balances[_to].add(_value)"
+            MemberAccess to member add
+               Type: function (uint256,uint256) pure returns (uint256)
+               Source: "ico_balances[_to].add"
+              IndexAccess
+                 Type: uint256
+                 Source: "ico_balances[_to]"
+                Identifier ico_balances
+                   Type: mapping(address => uint256)
+                   Source: "ico_balances"
+                Identifier _to
+                   Type: address
+                   Source: "_to"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+      ExpressionStatement
+         Gas costs: 20433
+         Source: "ico_balances[_from] = ico_balances[_from].sub(_value)"
+        Assignment using operator =
+           Type: uint256
+           Source: "ico_balances[_from] = ico_balances[_from].sub(_value)"
+          IndexAccess
+             Type: uint256
+             Source: "ico_balances[_from]"
+            Identifier ico_balances
+               Type: mapping(address => uint256)
+               Source: "ico_balances"
+            Identifier _from
+               Type: address
+               Source: "_from"
+          FunctionCall
+             Type: uint256
+             Source: "ico_balances[_from].sub(_value)"
+            MemberAccess to member sub
+               Type: function (uint256,uint256) pure returns (uint256)
+               Source: "ico_balances[_from].sub"
+              IndexAccess
+                 Type: uint256
+                 Source: "ico_balances[_from]"
+                Identifier ico_balances
+                   Type: mapping(address => uint256)
+                   Source: "ico_balances"
+                Identifier _from
+                   Type: address
+                   Source: "_from"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+      ExpressionStatement
+         Gas costs: 20232
+         Source: "allowed[_from][msg.sender] = _allowance.sub(_value)"
+        Assignment using operator =
+           Type: uint256
+           Source: "allowed[_from][msg.sender] = _allowance.sub(_value)"
+          IndexAccess
+             Type: uint256
+             Source: "allowed[_from][msg.sender]"
+            IndexAccess
+               Type: mapping(address => uint256)
+               Source: "allowed[_from]"
+              Identifier allowed
+                 Type: mapping(address => mapping(address => uint256))
+                 Source: "allowed"
+              Identifier _from
+                 Type: address
+                 Source: "_from"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          FunctionCall
+             Type: uint256
+             Source: "_allowance.sub(_value)"
+            MemberAccess to member sub
+               Type: function (uint256,uint256) pure returns (uint256)
+               Source: "_allowance.sub"
+              Identifier _allowance
+                 Type: uint256
+                 Source: "_allowance"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "Transfer(_from, _to, _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "Transfer(_from, _to, _value)"
+          Identifier Transfer
+             Type: function (address,address,uint256)
+             Source: "Transfer"
+          Identifier _from
+             Type: address
+             Source: "_from"
+          Identifier _to
+             Type: address
+             Source: "_to"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      Return
+         Gas costs: 8
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+  FunctionDefinition "approve" - public
+     Source: "function approve(address _spender, uint256 _value) public returns (bool) {\r\n\r\n    require((_value == 0) || (allowed[msg.sender][_spender] == 0));\r\n\r\n    allowed[msg.sender][_spender] = _value;\r\n    Approval(msg.sender, _spender, _value);\r\n    return true;\r\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _spender, uint256 _value)"
+      VariableDeclaration "_spender"
+         Type: address
+         Source: "address _spender"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool)"
+      VariableDeclaration ""
+         Type: bool
+         Source: "bool"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n\r\n    require((_value == 0) || (allowed[msg.sender][_spender] == 0));\r\n\r\n    allowed[msg.sender][_spender] = _value;\r\n    Approval(msg.sender, _spender, _value);\r\n    return true;\r\n  }"
+      ExpressionStatement
+         Gas costs: 448
+         Source: "require((_value == 0) || (allowed[msg.sender][_spender] == 0))"
+        FunctionCall
+           Type: tuple()
+           Source: "require((_value == 0) || (allowed[msg.sender][_spender] == 0))"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ||
+             Type: bool
+             Source: "(_value == 0) || (allowed[msg.sender][_spender] == 0)"
+            TupleExpression
+               Type: bool
+               Source: "(_value == 0)"
+              BinaryOperation using operator ==
+                 Type: bool
+                 Source: "_value == 0"
+                Identifier _value
+                   Type: uint256
+                   Source: "_value"
+                Literal, token: [no token] value: 0
+                   Type: int_const 0
+                   Source: "0"
+            TupleExpression
+               Type: bool
+               Source: "(allowed[msg.sender][_spender] == 0)"
+              BinaryOperation using operator ==
+                 Type: bool
+                 Source: "allowed[msg.sender][_spender] == 0"
+                IndexAccess
+                   Type: uint256
+                   Source: "allowed[msg.sender][_spender]"
+                  IndexAccess
+                     Type: mapping(address => uint256)
+                     Source: "allowed[msg.sender]"
+                    Identifier allowed
+                       Type: mapping(address => mapping(address => uint256))
+                       Source: "allowed"
+                    MemberAccess to member sender
+                       Type: address
+                       Source: "msg.sender"
+                      Identifier msg
+                         Type: msg
+                         Source: "msg"
+                  Identifier _spender
+                     Type: address
+                     Source: "_spender"
+                Literal, token: [no token] value: 0
+                   Type: int_const 0
+                   Source: "0"
+      ExpressionStatement
+         Gas costs: 20199
+         Source: "allowed[msg.sender][_spender] = _value"
+        Assignment using operator =
+           Type: uint256
+           Source: "allowed[msg.sender][_spender] = _value"
+          IndexAccess
+             Type: uint256
+             Source: "allowed[msg.sender][_spender]"
+            IndexAccess
+               Type: mapping(address => uint256)
+               Source: "allowed[msg.sender]"
+              Identifier allowed
+                 Type: mapping(address => mapping(address => uint256))
+                 Source: "allowed"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+            Identifier _spender
+               Type: address
+               Source: "_spender"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "Approval(msg.sender, _spender, _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "Approval(msg.sender, _spender, _value)"
+          Identifier Approval
+             Type: function (address,address,uint256)
+             Source: "Approval"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier _spender
+             Type: address
+             Source: "_spender"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      Return
+         Gas costs: 8
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+  FunctionDefinition "allowance" - public - const
+     Source: "function allowance(address _owner, address _spender) constant public returns (uint256 remaining) {\r\n    return allowed[_owner][_spender];\r\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _owner, address _spender)"
+      VariableDeclaration "_owner"
+         Type: address
+         Source: "address _owner"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_spender"
+         Type: address
+         Source: "address _spender"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint256 remaining)"
+      VariableDeclaration "remaining"
+         Type: uint256
+         Source: "uint256 remaining"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{\r\n    return allowed[_owner][_spender];\r\n  }"
+      Return
+         Gas costs: 394
+         Source: "return allowed[_owner][_spender]"
+        IndexAccess
+           Type: uint256
+           Source: "allowed[_owner][_spender]"
+          IndexAccess
+             Type: mapping(address => uint256)
+             Source: "allowed[_owner]"
+            Identifier allowed
+               Type: mapping(address => mapping(address => uint256))
+               Source: "allowed"
+            Identifier _owner
+               Type: address
+               Source: "_owner"
+          Identifier _spender
+             Type: address
+             Source: "_spender"

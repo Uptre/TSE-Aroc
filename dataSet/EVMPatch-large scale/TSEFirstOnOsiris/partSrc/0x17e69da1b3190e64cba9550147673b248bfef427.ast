@@ -1,0 +1,3576 @@
+Syntax trees:
+
+
+======= /home/fabric/ArocRevision/Aroc/osirisData/contractSrc/0x17e69da1b3190e64cba9550147673b248bfef427.sol =======
+PragmaDirective
+   Gas costs: 0
+   Source: "pragma solidity ^0.4.13;"
+ContractDefinition "multiowned"
+   Source: "contract multiowned {\r\n\r\n\t// TYPES\r\n\r\n\t// struct for the status of a pending operation.\r\n\tstruct PendingState {\r\n\t\tuint yetNeeded;\r\n\t\tuint ownersDone;\r\n\t\tuint index;\r\n\t}\r\n\r\n\t// EVENTS\r\n\r\n\t// this contract only has six types of events: it can accept a confirmation, in which case\r\n\t// we record owner and operation (hash) alongside it.\r\n\tevent Confirmation(address owner, bytes32 operation);\r\n\tevent Revoke(address owner, bytes32 operation);\r\n\t// some others are in the case of an owner changing.\r\n\tevent OwnerChanged(address oldOwner, address newOwner);\r\n\tevent OwnerAdded(address newOwner);\r\n\tevent OwnerRemoved(address oldOwner);\r\n\t// the last one is emitted if the required signatures change\r\n\tevent RequirementChanged(uint newRequirement);\r\n\r\n\t// MODIFIERS\r\n\r\n\t// simple single-sig function modifier.\r\n\tmodifier onlyowner {\r\n\t\tif (isOwner(msg.sender))\r\n\t\t\t_;\r\n\t}\r\n\t// multi-sig function modifier: the operation must have an intrinsic hash in order\r\n\t// that later attempts can be realised as the same underlying operation and\r\n\t// thus count as confirmations.\r\n\tmodifier onlymanyowners(bytes32 _operation) {\r\n\t\tif (confirmAndCheck(_operation))\r\n\t\t\t_;\r\n\t}\r\n\r\n\t// METHODS\r\n\r\n\t// constructor is given number of sigs required to do protected \"onlymanyowners\" transactions\r\n\t// as well as the selection of addresses capable of confirming them.\r\n\tfunction multiowned(address[] _owners, uint _required) {\r\n\t\trequire(_required > 0);\r\n\t\trequire(_owners.length >= _required);\r\n\t\tm_numOwners = _owners.length;\r\n\t\tfor (uint i = 0; i < _owners.length; ++i) {\r\n\t\t\tm_owners[1 + i] = uint(_owners[i]);\r\n\t\t\tm_ownerIndex[uint(_owners[i])] = 1 + i;\r\n\t\t}\r\n\t\tm_required = _required;\r\n\t}\r\n\r\n\t// Revokes a prior confirmation of the given operation\r\n\tfunction revoke(bytes32 _operation) external {\r\n\t\tuint ownerIndex = m_ownerIndex[uint(msg.sender)];\r\n\t\t// make sure they're an owner\r\n\t\tif (ownerIndex == 0) return;\r\n\t\tuint ownerIndexBit = 2**ownerIndex;\r\n\t\tvar pending = m_pending[_operation];\r\n\t\tif (pending.ownersDone & ownerIndexBit > 0) {\r\n\t\t\tpending.yetNeeded++;\r\n\t\t\tpending.ownersDone -= ownerIndexBit;\r\n\t\t\tRevoke(msg.sender, _operation);\r\n\t\t}\r\n\t}\r\n\r\n\t// Replaces an owner `_from` with another `_to`.\r\n\tfunction changeOwner(address _from, address _to) onlymanyowners(sha3(msg.data)) external {\r\n\t\tif (isOwner(_to)) return;\r\n\t\tuint ownerIndex = m_ownerIndex[uint(_from)];\r\n\t\tif (ownerIndex == 0) return;\r\n\r\n\t\tclearPending();\r\n\t\tm_owners[ownerIndex] = uint(_to);\r\n\t\tm_ownerIndex[uint(_from)] = 0;\r\n\t\tm_ownerIndex[uint(_to)] = ownerIndex;\r\n\t\tOwnerChanged(_from, _to);\r\n\t}\r\n\r\n\tfunction addOwner(address _owner) onlymanyowners(sha3(msg.data)) external {\r\n\t\tif (isOwner(_owner)) return;\r\n\r\n\t\tclearPending();\r\n\t\tif (m_numOwners >= c_maxOwners)\r\n\t\t\treorganizeOwners();\r\n\t\tif (m_numOwners >= c_maxOwners)\r\n\t\t\treturn;\r\n\t\tm_numOwners++;\r\n\t\tm_owners[m_numOwners] = uint(_owner);\r\n\t\tm_ownerIndex[uint(_owner)] = m_numOwners;\r\n\t\tOwnerAdded(_owner);\r\n\t}\r\n\r\n\tfunction removeOwner(address _owner) onlymanyowners(sha3(msg.data)) external {\r\n\t\tuint ownerIndex = m_ownerIndex[uint(_owner)];\r\n\t\tif (ownerIndex == 0) return;\r\n\t\tif (m_required > m_numOwners - 1) return;\r\n\r\n\t\tm_owners[ownerIndex] = 0;\r\n\t\tm_ownerIndex[uint(_owner)] = 0;\r\n\t\tclearPending();\r\n\t\treorganizeOwners(); //make sure m_numOwner is equal to the number of owners and always points to the optimal free slot\r\n\t\tOwnerRemoved(_owner);\r\n\t}\r\n\r\n\tfunction changeRequirement(uint _newRequired) onlymanyowners(sha3(msg.data)) external {\r\n\t\tif (_newRequired == 0) return;\r\n\t\tif (_newRequired > m_numOwners) return;\r\n\t\tm_required = _newRequired;\r\n\t\tclearPending();\r\n\t\tRequirementChanged(_newRequired);\r\n\t}\r\n\r\n\t// Gets an owner by 0-indexed position (using numOwners as the count)\r\n\tfunction getOwner(uint ownerIndex) external constant returns (address) {\r\n\t\treturn address(m_owners[ownerIndex + 1]);\r\n\t}\r\n\r\n\tfunction isOwner(address _addr) returns (bool) {\r\n\t\treturn m_ownerIndex[uint(_addr)] > 0;\r\n\t}\r\n\r\n\tfunction hasConfirmed(bytes32 _operation, address _owner) constant returns (bool) {\r\n\t\tvar pending = m_pending[_operation];\r\n\t\tuint ownerIndex = m_ownerIndex[uint(_owner)];\r\n\r\n\t\t// make sure they're an owner\r\n\t\tif (ownerIndex == 0) return false;\r\n\r\n\t\t// determine the bit to set for this owner.\r\n\t\tuint ownerIndexBit = 2**ownerIndex;\r\n\t\treturn !(pending.ownersDone & ownerIndexBit == 0);\r\n\t}\r\n\r\n\t// INTERNAL METHODS\r\n\r\n\tfunction confirmAndCheck(bytes32 _operation) internal returns (bool) {\r\n\t\t// determine what index the present sender is:\r\n\t\tuint ownerIndex = m_ownerIndex[uint(msg.sender)];\r\n\t\t// make sure they're an owner\r\n\t\tif (ownerIndex == 0) return;\r\n\r\n\t\tvar pending = m_pending[_operation];\r\n\t\t// if we're not yet working on this operation, switch over and reset the confirmation status.\r\n\t\tif (pending.yetNeeded == 0) {\r\n\t\t\t// reset count of confirmations needed.\r\n\t\t\tpending.yetNeeded = m_required;\r\n\t\t\t// reset which owners have confirmed (none) - set our bitmap to 0.\r\n\t\t\tpending.ownersDone = 0;\r\n\t\t\tpending.index = m_pendingIndex.length++;\r\n\t\t\tm_pendingIndex[pending.index] = _operation;\r\n\t\t}\r\n\t\t// determine the bit to set for this owner.\r\n\t\tuint ownerIndexBit = 2**ownerIndex;\r\n\t\t// make sure we (the message sender) haven't confirmed this operation previously.\r\n\t\tif (pending.ownersDone & ownerIndexBit == 0) {\r\n\t\t\tConfirmation(msg.sender, _operation);\r\n\t\t\t// ok - check if count is enough to go ahead.\r\n\t\t\tif (pending.yetNeeded == 1) {\r\n\t\t\t\t// enough confirmations: reset and run interior.\r\n\t\t\t\tdelete m_pendingIndex[m_pending[_operation].index];\r\n\t\t\t\tdelete m_pending[_operation];\r\n\t\t\t\treturn true;\r\n\t\t\t}\r\n\t\t\telse\r\n\t\t\t{\r\n\t\t\t\t// not enough: record that this owner in particular confirmed.\r\n\t\t\t\tpending.yetNeeded--;\r\n\t\t\t\tpending.ownersDone |= ownerIndexBit;\r\n\t\t\t}\r\n\t\t}\r\n\t}\r\n\r\n\tfunction reorganizeOwners() private {\r\n\t\tuint free = 1;\r\n\t\twhile (free < m_numOwners)\r\n\t\t{\r\n\t\t\twhile (free < m_numOwners && m_owners[free] != 0) free++;\r\n\t\t\twhile (m_numOwners > 1 && m_owners[m_numOwners] == 0) m_numOwners--;\r\n\t\t\tif (free < m_numOwners && m_owners[m_numOwners] != 0 && m_owners[free] == 0)\r\n\t\t\t{\r\n\t\t\t\tm_owners[free] = m_owners[m_numOwners];\r\n\t\t\t\tm_ownerIndex[m_owners[free]] = free;\r\n\t\t\t\tm_owners[m_numOwners] = 0;\r\n\t\t\t}\r\n\t\t}\r\n\t}\r\n\r\n\tfunction clearPending() internal {\r\n\t\tuint length = m_pendingIndex.length;\r\n\t\tfor (uint i = 0; i < length; ++i)\r\n\t\t\tif (m_pendingIndex[i] != 0)\r\n\t\t\t\tdelete m_pending[m_pendingIndex[i]];\r\n\t\tdelete m_pendingIndex;\r\n\t}\r\n\r\n\t// FIELDS\r\n\r\n\t// the number of owners that must confirm the same operation before it is run.\r\n\tuint public m_required;\r\n\t// pointer used to find a free slot in m_owners\r\n\tuint public m_numOwners;\r\n\r\n\t// list of owners\r\n\tuint[256] m_owners;\r\n\tuint constant c_maxOwners = 250;\r\n\t// index on the list of owners to allow reverse lookup\r\n\tmapping(uint => uint) m_ownerIndex;\r\n\t// the ongoing operations.\r\n\tmapping(bytes32 => PendingState) m_pending;\r\n\tbytes32[] m_pendingIndex;\r\n}"
+  StructDefinition "PendingState"
+     Gas costs: 0
+     Source: "struct PendingState {\r\n\t\tuint yetNeeded;\r\n\t\tuint ownersDone;\r\n\t\tuint index;\r\n\t}"
+    VariableDeclaration "yetNeeded"
+       Type: uint256
+       Source: "uint yetNeeded"
+      ElementaryTypeName uint
+         Source: "uint"
+    VariableDeclaration "ownersDone"
+       Type: uint256
+       Source: "uint ownersDone"
+      ElementaryTypeName uint
+         Source: "uint"
+    VariableDeclaration "index"
+       Type: uint256
+       Source: "uint index"
+      ElementaryTypeName uint
+         Source: "uint"
+  EventDefinition "Confirmation"
+     Gas costs: 0
+     Source: "event Confirmation(address owner, bytes32 operation);"
+    ParameterList
+       Source: "(address owner, bytes32 operation)"
+      VariableDeclaration "owner"
+         Type: address
+         Source: "address owner"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "operation"
+         Type: bytes32
+         Source: "bytes32 operation"
+        ElementaryTypeName bytes32
+           Source: "bytes32"
+  EventDefinition "Revoke"
+     Gas costs: 0
+     Source: "event Revoke(address owner, bytes32 operation);"
+    ParameterList
+       Source: "(address owner, bytes32 operation)"
+      VariableDeclaration "owner"
+         Type: address
+         Source: "address owner"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "operation"
+         Type: bytes32
+         Source: "bytes32 operation"
+        ElementaryTypeName bytes32
+           Source: "bytes32"
+  EventDefinition "OwnerChanged"
+     Gas costs: 0
+     Source: "event OwnerChanged(address oldOwner, address newOwner);"
+    ParameterList
+       Source: "(address oldOwner, address newOwner)"
+      VariableDeclaration "oldOwner"
+         Type: address
+         Source: "address oldOwner"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "newOwner"
+         Type: address
+         Source: "address newOwner"
+        ElementaryTypeName address
+           Source: "address"
+  EventDefinition "OwnerAdded"
+     Gas costs: 0
+     Source: "event OwnerAdded(address newOwner);"
+    ParameterList
+       Source: "(address newOwner)"
+      VariableDeclaration "newOwner"
+         Type: address
+         Source: "address newOwner"
+        ElementaryTypeName address
+           Source: "address"
+  EventDefinition "OwnerRemoved"
+     Gas costs: 0
+     Source: "event OwnerRemoved(address oldOwner);"
+    ParameterList
+       Source: "(address oldOwner)"
+      VariableDeclaration "oldOwner"
+         Type: address
+         Source: "address oldOwner"
+        ElementaryTypeName address
+           Source: "address"
+  EventDefinition "RequirementChanged"
+     Gas costs: 0
+     Source: "event RequirementChanged(uint newRequirement);"
+    ParameterList
+       Source: "(uint newRequirement)"
+      VariableDeclaration "newRequirement"
+         Type: uint256
+         Source: "uint newRequirement"
+        ElementaryTypeName uint
+           Source: "uint"
+  ModifierDefinition "onlyowner"
+     Source: "modifier onlyowner {\r\n\t\tif (isOwner(msg.sender))\r\n\t\t\t_;\r\n\t}"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n\t\tif (isOwner(msg.sender))\r\n\t\t\t_;\r\n\t}"
+      IfStatement
+         Source: "if (isOwner(msg.sender))\r\n\t\t\t_"
+        FunctionCall
+           Type: bool
+           Gas costs: 34
+           Source: "isOwner(msg.sender)"
+          Identifier isOwner
+             Type: function (address) returns (bool)
+             Source: "isOwner"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+        PlaceholderStatement
+           Gas costs: 1
+           Source: "_"
+  ModifierDefinition "onlymanyowners"
+     Source: "modifier onlymanyowners(bytes32 _operation) {\r\n\t\tif (confirmAndCheck(_operation))\r\n\t\t\t_;\r\n\t}"
+    ParameterList
+       Gas costs: 0
+       Source: "(bytes32 _operation)"
+      VariableDeclaration "_operation"
+         Type: bytes32
+         Source: "bytes32 _operation"
+        ElementaryTypeName bytes32
+           Source: "bytes32"
+    Block
+       Source: "{\r\n\t\tif (confirmAndCheck(_operation))\r\n\t\t\t_;\r\n\t}"
+      IfStatement
+         Source: "if (confirmAndCheck(_operation))\r\n\t\t\t_"
+        FunctionCall
+           Type: bool
+           Gas costs: 133
+           Source: "confirmAndCheck(_operation)"
+          Identifier confirmAndCheck
+             Type: function (bytes32) returns (bool)
+             Source: "confirmAndCheck"
+          Identifier _operation
+             Type: bytes32
+             Source: "_operation"
+        PlaceholderStatement
+           Gas costs: 5
+           Source: "_"
+  FunctionDefinition "multiowned" - public
+     Source: "function multiowned(address[] _owners, uint _required) {\r\n\t\trequire(_required > 0);\r\n\t\trequire(_owners.length >= _required);\r\n\t\tm_numOwners = _owners.length;\r\n\t\tfor (uint i = 0; i < _owners.length; ++i) {\r\n\t\t\tm_owners[1 + i] = uint(_owners[i]);\r\n\t\t\tm_ownerIndex[uint(_owners[i])] = 1 + i;\r\n\t\t}\r\n\t\tm_required = _required;\r\n\t}"
+    ParameterList
+       Gas costs: 0
+       Source: "(address[] _owners, uint _required)"
+      VariableDeclaration "_owners"
+         Type: address[] memory
+         Source: "address[] _owners"
+        ArrayTypeName
+           Source: "address[]"
+          ElementaryTypeName address
+             Source: "address"
+      VariableDeclaration "_required"
+         Type: uint256
+         Source: "uint _required"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n\t\trequire(_required > 0);\r\n\t\trequire(_owners.length >= _required);\r\n\t\tm_numOwners = _owners.length;\r\n\t\tfor (uint i = 0; i < _owners.length; ++i) {\r\n\t\t\tm_owners[1 + i] = uint(_owners[i]);\r\n\t\t\tm_ownerIndex[uint(_owners[i])] = 1 + i;\r\n\t\t}\r\n\t\tm_required = _required;\r\n\t}"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "require(_required > 0)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(_required > 0)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >
+             Type: bool
+             Source: "_required > 0"
+            Identifier _required
+               Type: uint256
+               Source: "_required"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "require(_owners.length >= _required)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(_owners.length >= _required)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "_owners.length >= _required"
+            MemberAccess to member length
+               Type: uint256
+               Source: "_owners.length"
+              Identifier _owners
+                 Type: address[] memory
+                 Source: "_owners"
+            Identifier _required
+               Type: uint256
+               Source: "_required"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "m_numOwners = _owners.length"
+        Assignment using operator =
+           Type: uint256
+           Source: "m_numOwners = _owners.length"
+          Identifier m_numOwners
+             Type: uint256
+             Source: "m_numOwners"
+          MemberAccess to member length
+             Type: uint256
+             Source: "_owners.length"
+            Identifier _owners
+               Type: address[] memory
+               Source: "_owners"
+      ForStatement
+         Source: "for (uint i = 0; i < _owners.length; ++i) {\r\n\t\t\tm_owners[1 + i] = uint(_owners[i]);\r\n\t\t\tm_ownerIndex[uint(_owners[i])] = 1 + i;\r\n\t\t}"
+        VariableDeclarationStatement
+           Gas costs: 0
+           Source: "uint i = 0"
+          VariableDeclaration "i"
+             Type: uint256
+             Source: "uint i"
+            ElementaryTypeName uint
+               Source: "uint"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        BinaryOperation using operator <
+           Type: bool
+           Gas costs: 0
+           Source: "i < _owners.length"
+          Identifier i
+             Type: uint256
+             Source: "i"
+          MemberAccess to member length
+             Type: uint256
+             Source: "_owners.length"
+            Identifier _owners
+               Type: address[] memory
+               Source: "_owners"
+        ExpressionStatement
+           Gas costs: 0
+           Source: "++i"
+          UnaryOperation (prefix) ++
+             Type: uint256
+             Source: "++i"
+            Identifier i
+               Type: uint256
+               Source: "i"
+        Block
+           Source: "{\r\n\t\t\tm_owners[1 + i] = uint(_owners[i]);\r\n\t\t\tm_ownerIndex[uint(_owners[i])] = 1 + i;\r\n\t\t}"
+          ExpressionStatement
+             Gas costs: 0
+             Source: "m_owners[1 + i] = uint(_owners[i])"
+            Assignment using operator =
+               Type: uint256
+               Source: "m_owners[1 + i] = uint(_owners[i])"
+              IndexAccess
+                 Type: uint256
+                 Source: "m_owners[1 + i]"
+                Identifier m_owners
+                   Type: uint256[256] storage ref
+                   Source: "m_owners"
+                BinaryOperation using operator +
+                   Type: uint256
+                   Source: "1 + i"
+                  Literal, token: [no token] value: 1
+                     Type: int_const 1
+                     Source: "1"
+                  Identifier i
+                     Type: uint256
+                     Source: "i"
+              FunctionCall
+                 Type: uint256
+                 Source: "uint(_owners[i])"
+                ElementaryTypeNameExpression uint
+                   Type: type(uint256)
+                   Source: "uint"
+                IndexAccess
+                   Type: address
+                   Source: "_owners[i]"
+                  Identifier _owners
+                     Type: address[] memory
+                     Source: "_owners"
+                  Identifier i
+                     Type: uint256
+                     Source: "i"
+          ExpressionStatement
+             Gas costs: 0
+             Source: "m_ownerIndex[uint(_owners[i])] = 1 + i"
+            Assignment using operator =
+               Type: uint256
+               Source: "m_ownerIndex[uint(_owners[i])] = 1 + i"
+              IndexAccess
+                 Type: uint256
+                 Source: "m_ownerIndex[uint(_owners[i])]"
+                Identifier m_ownerIndex
+                   Type: mapping(uint256 => uint256)
+                   Source: "m_ownerIndex"
+                FunctionCall
+                   Type: uint256
+                   Source: "uint(_owners[i])"
+                  ElementaryTypeNameExpression uint
+                     Type: type(uint256)
+                     Source: "uint"
+                  IndexAccess
+                     Type: address
+                     Source: "_owners[i]"
+                    Identifier _owners
+                       Type: address[] memory
+                       Source: "_owners"
+                    Identifier i
+                       Type: uint256
+                       Source: "i"
+              BinaryOperation using operator +
+                 Type: uint256
+                 Source: "1 + i"
+                Literal, token: [no token] value: 1
+                   Type: int_const 1
+                   Source: "1"
+                Identifier i
+                   Type: uint256
+                   Source: "i"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "m_required = _required"
+        Assignment using operator =
+           Type: uint256
+           Source: "m_required = _required"
+          Identifier m_required
+             Type: uint256
+             Source: "m_required"
+          Identifier _required
+             Type: uint256
+             Source: "_required"
+  FunctionDefinition "revoke" - public
+     Source: "function revoke(bytes32 _operation) external {\r\n\t\tuint ownerIndex = m_ownerIndex[uint(msg.sender)];\r\n\t\t// make sure they're an owner\r\n\t\tif (ownerIndex == 0) return;\r\n\t\tuint ownerIndexBit = 2**ownerIndex;\r\n\t\tvar pending = m_pending[_operation];\r\n\t\tif (pending.ownersDone & ownerIndexBit > 0) {\r\n\t\t\tpending.yetNeeded++;\r\n\t\t\tpending.ownersDone -= ownerIndexBit;\r\n\t\t\tRevoke(msg.sender, _operation);\r\n\t\t}\r\n\t}"
+    ParameterList
+       Gas costs: 0
+       Source: "(bytes32 _operation)"
+      VariableDeclaration "_operation"
+         Type: bytes32
+         Source: "bytes32 _operation"
+        ElementaryTypeName bytes32
+           Source: "bytes32"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n\t\tuint ownerIndex = m_ownerIndex[uint(msg.sender)];\r\n\t\t// make sure they're an owner\r\n\t\tif (ownerIndex == 0) return;\r\n\t\tuint ownerIndexBit = 2**ownerIndex;\r\n\t\tvar pending = m_pending[_operation];\r\n\t\tif (pending.ownersDone & ownerIndexBit > 0) {\r\n\t\t\tpending.yetNeeded++;\r\n\t\t\tpending.ownersDone -= ownerIndexBit;\r\n\t\t\tRevoke(msg.sender, _operation);\r\n\t\t}\r\n\t}"
+      VariableDeclarationStatement
+         Gas costs: 300
+         Source: "uint ownerIndex = m_ownerIndex[uint(msg.sender)]"
+        VariableDeclaration "ownerIndex"
+           Type: uint256
+           Source: "uint ownerIndex"
+          ElementaryTypeName uint
+             Source: "uint"
+        IndexAccess
+           Type: uint256
+           Source: "m_ownerIndex[uint(msg.sender)]"
+          Identifier m_ownerIndex
+             Type: mapping(uint256 => uint256)
+             Source: "m_ownerIndex"
+          FunctionCall
+             Type: uint256
+             Source: "uint(msg.sender)"
+            ElementaryTypeNameExpression uint
+               Type: type(uint256)
+               Source: "uint"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+      IfStatement
+         Source: "if (ownerIndex == 0) return;"
+        BinaryOperation using operator ==
+           Type: bool
+           Gas costs: 9
+           Source: "ownerIndex == 0"
+          Identifier ownerIndex
+             Type: uint256
+             Source: "ownerIndex"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        Return
+           Gas costs: 11
+           Source: "return;"
+      VariableDeclarationStatement
+         Gas costs: 1624
+         Source: "uint ownerIndexBit = 2**ownerIndex"
+        VariableDeclaration "ownerIndexBit"
+           Type: uint256
+           Source: "uint ownerIndexBit"
+          ElementaryTypeName uint
+             Source: "uint"
+        BinaryOperation using operator **
+           Type: uint256
+           Source: "2**ownerIndex"
+          Literal, token: [no token] value: 2
+             Type: int_const 2
+             Source: "2"
+          Identifier ownerIndex
+             Type: uint256
+             Source: "ownerIndex"
+      VariableDeclarationStatement
+         Gas costs: 113
+         Source: "var pending = m_pending[_operation]"
+        VariableDeclaration "pending"
+           Type: struct multiowned.PendingState storage pointer
+           Source: "var pending"
+        IndexAccess
+           Type: struct multiowned.PendingState storage ref
+           Source: "m_pending[_operation]"
+          Identifier m_pending
+             Type: mapping(bytes32 => struct multiowned.PendingState storage ref)
+             Source: "m_pending"
+          Identifier _operation
+             Type: bytes32
+             Source: "_operation"
+      IfStatement
+         Source: "if (pending.ownersDone & ownerIndexBit > 0) {\r\n\t\t\tpending.yetNeeded++;\r\n\t\t\tpending.ownersDone -= ownerIndexBit;\r\n\t\t\tRevoke(msg.sender, _operation);\r\n\t\t}"
+        BinaryOperation using operator >
+           Type: bool
+           Gas costs: 221
+           Source: "pending.ownersDone & ownerIndexBit > 0"
+          BinaryOperation using operator &
+             Type: uint256
+             Source: "pending.ownersDone & ownerIndexBit"
+            MemberAccess to member ownersDone
+               Type: uint256
+               Source: "pending.ownersDone"
+              Identifier pending
+                 Type: struct multiowned.PendingState storage pointer
+                 Source: "pending"
+            Identifier ownerIndexBit
+               Type: uint256
+               Source: "ownerIndexBit"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        Block
+           Source: "{\r\n\t\t\tpending.yetNeeded++;\r\n\t\t\tpending.ownersDone -= ownerIndexBit;\r\n\t\t\tRevoke(msg.sender, _operation);\r\n\t\t}"
+          ExpressionStatement
+             Gas costs: 20243
+             Source: "pending.yetNeeded++"
+            UnaryOperation (postfix) ++
+               Type: uint256
+               Source: "pending.yetNeeded++"
+              MemberAccess to member yetNeeded
+                 Type: uint256
+                 Source: "pending.yetNeeded"
+                Identifier pending
+                   Type: struct multiowned.PendingState storage pointer
+                   Source: "pending"
+          ExpressionStatement
+             Gas costs: 20239
+             Source: "pending.ownersDone -= ownerIndexBit"
+            Assignment using operator -=
+               Type: uint256
+               Source: "pending.ownersDone -= ownerIndexBit"
+              MemberAccess to member ownersDone
+                 Type: uint256
+                 Source: "pending.ownersDone"
+                Identifier pending
+                   Type: struct multiowned.PendingState storage pointer
+                   Source: "pending"
+              Identifier ownerIndexBit
+                 Type: uint256
+                 Source: "ownerIndexBit"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "Revoke(msg.sender, _operation)"
+            FunctionCall
+               Type: tuple()
+               Source: "Revoke(msg.sender, _operation)"
+              Identifier Revoke
+                 Type: function (address,bytes32)
+                 Source: "Revoke"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+              Identifier _operation
+                 Type: bytes32
+                 Source: "_operation"
+  FunctionDefinition "changeOwner" - public
+     Source: "function changeOwner(address _from, address _to) onlymanyowners(sha3(msg.data)) external {\r\n\t\tif (isOwner(_to)) return;\r\n\t\tuint ownerIndex = m_ownerIndex[uint(_from)];\r\n\t\tif (ownerIndex == 0) return;\r\n\r\n\t\tclearPending();\r\n\t\tm_owners[ownerIndex] = uint(_to);\r\n\t\tm_ownerIndex[uint(_from)] = 0;\r\n\t\tm_ownerIndex[uint(_to)] = ownerIndex;\r\n\t\tOwnerChanged(_from, _to);\r\n\t}"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _from, address _to)"
+      VariableDeclaration "_from"
+         Type: address
+         Source: "address _from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address _to"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlymanyowners"
+       Gas costs: [???]
+       Source: "onlymanyowners(sha3(msg.data))"
+      Identifier onlymanyowners
+         Type: modifier (bytes32)
+         Source: "onlymanyowners"
+      FunctionCall
+         Type: bytes32
+         Source: "sha3(msg.data)"
+        Identifier sha3
+           Type: function () pure returns (bytes32)
+           Source: "sha3"
+        MemberAccess to member data
+           Type: bytes calldata
+           Source: "msg.data"
+          Identifier msg
+             Type: msg
+             Source: "msg"
+    Block
+       Source: "{\r\n\t\tif (isOwner(_to)) return;\r\n\t\tuint ownerIndex = m_ownerIndex[uint(_from)];\r\n\t\tif (ownerIndex == 0) return;\r\n\r\n\t\tclearPending();\r\n\t\tm_owners[ownerIndex] = uint(_to);\r\n\t\tm_ownerIndex[uint(_from)] = 0;\r\n\t\tm_ownerIndex[uint(_to)] = ownerIndex;\r\n\t\tOwnerChanged(_from, _to);\r\n\t}"
+      IfStatement
+         Source: "if (isOwner(_to)) return;"
+        FunctionCall
+           Type: bool
+           Gas costs: 18
+           Source: "isOwner(_to)"
+          Identifier isOwner
+             Type: function (address) returns (bool)
+             Source: "isOwner"
+          Identifier _to
+             Type: address
+             Source: "_to"
+        Return
+           Gas costs: 11
+           Source: "return;"
+      VariableDeclarationStatement
+         Gas costs: 301
+         Source: "uint ownerIndex = m_ownerIndex[uint(_from)]"
+        VariableDeclaration "ownerIndex"
+           Type: uint256
+           Source: "uint ownerIndex"
+          ElementaryTypeName uint
+             Source: "uint"
+        IndexAccess
+           Type: uint256
+           Source: "m_ownerIndex[uint(_from)]"
+          Identifier m_ownerIndex
+             Type: mapping(uint256 => uint256)
+             Source: "m_ownerIndex"
+          FunctionCall
+             Type: uint256
+             Source: "uint(_from)"
+            ElementaryTypeNameExpression uint
+               Type: type(uint256)
+               Source: "uint"
+            Identifier _from
+               Type: address
+               Source: "_from"
+      IfStatement
+         Source: "if (ownerIndex == 0) return;"
+        BinaryOperation using operator ==
+           Type: bool
+           Gas costs: 9
+           Source: "ownerIndex == 0"
+          Identifier ownerIndex
+             Type: uint256
+             Source: "ownerIndex"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        Return
+           Gas costs: 11
+           Source: "return;"
+      ExpressionStatement
+         Gas costs: 15
+         Source: "clearPending()"
+        FunctionCall
+           Type: tuple()
+           Source: "clearPending()"
+          Identifier clearPending
+             Type: function ()
+             Source: "clearPending"
+      ExpressionStatement
+         Gas costs: 20055
+         Source: "m_owners[ownerIndex] = uint(_to)"
+        Assignment using operator =
+           Type: uint256
+           Source: "m_owners[ownerIndex] = uint(_to)"
+          IndexAccess
+             Type: uint256
+             Source: "m_owners[ownerIndex]"
+            Identifier m_owners
+               Type: uint256[256] storage ref
+               Source: "m_owners"
+            Identifier ownerIndex
+               Type: uint256
+               Source: "ownerIndex"
+          FunctionCall
+             Type: uint256
+             Source: "uint(_to)"
+            ElementaryTypeNameExpression uint
+               Type: type(uint256)
+               Source: "uint"
+            Identifier _to
+               Type: address
+               Source: "_to"
+      ExpressionStatement
+         Gas costs: 5104
+         Source: "m_ownerIndex[uint(_from)] = 0"
+        Assignment using operator =
+           Type: uint256
+           Source: "m_ownerIndex[uint(_from)] = 0"
+          IndexAccess
+             Type: uint256
+             Source: "m_ownerIndex[uint(_from)]"
+            Identifier m_ownerIndex
+               Type: mapping(uint256 => uint256)
+               Source: "m_ownerIndex"
+            FunctionCall
+               Type: uint256
+               Source: "uint(_from)"
+              ElementaryTypeNameExpression uint
+                 Type: type(uint256)
+                 Source: "uint"
+              Identifier _from
+                 Type: address
+                 Source: "_from"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+      ExpressionStatement
+         Gas costs: 20098
+         Source: "m_ownerIndex[uint(_to)] = ownerIndex"
+        Assignment using operator =
+           Type: uint256
+           Source: "m_ownerIndex[uint(_to)] = ownerIndex"
+          IndexAccess
+             Type: uint256
+             Source: "m_ownerIndex[uint(_to)]"
+            Identifier m_ownerIndex
+               Type: mapping(uint256 => uint256)
+               Source: "m_ownerIndex"
+            FunctionCall
+               Type: uint256
+               Source: "uint(_to)"
+              ElementaryTypeNameExpression uint
+                 Type: type(uint256)
+                 Source: "uint"
+              Identifier _to
+                 Type: address
+                 Source: "_to"
+          Identifier ownerIndex
+             Type: uint256
+             Source: "ownerIndex"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "OwnerChanged(_from, _to)"
+        FunctionCall
+           Type: tuple()
+           Source: "OwnerChanged(_from, _to)"
+          Identifier OwnerChanged
+             Type: function (address,address)
+             Source: "OwnerChanged"
+          Identifier _from
+             Type: address
+             Source: "_from"
+          Identifier _to
+             Type: address
+             Source: "_to"
+  FunctionDefinition "addOwner" - public
+     Source: "function addOwner(address _owner) onlymanyowners(sha3(msg.data)) external {\r\n\t\tif (isOwner(_owner)) return;\r\n\r\n\t\tclearPending();\r\n\t\tif (m_numOwners >= c_maxOwners)\r\n\t\t\treorganizeOwners();\r\n\t\tif (m_numOwners >= c_maxOwners)\r\n\t\t\treturn;\r\n\t\tm_numOwners++;\r\n\t\tm_owners[m_numOwners] = uint(_owner);\r\n\t\tm_ownerIndex[uint(_owner)] = m_numOwners;\r\n\t\tOwnerAdded(_owner);\r\n\t}"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _owner)"
+      VariableDeclaration "_owner"
+         Type: address
+         Source: "address _owner"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlymanyowners"
+       Gas costs: [???]
+       Source: "onlymanyowners(sha3(msg.data))"
+      Identifier onlymanyowners
+         Type: modifier (bytes32)
+         Source: "onlymanyowners"
+      FunctionCall
+         Type: bytes32
+         Source: "sha3(msg.data)"
+        Identifier sha3
+           Type: function () pure returns (bytes32)
+           Source: "sha3"
+        MemberAccess to member data
+           Type: bytes calldata
+           Source: "msg.data"
+          Identifier msg
+             Type: msg
+             Source: "msg"
+    Block
+       Source: "{\r\n\t\tif (isOwner(_owner)) return;\r\n\r\n\t\tclearPending();\r\n\t\tif (m_numOwners >= c_maxOwners)\r\n\t\t\treorganizeOwners();\r\n\t\tif (m_numOwners >= c_maxOwners)\r\n\t\t\treturn;\r\n\t\tm_numOwners++;\r\n\t\tm_owners[m_numOwners] = uint(_owner);\r\n\t\tm_ownerIndex[uint(_owner)] = m_numOwners;\r\n\t\tOwnerAdded(_owner);\r\n\t}"
+      IfStatement
+         Source: "if (isOwner(_owner)) return;"
+        FunctionCall
+           Type: bool
+           Gas costs: 18
+           Source: "isOwner(_owner)"
+          Identifier isOwner
+             Type: function (address) returns (bool)
+             Source: "isOwner"
+          Identifier _owner
+             Type: address
+             Source: "_owner"
+        Return
+           Gas costs: 11
+           Source: "return;"
+      ExpressionStatement
+         Gas costs: 15
+         Source: "clearPending()"
+        FunctionCall
+           Type: tuple()
+           Source: "clearPending()"
+          Identifier clearPending
+             Type: function ()
+             Source: "clearPending"
+      IfStatement
+         Source: "if (m_numOwners >= c_maxOwners)\r\n\t\t\treorganizeOwners()"
+        BinaryOperation using operator >=
+           Type: bool
+           Gas costs: 209
+           Source: "m_numOwners >= c_maxOwners"
+          Identifier m_numOwners
+             Type: uint256
+             Source: "m_numOwners"
+          Identifier c_maxOwners
+             Type: uint256
+             Source: "c_maxOwners"
+        ExpressionStatement
+           Gas costs: 15
+           Source: "reorganizeOwners()"
+          FunctionCall
+             Type: tuple()
+             Source: "reorganizeOwners()"
+            Identifier reorganizeOwners
+               Type: function ()
+               Source: "reorganizeOwners"
+      IfStatement
+         Source: "if (m_numOwners >= c_maxOwners)\r\n\t\t\treturn;"
+        BinaryOperation using operator >=
+           Type: bool
+           Gas costs: 209
+           Source: "m_numOwners >= c_maxOwners"
+          Identifier m_numOwners
+             Type: uint256
+             Source: "m_numOwners"
+          Identifier c_maxOwners
+             Type: uint256
+             Source: "c_maxOwners"
+        Return
+           Gas costs: 11
+           Source: "return;"
+      ExpressionStatement
+         Gas costs: 20237
+         Source: "m_numOwners++"
+        UnaryOperation (postfix) ++
+           Type: uint256
+           Source: "m_numOwners++"
+          Identifier m_numOwners
+             Type: uint256
+             Source: "m_numOwners"
+      ExpressionStatement
+         Gas costs: 20255
+         Source: "m_owners[m_numOwners] = uint(_owner)"
+        Assignment using operator =
+           Type: uint256
+           Source: "m_owners[m_numOwners] = uint(_owner)"
+          IndexAccess
+             Type: uint256
+             Source: "m_owners[m_numOwners]"
+            Identifier m_owners
+               Type: uint256[256] storage ref
+               Source: "m_owners"
+            Identifier m_numOwners
+               Type: uint256
+               Source: "m_numOwners"
+          FunctionCall
+             Type: uint256
+             Source: "uint(_owner)"
+            ElementaryTypeNameExpression uint
+               Type: type(uint256)
+               Source: "uint"
+            Identifier _owner
+               Type: address
+               Source: "_owner"
+      ExpressionStatement
+         Gas costs: 20304
+         Source: "m_ownerIndex[uint(_owner)] = m_numOwners"
+        Assignment using operator =
+           Type: uint256
+           Source: "m_ownerIndex[uint(_owner)] = m_numOwners"
+          IndexAccess
+             Type: uint256
+             Source: "m_ownerIndex[uint(_owner)]"
+            Identifier m_ownerIndex
+               Type: mapping(uint256 => uint256)
+               Source: "m_ownerIndex"
+            FunctionCall
+               Type: uint256
+               Source: "uint(_owner)"
+              ElementaryTypeNameExpression uint
+                 Type: type(uint256)
+                 Source: "uint"
+              Identifier _owner
+                 Type: address
+                 Source: "_owner"
+          Identifier m_numOwners
+             Type: uint256
+             Source: "m_numOwners"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "OwnerAdded(_owner)"
+        FunctionCall
+           Type: tuple()
+           Source: "OwnerAdded(_owner)"
+          Identifier OwnerAdded
+             Type: function (address)
+             Source: "OwnerAdded"
+          Identifier _owner
+             Type: address
+             Source: "_owner"
+  FunctionDefinition "removeOwner" - public
+     Source: "function removeOwner(address _owner) onlymanyowners(sha3(msg.data)) external {\r\n\t\tuint ownerIndex = m_ownerIndex[uint(_owner)];\r\n\t\tif (ownerIndex == 0) return;\r\n\t\tif (m_required > m_numOwners - 1) return;\r\n\r\n\t\tm_owners[ownerIndex] = 0;\r\n\t\tm_ownerIndex[uint(_owner)] = 0;\r\n\t\tclearPending();\r\n\t\treorganizeOwners(); //make sure m_numOwner is equal to the number of owners and always points to the optimal free slot\r\n\t\tOwnerRemoved(_owner);\r\n\t}"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _owner)"
+      VariableDeclaration "_owner"
+         Type: address
+         Source: "address _owner"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlymanyowners"
+       Gas costs: [???]
+       Source: "onlymanyowners(sha3(msg.data))"
+      Identifier onlymanyowners
+         Type: modifier (bytes32)
+         Source: "onlymanyowners"
+      FunctionCall
+         Type: bytes32
+         Source: "sha3(msg.data)"
+        Identifier sha3
+           Type: function () pure returns (bytes32)
+           Source: "sha3"
+        MemberAccess to member data
+           Type: bytes calldata
+           Source: "msg.data"
+          Identifier msg
+             Type: msg
+             Source: "msg"
+    Block
+       Source: "{\r\n\t\tuint ownerIndex = m_ownerIndex[uint(_owner)];\r\n\t\tif (ownerIndex == 0) return;\r\n\t\tif (m_required > m_numOwners - 1) return;\r\n\r\n\t\tm_owners[ownerIndex] = 0;\r\n\t\tm_ownerIndex[uint(_owner)] = 0;\r\n\t\tclearPending();\r\n\t\treorganizeOwners(); //make sure m_numOwner is equal to the number of owners and always points to the optimal free slot\r\n\t\tOwnerRemoved(_owner);\r\n\t}"
+      VariableDeclarationStatement
+         Gas costs: 301
+         Source: "uint ownerIndex = m_ownerIndex[uint(_owner)]"
+        VariableDeclaration "ownerIndex"
+           Type: uint256
+           Source: "uint ownerIndex"
+          ElementaryTypeName uint
+             Source: "uint"
+        IndexAccess
+           Type: uint256
+           Source: "m_ownerIndex[uint(_owner)]"
+          Identifier m_ownerIndex
+             Type: mapping(uint256 => uint256)
+             Source: "m_ownerIndex"
+          FunctionCall
+             Type: uint256
+             Source: "uint(_owner)"
+            ElementaryTypeNameExpression uint
+               Type: type(uint256)
+               Source: "uint"
+            Identifier _owner
+               Type: address
+               Source: "_owner"
+      IfStatement
+         Source: "if (ownerIndex == 0) return;"
+        BinaryOperation using operator ==
+           Type: bool
+           Gas costs: 9
+           Source: "ownerIndex == 0"
+          Identifier ownerIndex
+             Type: uint256
+             Source: "ownerIndex"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        Return
+           Gas costs: 11
+           Source: "return;"
+      IfStatement
+         Source: "if (m_required > m_numOwners - 1) return;"
+        BinaryOperation using operator >
+           Type: bool
+           Gas costs: 415
+           Source: "m_required > m_numOwners - 1"
+          Identifier m_required
+             Type: uint256
+             Source: "m_required"
+          BinaryOperation using operator -
+             Type: uint256
+             Source: "m_numOwners - 1"
+            Identifier m_numOwners
+               Type: uint256
+               Source: "m_numOwners"
+            Literal, token: [no token] value: 1
+               Type: int_const 1
+               Source: "1"
+        Return
+           Gas costs: 11
+           Source: "return;"
+      ExpressionStatement
+         Gas costs: 20049
+         Source: "m_owners[ownerIndex] = 0"
+        Assignment using operator =
+           Type: uint256
+           Source: "m_owners[ownerIndex] = 0"
+          IndexAccess
+             Type: uint256
+             Source: "m_owners[ownerIndex]"
+            Identifier m_owners
+               Type: uint256[256] storage ref
+               Source: "m_owners"
+            Identifier ownerIndex
+               Type: uint256
+               Source: "ownerIndex"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+      ExpressionStatement
+         Gas costs: 5104
+         Source: "m_ownerIndex[uint(_owner)] = 0"
+        Assignment using operator =
+           Type: uint256
+           Source: "m_ownerIndex[uint(_owner)] = 0"
+          IndexAccess
+             Type: uint256
+             Source: "m_ownerIndex[uint(_owner)]"
+            Identifier m_ownerIndex
+               Type: mapping(uint256 => uint256)
+               Source: "m_ownerIndex"
+            FunctionCall
+               Type: uint256
+               Source: "uint(_owner)"
+              ElementaryTypeNameExpression uint
+                 Type: type(uint256)
+                 Source: "uint"
+              Identifier _owner
+                 Type: address
+                 Source: "_owner"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+      ExpressionStatement
+         Gas costs: 4
+         Source: "clearPending()"
+        FunctionCall
+           Type: tuple()
+           Source: "clearPending()"
+          Identifier clearPending
+             Type: function ()
+             Source: "clearPending"
+      ExpressionStatement
+         Gas costs: 4
+         Source: "reorganizeOwners()"
+        FunctionCall
+           Type: tuple()
+           Source: "reorganizeOwners()"
+          Identifier reorganizeOwners
+             Type: function ()
+             Source: "reorganizeOwners"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "OwnerRemoved(_owner)"
+        FunctionCall
+           Type: tuple()
+           Source: "OwnerRemoved(_owner)"
+          Identifier OwnerRemoved
+             Type: function (address)
+             Source: "OwnerRemoved"
+          Identifier _owner
+             Type: address
+             Source: "_owner"
+  FunctionDefinition "changeRequirement" - public
+     Source: "function changeRequirement(uint _newRequired) onlymanyowners(sha3(msg.data)) external {\r\n\t\tif (_newRequired == 0) return;\r\n\t\tif (_newRequired > m_numOwners) return;\r\n\t\tm_required = _newRequired;\r\n\t\tclearPending();\r\n\t\tRequirementChanged(_newRequired);\r\n\t}"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint _newRequired)"
+      VariableDeclaration "_newRequired"
+         Type: uint256
+         Source: "uint _newRequired"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlymanyowners"
+       Gas costs: [???]
+       Source: "onlymanyowners(sha3(msg.data))"
+      Identifier onlymanyowners
+         Type: modifier (bytes32)
+         Source: "onlymanyowners"
+      FunctionCall
+         Type: bytes32
+         Source: "sha3(msg.data)"
+        Identifier sha3
+           Type: function () pure returns (bytes32)
+           Source: "sha3"
+        MemberAccess to member data
+           Type: bytes calldata
+           Source: "msg.data"
+          Identifier msg
+             Type: msg
+             Source: "msg"
+    Block
+       Source: "{\r\n\t\tif (_newRequired == 0) return;\r\n\t\tif (_newRequired > m_numOwners) return;\r\n\t\tm_required = _newRequired;\r\n\t\tclearPending();\r\n\t\tRequirementChanged(_newRequired);\r\n\t}"
+      IfStatement
+         Source: "if (_newRequired == 0) return;"
+        BinaryOperation using operator ==
+           Type: bool
+           Gas costs: 9
+           Source: "_newRequired == 0"
+          Identifier _newRequired
+             Type: uint256
+             Source: "_newRequired"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        Return
+           Gas costs: 11
+           Source: "return;"
+      IfStatement
+         Source: "if (_newRequired > m_numOwners) return;"
+        BinaryOperation using operator >
+           Type: bool
+           Gas costs: 209
+           Source: "_newRequired > m_numOwners"
+          Identifier _newRequired
+             Type: uint256
+             Source: "_newRequired"
+          Identifier m_numOwners
+             Type: uint256
+             Source: "m_numOwners"
+        Return
+           Gas costs: 11
+           Source: "return;"
+      ExpressionStatement
+         Gas costs: 20014
+         Source: "m_required = _newRequired"
+        Assignment using operator =
+           Type: uint256
+           Source: "m_required = _newRequired"
+          Identifier m_required
+             Type: uint256
+             Source: "m_required"
+          Identifier _newRequired
+             Type: uint256
+             Source: "_newRequired"
+      ExpressionStatement
+         Gas costs: 15
+         Source: "clearPending()"
+        FunctionCall
+           Type: tuple()
+           Source: "clearPending()"
+          Identifier clearPending
+             Type: function ()
+             Source: "clearPending"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "RequirementChanged(_newRequired)"
+        FunctionCall
+           Type: tuple()
+           Source: "RequirementChanged(_newRequired)"
+          Identifier RequirementChanged
+             Type: function (uint256)
+             Source: "RequirementChanged"
+          Identifier _newRequired
+             Type: uint256
+             Source: "_newRequired"
+  FunctionDefinition "getOwner" - public - const
+     Source: "function getOwner(uint ownerIndex) external constant returns (address) {\r\n\t\treturn address(m_owners[ownerIndex + 1]);\r\n\t}"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint ownerIndex)"
+      VariableDeclaration "ownerIndex"
+         Type: uint256
+         Source: "uint ownerIndex"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 3
+       Source: "(address)"
+      VariableDeclaration ""
+         Type: address
+         Source: "address"
+        ElementaryTypeName address
+           Source: "address"
+    Block
+       Source: "{\r\n\t\treturn address(m_owners[ownerIndex + 1]);\r\n\t}"
+      Return
+         Gas costs: 249
+         Source: "return address(m_owners[ownerIndex + 1])"
+        FunctionCall
+           Type: address
+           Source: "address(m_owners[ownerIndex + 1])"
+          ElementaryTypeNameExpression address
+             Type: type(address)
+             Source: "address"
+          IndexAccess
+             Type: uint256
+             Source: "m_owners[ownerIndex + 1]"
+            Identifier m_owners
+               Type: uint256[256] storage ref
+               Source: "m_owners"
+            BinaryOperation using operator +
+               Type: uint256
+               Source: "ownerIndex + 1"
+              Identifier ownerIndex
+                 Type: uint256
+                 Source: "ownerIndex"
+              Literal, token: [no token] value: 1
+                 Type: int_const 1
+                 Source: "1"
+  FunctionDefinition "isOwner" - public
+     Source: "function isOwner(address _addr) returns (bool) {\r\n\t\treturn m_ownerIndex[uint(_addr)] > 0;\r\n\t}"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _addr)"
+      VariableDeclaration "_addr"
+         Type: address
+         Source: "address _addr"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool)"
+      VariableDeclaration ""
+         Type: bool
+         Source: "bool"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n\t\treturn m_ownerIndex[uint(_addr)] > 0;\r\n\t}"
+      Return
+         Gas costs: 304
+         Source: "return m_ownerIndex[uint(_addr)] > 0"
+        BinaryOperation using operator >
+           Type: bool
+           Source: "m_ownerIndex[uint(_addr)] > 0"
+          IndexAccess
+             Type: uint256
+             Source: "m_ownerIndex[uint(_addr)]"
+            Identifier m_ownerIndex
+               Type: mapping(uint256 => uint256)
+               Source: "m_ownerIndex"
+            FunctionCall
+               Type: uint256
+               Source: "uint(_addr)"
+              ElementaryTypeNameExpression uint
+                 Type: type(uint256)
+                 Source: "uint"
+              Identifier _addr
+                 Type: address
+                 Source: "_addr"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+  FunctionDefinition "hasConfirmed" - public - const
+     Source: "function hasConfirmed(bytes32 _operation, address _owner) constant returns (bool) {\r\n\t\tvar pending = m_pending[_operation];\r\n\t\tuint ownerIndex = m_ownerIndex[uint(_owner)];\r\n\r\n\t\t// make sure they're an owner\r\n\t\tif (ownerIndex == 0) return false;\r\n\r\n\t\t// determine the bit to set for this owner.\r\n\t\tuint ownerIndexBit = 2**ownerIndex;\r\n\t\treturn !(pending.ownersDone & ownerIndexBit == 0);\r\n\t}"
+    ParameterList
+       Gas costs: 0
+       Source: "(bytes32 _operation, address _owner)"
+      VariableDeclaration "_operation"
+         Type: bytes32
+         Source: "bytes32 _operation"
+        ElementaryTypeName bytes32
+           Source: "bytes32"
+      VariableDeclaration "_owner"
+         Type: address
+         Source: "address _owner"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool)"
+      VariableDeclaration ""
+         Type: bool
+         Source: "bool"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n\t\tvar pending = m_pending[_operation];\r\n\t\tuint ownerIndex = m_ownerIndex[uint(_owner)];\r\n\r\n\t\t// make sure they're an owner\r\n\t\tif (ownerIndex == 0) return false;\r\n\r\n\t\t// determine the bit to set for this owner.\r\n\t\tuint ownerIndexBit = 2**ownerIndex;\r\n\t\treturn !(pending.ownersDone & ownerIndexBit == 0);\r\n\t}"
+      VariableDeclarationStatement
+         Gas costs: 113
+         Source: "var pending = m_pending[_operation]"
+        VariableDeclaration "pending"
+           Type: struct multiowned.PendingState storage pointer
+           Source: "var pending"
+        IndexAccess
+           Type: struct multiowned.PendingState storage ref
+           Source: "m_pending[_operation]"
+          Identifier m_pending
+             Type: mapping(bytes32 => struct multiowned.PendingState storage ref)
+             Source: "m_pending"
+          Identifier _operation
+             Type: bytes32
+             Source: "_operation"
+      VariableDeclarationStatement
+         Gas costs: 295
+         Source: "uint ownerIndex = m_ownerIndex[uint(_owner)]"
+        VariableDeclaration "ownerIndex"
+           Type: uint256
+           Source: "uint ownerIndex"
+          ElementaryTypeName uint
+             Source: "uint"
+        IndexAccess
+           Type: uint256
+           Source: "m_ownerIndex[uint(_owner)]"
+          Identifier m_ownerIndex
+             Type: mapping(uint256 => uint256)
+             Source: "m_ownerIndex"
+          FunctionCall
+             Type: uint256
+             Source: "uint(_owner)"
+            ElementaryTypeNameExpression uint
+               Type: type(uint256)
+               Source: "uint"
+            Identifier _owner
+               Type: address
+               Source: "_owner"
+      IfStatement
+         Source: "if (ownerIndex == 0) return false"
+        BinaryOperation using operator ==
+           Type: bool
+           Gas costs: 9
+           Source: "ownerIndex == 0"
+          Identifier ownerIndex
+             Type: uint256
+             Source: "ownerIndex"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        Return
+           Gas costs: 19
+           Source: "return false"
+          Literal, token: false value: false
+             Type: bool
+             Source: "false"
+      VariableDeclarationStatement
+         Gas costs: 1624
+         Source: "uint ownerIndexBit = 2**ownerIndex"
+        VariableDeclaration "ownerIndexBit"
+           Type: uint256
+           Source: "uint ownerIndexBit"
+          ElementaryTypeName uint
+             Source: "uint"
+        BinaryOperation using operator **
+           Type: uint256
+           Source: "2**ownerIndex"
+          Literal, token: [no token] value: 2
+             Type: int_const 2
+             Source: "2"
+          Identifier ownerIndex
+             Type: uint256
+             Source: "ownerIndex"
+      Return
+         Gas costs: 229
+         Source: "return !(pending.ownersDone & ownerIndexBit == 0)"
+        UnaryOperation (prefix) !
+           Type: bool
+           Source: "!(pending.ownersDone & ownerIndexBit == 0)"
+          TupleExpression
+             Type: bool
+             Source: "(pending.ownersDone & ownerIndexBit == 0)"
+            BinaryOperation using operator ==
+               Type: bool
+               Source: "pending.ownersDone & ownerIndexBit == 0"
+              BinaryOperation using operator &
+                 Type: uint256
+                 Source: "pending.ownersDone & ownerIndexBit"
+                MemberAccess to member ownersDone
+                   Type: uint256
+                   Source: "pending.ownersDone"
+                  Identifier pending
+                     Type: struct multiowned.PendingState storage pointer
+                     Source: "pending"
+                Identifier ownerIndexBit
+                   Type: uint256
+                   Source: "ownerIndexBit"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+  FunctionDefinition "confirmAndCheck"
+     Source: "function confirmAndCheck(bytes32 _operation) internal returns (bool) {\r\n\t\t// determine what index the present sender is:\r\n\t\tuint ownerIndex = m_ownerIndex[uint(msg.sender)];\r\n\t\t// make sure they're an owner\r\n\t\tif (ownerIndex == 0) return;\r\n\r\n\t\tvar pending = m_pending[_operation];\r\n\t\t// if we're not yet working on this operation, switch over and reset the confirmation status.\r\n\t\tif (pending.yetNeeded == 0) {\r\n\t\t\t// reset count of confirmations needed.\r\n\t\t\tpending.yetNeeded = m_required;\r\n\t\t\t// reset which owners have confirmed (none) - set our bitmap to 0.\r\n\t\t\tpending.ownersDone = 0;\r\n\t\t\tpending.index = m_pendingIndex.length++;\r\n\t\t\tm_pendingIndex[pending.index] = _operation;\r\n\t\t}\r\n\t\t// determine the bit to set for this owner.\r\n\t\tuint ownerIndexBit = 2**ownerIndex;\r\n\t\t// make sure we (the message sender) haven't confirmed this operation previously.\r\n\t\tif (pending.ownersDone & ownerIndexBit == 0) {\r\n\t\t\tConfirmation(msg.sender, _operation);\r\n\t\t\t// ok - check if count is enough to go ahead.\r\n\t\t\tif (pending.yetNeeded == 1) {\r\n\t\t\t\t// enough confirmations: reset and run interior.\r\n\t\t\t\tdelete m_pendingIndex[m_pending[_operation].index];\r\n\t\t\t\tdelete m_pending[_operation];\r\n\t\t\t\treturn true;\r\n\t\t\t}\r\n\t\t\telse\r\n\t\t\t{\r\n\t\t\t\t// not enough: record that this owner in particular confirmed.\r\n\t\t\t\tpending.yetNeeded--;\r\n\t\t\t\tpending.ownersDone |= ownerIndexBit;\r\n\t\t\t}\r\n\t\t}\r\n\t}"
+    ParameterList
+       Gas costs: 0
+       Source: "(bytes32 _operation)"
+      VariableDeclaration "_operation"
+         Type: bytes32
+         Source: "bytes32 _operation"
+        ElementaryTypeName bytes32
+           Source: "bytes32"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool)"
+      VariableDeclaration ""
+         Type: bool
+         Source: "bool"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n\t\t// determine what index the present sender is:\r\n\t\tuint ownerIndex = m_ownerIndex[uint(msg.sender)];\r\n\t\t// make sure they're an owner\r\n\t\tif (ownerIndex == 0) return;\r\n\r\n\t\tvar pending = m_pending[_operation];\r\n\t\t// if we're not yet working on this operation, switch over and reset the confirmation status.\r\n\t\tif (pending.yetNeeded == 0) {\r\n\t\t\t// reset count of confirmations needed.\r\n\t\t\tpending.yetNeeded = m_required;\r\n\t\t\t// reset which owners have confirmed (none) - set our bitmap to 0.\r\n\t\t\tpending.ownersDone = 0;\r\n\t\t\tpending.index = m_pendingIndex.length++;\r\n\t\t\tm_pendingIndex[pending.index] = _operation;\r\n\t\t}\r\n\t\t// determine the bit to set for this owner.\r\n\t\tuint ownerIndexBit = 2**ownerIndex;\r\n\t\t// make sure we (the message sender) haven't confirmed this operation previously.\r\n\t\tif (pending.ownersDone & ownerIndexBit == 0) {\r\n\t\t\tConfirmation(msg.sender, _operation);\r\n\t\t\t// ok - check if count is enough to go ahead.\r\n\t\t\tif (pending.yetNeeded == 1) {\r\n\t\t\t\t// enough confirmations: reset and run interior.\r\n\t\t\t\tdelete m_pendingIndex[m_pending[_operation].index];\r\n\t\t\t\tdelete m_pending[_operation];\r\n\t\t\t\treturn true;\r\n\t\t\t}\r\n\t\t\telse\r\n\t\t\t{\r\n\t\t\t\t// not enough: record that this owner in particular confirmed.\r\n\t\t\t\tpending.yetNeeded--;\r\n\t\t\t\tpending.ownersDone |= ownerIndexBit;\r\n\t\t\t}\r\n\t\t}\r\n\t}"
+      VariableDeclarationStatement
+         Gas costs: 300
+         Source: "uint ownerIndex = m_ownerIndex[uint(msg.sender)]"
+        VariableDeclaration "ownerIndex"
+           Type: uint256
+           Source: "uint ownerIndex"
+          ElementaryTypeName uint
+             Source: "uint"
+        IndexAccess
+           Type: uint256
+           Source: "m_ownerIndex[uint(msg.sender)]"
+          Identifier m_ownerIndex
+             Type: mapping(uint256 => uint256)
+             Source: "m_ownerIndex"
+          FunctionCall
+             Type: uint256
+             Source: "uint(msg.sender)"
+            ElementaryTypeNameExpression uint
+               Type: type(uint256)
+               Source: "uint"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+      IfStatement
+         Source: "if (ownerIndex == 0) return;"
+        BinaryOperation using operator ==
+           Type: bool
+           Gas costs: 9
+           Source: "ownerIndex == 0"
+          Identifier ownerIndex
+             Type: uint256
+             Source: "ownerIndex"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        Return
+           Gas costs: 11
+           Source: "return;"
+      VariableDeclarationStatement
+         Gas costs: 113
+         Source: "var pending = m_pending[_operation]"
+        VariableDeclaration "pending"
+           Type: struct multiowned.PendingState storage pointer
+           Source: "var pending"
+        IndexAccess
+           Type: struct multiowned.PendingState storage ref
+           Source: "m_pending[_operation]"
+          Identifier m_pending
+             Type: mapping(bytes32 => struct multiowned.PendingState storage ref)
+             Source: "m_pending"
+          Identifier _operation
+             Type: bytes32
+             Source: "_operation"
+      IfStatement
+         Source: "if (pending.yetNeeded == 0) {\r\n\t\t\t// reset count of confirmations needed.\r\n\t\t\tpending.yetNeeded = m_required;\r\n\t\t\t// reset which owners have confirmed (none) - set our bitmap to 0.\r\n\t\t\tpending.ownersDone = 0;\r\n\t\t\tpending.index = m_pendingIndex.length++;\r\n\t\t\tm_pendingIndex[pending.index] = _operation;\r\n\t\t}"
+        BinaryOperation using operator ==
+           Type: bool
+           Gas costs: 215
+           Source: "pending.yetNeeded == 0"
+          MemberAccess to member yetNeeded
+             Type: uint256
+             Source: "pending.yetNeeded"
+            Identifier pending
+               Type: struct multiowned.PendingState storage pointer
+               Source: "pending"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        Block
+           Source: "{\r\n\t\t\t// reset count of confirmations needed.\r\n\t\t\tpending.yetNeeded = m_required;\r\n\t\t\t// reset which owners have confirmed (none) - set our bitmap to 0.\r\n\t\t\tpending.ownersDone = 0;\r\n\t\t\tpending.index = m_pendingIndex.length++;\r\n\t\t\tm_pendingIndex[pending.index] = _operation;\r\n\t\t}"
+          ExpressionStatement
+             Gas costs: 20220
+             Source: "pending.yetNeeded = m_required"
+            Assignment using operator =
+               Type: uint256
+               Source: "pending.yetNeeded = m_required"
+              MemberAccess to member yetNeeded
+                 Type: uint256
+                 Source: "pending.yetNeeded"
+                Identifier pending
+                   Type: struct multiowned.PendingState storage pointer
+                   Source: "pending"
+              Identifier m_required
+                 Type: uint256
+                 Source: "m_required"
+          ExpressionStatement
+             Gas costs: 5020
+             Source: "pending.ownersDone = 0"
+            Assignment using operator =
+               Type: uint256
+               Source: "pending.ownersDone = 0"
+              MemberAccess to member ownersDone
+                 Type: uint256
+                 Source: "pending.ownersDone"
+                Identifier pending
+                   Type: struct multiowned.PendingState storage pointer
+                   Source: "pending"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+          ExpressionStatement
+             Gas costs: 20248
+             Source: "pending.index = m_pendingIndex.length++"
+            Assignment using operator =
+               Type: uint256
+               Source: "pending.index = m_pendingIndex.length++"
+              MemberAccess to member index
+                 Type: uint256
+                 Source: "pending.index"
+                Identifier pending
+                   Type: struct multiowned.PendingState storage pointer
+                   Source: "pending"
+              UnaryOperation (postfix) ++
+                 Type: uint256
+                 Source: "m_pendingIndex.length++"
+                MemberAccess to member length
+                   Type: uint256
+                   Source: "m_pendingIndex.length"
+                  Identifier m_pendingIndex
+                     Type: bytes32[] storage ref
+                     Source: "m_pendingIndex"
+          ExpressionStatement
+             Gas costs: 20518
+             Source: "m_pendingIndex[pending.index] = _operation"
+            Assignment using operator =
+               Type: bytes32
+               Source: "m_pendingIndex[pending.index] = _operation"
+              IndexAccess
+                 Type: bytes32
+                 Source: "m_pendingIndex[pending.index]"
+                Identifier m_pendingIndex
+                   Type: bytes32[] storage ref
+                   Source: "m_pendingIndex"
+                MemberAccess to member index
+                   Type: uint256
+                   Source: "pending.index"
+                  Identifier pending
+                     Type: struct multiowned.PendingState storage pointer
+                     Source: "pending"
+              Identifier _operation
+                 Type: bytes32
+                 Source: "_operation"
+      VariableDeclarationStatement
+         Gas costs: 1624
+         Source: "uint ownerIndexBit = 2**ownerIndex"
+        VariableDeclaration "ownerIndexBit"
+           Type: uint256
+           Source: "uint ownerIndexBit"
+          ElementaryTypeName uint
+             Source: "uint"
+        BinaryOperation using operator **
+           Type: uint256
+           Source: "2**ownerIndex"
+          Literal, token: [no token] value: 2
+             Type: int_const 2
+             Source: "2"
+          Identifier ownerIndex
+             Type: uint256
+             Source: "ownerIndex"
+      IfStatement
+         Source: "if (pending.ownersDone & ownerIndexBit == 0) {\r\n\t\t\tConfirmation(msg.sender, _operation);\r\n\t\t\t// ok - check if count is enough to go ahead.\r\n\t\t\tif (pending.yetNeeded == 1) {\r\n\t\t\t\t// enough confirmations: reset and run interior.\r\n\t\t\t\tdelete m_pendingIndex[m_pending[_operation].index];\r\n\t\t\t\tdelete m_pending[_operation];\r\n\t\t\t\treturn true;\r\n\t\t\t}\r\n\t\t\telse\r\n\t\t\t{\r\n\t\t\t\t// not enough: record that this owner in particular confirmed.\r\n\t\t\t\tpending.yetNeeded--;\r\n\t\t\t\tpending.ownersDone |= ownerIndexBit;\r\n\t\t\t}\r\n\t\t}"
+        BinaryOperation using operator ==
+           Type: bool
+           Gas costs: 221
+           Source: "pending.ownersDone & ownerIndexBit == 0"
+          BinaryOperation using operator &
+             Type: uint256
+             Source: "pending.ownersDone & ownerIndexBit"
+            MemberAccess to member ownersDone
+               Type: uint256
+               Source: "pending.ownersDone"
+              Identifier pending
+                 Type: struct multiowned.PendingState storage pointer
+                 Source: "pending"
+            Identifier ownerIndexBit
+               Type: uint256
+               Source: "ownerIndexBit"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        Block
+           Source: "{\r\n\t\t\tConfirmation(msg.sender, _operation);\r\n\t\t\t// ok - check if count is enough to go ahead.\r\n\t\t\tif (pending.yetNeeded == 1) {\r\n\t\t\t\t// enough confirmations: reset and run interior.\r\n\t\t\t\tdelete m_pendingIndex[m_pending[_operation].index];\r\n\t\t\t\tdelete m_pending[_operation];\r\n\t\t\t\treturn true;\r\n\t\t\t}\r\n\t\t\telse\r\n\t\t\t{\r\n\t\t\t\t// not enough: record that this owner in particular confirmed.\r\n\t\t\t\tpending.yetNeeded--;\r\n\t\t\t\tpending.ownersDone |= ownerIndexBit;\r\n\t\t\t}\r\n\t\t}"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "Confirmation(msg.sender, _operation)"
+            FunctionCall
+               Type: tuple()
+               Source: "Confirmation(msg.sender, _operation)"
+              Identifier Confirmation
+                 Type: function (address,bytes32)
+                 Source: "Confirmation"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+              Identifier _operation
+                 Type: bytes32
+                 Source: "_operation"
+          IfStatement
+             Source: "if (pending.yetNeeded == 1) {\r\n\t\t\t\t// enough confirmations: reset and run interior.\r\n\t\t\t\tdelete m_pendingIndex[m_pending[_operation].index];\r\n\t\t\t\tdelete m_pending[_operation];\r\n\t\t\t\treturn true;\r\n\t\t\t}\r\n\t\t\telse\r\n\t\t\t{\r\n\t\t\t\t// not enough: record that this owner in particular confirmed.\r\n\t\t\t\tpending.yetNeeded--;\r\n\t\t\t\tpending.ownersDone |= ownerIndexBit;\r\n\t\t\t}"
+            BinaryOperation using operator ==
+               Type: bool
+               Gas costs: 215
+               Source: "pending.yetNeeded == 1"
+              MemberAccess to member yetNeeded
+                 Type: uint256
+                 Source: "pending.yetNeeded"
+                Identifier pending
+                   Type: struct multiowned.PendingState storage pointer
+                   Source: "pending"
+              Literal, token: [no token] value: 1
+                 Type: int_const 1
+                 Source: "1"
+            Block
+               Source: "{\r\n\t\t\t\t// enough confirmations: reset and run interior.\r\n\t\t\t\tdelete m_pendingIndex[m_pending[_operation].index];\r\n\t\t\t\tdelete m_pending[_operation];\r\n\t\t\t\treturn true;\r\n\t\t\t}"
+              ExpressionStatement
+                 Gas costs: 5606
+                 Source: "delete m_pendingIndex[m_pending[_operation].index]"
+                UnaryOperation (prefix) delete
+                   Type: tuple()
+                   Source: "delete m_pendingIndex[m_pending[_operation].index]"
+                  IndexAccess
+                     Type: bytes32
+                     Source: "m_pendingIndex[m_pending[_operation].index]"
+                    Identifier m_pendingIndex
+                       Type: bytes32[] storage ref
+                       Source: "m_pendingIndex"
+                    MemberAccess to member index
+                       Type: uint256
+                       Source: "m_pending[_operation].index"
+                      IndexAccess
+                         Type: struct multiowned.PendingState storage ref
+                         Source: "m_pending[_operation]"
+                        Identifier m_pending
+                           Type: mapping(bytes32 => struct multiowned.PendingState storage ref)
+                           Source: "m_pending"
+                        Identifier _operation
+                           Type: bytes32
+                           Source: "_operation"
+              ExpressionStatement
+                 Gas costs: 15154
+                 Source: "delete m_pending[_operation]"
+                UnaryOperation (prefix) delete
+                   Type: tuple()
+                   Source: "delete m_pending[_operation]"
+                  IndexAccess
+                     Type: struct multiowned.PendingState storage ref
+                     Source: "m_pending[_operation]"
+                    Identifier m_pending
+                       Type: mapping(bytes32 => struct multiowned.PendingState storage ref)
+                       Source: "m_pending"
+                    Identifier _operation
+                       Type: bytes32
+                       Source: "_operation"
+              Return
+                 Gas costs: 19
+                 Source: "return true"
+                Literal, token: true value: true
+                   Type: bool
+                   Source: "true"
+            Block
+               Source: "{\r\n\t\t\t\t// not enough: record that this owner in particular confirmed.\r\n\t\t\t\tpending.yetNeeded--;\r\n\t\t\t\tpending.ownersDone |= ownerIndexBit;\r\n\t\t\t}"
+              ExpressionStatement
+                 Gas costs: 20246
+                 Source: "pending.yetNeeded--"
+                UnaryOperation (postfix) --
+                   Type: uint256
+                   Source: "pending.yetNeeded--"
+                  MemberAccess to member yetNeeded
+                     Type: uint256
+                     Source: "pending.yetNeeded"
+                    Identifier pending
+                       Type: struct multiowned.PendingState storage pointer
+                       Source: "pending"
+              ExpressionStatement
+                 Gas costs: 20239
+                 Source: "pending.ownersDone |= ownerIndexBit"
+                Assignment using operator |=
+                   Type: uint256
+                   Source: "pending.ownersDone |= ownerIndexBit"
+                  MemberAccess to member ownersDone
+                     Type: uint256
+                     Source: "pending.ownersDone"
+                    Identifier pending
+                       Type: struct multiowned.PendingState storage pointer
+                       Source: "pending"
+                  Identifier ownerIndexBit
+                     Type: uint256
+                     Source: "ownerIndexBit"
+  FunctionDefinition "reorganizeOwners"
+     Source: "function reorganizeOwners() private {\r\n\t\tuint free = 1;\r\n\t\twhile (free < m_numOwners)\r\n\t\t{\r\n\t\t\twhile (free < m_numOwners && m_owners[free] != 0) free++;\r\n\t\t\twhile (m_numOwners > 1 && m_owners[m_numOwners] == 0) m_numOwners--;\r\n\t\t\tif (free < m_numOwners && m_owners[m_numOwners] != 0 && m_owners[free] == 0)\r\n\t\t\t{\r\n\t\t\t\tm_owners[free] = m_owners[m_numOwners];\r\n\t\t\t\tm_ownerIndex[m_owners[free]] = free;\r\n\t\t\t\tm_owners[m_numOwners] = 0;\r\n\t\t\t}\r\n\t\t}\r\n\t}"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n\t\tuint free = 1;\r\n\t\twhile (free < m_numOwners)\r\n\t\t{\r\n\t\t\twhile (free < m_numOwners && m_owners[free] != 0) free++;\r\n\t\t\twhile (m_numOwners > 1 && m_owners[m_numOwners] == 0) m_numOwners--;\r\n\t\t\tif (free < m_numOwners && m_owners[m_numOwners] != 0 && m_owners[free] == 0)\r\n\t\t\t{\r\n\t\t\t\tm_owners[free] = m_owners[m_numOwners];\r\n\t\t\t\tm_ownerIndex[m_owners[free]] = free;\r\n\t\t\t\tm_owners[m_numOwners] = 0;\r\n\t\t\t}\r\n\t\t}\r\n\t}"
+      VariableDeclarationStatement
+         Gas costs: 11
+         Source: "uint free = 1"
+        VariableDeclaration "free"
+           Type: uint256
+           Source: "uint free"
+          ElementaryTypeName uint
+             Source: "uint"
+        Literal, token: [no token] value: 1
+           Type: int_const 1
+           Source: "1"
+      WhileStatement
+         Source: "while (free < m_numOwners)\r\n\t\t{\r\n\t\t\twhile (free < m_numOwners && m_owners[free] != 0) free++;\r\n\t\t\twhile (m_numOwners > 1 && m_owners[m_numOwners] == 0) m_numOwners--;\r\n\t\t\tif (free < m_numOwners && m_owners[m_numOwners] != 0 && m_owners[free] == 0)\r\n\t\t\t{\r\n\t\t\t\tm_owners[free] = m_owners[m_numOwners];\r\n\t\t\t\tm_ownerIndex[m_owners[free]] = free;\r\n\t\t\t\tm_owners[m_numOwners] = 0;\r\n\t\t\t}\r\n\t\t}"
+        BinaryOperation using operator <
+           Type: bool
+           Gas costs: 209
+           Source: "free < m_numOwners"
+          Identifier free
+             Type: uint256
+             Source: "free"
+          Identifier m_numOwners
+             Type: uint256
+             Source: "m_numOwners"
+        Block
+           Source: "{\r\n\t\t\twhile (free < m_numOwners && m_owners[free] != 0) free++;\r\n\t\t\twhile (m_numOwners > 1 && m_owners[m_numOwners] == 0) m_numOwners--;\r\n\t\t\tif (free < m_numOwners && m_owners[m_numOwners] != 0 && m_owners[free] == 0)\r\n\t\t\t{\r\n\t\t\t\tm_owners[free] = m_owners[m_numOwners];\r\n\t\t\t\tm_ownerIndex[m_owners[free]] = free;\r\n\t\t\t\tm_owners[m_numOwners] = 0;\r\n\t\t\t}\r\n\t\t}"
+          WhileStatement
+             Source: "while (free < m_numOwners && m_owners[free] != 0) free++"
+            BinaryOperation using operator &&
+               Type: bool
+               Gas costs: 478
+               Source: "free < m_numOwners && m_owners[free] != 0"
+              BinaryOperation using operator <
+                 Type: bool
+                 Source: "free < m_numOwners"
+                Identifier free
+                   Type: uint256
+                   Source: "free"
+                Identifier m_numOwners
+                   Type: uint256
+                   Source: "m_numOwners"
+              BinaryOperation using operator !=
+                 Type: bool
+                 Source: "m_owners[free] != 0"
+                IndexAccess
+                   Type: uint256
+                   Source: "m_owners[free]"
+                  Identifier m_owners
+                     Type: uint256[256] storage ref
+                     Source: "m_owners"
+                  Identifier free
+                     Type: uint256
+                     Source: "free"
+                Literal, token: [no token] value: 0
+                   Type: int_const 0
+                   Source: "0"
+            ExpressionStatement
+               Gas costs: 19
+               Source: "free++"
+              UnaryOperation (postfix) ++
+                 Type: uint256
+                 Source: "free++"
+                Identifier free
+                   Type: uint256
+                   Source: "free"
+          WhileStatement
+             Source: "while (m_numOwners > 1 && m_owners[m_numOwners] == 0) m_numOwners--"
+            BinaryOperation using operator &&
+               Type: bool
+               Gas costs: 675
+               Source: "m_numOwners > 1 && m_owners[m_numOwners] == 0"
+              BinaryOperation using operator >
+                 Type: bool
+                 Source: "m_numOwners > 1"
+                Identifier m_numOwners
+                   Type: uint256
+                   Source: "m_numOwners"
+                Literal, token: [no token] value: 1
+                   Type: int_const 1
+                   Source: "1"
+              BinaryOperation using operator ==
+                 Type: bool
+                 Source: "m_owners[m_numOwners] == 0"
+                IndexAccess
+                   Type: uint256
+                   Source: "m_owners[m_numOwners]"
+                  Identifier m_owners
+                     Type: uint256[256] storage ref
+                     Source: "m_owners"
+                  Identifier m_numOwners
+                     Type: uint256
+                     Source: "m_numOwners"
+                Literal, token: [no token] value: 0
+                   Type: int_const 0
+                   Source: "0"
+            ExpressionStatement
+               Gas costs: 20240
+               Source: "m_numOwners--"
+              UnaryOperation (postfix) --
+                 Type: uint256
+                 Source: "m_numOwners--"
+                Identifier m_numOwners
+                   Type: uint256
+                   Source: "m_numOwners"
+          IfStatement
+             Source: "if (free < m_numOwners && m_owners[m_numOwners] != 0 && m_owners[free] == 0)\r\n\t\t\t{\r\n\t\t\t\tm_owners[free] = m_owners[m_numOwners];\r\n\t\t\t\tm_ownerIndex[m_owners[free]] = free;\r\n\t\t\t\tm_owners[m_numOwners] = 0;\r\n\t\t\t}"
+            BinaryOperation using operator &&
+               Type: bool
+               Gas costs: 944
+               Source: "free < m_numOwners && m_owners[m_numOwners] != 0 && m_owners[free] == 0"
+              BinaryOperation using operator &&
+                 Type: bool
+                 Source: "free < m_numOwners && m_owners[m_numOwners] != 0"
+                BinaryOperation using operator <
+                   Type: bool
+                   Source: "free < m_numOwners"
+                  Identifier free
+                     Type: uint256
+                     Source: "free"
+                  Identifier m_numOwners
+                     Type: uint256
+                     Source: "m_numOwners"
+                BinaryOperation using operator !=
+                   Type: bool
+                   Source: "m_owners[m_numOwners] != 0"
+                  IndexAccess
+                     Type: uint256
+                     Source: "m_owners[m_numOwners]"
+                    Identifier m_owners
+                       Type: uint256[256] storage ref
+                       Source: "m_owners"
+                    Identifier m_numOwners
+                       Type: uint256
+                       Source: "m_numOwners"
+                  Literal, token: [no token] value: 0
+                     Type: int_const 0
+                     Source: "0"
+              BinaryOperation using operator ==
+                 Type: bool
+                 Source: "m_owners[free] == 0"
+                IndexAccess
+                   Type: uint256
+                   Source: "m_owners[free]"
+                  Identifier m_owners
+                     Type: uint256[256] storage ref
+                     Source: "m_owners"
+                  Identifier free
+                     Type: uint256
+                     Source: "free"
+                Literal, token: [no token] value: 0
+                   Type: int_const 0
+                   Source: "0"
+            Block
+               Source: "{\r\n\t\t\t\tm_owners[free] = m_owners[m_numOwners];\r\n\t\t\t\tm_ownerIndex[m_owners[free]] = free;\r\n\t\t\t\tm_owners[m_numOwners] = 0;\r\n\t\t\t}"
+              ExpressionStatement
+                 Gas costs: 20484
+                 Source: "m_owners[free] = m_owners[m_numOwners]"
+                Assignment using operator =
+                   Type: uint256
+                   Source: "m_owners[free] = m_owners[m_numOwners]"
+                  IndexAccess
+                     Type: uint256
+                     Source: "m_owners[free]"
+                    Identifier m_owners
+                       Type: uint256[256] storage ref
+                       Source: "m_owners"
+                    Identifier free
+                       Type: uint256
+                       Source: "free"
+                  IndexAccess
+                     Type: uint256
+                     Source: "m_owners[m_numOwners]"
+                    Identifier m_owners
+                       Type: uint256[256] storage ref
+                       Source: "m_owners"
+                    Identifier m_numOwners
+                       Type: uint256
+                       Source: "m_numOwners"
+              ExpressionStatement
+                 Gas costs: [???]
+                 Source: "m_ownerIndex[m_owners[free]] = free"
+                Assignment using operator =
+                   Type: uint256
+                   Source: "m_ownerIndex[m_owners[free]] = free"
+                  IndexAccess
+                     Type: uint256
+                     Source: "m_ownerIndex[m_owners[free]]"
+                    Identifier m_ownerIndex
+                       Type: mapping(uint256 => uint256)
+                       Source: "m_ownerIndex"
+                    IndexAccess
+                       Type: uint256
+                       Source: "m_owners[free]"
+                      Identifier m_owners
+                         Type: uint256[256] storage ref
+                         Source: "m_owners"
+                      Identifier free
+                         Type: uint256
+                         Source: "free"
+                  Identifier free
+                     Type: uint256
+                     Source: "free"
+              ExpressionStatement
+                 Gas costs: 20249
+                 Source: "m_owners[m_numOwners] = 0"
+                Assignment using operator =
+                   Type: uint256
+                   Source: "m_owners[m_numOwners] = 0"
+                  IndexAccess
+                     Type: uint256
+                     Source: "m_owners[m_numOwners]"
+                    Identifier m_owners
+                       Type: uint256[256] storage ref
+                       Source: "m_owners"
+                    Identifier m_numOwners
+                       Type: uint256
+                       Source: "m_numOwners"
+                  Literal, token: [no token] value: 0
+                     Type: int_const 0
+                     Source: "0"
+  FunctionDefinition "clearPending"
+     Source: "function clearPending() internal {\r\n\t\tuint length = m_pendingIndex.length;\r\n\t\tfor (uint i = 0; i < length; ++i)\r\n\t\t\tif (m_pendingIndex[i] != 0)\r\n\t\t\t\tdelete m_pending[m_pendingIndex[i]];\r\n\t\tdelete m_pendingIndex;\r\n\t}"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n\t\tuint length = m_pendingIndex.length;\r\n\t\tfor (uint i = 0; i < length; ++i)\r\n\t\t\tif (m_pendingIndex[i] != 0)\r\n\t\t\t\tdelete m_pending[m_pendingIndex[i]];\r\n\t\tdelete m_pendingIndex;\r\n\t}"
+      VariableDeclarationStatement
+         Gas costs: 219
+         Source: "uint length = m_pendingIndex.length"
+        VariableDeclaration "length"
+           Type: uint256
+           Source: "uint length"
+          ElementaryTypeName uint
+             Source: "uint"
+        MemberAccess to member length
+           Type: uint256
+           Source: "m_pendingIndex.length"
+          Identifier m_pendingIndex
+             Type: bytes32[] storage ref
+             Source: "m_pendingIndex"
+      ForStatement
+         Source: "for (uint i = 0; i < length; ++i)\r\n\t\t\tif (m_pendingIndex[i] != 0)\r\n\t\t\t\tdelete m_pending[m_pendingIndex[i]]"
+        VariableDeclarationStatement
+           Gas costs: 11
+           Source: "uint i = 0"
+          VariableDeclaration "i"
+             Type: uint256
+             Source: "uint i"
+            ElementaryTypeName uint
+               Source: "uint"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        BinaryOperation using operator <
+           Type: bool
+           Gas costs: 9
+           Source: "i < length"
+          Identifier i
+             Type: uint256
+             Source: "i"
+          Identifier length
+             Type: uint256
+             Source: "length"
+        ExpressionStatement
+           Gas costs: 14
+           Source: "++i"
+          UnaryOperation (prefix) ++
+             Type: uint256
+             Source: "++i"
+            Identifier i
+               Type: uint256
+               Source: "i"
+        IfStatement
+           Source: "if (m_pendingIndex[i] != 0)\r\n\t\t\t\tdelete m_pending[m_pendingIndex[i]]"
+          BinaryOperation using operator !=
+             Type: bool
+             Gas costs: 518
+             Source: "m_pendingIndex[i] != 0"
+            IndexAccess
+               Type: bytes32
+               Source: "m_pendingIndex[i]"
+              Identifier m_pendingIndex
+                 Type: bytes32[] storage ref
+                 Source: "m_pendingIndex"
+              Identifier i
+                 Type: uint256
+                 Source: "i"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "delete m_pending[m_pendingIndex[i]]"
+            UnaryOperation (prefix) delete
+               Type: tuple()
+               Source: "delete m_pending[m_pendingIndex[i]]"
+              IndexAccess
+                 Type: struct multiowned.PendingState storage ref
+                 Source: "m_pending[m_pendingIndex[i]]"
+                Identifier m_pending
+                   Type: mapping(bytes32 => struct multiowned.PendingState storage ref)
+                   Source: "m_pending"
+                IndexAccess
+                   Type: bytes32
+                   Source: "m_pendingIndex[i]"
+                  Identifier m_pendingIndex
+                     Type: bytes32[] storage ref
+                     Source: "m_pendingIndex"
+                  Identifier i
+                     Type: uint256
+                     Source: "i"
+      ExpressionStatement
+         Gas costs: 16
+         Source: "delete m_pendingIndex"
+        UnaryOperation (prefix) delete
+           Type: tuple()
+           Source: "delete m_pendingIndex"
+          Identifier m_pendingIndex
+             Type: bytes32[] storage ref
+             Source: "m_pendingIndex"
+  VariableDeclaration "m_required"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint public m_required"
+    ElementaryTypeName uint
+       Source: "uint"
+  VariableDeclaration "m_numOwners"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint public m_numOwners"
+    ElementaryTypeName uint
+       Source: "uint"
+  VariableDeclaration "m_owners"
+     Type: uint256[256] storage ref
+     Gas costs: 0
+     Source: "uint[256] m_owners"
+    ArrayTypeName
+       Source: "uint[256]"
+      ElementaryTypeName uint
+         Source: "uint"
+      Literal, token: [no token] value: 256
+         Type unknown.
+         Source: "256"
+  VariableDeclaration "c_maxOwners"
+     Type: uint256
+     Gas costs: 6
+     Source: "uint constant c_maxOwners = 250"
+    ElementaryTypeName uint
+       Source: "uint"
+    Literal, token: [no token] value: 250
+       Type: int_const 250
+       Source: "250"
+  VariableDeclaration "m_ownerIndex"
+     Type: mapping(uint256 => uint256)
+     Gas costs: 0
+     Source: "mapping(uint => uint) m_ownerIndex"
+    Mapping
+       Source: "mapping(uint => uint)"
+      ElementaryTypeName uint
+         Source: "uint"
+      ElementaryTypeName uint
+         Source: "uint"
+  VariableDeclaration "m_pending"
+     Type: mapping(bytes32 => struct multiowned.PendingState storage ref)
+     Gas costs: 0
+     Source: "mapping(bytes32 => PendingState) m_pending"
+    Mapping
+       Source: "mapping(bytes32 => PendingState)"
+      ElementaryTypeName bytes32
+         Source: "bytes32"
+      UserDefinedTypeName "PendingState"
+         Source: "PendingState"
+  VariableDeclaration "m_pendingIndex"
+     Type: bytes32[] storage ref
+     Gas costs: 0
+     Source: "bytes32[] m_pendingIndex"
+    ArrayTypeName
+       Source: "bytes32[]"
+      ElementaryTypeName bytes32
+         Source: "bytes32"
+ContractDefinition "daylimit"
+   Source: "contract daylimit is multiowned {\r\n\r\n\t// METHODS\r\n\r\n\t// constructor - stores initial daily limit and records the present day's index.\r\n\tfunction daylimit(uint _limit) {\r\n\t\tm_dailyLimit = _limit;\r\n\t\tm_lastDay = today();\r\n\t}\r\n\t// (re)sets the daily limit. needs many of the owners to confirm. doesn't alter the amount already spent today.\r\n\tfunction setDailyLimit(uint _newLimit) onlymanyowners(sha3(msg.data)) external {\r\n\t\tm_dailyLimit = _newLimit;\r\n\t}\r\n\t// resets the amount already spent today. needs many of the owners to confirm.\r\n\tfunction resetSpentToday() onlymanyowners(sha3(msg.data)) external {\r\n\t\tm_spentToday = 0;\r\n\t}\r\n\r\n\t// INTERNAL METHODS\r\n\r\n\t// checks to see if there is at least `_value` left from the daily limit today. if there is, subtracts it and\r\n\t// returns true. otherwise just returns false.\r\n\tfunction underLimit(uint _value) internal onlyowner returns (bool) {\r\n\t\t// reset the spend limit if we're on a different day to last time.\r\n\t\tif (today() > m_lastDay) {\r\n\t\t\tm_spentToday = 0;\r\n\t\t\tm_lastDay = today();\r\n\t\t}\r\n\t\t// check to see if there's enough left - if so, subtract and return true.\r\n\t\t// overflow protection                    // dailyLimit check\r\n\t\tif (m_spentToday + _value >= m_spentToday && m_spentToday + _value <= m_dailyLimit) {\r\n\t\t\tm_spentToday += _value;\r\n\t\t\treturn true;\r\n\t\t}\r\n\t\treturn false;\r\n\t}\r\n\t// determines today's index.\r\n\tfunction today() private constant returns (uint) { return now / 1 days; }\r\n\r\n\t// FIELDS\r\n\r\n\tuint public m_dailyLimit;\r\n\tuint public m_spentToday;\r\n\tuint public m_lastDay;\r\n}"
+  InheritanceSpecifier
+     Gas costs: 0
+     Source: "multiowned"
+    UserDefinedTypeName "multiowned"
+       Source: "multiowned"
+  FunctionDefinition "daylimit" - public
+     Source: "function daylimit(uint _limit) {\r\n\t\tm_dailyLimit = _limit;\r\n\t\tm_lastDay = today();\r\n\t}"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint _limit)"
+      VariableDeclaration "_limit"
+         Type: uint256
+         Source: "uint _limit"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n\t\tm_dailyLimit = _limit;\r\n\t\tm_lastDay = today();\r\n\t}"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "m_dailyLimit = _limit"
+        Assignment using operator =
+           Type: uint256
+           Source: "m_dailyLimit = _limit"
+          Identifier m_dailyLimit
+             Type: uint256
+             Source: "m_dailyLimit"
+          Identifier _limit
+             Type: uint256
+             Source: "_limit"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "m_lastDay = today()"
+        Assignment using operator =
+           Type: uint256
+           Source: "m_lastDay = today()"
+          Identifier m_lastDay
+             Type: uint256
+             Source: "m_lastDay"
+          FunctionCall
+             Type: uint256
+             Source: "today()"
+            Identifier today
+               Type: function () view returns (uint256)
+               Source: "today"
+  FunctionDefinition "setDailyLimit" - public
+     Source: "function setDailyLimit(uint _newLimit) onlymanyowners(sha3(msg.data)) external {\r\n\t\tm_dailyLimit = _newLimit;\r\n\t}"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint _newLimit)"
+      VariableDeclaration "_newLimit"
+         Type: uint256
+         Source: "uint _newLimit"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlymanyowners"
+       Gas costs: [???]
+       Source: "onlymanyowners(sha3(msg.data))"
+      Identifier onlymanyowners
+         Type: modifier (bytes32)
+         Source: "onlymanyowners"
+      FunctionCall
+         Type: bytes32
+         Source: "sha3(msg.data)"
+        Identifier sha3
+           Type: function () pure returns (bytes32)
+           Source: "sha3"
+        MemberAccess to member data
+           Type: bytes calldata
+           Source: "msg.data"
+          Identifier msg
+             Type: msg
+             Source: "msg"
+    Block
+       Source: "{\r\n\t\tm_dailyLimit = _newLimit;\r\n\t}"
+      ExpressionStatement
+         Gas costs: 20014
+         Source: "m_dailyLimit = _newLimit"
+        Assignment using operator =
+           Type: uint256
+           Source: "m_dailyLimit = _newLimit"
+          Identifier m_dailyLimit
+             Type: uint256
+             Source: "m_dailyLimit"
+          Identifier _newLimit
+             Type: uint256
+             Source: "_newLimit"
+  FunctionDefinition "resetSpentToday" - public
+     Source: "function resetSpentToday() onlymanyowners(sha3(msg.data)) external {\r\n\t\tm_spentToday = 0;\r\n\t}"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlymanyowners"
+       Gas costs: [???]
+       Source: "onlymanyowners(sha3(msg.data))"
+      Identifier onlymanyowners
+         Type: modifier (bytes32)
+         Source: "onlymanyowners"
+      FunctionCall
+         Type: bytes32
+         Source: "sha3(msg.data)"
+        Identifier sha3
+           Type: function () pure returns (bytes32)
+           Source: "sha3"
+        MemberAccess to member data
+           Type: bytes calldata
+           Source: "msg.data"
+          Identifier msg
+             Type: msg
+             Source: "msg"
+    Block
+       Source: "{\r\n\t\tm_spentToday = 0;\r\n\t}"
+      ExpressionStatement
+         Gas costs: 5014
+         Source: "m_spentToday = 0"
+        Assignment using operator =
+           Type: uint256
+           Source: "m_spentToday = 0"
+          Identifier m_spentToday
+             Type: uint256
+             Source: "m_spentToday"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+  FunctionDefinition "underLimit"
+     Source: "function underLimit(uint _value) internal onlyowner returns (bool) {\r\n\t\t// reset the spend limit if we're on a different day to last time.\r\n\t\tif (today() > m_lastDay) {\r\n\t\t\tm_spentToday = 0;\r\n\t\t\tm_lastDay = today();\r\n\t\t}\r\n\t\t// check to see if there's enough left - if so, subtract and return true.\r\n\t\t// overflow protection                    // dailyLimit check\r\n\t\tif (m_spentToday + _value >= m_spentToday && m_spentToday + _value <= m_dailyLimit) {\r\n\t\t\tm_spentToday += _value;\r\n\t\t\treturn true;\r\n\t\t}\r\n\t\treturn false;\r\n\t}"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint _value)"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint _value"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool)"
+      VariableDeclaration ""
+         Type: bool
+         Source: "bool"
+        ElementaryTypeName bool
+           Source: "bool"
+    ModifierInvocation "onlyowner"
+       Gas costs: 0
+       Source: "onlyowner"
+      Identifier onlyowner
+         Type: modifier ()
+         Source: "onlyowner"
+    Block
+       Source: "{\r\n\t\t// reset the spend limit if we're on a different day to last time.\r\n\t\tif (today() > m_lastDay) {\r\n\t\t\tm_spentToday = 0;\r\n\t\t\tm_lastDay = today();\r\n\t\t}\r\n\t\t// check to see if there's enough left - if so, subtract and return true.\r\n\t\t// overflow protection                    // dailyLimit check\r\n\t\tif (m_spentToday + _value >= m_spentToday && m_spentToday + _value <= m_dailyLimit) {\r\n\t\t\tm_spentToday += _value;\r\n\t\t\treturn true;\r\n\t\t}\r\n\t\treturn false;\r\n\t}"
+      IfStatement
+         Source: "if (today() > m_lastDay) {\r\n\t\t\tm_spentToday = 0;\r\n\t\t\tm_lastDay = today();\r\n\t\t}"
+        BinaryOperation using operator >
+           Type: bool
+           Gas costs: 210
+           Source: "today() > m_lastDay"
+          FunctionCall
+             Type: uint256
+             Source: "today()"
+            Identifier today
+               Type: function () view returns (uint256)
+               Source: "today"
+          Identifier m_lastDay
+             Type: uint256
+             Source: "m_lastDay"
+        Block
+           Source: "{\r\n\t\t\tm_spentToday = 0;\r\n\t\t\tm_lastDay = today();\r\n\t\t}"
+          ExpressionStatement
+             Gas costs: 5014
+             Source: "m_spentToday = 0"
+            Assignment using operator =
+               Type: uint256
+               Source: "m_spentToday = 0"
+              Identifier m_spentToday
+                 Type: uint256
+                 Source: "m_spentToday"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+          ExpressionStatement
+             Gas costs: 20026
+             Source: "m_lastDay = today()"
+            Assignment using operator =
+               Type: uint256
+               Source: "m_lastDay = today()"
+              Identifier m_lastDay
+                 Type: uint256
+                 Source: "m_lastDay"
+              FunctionCall
+                 Type: uint256
+                 Source: "today()"
+                Identifier today
+                   Type: function () view returns (uint256)
+                   Source: "today"
+      IfStatement
+         Source: "if (m_spentToday + _value >= m_spentToday && m_spentToday + _value <= m_dailyLimit) {\r\n\t\t\tm_spentToday += _value;\r\n\t\t\treturn true;\r\n\t\t}"
+        BinaryOperation using operator &&
+           Type: bool
+           Gas costs: 858
+           Source: "m_spentToday + _value >= m_spentToday && m_spentToday + _value <= m_dailyLimit"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "m_spentToday + _value >= m_spentToday"
+            BinaryOperation using operator +
+               Type: uint256
+               Source: "m_spentToday + _value"
+              Identifier m_spentToday
+                 Type: uint256
+                 Source: "m_spentToday"
+              Identifier _value
+                 Type: uint256
+                 Source: "_value"
+            Identifier m_spentToday
+               Type: uint256
+               Source: "m_spentToday"
+          BinaryOperation using operator <=
+             Type: bool
+             Source: "m_spentToday + _value <= m_dailyLimit"
+            BinaryOperation using operator +
+               Type: uint256
+               Source: "m_spentToday + _value"
+              Identifier m_spentToday
+                 Type: uint256
+                 Source: "m_spentToday"
+              Identifier _value
+                 Type: uint256
+                 Source: "_value"
+            Identifier m_dailyLimit
+               Type: uint256
+               Source: "m_dailyLimit"
+        Block
+           Source: "{\r\n\t\t\tm_spentToday += _value;\r\n\t\t\treturn true;\r\n\t\t}"
+          ExpressionStatement
+             Gas costs: 20233
+             Source: "m_spentToday += _value"
+            Assignment using operator +=
+               Type: uint256
+               Source: "m_spentToday += _value"
+              Identifier m_spentToday
+                 Type: uint256
+                 Source: "m_spentToday"
+              Identifier _value
+                 Type: uint256
+                 Source: "_value"
+          Return
+             Gas costs: 19
+             Source: "return true"
+            Literal, token: true value: true
+               Type: bool
+               Source: "true"
+      Return
+         Gas costs: 8
+         Source: "return false"
+        Literal, token: false value: false
+           Type: bool
+           Source: "false"
+  FunctionDefinition "today" - const
+     Source: "function today() private constant returns (uint) { return now / 1 days; }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint"
+        ElementaryTypeName uint
+           Source: "uint"
+    Block
+       Source: "{ return now / 1 days; }"
+      Return
+         Gas costs: 38
+         Source: "return now / 1 days"
+        BinaryOperation using operator /
+           Type: uint256
+           Source: "now / 1 days"
+          Identifier now
+             Type: uint256
+             Source: "now"
+          Literal, token: [no token] value: 1
+             Type: int_const 86400
+             Source: "1 days"
+  VariableDeclaration "m_dailyLimit"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint public m_dailyLimit"
+    ElementaryTypeName uint
+       Source: "uint"
+  VariableDeclaration "m_spentToday"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint public m_spentToday"
+    ElementaryTypeName uint
+       Source: "uint"
+  VariableDeclaration "m_lastDay"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint public m_lastDay"
+    ElementaryTypeName uint
+       Source: "uint"
+ContractDefinition "multisig"
+   Gas costs: 0
+   Source: "contract multisig {\r\n\r\n\t// EVENTS\r\n\r\n\t// logged events:\r\n\t// Funds has arrived into the wallet (record how much).\r\n\tevent Deposit(address _from, uint value);\r\n\t// Single transaction going out of the wallet (record who signed for it, how much, and to whom it's going).\r\n\tevent SingleTransact(address owner, uint value, address to, bytes data, address created);\r\n\t// Multi-sig transaction going out of the wallet (record who signed for it last, the operation hash, how much, and to whom it's going).\r\n\tevent MultiTransact(address owner, bytes32 operation, uint value, address to, bytes data, address created);\r\n\t// Confirmation still needed for a transaction.\r\n\tevent ConfirmationNeeded(bytes32 operation, address initiator, uint value, address to, bytes data);\r\n\r\n\t// FUNCTIONS\r\n\r\n\t// TODO: document\r\n\tfunction changeOwner(address _from, address _to) external;\r\n\tfunction execute(address _to, uint _value, bytes _data) external returns (bytes32 o_hash);\r\n\tfunction confirm(bytes32 _h) returns (bool o_success);\r\n}"
+  EventDefinition "Deposit"
+     Source: "event Deposit(address _from, uint value);"
+    ParameterList
+       Source: "(address _from, uint value)"
+      VariableDeclaration "_from"
+         Type: address
+         Source: "address _from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "value"
+         Type: uint256
+         Source: "uint value"
+        ElementaryTypeName uint
+           Source: "uint"
+  EventDefinition "SingleTransact"
+     Source: "event SingleTransact(address owner, uint value, address to, bytes data, address created);"
+    ParameterList
+       Source: "(address owner, uint value, address to, bytes data, address created)"
+      VariableDeclaration "owner"
+         Type: address
+         Source: "address owner"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "value"
+         Type: uint256
+         Source: "uint value"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "to"
+         Type: address
+         Source: "address to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "data"
+         Type: bytes memory
+         Source: "bytes data"
+        ElementaryTypeName bytes
+           Source: "bytes"
+      VariableDeclaration "created"
+         Type: address
+         Source: "address created"
+        ElementaryTypeName address
+           Source: "address"
+  EventDefinition "MultiTransact"
+     Source: "event MultiTransact(address owner, bytes32 operation, uint value, address to, bytes data, address created);"
+    ParameterList
+       Source: "(address owner, bytes32 operation, uint value, address to, bytes data, address created)"
+      VariableDeclaration "owner"
+         Type: address
+         Source: "address owner"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "operation"
+         Type: bytes32
+         Source: "bytes32 operation"
+        ElementaryTypeName bytes32
+           Source: "bytes32"
+      VariableDeclaration "value"
+         Type: uint256
+         Source: "uint value"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "to"
+         Type: address
+         Source: "address to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "data"
+         Type: bytes memory
+         Source: "bytes data"
+        ElementaryTypeName bytes
+           Source: "bytes"
+      VariableDeclaration "created"
+         Type: address
+         Source: "address created"
+        ElementaryTypeName address
+           Source: "address"
+  EventDefinition "ConfirmationNeeded"
+     Source: "event ConfirmationNeeded(bytes32 operation, address initiator, uint value, address to, bytes data);"
+    ParameterList
+       Source: "(bytes32 operation, address initiator, uint value, address to, bytes data)"
+      VariableDeclaration "operation"
+         Type: bytes32
+         Source: "bytes32 operation"
+        ElementaryTypeName bytes32
+           Source: "bytes32"
+      VariableDeclaration "initiator"
+         Type: address
+         Source: "address initiator"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "value"
+         Type: uint256
+         Source: "uint value"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "to"
+         Type: address
+         Source: "address to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "data"
+         Type: bytes memory
+         Source: "bytes data"
+        ElementaryTypeName bytes
+           Source: "bytes"
+  FunctionDefinition "changeOwner" - public
+     Source: "function changeOwner(address _from, address _to) external;"
+    ParameterList
+       Source: "(address _from, address _to)"
+      VariableDeclaration "_from"
+         Type: address
+         Source: "address _from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address _to"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Source: ""
+  FunctionDefinition "execute" - public
+     Source: "function execute(address _to, uint _value, bytes _data) external returns (bytes32 o_hash);"
+    ParameterList
+       Source: "(address _to, uint _value, bytes _data)"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint _value"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "_data"
+         Type: bytes calldata
+         Source: "bytes _data"
+        ElementaryTypeName bytes
+           Source: "bytes"
+    ParameterList
+       Source: "(bytes32 o_hash)"
+      VariableDeclaration "o_hash"
+         Type: bytes32
+         Source: "bytes32 o_hash"
+        ElementaryTypeName bytes32
+           Source: "bytes32"
+  FunctionDefinition "confirm" - public
+     Source: "function confirm(bytes32 _h) returns (bool o_success);"
+    ParameterList
+       Source: "(bytes32 _h)"
+      VariableDeclaration "_h"
+         Type: bytes32
+         Source: "bytes32 _h"
+        ElementaryTypeName bytes32
+           Source: "bytes32"
+    ParameterList
+       Source: "(bool o_success)"
+      VariableDeclaration "o_success"
+         Type: bool
+         Source: "bool o_success"
+        ElementaryTypeName bool
+           Source: "bool"
+ContractDefinition "creator"
+   Source: "contract creator {\r\n\tfunction doCreate(uint _value, bytes _code) internal returns (address o_addr) {\r\n\t\tbool failed;\r\n\t\tassembly {\r\n\t\t\to_addr := create(_value, add(_code, 0x20), mload(_code))\r\n\t\t\tfailed := iszero(extcodesize(o_addr))\r\n\t\t}\r\n\t\trequire(!failed);\r\n\t}\r\n}"
+  FunctionDefinition "doCreate"
+     Source: "function doCreate(uint _value, bytes _code) internal returns (address o_addr) {\r\n\t\tbool failed;\r\n\t\tassembly {\r\n\t\t\to_addr := create(_value, add(_code, 0x20), mload(_code))\r\n\t\t\tfailed := iszero(extcodesize(o_addr))\r\n\t\t}\r\n\t\trequire(!failed);\r\n\t}"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint _value, bytes _code)"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint _value"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "_code"
+         Type: bytes memory
+         Source: "bytes _code"
+        ElementaryTypeName bytes
+           Source: "bytes"
+    ParameterList
+       Gas costs: 3
+       Source: "(address o_addr)"
+      VariableDeclaration "o_addr"
+         Type: address
+         Source: "address o_addr"
+        ElementaryTypeName address
+           Source: "address"
+    Block
+       Source: "{\r\n\t\tbool failed;\r\n\t\tassembly {\r\n\t\t\to_addr := create(_value, add(_code, 0x20), mload(_code))\r\n\t\t\tfailed := iszero(extcodesize(o_addr))\r\n\t\t}\r\n\t\trequire(!failed);\r\n\t}"
+      VariableDeclarationStatement
+         Gas costs: 3
+         Source: "bool failed"
+        VariableDeclaration "failed"
+           Type: bool
+           Source: "bool failed"
+          ElementaryTypeName bool
+             Source: "bool"
+      InlineAssembly
+         Gas costs: 0
+         Source: "assembly {\r\n\t\t\to_addr := create(_value, add(_code, 0x20), mload(_code))\r\n\t\t\tfailed := iszero(extcodesize(o_addr))\r\n\t\t}\r\n\t\trequire"
+      ExpressionStatement
+         Gas costs: 32
+         Source: "require(!failed)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(!failed)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          UnaryOperation (prefix) !
+             Type: bool
+             Source: "!failed"
+            Identifier failed
+               Type: bool
+               Source: "failed"
+ContractDefinition "Wallet"
+   Source: "contract Wallet is multisig, multiowned, daylimit, creator {\r\n\r\n\t// TYPES\r\n\r\n\t// Transaction structure to remember details of transaction lest it need be saved for a later call.\r\n\tstruct Transaction {\r\n\t\taddress to;\r\n\t\tuint value;\r\n\t\tbytes data;\r\n\t}\r\n\r\n\t// METHODS\r\n\r\n\t// constructor - just pass on the owner array to the multiowned and\r\n\t// the limit to daylimit\r\n\tfunction Wallet(address[] _owners, uint _required, uint _daylimit)\r\n\t\t\tmultiowned(_owners, _required) daylimit(_daylimit) {\r\n\t}\r\n\r\n\t// kills the contract sending everything to `_to`.\r\n\tfunction kill(address _to) onlymanyowners(sha3(msg.data)) external {\r\n\t\tsuicide(_to);\r\n\t}\r\n\r\n\t// gets called when no other function matches\r\n\tfunction() payable {\r\n\t\t// just being sent some cash?\r\n\t\tif (msg.value > 0)\r\n\t\t\tDeposit(msg.sender, msg.value);\r\n\t}\r\n\r\n\t// Outside-visible transact entry point. Executes transaction immediately if below daily spend limit.\r\n\t// If not, goes into multisig process. We provide a hash on return to allow the sender to provide\r\n\t// shortcuts for the other confirmations (allowing them to avoid replicating the _to, _value\r\n\t// and _data arguments). They still get the option of using them if they want, anyways.\r\n\tfunction execute(address _to, uint _value, bytes _data) external onlyowner returns (bytes32 o_hash) {\r\n\t\t// first, take the opportunity to check that we're under the daily limit.\r\n\t\tif ((_data.length == 0 && underLimit(_value)) || m_required == 1) {\r\n\t\t\t// yes - just execute the call.\r\n\t\t\taddress created;\r\n\t\t\tif (_to == 0) {\r\n\t\t\t\tcreated = create(_value, _data);\r\n\t\t\t} else {\r\n\t\t\t\trequire(_to.call.value(_value)(_data));\r\n\t\t\t}\r\n\t\t\tSingleTransact(msg.sender, _value, _to, _data, created);\r\n\t\t} else {\r\n\t\t\t// determine our operation hash.\r\n\t\t\to_hash = sha3(msg.data, block.number);\r\n\t\t\t// store if it's new\r\n\t\t\tif (m_txs[o_hash].to == 0 && m_txs[o_hash].value == 0 && m_txs[o_hash].data.length == 0) {\r\n\t\t\t\tm_txs[o_hash].to = _to;\r\n\t\t\t\tm_txs[o_hash].value = _value;\r\n\t\t\t\tm_txs[o_hash].data = _data;\r\n\t\t\t}\r\n\t\t\tif (!confirm(o_hash)) {\r\n\t\t\t\tConfirmationNeeded(o_hash, msg.sender, _value, _to, _data);\r\n\t\t\t}\r\n\t\t}\r\n\t}\r\n\r\n\tfunction create(uint _value, bytes _code) internal returns (address o_addr) {\r\n\t\treturn doCreate(_value, _code);\r\n\t}\r\n\r\n\t// confirm a transaction through just the hash. we use the previous transactions map, m_txs, in order\r\n\t// to determine the body of the transaction from the hash provided.\r\n\tfunction confirm(bytes32 _h) onlymanyowners(_h) returns (bool o_success) {\r\n\t\tif (m_txs[_h].to != 0 || m_txs[_h].value != 0 || m_txs[_h].data.length != 0) {\r\n\t\t\taddress created;\r\n\t\t\tif (m_txs[_h].to == 0) {\r\n\t\t\t\tcreated = create(m_txs[_h].value, m_txs[_h].data);\r\n\t\t\t} else {\r\n\t\t\t\trequire(m_txs[_h].to.call.value(m_txs[_h].value)(m_txs[_h].data));\r\n\t\t\t}\r\n\r\n\t\t\tMultiTransact(msg.sender, _h, m_txs[_h].value, m_txs[_h].to, m_txs[_h].data, created);\r\n\t\t\tdelete m_txs[_h];\r\n\t\t\treturn true;\r\n\t\t}\r\n\t}\r\n\r\n\t// INTERNAL METHODS\r\n\r\n\tfunction clearPending() internal {\r\n\t\tuint length = m_pendingIndex.length;\r\n\t\tfor (uint i = 0; i < length; ++i)\r\n\t\t\tdelete m_txs[m_pendingIndex[i]];\r\n\t\tsuper.clearPending();\r\n\t}\r\n\r\n\t// FIELDS\r\n\r\n\t// pending transactions we have at present.\r\n\tmapping (bytes32 => Transaction) m_txs;\r\n}"
+  InheritanceSpecifier
+     Gas costs: 0
+     Source: "multisig"
+    UserDefinedTypeName "multisig"
+       Source: "multisig"
+  InheritanceSpecifier
+     Gas costs: 0
+     Source: "multiowned"
+    UserDefinedTypeName "multiowned"
+       Source: "multiowned"
+  InheritanceSpecifier
+     Gas costs: 0
+     Source: "daylimit"
+    UserDefinedTypeName "daylimit"
+       Source: "daylimit"
+  InheritanceSpecifier
+     Gas costs: 0
+     Source: "creator"
+    UserDefinedTypeName "creator"
+       Source: "creator"
+  StructDefinition "Transaction"
+     Gas costs: 0
+     Source: "struct Transaction {\r\n\t\taddress to;\r\n\t\tuint value;\r\n\t\tbytes data;\r\n\t}"
+    VariableDeclaration "to"
+       Type: address
+       Source: "address to"
+      ElementaryTypeName address
+         Source: "address"
+    VariableDeclaration "value"
+       Type: uint256
+       Source: "uint value"
+      ElementaryTypeName uint
+         Source: "uint"
+    VariableDeclaration "data"
+       Type: bytes storage pointer
+       Source: "bytes data"
+      ElementaryTypeName bytes
+         Source: "bytes"
+  FunctionDefinition "Wallet" - public
+     Source: "function Wallet(address[] _owners, uint _required, uint _daylimit)\r\n\t\t\tmultiowned(_owners, _required) daylimit(_daylimit) {\r\n\t}"
+    ParameterList
+       Gas costs: 0
+       Source: "(address[] _owners, uint _required, uint _daylimit)"
+      VariableDeclaration "_owners"
+         Type: address[] memory
+         Source: "address[] _owners"
+        ArrayTypeName
+           Source: "address[]"
+          ElementaryTypeName address
+             Source: "address"
+      VariableDeclaration "_required"
+         Type: uint256
+         Source: "uint _required"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "_daylimit"
+         Type: uint256
+         Source: "uint _daylimit"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "multiowned"
+       Gas costs: 0
+       Source: "multiowned(_owners, _required)"
+      Identifier multiowned
+         Type: type(contract multiowned)
+         Source: "multiowned"
+      Identifier _owners
+         Type: address[] memory
+         Source: "_owners"
+      Identifier _required
+         Type: uint256
+         Source: "_required"
+    ModifierInvocation "daylimit"
+       Gas costs: 0
+       Source: "daylimit(_daylimit)"
+      Identifier daylimit
+         Type: type(contract daylimit)
+         Source: "daylimit"
+      Identifier _daylimit
+         Type: uint256
+         Source: "_daylimit"
+    Block
+       Gas costs: 0
+       Source: "{\r\n\t}"
+  FunctionDefinition "kill" - public
+     Source: "function kill(address _to) onlymanyowners(sha3(msg.data)) external {\r\n\t\tsuicide(_to);\r\n\t}"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _to)"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address _to"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlymanyowners"
+       Gas costs: [???]
+       Source: "onlymanyowners(sha3(msg.data))"
+      Identifier onlymanyowners
+         Type: modifier (bytes32)
+         Source: "onlymanyowners"
+      FunctionCall
+         Type: bytes32
+         Source: "sha3(msg.data)"
+        Identifier sha3
+           Type: function () pure returns (bytes32)
+           Source: "sha3"
+        MemberAccess to member data
+           Type: bytes calldata
+           Source: "msg.data"
+          Identifier msg
+             Type: msg
+             Source: "msg"
+    Block
+       Source: "{\r\n\t\tsuicide(_to);\r\n\t}"
+      ExpressionStatement
+         Gas costs: 30009
+         Source: "suicide(_to)"
+        FunctionCall
+           Type: tuple()
+           Source: "suicide(_to)"
+          Identifier suicide
+             Type: function (address)
+             Source: "suicide"
+          Identifier _to
+             Type: address
+             Source: "_to"
+  FunctionDefinition "" - public
+     Source: "function() payable {\r\n\t\t// just being sent some cash?\r\n\t\tif (msg.value > 0)\r\n\t\t\tDeposit(msg.sender, msg.value);\r\n\t}"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n\t\t// just being sent some cash?\r\n\t\tif (msg.value > 0)\r\n\t\t\tDeposit(msg.sender, msg.value);\r\n\t}"
+      IfStatement
+         Source: "if (msg.value > 0)\r\n\t\t\tDeposit(msg.sender, msg.value)"
+        BinaryOperation using operator >
+           Type: bool
+           Gas costs: 8
+           Source: "msg.value > 0"
+          MemberAccess to member value
+             Type: uint256
+             Source: "msg.value"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        ExpressionStatement
+           Gas costs: [???]
+           Source: "Deposit(msg.sender, msg.value)"
+          FunctionCall
+             Type: tuple()
+             Source: "Deposit(msg.sender, msg.value)"
+            Identifier Deposit
+               Type: function (address,uint256)
+               Source: "Deposit"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            MemberAccess to member value
+               Type: uint256
+               Source: "msg.value"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+  FunctionDefinition "execute" - public
+     Source: "function execute(address _to, uint _value, bytes _data) external onlyowner returns (bytes32 o_hash) {\r\n\t\t// first, take the opportunity to check that we're under the daily limit.\r\n\t\tif ((_data.length == 0 && underLimit(_value)) || m_required == 1) {\r\n\t\t\t// yes - just execute the call.\r\n\t\t\taddress created;\r\n\t\t\tif (_to == 0) {\r\n\t\t\t\tcreated = create(_value, _data);\r\n\t\t\t} else {\r\n\t\t\t\trequire(_to.call.value(_value)(_data));\r\n\t\t\t}\r\n\t\t\tSingleTransact(msg.sender, _value, _to, _data, created);\r\n\t\t} else {\r\n\t\t\t// determine our operation hash.\r\n\t\t\to_hash = sha3(msg.data, block.number);\r\n\t\t\t// store if it's new\r\n\t\t\tif (m_txs[o_hash].to == 0 && m_txs[o_hash].value == 0 && m_txs[o_hash].data.length == 0) {\r\n\t\t\t\tm_txs[o_hash].to = _to;\r\n\t\t\t\tm_txs[o_hash].value = _value;\r\n\t\t\t\tm_txs[o_hash].data = _data;\r\n\t\t\t}\r\n\t\t\tif (!confirm(o_hash)) {\r\n\t\t\t\tConfirmationNeeded(o_hash, msg.sender, _value, _to, _data);\r\n\t\t\t}\r\n\t\t}\r\n\t}"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _to, uint _value, bytes _data)"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint _value"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "_data"
+         Type: bytes calldata
+         Source: "bytes _data"
+        ElementaryTypeName bytes
+           Source: "bytes"
+    ParameterList
+       Gas costs: 3
+       Source: "(bytes32 o_hash)"
+      VariableDeclaration "o_hash"
+         Type: bytes32
+         Source: "bytes32 o_hash"
+        ElementaryTypeName bytes32
+           Source: "bytes32"
+    ModifierInvocation "onlyowner"
+       Gas costs: 0
+       Source: "onlyowner"
+      Identifier onlyowner
+         Type: modifier ()
+         Source: "onlyowner"
+    Block
+       Source: "{\r\n\t\t// first, take the opportunity to check that we're under the daily limit.\r\n\t\tif ((_data.length == 0 && underLimit(_value)) || m_required == 1) {\r\n\t\t\t// yes - just execute the call.\r\n\t\t\taddress created;\r\n\t\t\tif (_to == 0) {\r\n\t\t\t\tcreated = create(_value, _data);\r\n\t\t\t} else {\r\n\t\t\t\trequire(_to.call.value(_value)(_data));\r\n\t\t\t}\r\n\t\t\tSingleTransact(msg.sender, _value, _to, _data, created);\r\n\t\t} else {\r\n\t\t\t// determine our operation hash.\r\n\t\t\to_hash = sha3(msg.data, block.number);\r\n\t\t\t// store if it's new\r\n\t\t\tif (m_txs[o_hash].to == 0 && m_txs[o_hash].value == 0 && m_txs[o_hash].data.length == 0) {\r\n\t\t\t\tm_txs[o_hash].to = _to;\r\n\t\t\t\tm_txs[o_hash].value = _value;\r\n\t\t\t\tm_txs[o_hash].data = _data;\r\n\t\t\t}\r\n\t\t\tif (!confirm(o_hash)) {\r\n\t\t\t\tConfirmationNeeded(o_hash, msg.sender, _value, _to, _data);\r\n\t\t\t}\r\n\t\t}\r\n\t}"
+      IfStatement
+         Source: "if ((_data.length == 0 && underLimit(_value)) || m_required == 1) {\r\n\t\t\t// yes - just execute the call.\r\n\t\t\taddress created;\r\n\t\t\tif (_to == 0) {\r\n\t\t\t\tcreated = create(_value, _data);\r\n\t\t\t} else {\r\n\t\t\t\trequire(_to.call.value(_value)(_data));\r\n\t\t\t}\r\n\t\t\tSingleTransact(msg.sender, _value, _to, _data, created);\r\n\t\t} else {\r\n\t\t\t// determine our operation hash.\r\n\t\t\to_hash = sha3(msg.data, block.number);\r\n\t\t\t// store if it's new\r\n\t\t\tif (m_txs[o_hash].to == 0 && m_txs[o_hash].value == 0 && m_txs[o_hash].data.length == 0) {\r\n\t\t\t\tm_txs[o_hash].to = _to;\r\n\t\t\t\tm_txs[o_hash].value = _value;\r\n\t\t\t\tm_txs[o_hash].data = _data;\r\n\t\t\t}\r\n\t\t\tif (!confirm(o_hash)) {\r\n\t\t\t\tConfirmationNeeded(o_hash, msg.sender, _value, _to, _data);\r\n\t\t\t}\r\n\t\t}"
+        BinaryOperation using operator ||
+           Type: bool
+           Gas costs: 274
+           Source: "(_data.length == 0 && underLimit(_value)) || m_required == 1"
+          TupleExpression
+             Type: bool
+             Source: "(_data.length == 0 && underLimit(_value))"
+            BinaryOperation using operator &&
+               Type: bool
+               Source: "_data.length == 0 && underLimit(_value)"
+              BinaryOperation using operator ==
+                 Type: bool
+                 Source: "_data.length == 0"
+                MemberAccess to member length
+                   Type: uint256
+                   Source: "_data.length"
+                  Identifier _data
+                     Type: bytes calldata
+                     Source: "_data"
+                Literal, token: [no token] value: 0
+                   Type: int_const 0
+                   Source: "0"
+              FunctionCall
+                 Type: bool
+                 Source: "underLimit(_value)"
+                Identifier underLimit
+                   Type: function (uint256) returns (bool)
+                   Source: "underLimit"
+                Identifier _value
+                   Type: uint256
+                   Source: "_value"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "m_required == 1"
+            Identifier m_required
+               Type: uint256
+               Source: "m_required"
+            Literal, token: [no token] value: 1
+               Type: int_const 1
+               Source: "1"
+        Block
+           Source: "{\r\n\t\t\t// yes - just execute the call.\r\n\t\t\taddress created;\r\n\t\t\tif (_to == 0) {\r\n\t\t\t\tcreated = create(_value, _data);\r\n\t\t\t} else {\r\n\t\t\t\trequire(_to.call.value(_value)(_data));\r\n\t\t\t}\r\n\t\t\tSingleTransact(msg.sender, _value, _to, _data, created);\r\n\t\t}"
+          VariableDeclarationStatement
+             Gas costs: 3
+             Source: "address created"
+            VariableDeclaration "created"
+               Type: address
+               Source: "address created"
+              ElementaryTypeName address
+                 Source: "address"
+          IfStatement
+             Source: "if (_to == 0) {\r\n\t\t\t\tcreated = create(_value, _data);\r\n\t\t\t} else {\r\n\t\t\t\trequire(_to.call.value(_value)(_data));\r\n\t\t\t}"
+            BinaryOperation using operator ==
+               Type: bool
+               Gas costs: 15
+               Source: "_to == 0"
+              Identifier _to
+                 Type: address
+                 Source: "_to"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+            Block
+               Source: "{\r\n\t\t\t\tcreated = create(_value, _data);\r\n\t\t\t}"
+              ExpressionStatement
+                 Gas costs: [???]
+                 Source: "created = create(_value, _data)"
+                Assignment using operator =
+                   Type: address
+                   Source: "created = create(_value, _data)"
+                  Identifier created
+                     Type: address
+                     Source: "created"
+                  FunctionCall
+                     Type: address
+                     Source: "create(_value, _data)"
+                    Identifier create
+                       Type: function (uint256,bytes memory) returns (address)
+                       Source: "create"
+                    Identifier _value
+                       Type: uint256
+                       Source: "_value"
+                    Identifier _data
+                       Type: bytes calldata
+                       Source: "_data"
+            Block
+               Source: "{\r\n\t\t\t\trequire(_to.call.value(_value)(_data));\r\n\t\t\t}"
+              ExpressionStatement
+                 Gas costs: [???]
+                 Source: "require(_to.call.value(_value)(_data))"
+                FunctionCall
+                   Type: tuple()
+                   Source: "require(_to.call.value(_value)(_data))"
+                  Identifier require
+                     Type: function (bool) pure
+                     Source: "require"
+                  FunctionCall
+                     Type: bool
+                     Source: "_to.call.value(_value)(_data)"
+                    FunctionCall
+                       Type: function () payable returns (bool)
+                       Source: "_to.call.value(_value)"
+                      MemberAccess to member value
+                         Type: function (uint256) returns (function () payable returns (bool))
+                         Source: "_to.call.value"
+                        MemberAccess to member call
+                           Type: function () payable returns (bool)
+                           Source: "_to.call"
+                          Identifier _to
+                             Type: address
+                             Source: "_to"
+                      Identifier _value
+                         Type: uint256
+                         Source: "_value"
+                    Identifier _data
+                       Type: bytes calldata
+                       Source: "_data"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "SingleTransact(msg.sender, _value, _to, _data, created)"
+            FunctionCall
+               Type: tuple()
+               Source: "SingleTransact(msg.sender, _value, _to, _data, created)"
+              Identifier SingleTransact
+                 Type: function (address,uint256,address,bytes memory,address)
+                 Source: "SingleTransact"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+              Identifier _value
+                 Type: uint256
+                 Source: "_value"
+              Identifier _to
+                 Type: address
+                 Source: "_to"
+              Identifier _data
+                 Type: bytes calldata
+                 Source: "_data"
+              Identifier created
+                 Type: address
+                 Source: "created"
+        Block
+           Source: "{\r\n\t\t\t// determine our operation hash.\r\n\t\t\to_hash = sha3(msg.data, block.number);\r\n\t\t\t// store if it's new\r\n\t\t\tif (m_txs[o_hash].to == 0 && m_txs[o_hash].value == 0 && m_txs[o_hash].data.length == 0) {\r\n\t\t\t\tm_txs[o_hash].to = _to;\r\n\t\t\t\tm_txs[o_hash].value = _value;\r\n\t\t\t\tm_txs[o_hash].data = _data;\r\n\t\t\t}\r\n\t\t\tif (!confirm(o_hash)) {\r\n\t\t\t\tConfirmationNeeded(o_hash, msg.sender, _value, _to, _data);\r\n\t\t\t}\r\n\t\t}"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "o_hash = sha3(msg.data, block.number)"
+            Assignment using operator =
+               Type: bytes32
+               Source: "o_hash = sha3(msg.data, block.number)"
+              Identifier o_hash
+                 Type: bytes32
+                 Source: "o_hash"
+              FunctionCall
+                 Type: bytes32
+                 Source: "sha3(msg.data, block.number)"
+                Identifier sha3
+                   Type: function () pure returns (bytes32)
+                   Source: "sha3"
+                MemberAccess to member data
+                   Type: bytes calldata
+                   Source: "msg.data"
+                  Identifier msg
+                     Type: msg
+                     Source: "msg"
+                MemberAccess to member number
+                   Type: uint256
+                   Source: "block.number"
+                  Identifier block
+                     Type: block
+                     Source: "block"
+          IfStatement
+             Source: "if (m_txs[o_hash].to == 0 && m_txs[o_hash].value == 0 && m_txs[o_hash].data.length == 0) {\r\n\t\t\t\tm_txs[o_hash].to = _to;\r\n\t\t\t\tm_txs[o_hash].value = _value;\r\n\t\t\t\tm_txs[o_hash].data = _data;\r\n\t\t\t}"
+            BinaryOperation using operator &&
+               Type: bool
+               Gas costs: 1079
+               Source: "m_txs[o_hash].to == 0 && m_txs[o_hash].value == 0 && m_txs[o_hash].data.length == 0"
+              BinaryOperation using operator &&
+                 Type: bool
+                 Source: "m_txs[o_hash].to == 0 && m_txs[o_hash].value == 0"
+                BinaryOperation using operator ==
+                   Type: bool
+                   Source: "m_txs[o_hash].to == 0"
+                  MemberAccess to member to
+                     Type: address
+                     Source: "m_txs[o_hash].to"
+                    IndexAccess
+                       Type: struct Wallet.Transaction storage ref
+                       Source: "m_txs[o_hash]"
+                      Identifier m_txs
+                         Type: mapping(bytes32 => struct Wallet.Transaction storage ref)
+                         Source: "m_txs"
+                      Identifier o_hash
+                         Type: bytes32
+                         Source: "o_hash"
+                  Literal, token: [no token] value: 0
+                     Type: int_const 0
+                     Source: "0"
+                BinaryOperation using operator ==
+                   Type: bool
+                   Source: "m_txs[o_hash].value == 0"
+                  MemberAccess to member value
+                     Type: uint256
+                     Source: "m_txs[o_hash].value"
+                    IndexAccess
+                       Type: struct Wallet.Transaction storage ref
+                       Source: "m_txs[o_hash]"
+                      Identifier m_txs
+                         Type: mapping(bytes32 => struct Wallet.Transaction storage ref)
+                         Source: "m_txs"
+                      Identifier o_hash
+                         Type: bytes32
+                         Source: "o_hash"
+                  Literal, token: [no token] value: 0
+                     Type: int_const 0
+                     Source: "0"
+              BinaryOperation using operator ==
+                 Type: bool
+                 Source: "m_txs[o_hash].data.length == 0"
+                MemberAccess to member length
+                   Type: uint256
+                   Source: "m_txs[o_hash].data.length"
+                  MemberAccess to member data
+                     Type: bytes storage ref
+                     Source: "m_txs[o_hash].data"
+                    IndexAccess
+                       Type: struct Wallet.Transaction storage ref
+                       Source: "m_txs[o_hash]"
+                      Identifier m_txs
+                         Type: mapping(bytes32 => struct Wallet.Transaction storage ref)
+                         Source: "m_txs"
+                      Identifier o_hash
+                         Type: bytes32
+                         Source: "o_hash"
+                Literal, token: [no token] value: 0
+                   Type: int_const 0
+                   Source: "0"
+            Block
+               Source: "{\r\n\t\t\t\tm_txs[o_hash].to = _to;\r\n\t\t\t\tm_txs[o_hash].value = _value;\r\n\t\t\t\tm_txs[o_hash].data = _data;\r\n\t\t\t}"
+              ExpressionStatement
+                 Gas costs: 20375
+                 Source: "m_txs[o_hash].to = _to"
+                Assignment using operator =
+                   Type: address
+                   Source: "m_txs[o_hash].to = _to"
+                  MemberAccess to member to
+                     Type: address
+                     Source: "m_txs[o_hash].to"
+                    IndexAccess
+                       Type: struct Wallet.Transaction storage ref
+                       Source: "m_txs[o_hash]"
+                      Identifier m_txs
+                         Type: mapping(bytes32 => struct Wallet.Transaction storage ref)
+                         Source: "m_txs"
+                      Identifier o_hash
+                         Type: bytes32
+                         Source: "o_hash"
+                  Identifier _to
+                     Type: address
+                     Source: "_to"
+              ExpressionStatement
+                 Gas costs: 20116
+                 Source: "m_txs[o_hash].value = _value"
+                Assignment using operator =
+                   Type: uint256
+                   Source: "m_txs[o_hash].value = _value"
+                  MemberAccess to member value
+                     Type: uint256
+                     Source: "m_txs[o_hash].value"
+                    IndexAccess
+                       Type: struct Wallet.Transaction storage ref
+                       Source: "m_txs[o_hash]"
+                      Identifier m_txs
+                         Type: mapping(bytes32 => struct Wallet.Transaction storage ref)
+                         Source: "m_txs"
+                      Identifier o_hash
+                         Type: bytes32
+                         Source: "o_hash"
+                  Identifier _value
+                     Type: uint256
+                     Source: "_value"
+              ExpressionStatement
+                 Gas costs: 132
+                 Source: "m_txs[o_hash].data = _data"
+                Assignment using operator =
+                   Type: bytes storage ref
+                   Source: "m_txs[o_hash].data = _data"
+                  MemberAccess to member data
+                     Type: bytes storage ref
+                     Source: "m_txs[o_hash].data"
+                    IndexAccess
+                       Type: struct Wallet.Transaction storage ref
+                       Source: "m_txs[o_hash]"
+                      Identifier m_txs
+                         Type: mapping(bytes32 => struct Wallet.Transaction storage ref)
+                         Source: "m_txs"
+                      Identifier o_hash
+                         Type: bytes32
+                         Source: "o_hash"
+                  Identifier _data
+                     Type: bytes calldata
+                     Source: "_data"
+          IfStatement
+             Source: "if (!confirm(o_hash)) {\r\n\t\t\t\tConfirmationNeeded(o_hash, msg.sender, _value, _to, _data);\r\n\t\t\t}"
+            UnaryOperation (prefix) !
+               Type: bool
+               Gas costs: 21
+               Source: "!confirm(o_hash)"
+              FunctionCall
+                 Type: bool
+                 Source: "confirm(o_hash)"
+                Identifier confirm
+                   Type: function (bytes32) returns (bool)
+                   Source: "confirm"
+                Identifier o_hash
+                   Type: bytes32
+                   Source: "o_hash"
+            Block
+               Source: "{\r\n\t\t\t\tConfirmationNeeded(o_hash, msg.sender, _value, _to, _data);\r\n\t\t\t}"
+              ExpressionStatement
+                 Gas costs: [???]
+                 Source: "ConfirmationNeeded(o_hash, msg.sender, _value, _to, _data)"
+                FunctionCall
+                   Type: tuple()
+                   Source: "ConfirmationNeeded(o_hash, msg.sender, _value, _to, _data)"
+                  Identifier ConfirmationNeeded
+                     Type: function (bytes32,address,uint256,address,bytes memory)
+                     Source: "ConfirmationNeeded"
+                  Identifier o_hash
+                     Type: bytes32
+                     Source: "o_hash"
+                  MemberAccess to member sender
+                     Type: address
+                     Source: "msg.sender"
+                    Identifier msg
+                       Type: msg
+                       Source: "msg"
+                  Identifier _value
+                     Type: uint256
+                     Source: "_value"
+                  Identifier _to
+                     Type: address
+                     Source: "_to"
+                  Identifier _data
+                     Type: bytes calldata
+                     Source: "_data"
+  FunctionDefinition "create"
+     Source: "function create(uint _value, bytes _code) internal returns (address o_addr) {\r\n\t\treturn doCreate(_value, _code);\r\n\t}"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint _value, bytes _code)"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint _value"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "_code"
+         Type: bytes memory
+         Source: "bytes _code"
+        ElementaryTypeName bytes
+           Source: "bytes"
+    ParameterList
+       Gas costs: 3
+       Source: "(address o_addr)"
+      VariableDeclaration "o_addr"
+         Type: address
+         Source: "address o_addr"
+        ElementaryTypeName address
+           Source: "address"
+    Block
+       Source: "{\r\n\t\treturn doCreate(_value, _code);\r\n\t}"
+      Return
+         Gas costs: 15
+         Source: "return doCreate(_value, _code)"
+        FunctionCall
+           Type: address
+           Source: "doCreate(_value, _code)"
+          Identifier doCreate
+             Type: function (uint256,bytes memory) returns (address)
+             Source: "doCreate"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+          Identifier _code
+             Type: bytes memory
+             Source: "_code"
+  FunctionDefinition "confirm" - public
+     Source: "function confirm(bytes32 _h) onlymanyowners(_h) returns (bool o_success) {\r\n\t\tif (m_txs[_h].to != 0 || m_txs[_h].value != 0 || m_txs[_h].data.length != 0) {\r\n\t\t\taddress created;\r\n\t\t\tif (m_txs[_h].to == 0) {\r\n\t\t\t\tcreated = create(m_txs[_h].value, m_txs[_h].data);\r\n\t\t\t} else {\r\n\t\t\t\trequire(m_txs[_h].to.call.value(m_txs[_h].value)(m_txs[_h].data));\r\n\t\t\t}\r\n\r\n\t\t\tMultiTransact(msg.sender, _h, m_txs[_h].value, m_txs[_h].to, m_txs[_h].data, created);\r\n\t\t\tdelete m_txs[_h];\r\n\t\t\treturn true;\r\n\t\t}\r\n\t}"
+    ParameterList
+       Gas costs: 0
+       Source: "(bytes32 _h)"
+      VariableDeclaration "_h"
+         Type: bytes32
+         Source: "bytes32 _h"
+        ElementaryTypeName bytes32
+           Source: "bytes32"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool o_success)"
+      VariableDeclaration "o_success"
+         Type: bool
+         Source: "bool o_success"
+        ElementaryTypeName bool
+           Source: "bool"
+    ModifierInvocation "onlymanyowners"
+       Gas costs: 3
+       Source: "onlymanyowners(_h)"
+      Identifier onlymanyowners
+         Type: modifier (bytes32)
+         Source: "onlymanyowners"
+      Identifier _h
+         Type: bytes32
+         Source: "_h"
+    Block
+       Source: "{\r\n\t\tif (m_txs[_h].to != 0 || m_txs[_h].value != 0 || m_txs[_h].data.length != 0) {\r\n\t\t\taddress created;\r\n\t\t\tif (m_txs[_h].to == 0) {\r\n\t\t\t\tcreated = create(m_txs[_h].value, m_txs[_h].data);\r\n\t\t\t} else {\r\n\t\t\t\trequire(m_txs[_h].to.call.value(m_txs[_h].value)(m_txs[_h].data));\r\n\t\t\t}\r\n\r\n\t\t\tMultiTransact(msg.sender, _h, m_txs[_h].value, m_txs[_h].to, m_txs[_h].data, created);\r\n\t\t\tdelete m_txs[_h];\r\n\t\t\treturn true;\r\n\t\t}\r\n\t}"
+      IfStatement
+         Source: "if (m_txs[_h].to != 0 || m_txs[_h].value != 0 || m_txs[_h].data.length != 0) {\r\n\t\t\taddress created;\r\n\t\t\tif (m_txs[_h].to == 0) {\r\n\t\t\t\tcreated = create(m_txs[_h].value, m_txs[_h].data);\r\n\t\t\t} else {\r\n\t\t\t\trequire(m_txs[_h].to.call.value(m_txs[_h].value)(m_txs[_h].data));\r\n\t\t\t}\r\n\r\n\t\t\tMultiTransact(msg.sender, _h, m_txs[_h].value, m_txs[_h].to, m_txs[_h].data, created);\r\n\t\t\tdelete m_txs[_h];\r\n\t\t\treturn true;\r\n\t\t}"
+        BinaryOperation using operator ||
+           Type: bool
+           Gas costs: 1088
+           Source: "m_txs[_h].to != 0 || m_txs[_h].value != 0 || m_txs[_h].data.length != 0"
+          BinaryOperation using operator ||
+             Type: bool
+             Source: "m_txs[_h].to != 0 || m_txs[_h].value != 0"
+            BinaryOperation using operator !=
+               Type: bool
+               Source: "m_txs[_h].to != 0"
+              MemberAccess to member to
+                 Type: address
+                 Source: "m_txs[_h].to"
+                IndexAccess
+                   Type: struct Wallet.Transaction storage ref
+                   Source: "m_txs[_h]"
+                  Identifier m_txs
+                     Type: mapping(bytes32 => struct Wallet.Transaction storage ref)
+                     Source: "m_txs"
+                  Identifier _h
+                     Type: bytes32
+                     Source: "_h"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+            BinaryOperation using operator !=
+               Type: bool
+               Source: "m_txs[_h].value != 0"
+              MemberAccess to member value
+                 Type: uint256
+                 Source: "m_txs[_h].value"
+                IndexAccess
+                   Type: struct Wallet.Transaction storage ref
+                   Source: "m_txs[_h]"
+                  Identifier m_txs
+                     Type: mapping(bytes32 => struct Wallet.Transaction storage ref)
+                     Source: "m_txs"
+                  Identifier _h
+                     Type: bytes32
+                     Source: "_h"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+          BinaryOperation using operator !=
+             Type: bool
+             Source: "m_txs[_h].data.length != 0"
+            MemberAccess to member length
+               Type: uint256
+               Source: "m_txs[_h].data.length"
+              MemberAccess to member data
+                 Type: bytes storage ref
+                 Source: "m_txs[_h].data"
+                IndexAccess
+                   Type: struct Wallet.Transaction storage ref
+                   Source: "m_txs[_h]"
+                  Identifier m_txs
+                     Type: mapping(bytes32 => struct Wallet.Transaction storage ref)
+                     Source: "m_txs"
+                  Identifier _h
+                     Type: bytes32
+                     Source: "_h"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+        Block
+           Source: "{\r\n\t\t\taddress created;\r\n\t\t\tif (m_txs[_h].to == 0) {\r\n\t\t\t\tcreated = create(m_txs[_h].value, m_txs[_h].data);\r\n\t\t\t} else {\r\n\t\t\t\trequire(m_txs[_h].to.call.value(m_txs[_h].value)(m_txs[_h].data));\r\n\t\t\t}\r\n\r\n\t\t\tMultiTransact(msg.sender, _h, m_txs[_h].value, m_txs[_h].to, m_txs[_h].data, created);\r\n\t\t\tdelete m_txs[_h];\r\n\t\t\treturn true;\r\n\t\t}"
+          VariableDeclarationStatement
+             Gas costs: 3
+             Source: "address created"
+            VariableDeclaration "created"
+               Type: address
+               Source: "address created"
+              ElementaryTypeName address
+                 Source: "address"
+          IfStatement
+             Source: "if (m_txs[_h].to == 0) {\r\n\t\t\t\tcreated = create(m_txs[_h].value, m_txs[_h].data);\r\n\t\t\t} else {\r\n\t\t\t\trequire(m_txs[_h].to.call.value(m_txs[_h].value)(m_txs[_h].data));\r\n\t\t\t}"
+            BinaryOperation using operator ==
+               Type: bool
+               Gas costs: 359
+               Source: "m_txs[_h].to == 0"
+              MemberAccess to member to
+                 Type: address
+                 Source: "m_txs[_h].to"
+                IndexAccess
+                   Type: struct Wallet.Transaction storage ref
+                   Source: "m_txs[_h]"
+                  Identifier m_txs
+                     Type: mapping(bytes32 => struct Wallet.Transaction storage ref)
+                     Source: "m_txs"
+                  Identifier _h
+                     Type: bytes32
+                     Source: "_h"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+            Block
+               Source: "{\r\n\t\t\t\tcreated = create(m_txs[_h].value, m_txs[_h].data);\r\n\t\t\t}"
+              ExpressionStatement
+                 Gas costs: [???]
+                 Source: "created = create(m_txs[_h].value, m_txs[_h].data)"
+                Assignment using operator =
+                   Type: address
+                   Source: "created = create(m_txs[_h].value, m_txs[_h].data)"
+                  Identifier created
+                     Type: address
+                     Source: "created"
+                  FunctionCall
+                     Type: address
+                     Source: "create(m_txs[_h].value, m_txs[_h].data)"
+                    Identifier create
+                       Type: function (uint256,bytes memory) returns (address)
+                       Source: "create"
+                    MemberAccess to member value
+                       Type: uint256
+                       Source: "m_txs[_h].value"
+                      IndexAccess
+                         Type: struct Wallet.Transaction storage ref
+                         Source: "m_txs[_h]"
+                        Identifier m_txs
+                           Type: mapping(bytes32 => struct Wallet.Transaction storage ref)
+                           Source: "m_txs"
+                        Identifier _h
+                           Type: bytes32
+                           Source: "_h"
+                    MemberAccess to member data
+                       Type: bytes storage ref
+                       Source: "m_txs[_h].data"
+                      IndexAccess
+                         Type: struct Wallet.Transaction storage ref
+                         Source: "m_txs[_h]"
+                        Identifier m_txs
+                           Type: mapping(bytes32 => struct Wallet.Transaction storage ref)
+                           Source: "m_txs"
+                        Identifier _h
+                           Type: bytes32
+                           Source: "_h"
+            Block
+               Source: "{\r\n\t\t\t\trequire(m_txs[_h].to.call.value(m_txs[_h].value)(m_txs[_h].data));\r\n\t\t\t}"
+              ExpressionStatement
+                 Gas costs: [???]
+                 Source: "require(m_txs[_h].to.call.value(m_txs[_h].value)(m_txs[_h].data))"
+                FunctionCall
+                   Type: tuple()
+                   Source: "require(m_txs[_h].to.call.value(m_txs[_h].value)(m_txs[_h].data))"
+                  Identifier require
+                     Type: function (bool) pure
+                     Source: "require"
+                  FunctionCall
+                     Type: bool
+                     Source: "m_txs[_h].to.call.value(m_txs[_h].value)(m_txs[_h].data)"
+                    FunctionCall
+                       Type: function () payable returns (bool)
+                       Source: "m_txs[_h].to.call.value(m_txs[_h].value)"
+                      MemberAccess to member value
+                         Type: function (uint256) returns (function () payable returns (bool))
+                         Source: "m_txs[_h].to.call.value"
+                        MemberAccess to member call
+                           Type: function () payable returns (bool)
+                           Source: "m_txs[_h].to.call"
+                          MemberAccess to member to
+                             Type: address
+                             Source: "m_txs[_h].to"
+                            IndexAccess
+                               Type: struct Wallet.Transaction storage ref
+                               Source: "m_txs[_h]"
+                              Identifier m_txs
+                                 Type: mapping(bytes32 => struct Wallet.Transaction storage ref)
+                                 Source: "m_txs"
+                              Identifier _h
+                                 Type: bytes32
+                                 Source: "_h"
+                      MemberAccess to member value
+                         Type: uint256
+                         Source: "m_txs[_h].value"
+                        IndexAccess
+                           Type: struct Wallet.Transaction storage ref
+                           Source: "m_txs[_h]"
+                          Identifier m_txs
+                             Type: mapping(bytes32 => struct Wallet.Transaction storage ref)
+                             Source: "m_txs"
+                          Identifier _h
+                             Type: bytes32
+                             Source: "_h"
+                    MemberAccess to member data
+                       Type: bytes storage ref
+                       Source: "m_txs[_h].data"
+                      IndexAccess
+                         Type: struct Wallet.Transaction storage ref
+                         Source: "m_txs[_h]"
+                        Identifier m_txs
+                           Type: mapping(bytes32 => struct Wallet.Transaction storage ref)
+                           Source: "m_txs"
+                        Identifier _h
+                           Type: bytes32
+                           Source: "_h"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "MultiTransact(msg.sender, _h, m_txs[_h].value, m_txs[_h].to, m_txs[_h].data, created)"
+            FunctionCall
+               Type: tuple()
+               Source: "MultiTransact(msg.sender, _h, m_txs[_h].value, m_txs[_h].to, m_txs[_h].data, created)"
+              Identifier MultiTransact
+                 Type: function (address,bytes32,uint256,address,bytes memory,address)
+                 Source: "MultiTransact"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+              Identifier _h
+                 Type: bytes32
+                 Source: "_h"
+              MemberAccess to member value
+                 Type: uint256
+                 Source: "m_txs[_h].value"
+                IndexAccess
+                   Type: struct Wallet.Transaction storage ref
+                   Source: "m_txs[_h]"
+                  Identifier m_txs
+                     Type: mapping(bytes32 => struct Wallet.Transaction storage ref)
+                     Source: "m_txs"
+                  Identifier _h
+                     Type: bytes32
+                     Source: "_h"
+              MemberAccess to member to
+                 Type: address
+                 Source: "m_txs[_h].to"
+                IndexAccess
+                   Type: struct Wallet.Transaction storage ref
+                   Source: "m_txs[_h]"
+                  Identifier m_txs
+                     Type: mapping(bytes32 => struct Wallet.Transaction storage ref)
+                     Source: "m_txs"
+                  Identifier _h
+                     Type: bytes32
+                     Source: "_h"
+              MemberAccess to member data
+                 Type: bytes storage ref
+                 Source: "m_txs[_h].data"
+                IndexAccess
+                   Type: struct Wallet.Transaction storage ref
+                   Source: "m_txs[_h]"
+                  Identifier m_txs
+                     Type: mapping(bytes32 => struct Wallet.Transaction storage ref)
+                     Source: "m_txs"
+                  Identifier _h
+                     Type: bytes32
+                     Source: "_h"
+              Identifier created
+                 Type: address
+                 Source: "created"
+          ExpressionStatement
+             Gas costs: 25391
+             Source: "delete m_txs[_h]"
+            UnaryOperation (prefix) delete
+               Type: tuple()
+               Source: "delete m_txs[_h]"
+              IndexAccess
+                 Type: struct Wallet.Transaction storage ref
+                 Source: "m_txs[_h]"
+                Identifier m_txs
+                   Type: mapping(bytes32 => struct Wallet.Transaction storage ref)
+                   Source: "m_txs"
+                Identifier _h
+                   Type: bytes32
+                   Source: "_h"
+          Return
+             Gas costs: 19
+             Source: "return true"
+            Literal, token: true value: true
+               Type: bool
+               Source: "true"
+  FunctionDefinition "clearPending"
+     Source: "function clearPending() internal {\r\n\t\tuint length = m_pendingIndex.length;\r\n\t\tfor (uint i = 0; i < length; ++i)\r\n\t\t\tdelete m_txs[m_pendingIndex[i]];\r\n\t\tsuper.clearPending();\r\n\t}"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n\t\tuint length = m_pendingIndex.length;\r\n\t\tfor (uint i = 0; i < length; ++i)\r\n\t\t\tdelete m_txs[m_pendingIndex[i]];\r\n\t\tsuper.clearPending();\r\n\t}"
+      VariableDeclarationStatement
+         Gas costs: 219
+         Source: "uint length = m_pendingIndex.length"
+        VariableDeclaration "length"
+           Type: uint256
+           Source: "uint length"
+          ElementaryTypeName uint
+             Source: "uint"
+        MemberAccess to member length
+           Type: uint256
+           Source: "m_pendingIndex.length"
+          Identifier m_pendingIndex
+             Type: bytes32[] storage ref
+             Source: "m_pendingIndex"
+      ForStatement
+         Source: "for (uint i = 0; i < length; ++i)\r\n\t\t\tdelete m_txs[m_pendingIndex[i]]"
+        VariableDeclarationStatement
+           Gas costs: 11
+           Source: "uint i = 0"
+          VariableDeclaration "i"
+             Type: uint256
+             Source: "uint i"
+            ElementaryTypeName uint
+               Source: "uint"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        BinaryOperation using operator <
+           Type: bool
+           Gas costs: 9
+           Source: "i < length"
+          Identifier i
+             Type: uint256
+             Source: "i"
+          Identifier length
+             Type: uint256
+             Source: "length"
+        ExpressionStatement
+           Gas costs: 14
+           Source: "++i"
+          UnaryOperation (prefix) ++
+             Type: uint256
+             Source: "++i"
+            Identifier i
+               Type: uint256
+               Source: "i"
+        ExpressionStatement
+           Gas costs: [???]
+           Source: "delete m_txs[m_pendingIndex[i]]"
+          UnaryOperation (prefix) delete
+             Type: tuple()
+             Source: "delete m_txs[m_pendingIndex[i]]"
+            IndexAccess
+               Type: struct Wallet.Transaction storage ref
+               Source: "m_txs[m_pendingIndex[i]]"
+              Identifier m_txs
+                 Type: mapping(bytes32 => struct Wallet.Transaction storage ref)
+                 Source: "m_txs"
+              IndexAccess
+                 Type: bytes32
+                 Source: "m_pendingIndex[i]"
+                Identifier m_pendingIndex
+                   Type: bytes32[] storage ref
+                   Source: "m_pendingIndex"
+                Identifier i
+                   Type: uint256
+                   Source: "i"
+      ExpressionStatement
+         Gas costs: 4
+         Source: "super.clearPending()"
+        FunctionCall
+           Type: tuple()
+           Source: "super.clearPending()"
+          MemberAccess to member clearPending
+             Type: function ()
+             Source: "super.clearPending"
+            Identifier super
+               Type: contract super Wallet
+               Source: "super"
+  VariableDeclaration "m_txs"
+     Type: mapping(bytes32 => struct Wallet.Transaction storage ref)
+     Gas costs: 0
+     Source: "mapping (bytes32 => Transaction) m_txs"
+    Mapping
+       Source: "mapping (bytes32 => Transaction)"
+      ElementaryTypeName bytes32
+         Source: "bytes32"
+      UserDefinedTypeName "Transaction"
+         Source: "Transaction"

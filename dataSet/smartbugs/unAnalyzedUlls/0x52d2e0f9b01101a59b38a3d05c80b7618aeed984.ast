@@ -1,0 +1,242 @@
+Syntax trees:
+
+
+======= /home/fabric/ArocRevision/Aroc/dataSet/smartbugs-21-7-13/unAnalyzedUlls/0x52d2e0f9b01101a59b38a3d05c80b7618aeed984.sol =======
+PragmaDirective
+   Gas costs: 0
+   Source: "pragma solidity ^0.4.19;"
+ContractDefinition "Token"
+   Gas costs: 0
+   Source: "contract Token {\r\n    function transfer(address _to, uint _value) returns (bool success);\r\n    function balanceOf(address _owner) constant returns (uint balance);\r\n}"
+  FunctionDefinition "transfer" - public
+     Source: "function transfer(address _to, uint _value) returns (bool success);"
+    ParameterList
+       Source: "(address _to, uint _value)"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint _value"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+  FunctionDefinition "balanceOf" - public - const
+     Source: "function balanceOf(address _owner) constant returns (uint balance);"
+    ParameterList
+       Source: "(address _owner)"
+      VariableDeclaration "_owner"
+         Type: address
+         Source: "address _owner"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Source: "(uint balance)"
+      VariableDeclaration "balance"
+         Type: uint256
+         Source: "uint balance"
+        ElementaryTypeName uint
+           Source: "uint"
+ContractDefinition "EtherGet"
+   Source: "contract EtherGet {\r\n    address owner;\r\n    function EtherGet() {\r\n        owner = msg.sender;\r\n    }\r\n    function withdrawTokens(address tokenContract) public {\r\n        Token tc = Token(tokenContract);\r\n        tc.transfer(owner, tc.balanceOf(this));\r\n    }\r\n    function withdrawEther() public {\r\n        owner.transfer(this.balance);\r\n    }\r\n    function getTokens(uint num, address addr) public {\r\n        for(uint i = 0; i < num; i++){\r\n            // <yes> <report> UNCHECKED_LL_CALLS\r\n            addr.call.value(0 wei)();\r\n        }\r\n    }\r\n}"
+  VariableDeclaration "owner"
+     Type: address
+     Gas costs: 0
+     Source: "address owner"
+    ElementaryTypeName address
+       Source: "address"
+  FunctionDefinition "EtherGet" - public
+     Source: "function EtherGet() {\r\n        owner = msg.sender;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        owner = msg.sender;\r\n    }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "owner = msg.sender"
+        Assignment using operator =
+           Type: address
+           Source: "owner = msg.sender"
+          Identifier owner
+             Type: address
+             Source: "owner"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+  FunctionDefinition "withdrawTokens" - public
+     Source: "function withdrawTokens(address tokenContract) public {\r\n        Token tc = Token(tokenContract);\r\n        tc.transfer(owner, tc.balanceOf(this));\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address tokenContract)"
+      VariableDeclaration "tokenContract"
+         Type: address
+         Source: "address tokenContract"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        Token tc = Token(tokenContract);\r\n        tc.transfer(owner, tc.balanceOf(this));\r\n    }"
+      VariableDeclarationStatement
+         Gas costs: 11
+         Source: "Token tc = Token(tokenContract)"
+        VariableDeclaration "tc"
+           Type: contract Token
+           Source: "Token tc"
+          UserDefinedTypeName "Token"
+             Source: "Token"
+        FunctionCall
+           Type: contract Token
+           Source: "Token(tokenContract)"
+          Identifier Token
+             Type: type(contract Token)
+             Source: "Token"
+          Identifier tokenContract
+             Type: address
+             Source: "tokenContract"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "tc.transfer(owner, tc.balanceOf(this))"
+        FunctionCall
+           Type: bool
+           Source: "tc.transfer(owner, tc.balanceOf(this))"
+          MemberAccess to member transfer
+             Type: function (address,uint256) external returns (bool)
+             Source: "tc.transfer"
+            Identifier tc
+               Type: contract Token
+               Source: "tc"
+          Identifier owner
+             Type: address
+             Source: "owner"
+          FunctionCall
+             Type: uint256
+             Source: "tc.balanceOf(this)"
+            MemberAccess to member balanceOf
+               Type: function (address) view external returns (uint256)
+               Source: "tc.balanceOf"
+              Identifier tc
+                 Type: contract Token
+                 Source: "tc"
+            Identifier this
+               Type: contract EtherGet
+               Source: "this"
+  FunctionDefinition "withdrawEther" - public
+     Source: "function withdrawEther() public {\r\n        owner.transfer(this.balance);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        owner.transfer(this.balance);\r\n    }"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "owner.transfer(this.balance)"
+        FunctionCall
+           Type: tuple()
+           Source: "owner.transfer(this.balance)"
+          MemberAccess to member transfer
+             Type: function (uint256)
+             Source: "owner.transfer"
+            Identifier owner
+               Type: address
+               Source: "owner"
+          MemberAccess to member balance
+             Type: uint256
+             Source: "this.balance"
+            Identifier this
+               Type: contract EtherGet
+               Source: "this"
+  FunctionDefinition "getTokens" - public
+     Source: "function getTokens(uint num, address addr) public {\r\n        for(uint i = 0; i < num; i++){\r\n            // <yes> <report> UNCHECKED_LL_CALLS\r\n            addr.call.value(0 wei)();\r\n        }\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint num, address addr)"
+      VariableDeclaration "num"
+         Type: uint256
+         Source: "uint num"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "addr"
+         Type: address
+         Source: "address addr"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        for(uint i = 0; i < num; i++){\r\n            // <yes> <report> UNCHECKED_LL_CALLS\r\n            addr.call.value(0 wei)();\r\n        }\r\n    }"
+      ForStatement
+         Source: "for(uint i = 0; i < num; i++){\r\n            // <yes> <report> UNCHECKED_LL_CALLS\r\n            addr.call.value(0 wei)();\r\n        }"
+        VariableDeclarationStatement
+           Gas costs: 11
+           Source: "uint i = 0"
+          VariableDeclaration "i"
+             Type: uint256
+             Source: "uint i"
+            ElementaryTypeName uint
+               Source: "uint"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        BinaryOperation using operator <
+           Type: bool
+           Gas costs: 9
+           Source: "i < num"
+          Identifier i
+             Type: uint256
+             Source: "i"
+          Identifier num
+             Type: uint256
+             Source: "num"
+        ExpressionStatement
+           Gas costs: 19
+           Source: "i++"
+          UnaryOperation (postfix) ++
+             Type: uint256
+             Source: "i++"
+            Identifier i
+               Type: uint256
+               Source: "i"
+        Block
+           Source: "{\r\n            // <yes> <report> UNCHECKED_LL_CALLS\r\n            addr.call.value(0 wei)();\r\n        }"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "addr.call.value(0 wei)()"
+            FunctionCall
+               Type: bool
+               Source: "addr.call.value(0 wei)()"
+              FunctionCall
+                 Type: function () payable returns (bool)
+                 Source: "addr.call.value(0 wei)"
+                MemberAccess to member value
+                   Type: function (uint256) returns (function () payable returns (bool))
+                   Source: "addr.call.value"
+                  MemberAccess to member call
+                     Type: function () payable returns (bool)
+                     Source: "addr.call"
+                    Identifier addr
+                       Type: address
+                       Source: "addr"
+                Literal, token: [no token] value: 0
+                   Type: int_const 0
+                   Source: "0 wei"

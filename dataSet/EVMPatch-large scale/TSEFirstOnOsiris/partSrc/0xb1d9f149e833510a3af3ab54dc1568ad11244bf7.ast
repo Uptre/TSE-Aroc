@@ -1,0 +1,3114 @@
+Syntax trees:
+
+
+======= /home/fabric/ArocRevision/Aroc/osirisData/contractSrc/0xb1d9f149e833510a3af3ab54dc1568ad11244bf7.sol =======
+PragmaDirective
+   Gas costs: 0
+   Source: "pragma solidity ^ 0.4 .8;"
+ContractDefinition "ERC20"
+   Gas costs: 0
+   Source: "contract ERC20 {\r\n\r\n    function totalSupply() constant returns(uint total_Supply);\r\n\r\n    function balanceOf(address who) constant returns(uint256);\r\n\r\n    function allowance(address owner, address spender) constant returns(uint);\r\n\r\n    function transferFrom(address from, address to, uint value) returns(bool ok);\r\n\r\n    function approve(address spender, uint value) returns(bool ok);\r\n\r\n    function transfer(address to, uint value) returns(bool ok);\r\n\r\n    event Transfer(address indexed from, address indexed to, uint value);\r\n\r\n    event Approval(address indexed owner, address indexed spender, uint value);\r\n\r\n}"
+  FunctionDefinition "totalSupply" - public - const
+     Source: "function totalSupply() constant returns(uint total_Supply);"
+    ParameterList
+       Source: "()"
+    ParameterList
+       Source: "(uint total_Supply)"
+      VariableDeclaration "total_Supply"
+         Type: uint256
+         Source: "uint total_Supply"
+        ElementaryTypeName uint
+           Source: "uint"
+  FunctionDefinition "balanceOf" - public - const
+     Source: "function balanceOf(address who) constant returns(uint256);"
+    ParameterList
+       Source: "(address who)"
+      VariableDeclaration "who"
+         Type: address
+         Source: "address who"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Source: "(uint256)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint256"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  FunctionDefinition "allowance" - public - const
+     Source: "function allowance(address owner, address spender) constant returns(uint);"
+    ParameterList
+       Source: "(address owner, address spender)"
+      VariableDeclaration "owner"
+         Type: address
+         Source: "address owner"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "spender"
+         Type: address
+         Source: "address spender"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Source: "(uint)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint"
+        ElementaryTypeName uint
+           Source: "uint"
+  FunctionDefinition "transferFrom" - public
+     Source: "function transferFrom(address from, address to, uint value) returns(bool ok);"
+    ParameterList
+       Source: "(address from, address to, uint value)"
+      VariableDeclaration "from"
+         Type: address
+         Source: "address from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "to"
+         Type: address
+         Source: "address to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "value"
+         Type: uint256
+         Source: "uint value"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Source: "(bool ok)"
+      VariableDeclaration "ok"
+         Type: bool
+         Source: "bool ok"
+        ElementaryTypeName bool
+           Source: "bool"
+  FunctionDefinition "approve" - public
+     Source: "function approve(address spender, uint value) returns(bool ok);"
+    ParameterList
+       Source: "(address spender, uint value)"
+      VariableDeclaration "spender"
+         Type: address
+         Source: "address spender"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "value"
+         Type: uint256
+         Source: "uint value"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Source: "(bool ok)"
+      VariableDeclaration "ok"
+         Type: bool
+         Source: "bool ok"
+        ElementaryTypeName bool
+           Source: "bool"
+  FunctionDefinition "transfer" - public
+     Source: "function transfer(address to, uint value) returns(bool ok);"
+    ParameterList
+       Source: "(address to, uint value)"
+      VariableDeclaration "to"
+         Type: address
+         Source: "address to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "value"
+         Type: uint256
+         Source: "uint value"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Source: "(bool ok)"
+      VariableDeclaration "ok"
+         Type: bool
+         Source: "bool ok"
+        ElementaryTypeName bool
+           Source: "bool"
+  EventDefinition "Transfer"
+     Source: "event Transfer(address indexed from, address indexed to, uint value);"
+    ParameterList
+       Source: "(address indexed from, address indexed to, uint value)"
+      VariableDeclaration "from"
+         Type: address
+         Source: "address indexed from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "to"
+         Type: address
+         Source: "address indexed to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "value"
+         Type: uint256
+         Source: "uint value"
+        ElementaryTypeName uint
+           Source: "uint"
+  EventDefinition "Approval"
+     Source: "event Approval(address indexed owner, address indexed spender, uint value);"
+    ParameterList
+       Source: "(address indexed owner, address indexed spender, uint value)"
+      VariableDeclaration "owner"
+         Type: address
+         Source: "address indexed owner"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "spender"
+         Type: address
+         Source: "address indexed spender"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "value"
+         Type: uint256
+         Source: "uint value"
+        ElementaryTypeName uint
+           Source: "uint"
+ContractDefinition "blockoptions"
+   Source: "contract blockoptions is ERC20\r\n\r\n{\r\n\r\n       /* Public variables of the token */\r\n      //To store name for token\r\n      string public name = \"blockoptions\";\r\n    \r\n      //To store symbol for token       \r\n      string public symbol = \"BOP\";\r\n    \r\n      //To store decimal places for token\r\n      uint8 public decimals = 8;    \r\n    \r\n      //To store current supply of BOP\r\n      uint public _totalSupply=20000000 * 10**decimals;\r\n      \r\n       uint pre_ico_start;\r\n       uint pre_ico_end;\r\n       uint ico_start;\r\n       uint ico_end;\r\n       mapping(uint => address) investor;\r\n       mapping(uint => uint) weireceived;\r\n       mapping(uint => uint) optsSent;\r\n      \r\n        event preico(uint counter,address investors,uint weiReceived,uint bopsent);\r\n        event ico(uint counter,address investors,uint weiReceived,uint bopsent);\r\n        uint counter=0;\r\n        uint profit_sent=0;\r\n        bool stopped = false;\r\n        \r\n      function blockoptions() payable{\r\n          owner = msg.sender;\r\n          balances[owner] = _totalSupply ; //to handle 8 decimal places\r\n          pre_ico_start = now;\r\n          pre_ico_end = pre_ico_start + 7 days;\r\n          \r\n        }\r\n      //map to store BOPT balance corresponding to address\r\n      mapping(address => uint) balances;\r\n    \r\n      //To store spender with allowed amount of BOPT to spend corresponding to BOPTs holder's account\r\n      mapping (address => mapping (address => uint)) allowed;\r\n    \r\n      //owner variable to store contract owner account\r\n      address public owner;\r\n      \r\n      //modifier to check transaction initiator is only owner\r\n       modifier onlyOwner() {\r\n        if (msg.sender != owner) \r\n        {\r\n            revert();\r\n        }\r\n        _;\r\n    }\r\n    \r\n      //ownership can be transferred to provided newOwner. Function can only be initiated by contract owner's account\r\n      function transferOwnership(address newOwner) onlyOwner {\r\n          balances[newOwner] = balances[owner];\r\n          balances[owner]=0;\r\n          owner = newOwner;\r\n      }\r\n\r\n        /**\r\n        * Multiplication with safety check\r\n        */\r\n        function Mul(uint a, uint b) internal returns (uint) {\r\n          uint c = a * b;\r\n          //check result should not be other wise until a=0\r\n          assert(a == 0 || c / a == b);\r\n          return c;\r\n        }\r\n    \r\n        /**\r\n        * Division with safety check\r\n        */\r\n        function Div(uint a, uint b) internal returns (uint) {\r\n          //overflow check; b must not be 0\r\n          assert(b > 0);\r\n          uint c = a / b;\r\n          assert(a == b * c + a % b);\r\n          return c;\r\n        }\r\n    \r\n        /**\r\n        * Subtraction with safety check\r\n        */\r\n        function Sub(uint a, uint b) internal returns (uint) {\r\n          //b must be greater that a as we need to store value in unsigned integer\r\n          assert(b <= a);\r\n          return a - b;\r\n        }\r\n    \r\n        /**\r\n        * Addition with safety check\r\n        */\r\n        function Add(uint a, uint b) internal returns (uint) {\r\n          uint c = a + b;\r\n          //result must be greater as a or b can not be negative\r\n          assert(c>=a && c>=b);\r\n          return c;\r\n        }\r\n    \r\n      /**\r\n        * assert used in different Math functions\r\n        */\r\n        function assert(bool assertion) internal {\r\n          if (!assertion) {\r\n            throw;\r\n          }\r\n        }\r\n    \r\n    //Implementation for transferring BOP to provided address \r\n      function transfer(address _to, uint _value) returns (bool){\r\n\r\n        uint check = balances[owner] - _value;\r\n        if(msg.sender == owner && now>=pre_ico_start && now<=pre_ico_end && check < 1900000000000000)\r\n        {\r\n            return false;\r\n        }\r\n        else if(msg.sender ==owner && now>=pre_ico_end && now<=(pre_ico_end + 16 days) && check < 1850000000000000)\r\n        {\r\n            return false;\r\n        }\r\n        else if(msg.sender == owner && check < 130000000000000 && now < ico_start + 180 days)\r\n        {\r\n            return false;\r\n        }\r\n        else if (msg.sender == owner && check < 97500000000000 && now < ico_start + 360 days)\r\n        {\r\n            return false;\r\n        }\r\n        else if (msg.sender == owner && check < 43000000000000 && now < ico_start + 540 days)\r\n        {\r\n            return false;\r\n        }\r\n        //Check provided BOP should not be 0\r\n       else if (_value > 0) {\r\n          //deduct BOP amount from transaction initiator\r\n          balances[msg.sender] = Sub(balances[msg.sender],_value);\r\n          //Add BOP to balace of target account\r\n          balances[_to] = Add(balances[_to],_value);\r\n          //Emit event for transferring BOP\r\n          Transfer(msg.sender, _to, _value);\r\n          return true;\r\n        }\r\n        else{\r\n          return false;\r\n        }\r\n      }\r\n      \r\n      //Transfer initiated by spender \r\n      function transferFrom(address _from, address _to, uint _value) returns (bool) {\r\n    \r\n        //Check provided BOP should not be 0\r\n        if (_value > 0) {\r\n          //Get amount of BOP for which spender is authorized\r\n          var _allowance = allowed[_from][msg.sender];\r\n          //Add amount of BOP in target account's balance\r\n          balances[_to] = Add(balances[_to], _value);\r\n          //Deduct BOPT amount from _from account\r\n          balances[_from] = Sub(balances[_from], _value);\r\n          //Deduct Authorized amount for spender\r\n          allowed[_from][msg.sender] = Sub(_allowance, _value);\r\n          //Emit event for Transfer\r\n          Transfer(_from, _to, _value);\r\n          return true;\r\n        }else{\r\n          return false;\r\n        }\r\n      }\r\n      \r\n      //Get BOP balance for provided address\r\n      function balanceOf(address _owner) constant returns (uint balance) {\r\n        return balances[_owner];\r\n      }\r\n      \r\n      //Add spender to authorize for spending specified amount of BOP \r\n      function approve(address _spender, uint _value) returns (bool) {\r\n        allowed[msg.sender][_spender] = _value;\r\n        //Emit event for approval provided to spender\r\n        Approval(msg.sender, _spender, _value);\r\n        return true;\r\n      }\r\n      \r\n      //Get BOP amount that spender can spend from provided owner's account \r\n      function allowance(address _owner, address _spender) constant returns (uint remaining) {\r\n        return allowed[_owner][_spender];\r\n      }\r\n      \r\n       /*\t\r\n       * Failsafe drain\r\n       */\r\n    \tfunction drain() onlyOwner {\r\n    \t\towner.send(this.balance);\r\n    \t}\r\n\t\r\n    \tfunction() payable \r\n    \t{   \r\n    \t    if(stopped && msg.sender != owner)\r\n    \t    revert();\r\n    \t     else if(msg.sender == owner)\r\n    \t    {\r\n    \t        profit_sent = msg.value;\r\n    \t    }\r\n    \t   else if(now>=pre_ico_start && now<=pre_ico_end)\r\n    \t    {\r\n    \t        uint check = balances[owner]-((400*msg.value)/10000000000);\r\n    \t        if(check >= 1900000000000000)\r\n                pre_ico(msg.sender,msg.value);\r\n    \t    }\r\n            else if (now>=ico_start && now<ico_end)\r\n            {\r\n                main_ico(msg.sender,msg.value);\r\n            }\r\n            \r\n        }\r\n       \r\n       function pre_ico(address sender, uint value)private\r\n       {\r\n          counter = counter+1;\r\n\t      investor[counter]=sender;\r\n          weireceived[counter]=value;\r\n          optsSent[counter] = (400*value)/10000000000;\r\n          balances[owner]=balances[owner]-optsSent[counter];\r\n          balances[investor[counter]]+=optsSent[counter];\r\n          preico(counter,investor[counter],weireceived[counter],optsSent[counter]);\r\n       }\r\n       \r\n       function  main_ico(address sender, uint value)private\r\n       {\r\n           if(now >= ico_start && now <= (ico_start + 7 days)) //20% discount on BOPT\r\n           {\r\n              counter = counter+1;\r\n    \t      investor[counter]=sender;\r\n              weireceived[counter]=value;\r\n              optsSent[counter] = (250*value)/10000000000;\r\n              balances[owner]=balances[owner]-optsSent[counter];\r\n              balances[investor[counter]]+=optsSent[counter];\r\n              ico(counter,investor[counter],weireceived[counter],optsSent[counter]);\r\n           }\r\n           else if (now >= (ico_start + 7 days) && now <= (ico_start + 14 days)) //10% discount on BOPT\r\n           {\r\n              counter = counter+1;\r\n    \t      investor[counter]=sender;\r\n              weireceived[counter]=value;\r\n              optsSent[counter] = (220*value)/10000000000;\r\n              balances[owner]=balances[owner]-optsSent[counter];\r\n              balances[investor[counter]]+=optsSent[counter];\r\n              ico(counter,investor[counter],weireceived[counter],optsSent[counter]);\r\n           }\r\n           else if (now >= (ico_start + 14 days) && now <= (ico_start + 31 days)) //no discount on BOPT\r\n           {\r\n              counter = counter+1;\r\n    \t      investor[counter]=sender;\r\n              weireceived[counter]=value;\r\n              optsSent[counter] = (200*value)/10000000000;\r\n              balances[owner]=balances[owner]-optsSent[counter];\r\n              balances[investor[counter]]+=optsSent[counter];\r\n              ico(counter,investor[counter],weireceived[counter],optsSent[counter]);\r\n           }\r\n       }\r\n       \r\n       function startICO()onlyOwner\r\n       {\r\n           ico_start = now;\r\n           ico_end=ico_start + 31 days;\r\n           pre_ico_start = 0;\r\n           pre_ico_end = 0;\r\n           \r\n       }\r\n       \r\n        function totalSupply() constant returns(uint256 totalSupply) \r\n        {\r\n        totalSupply = _totalSupply;\r\n        }\r\n      \r\n        function endICO()onlyOwner\r\n       {\r\n          stopped=true;\r\n          if(balances[owner] > 130000000000000)\r\n          {\r\n              uint burnedTokens = balances[owner]-130000000000000;\r\n           _totalSupply = _totalSupply-burnedTokens;\r\n           balances[owner] = 130000000000000;\r\n          }\r\n       }\r\n}"
+  InheritanceSpecifier
+     Gas costs: 0
+     Source: "ERC20"
+    UserDefinedTypeName "ERC20"
+       Source: "ERC20"
+  VariableDeclaration "name"
+     Type: string storage ref
+     Gas costs: [???]
+     Source: "string public name = \"blockoptions\""
+    ElementaryTypeName string
+       Source: "string"
+    Literal, token: [no token] value: blockoptions
+       Type: literal_string "blockoptions"
+       Source: "\"blockoptions\""
+  VariableDeclaration "symbol"
+     Type: string storage ref
+     Gas costs: [???]
+     Source: "string public symbol = \"BOP\""
+    ElementaryTypeName string
+       Source: "string"
+    Literal, token: [no token] value: BOP
+       Type: literal_string "BOP"
+       Source: "\"BOP\""
+  VariableDeclaration "decimals"
+     Type: uint8
+     Gas costs: [???]
+     Source: "uint8 public decimals = 8"
+    ElementaryTypeName uint8
+       Source: "uint8"
+    Literal, token: [no token] value: 8
+       Type: int_const 8
+       Source: "8"
+  VariableDeclaration "_totalSupply"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint public _totalSupply=20000000 * 10**decimals"
+    ElementaryTypeName uint
+       Source: "uint"
+    BinaryOperation using operator *
+       Type: uint32
+       Source: "20000000 * 10**decimals"
+      Literal, token: [no token] value: 20000000
+         Type: int_const 20000000
+         Source: "20000000"
+      BinaryOperation using operator **
+         Type: uint8
+         Source: "10**decimals"
+        Literal, token: [no token] value: 10
+           Type: int_const 10
+           Source: "10"
+        Identifier decimals
+           Type: uint8
+           Source: "decimals"
+  VariableDeclaration "pre_ico_start"
+     Type: uint256
+     Gas costs: 0
+     Source: "uint pre_ico_start"
+    ElementaryTypeName uint
+       Source: "uint"
+  VariableDeclaration "pre_ico_end"
+     Type: uint256
+     Gas costs: 0
+     Source: "uint pre_ico_end"
+    ElementaryTypeName uint
+       Source: "uint"
+  VariableDeclaration "ico_start"
+     Type: uint256
+     Gas costs: 0
+     Source: "uint ico_start"
+    ElementaryTypeName uint
+       Source: "uint"
+  VariableDeclaration "ico_end"
+     Type: uint256
+     Gas costs: 0
+     Source: "uint ico_end"
+    ElementaryTypeName uint
+       Source: "uint"
+  VariableDeclaration "investor"
+     Type: mapping(uint256 => address)
+     Gas costs: 0
+     Source: "mapping(uint => address) investor"
+    Mapping
+       Source: "mapping(uint => address)"
+      ElementaryTypeName uint
+         Source: "uint"
+      ElementaryTypeName address
+         Source: "address"
+  VariableDeclaration "weireceived"
+     Type: mapping(uint256 => uint256)
+     Gas costs: 0
+     Source: "mapping(uint => uint) weireceived"
+    Mapping
+       Source: "mapping(uint => uint)"
+      ElementaryTypeName uint
+         Source: "uint"
+      ElementaryTypeName uint
+         Source: "uint"
+  VariableDeclaration "optsSent"
+     Type: mapping(uint256 => uint256)
+     Gas costs: 0
+     Source: "mapping(uint => uint) optsSent"
+    Mapping
+       Source: "mapping(uint => uint)"
+      ElementaryTypeName uint
+         Source: "uint"
+      ElementaryTypeName uint
+         Source: "uint"
+  EventDefinition "preico"
+     Gas costs: 0
+     Source: "event preico(uint counter,address investors,uint weiReceived,uint bopsent);"
+    ParameterList
+       Source: "(uint counter,address investors,uint weiReceived,uint bopsent)"
+      VariableDeclaration "counter"
+         Type: uint256
+         Source: "uint counter"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "investors"
+         Type: address
+         Source: "address investors"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "weiReceived"
+         Type: uint256
+         Source: "uint weiReceived"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "bopsent"
+         Type: uint256
+         Source: "uint bopsent"
+        ElementaryTypeName uint
+           Source: "uint"
+  EventDefinition "ico"
+     Gas costs: 0
+     Source: "event ico(uint counter,address investors,uint weiReceived,uint bopsent);"
+    ParameterList
+       Source: "(uint counter,address investors,uint weiReceived,uint bopsent)"
+      VariableDeclaration "counter"
+         Type: uint256
+         Source: "uint counter"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "investors"
+         Type: address
+         Source: "address investors"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "weiReceived"
+         Type: uint256
+         Source: "uint weiReceived"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "bopsent"
+         Type: uint256
+         Source: "uint bopsent"
+        ElementaryTypeName uint
+           Source: "uint"
+  VariableDeclaration "counter"
+     Type: uint256
+     Gas costs: 0
+     Source: "uint counter=0"
+    ElementaryTypeName uint
+       Source: "uint"
+    Literal, token: [no token] value: 0
+       Type: int_const 0
+       Source: "0"
+  VariableDeclaration "profit_sent"
+     Type: uint256
+     Gas costs: 0
+     Source: "uint profit_sent=0"
+    ElementaryTypeName uint
+       Source: "uint"
+    Literal, token: [no token] value: 0
+       Type: int_const 0
+       Source: "0"
+  VariableDeclaration "stopped"
+     Type: bool
+     Gas costs: 0
+     Source: "bool stopped = false"
+    ElementaryTypeName bool
+       Source: "bool"
+    Literal, token: false value: false
+       Type: bool
+       Source: "false"
+  FunctionDefinition "blockoptions" - public
+     Source: "function blockoptions() payable{\r\n          owner = msg.sender;\r\n          balances[owner] = _totalSupply ; //to handle 8 decimal places\r\n          pre_ico_start = now;\r\n          pre_ico_end = pre_ico_start + 7 days;\r\n          \r\n        }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n          owner = msg.sender;\r\n          balances[owner] = _totalSupply ; //to handle 8 decimal places\r\n          pre_ico_start = now;\r\n          pre_ico_end = pre_ico_start + 7 days;\r\n          \r\n        }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "owner = msg.sender"
+        Assignment using operator =
+           Type: address
+           Source: "owner = msg.sender"
+          Identifier owner
+             Type: address
+             Source: "owner"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "balances[owner] = _totalSupply"
+        Assignment using operator =
+           Type: uint256
+           Source: "balances[owner] = _totalSupply"
+          IndexAccess
+             Type: uint256
+             Source: "balances[owner]"
+            Identifier balances
+               Type: mapping(address => uint256)
+               Source: "balances"
+            Identifier owner
+               Type: address
+               Source: "owner"
+          Identifier _totalSupply
+             Type: uint256
+             Source: "_totalSupply"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "pre_ico_start = now"
+        Assignment using operator =
+           Type: uint256
+           Source: "pre_ico_start = now"
+          Identifier pre_ico_start
+             Type: uint256
+             Source: "pre_ico_start"
+          Identifier now
+             Type: uint256
+             Source: "now"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "pre_ico_end = pre_ico_start + 7 days"
+        Assignment using operator =
+           Type: uint256
+           Source: "pre_ico_end = pre_ico_start + 7 days"
+          Identifier pre_ico_end
+             Type: uint256
+             Source: "pre_ico_end"
+          BinaryOperation using operator +
+             Type: uint256
+             Source: "pre_ico_start + 7 days"
+            Identifier pre_ico_start
+               Type: uint256
+               Source: "pre_ico_start"
+            Literal, token: [no token] value: 7
+               Type: int_const 604800
+               Source: "7 days"
+  VariableDeclaration "balances"
+     Type: mapping(address => uint256)
+     Gas costs: 0
+     Source: "mapping(address => uint) balances"
+    Mapping
+       Source: "mapping(address => uint)"
+      ElementaryTypeName address
+         Source: "address"
+      ElementaryTypeName uint
+         Source: "uint"
+  VariableDeclaration "allowed"
+     Type: mapping(address => mapping(address => uint256))
+     Gas costs: 0
+     Source: "mapping (address => mapping (address => uint)) allowed"
+    Mapping
+       Source: "mapping (address => mapping (address => uint))"
+      ElementaryTypeName address
+         Source: "address"
+      Mapping
+         Source: "mapping (address => uint)"
+        ElementaryTypeName address
+           Source: "address"
+        ElementaryTypeName uint
+           Source: "uint"
+  VariableDeclaration "owner"
+     Type: address
+     Gas costs: [???]
+     Source: "address public owner"
+    ElementaryTypeName address
+       Source: "address"
+  ModifierDefinition "onlyOwner"
+     Source: "modifier onlyOwner() {\r\n        if (msg.sender != owner) \r\n        {\r\n            revert();\r\n        }\r\n        _;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    Block
+       Source: "{\r\n        if (msg.sender != owner) \r\n        {\r\n            revert();\r\n        }\r\n        _;\r\n    }"
+      IfStatement
+         Source: "if (msg.sender != owner) \r\n        {\r\n            revert();\r\n        }"
+        BinaryOperation using operator !=
+           Type: bool
+           Gas costs: 1036
+           Source: "msg.sender != owner"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier owner
+             Type: address
+             Source: "owner"
+        Block
+           Source: "{\r\n            revert();\r\n        }"
+          ExpressionStatement
+             Gas costs: 24
+             Source: "revert()"
+            FunctionCall
+               Type: tuple()
+               Source: "revert()"
+              Identifier revert
+                 Type: function () pure
+                 Source: "revert"
+      PlaceholderStatement
+         Gas costs: 0
+         Source: "_"
+  FunctionDefinition "transferOwnership" - public
+     Source: "function transferOwnership(address newOwner) onlyOwner {\r\n          balances[newOwner] = balances[owner];\r\n          balances[owner]=0;\r\n          owner = newOwner;\r\n      }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address newOwner)"
+      VariableDeclaration "newOwner"
+         Type: address
+         Source: "address newOwner"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n          balances[newOwner] = balances[owner];\r\n          balances[owner]=0;\r\n          owner = newOwner;\r\n      }"
+      ExpressionStatement
+         Gas costs: 20636
+         Source: "balances[newOwner] = balances[owner]"
+        Assignment using operator =
+           Type: uint256
+           Source: "balances[newOwner] = balances[owner]"
+          IndexAccess
+             Type: uint256
+             Source: "balances[newOwner]"
+            Identifier balances
+               Type: mapping(address => uint256)
+               Source: "balances"
+            Identifier newOwner
+               Type: address
+               Source: "newOwner"
+          IndexAccess
+             Type: uint256
+             Source: "balances[owner]"
+            Identifier balances
+               Type: mapping(address => uint256)
+               Source: "balances"
+            Identifier owner
+               Type: address
+               Source: "owner"
+      ExpressionStatement
+         Gas costs: 5340
+         Source: "balances[owner]=0"
+        Assignment using operator =
+           Type: uint256
+           Source: "balances[owner]=0"
+          IndexAccess
+             Type: uint256
+             Source: "balances[owner]"
+            Identifier balances
+               Type: mapping(address => uint256)
+               Source: "balances"
+            Identifier owner
+               Type: address
+               Source: "owner"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+      ExpressionStatement
+         Gas costs: 20267
+         Source: "owner = newOwner"
+        Assignment using operator =
+           Type: address
+           Source: "owner = newOwner"
+          Identifier owner
+             Type: address
+             Source: "owner"
+          Identifier newOwner
+             Type: address
+             Source: "newOwner"
+  FunctionDefinition "Mul"
+     Source: "function Mul(uint a, uint b) internal returns (uint) {\r\n          uint c = a * b;\r\n          //check result should not be other wise until a=0\r\n          assert(a == 0 || c / a == b);\r\n          return c;\r\n        }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint a, uint b)"
+      VariableDeclaration "a"
+         Type: uint256
+         Source: "uint a"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "b"
+         Type: uint256
+         Source: "uint b"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint"
+        ElementaryTypeName uint
+           Source: "uint"
+    Block
+       Source: "{\r\n          uint c = a * b;\r\n          //check result should not be other wise until a=0\r\n          assert(a == 0 || c / a == b);\r\n          return c;\r\n        }"
+      VariableDeclarationStatement
+         Gas costs: 0
+         Source: "uint c = a * b"
+        VariableDeclaration "c"
+           Type: uint256
+           Source: "uint c"
+          ElementaryTypeName uint
+             Source: "uint"
+        BinaryOperation using operator *
+           Type: uint256
+           Source: "a * b"
+          Identifier a
+             Type: uint256
+             Source: "a"
+          Identifier b
+             Type: uint256
+             Source: "b"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "assert(a == 0 || c / a == b)"
+        FunctionCall
+           Type: tuple()
+           Source: "assert(a == 0 || c / a == b)"
+          Identifier assert
+             Type: function (bool)
+             Source: "assert"
+          BinaryOperation using operator ||
+             Type: bool
+             Source: "a == 0 || c / a == b"
+            BinaryOperation using operator ==
+               Type: bool
+               Source: "a == 0"
+              Identifier a
+                 Type: uint256
+                 Source: "a"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+            BinaryOperation using operator ==
+               Type: bool
+               Source: "c / a == b"
+              BinaryOperation using operator /
+                 Type: uint256
+                 Source: "c / a"
+                Identifier c
+                   Type: uint256
+                   Source: "c"
+                Identifier a
+                   Type: uint256
+                   Source: "a"
+              Identifier b
+                 Type: uint256
+                 Source: "b"
+      Return
+         Gas costs: 0
+         Source: "return c"
+        Identifier c
+           Type: uint256
+           Source: "c"
+  FunctionDefinition "Div"
+     Source: "function Div(uint a, uint b) internal returns (uint) {\r\n          //overflow check; b must not be 0\r\n          assert(b > 0);\r\n          uint c = a / b;\r\n          assert(a == b * c + a % b);\r\n          return c;\r\n        }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint a, uint b)"
+      VariableDeclaration "a"
+         Type: uint256
+         Source: "uint a"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "b"
+         Type: uint256
+         Source: "uint b"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint"
+        ElementaryTypeName uint
+           Source: "uint"
+    Block
+       Source: "{\r\n          //overflow check; b must not be 0\r\n          assert(b > 0);\r\n          uint c = a / b;\r\n          assert(a == b * c + a % b);\r\n          return c;\r\n        }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "assert(b > 0)"
+        FunctionCall
+           Type: tuple()
+           Source: "assert(b > 0)"
+          Identifier assert
+             Type: function (bool)
+             Source: "assert"
+          BinaryOperation using operator >
+             Type: bool
+             Source: "b > 0"
+            Identifier b
+               Type: uint256
+               Source: "b"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+      VariableDeclarationStatement
+         Gas costs: 0
+         Source: "uint c = a / b"
+        VariableDeclaration "c"
+           Type: uint256
+           Source: "uint c"
+          ElementaryTypeName uint
+             Source: "uint"
+        BinaryOperation using operator /
+           Type: uint256
+           Source: "a / b"
+          Identifier a
+             Type: uint256
+             Source: "a"
+          Identifier b
+             Type: uint256
+             Source: "b"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "assert(a == b * c + a % b)"
+        FunctionCall
+           Type: tuple()
+           Source: "assert(a == b * c + a % b)"
+          Identifier assert
+             Type: function (bool)
+             Source: "assert"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "a == b * c + a % b"
+            Identifier a
+               Type: uint256
+               Source: "a"
+            BinaryOperation using operator +
+               Type: uint256
+               Source: "b * c + a % b"
+              BinaryOperation using operator *
+                 Type: uint256
+                 Source: "b * c"
+                Identifier b
+                   Type: uint256
+                   Source: "b"
+                Identifier c
+                   Type: uint256
+                   Source: "c"
+              BinaryOperation using operator %
+                 Type: uint256
+                 Source: "a % b"
+                Identifier a
+                   Type: uint256
+                   Source: "a"
+                Identifier b
+                   Type: uint256
+                   Source: "b"
+      Return
+         Gas costs: 0
+         Source: "return c"
+        Identifier c
+           Type: uint256
+           Source: "c"
+  FunctionDefinition "Sub"
+     Source: "function Sub(uint a, uint b) internal returns (uint) {\r\n          //b must be greater that a as we need to store value in unsigned integer\r\n          assert(b <= a);\r\n          return a - b;\r\n        }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint a, uint b)"
+      VariableDeclaration "a"
+         Type: uint256
+         Source: "uint a"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "b"
+         Type: uint256
+         Source: "uint b"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint"
+        ElementaryTypeName uint
+           Source: "uint"
+    Block
+       Source: "{\r\n          //b must be greater that a as we need to store value in unsigned integer\r\n          assert(b <= a);\r\n          return a - b;\r\n        }"
+      ExpressionStatement
+         Gas costs: 16
+         Source: "assert(b <= a)"
+        FunctionCall
+           Type: tuple()
+           Source: "assert(b <= a)"
+          Identifier assert
+             Type: function (bool)
+             Source: "assert"
+          BinaryOperation using operator <=
+             Type: bool
+             Source: "b <= a"
+            Identifier b
+               Type: uint256
+               Source: "b"
+            Identifier a
+               Type: uint256
+               Source: "a"
+      Return
+         Gas costs: 14
+         Source: "return a - b"
+        BinaryOperation using operator -
+           Type: uint256
+           Source: "a - b"
+          Identifier a
+             Type: uint256
+             Source: "a"
+          Identifier b
+             Type: uint256
+             Source: "b"
+  FunctionDefinition "Add"
+     Source: "function Add(uint a, uint b) internal returns (uint) {\r\n          uint c = a + b;\r\n          //result must be greater as a or b can not be negative\r\n          assert(c>=a && c>=b);\r\n          return c;\r\n        }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint a, uint b)"
+      VariableDeclaration "a"
+         Type: uint256
+         Source: "uint a"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "b"
+         Type: uint256
+         Source: "uint b"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint"
+        ElementaryTypeName uint
+           Source: "uint"
+    Block
+       Source: "{\r\n          uint c = a + b;\r\n          //result must be greater as a or b can not be negative\r\n          assert(c>=a && c>=b);\r\n          return c;\r\n        }"
+      VariableDeclarationStatement
+         Gas costs: 17
+         Source: "uint c = a + b"
+        VariableDeclaration "c"
+           Type: uint256
+           Source: "uint c"
+          ElementaryTypeName uint
+             Source: "uint"
+        BinaryOperation using operator +
+           Type: uint256
+           Source: "a + b"
+          Identifier a
+             Type: uint256
+             Source: "a"
+          Identifier b
+             Type: uint256
+             Source: "b"
+      ExpressionStatement
+         Gas costs: 61
+         Source: "assert(c>=a && c>=b)"
+        FunctionCall
+           Type: tuple()
+           Source: "assert(c>=a && c>=b)"
+          Identifier assert
+             Type: function (bool)
+             Source: "assert"
+          BinaryOperation using operator &&
+             Type: bool
+             Source: "c>=a && c>=b"
+            BinaryOperation using operator >=
+               Type: bool
+               Source: "c>=a"
+              Identifier c
+                 Type: uint256
+                 Source: "c"
+              Identifier a
+                 Type: uint256
+                 Source: "a"
+            BinaryOperation using operator >=
+               Type: bool
+               Source: "c>=b"
+              Identifier c
+                 Type: uint256
+                 Source: "c"
+              Identifier b
+                 Type: uint256
+                 Source: "b"
+      Return
+         Gas costs: 8
+         Source: "return c"
+        Identifier c
+           Type: uint256
+           Source: "c"
+  FunctionDefinition "assert"
+     Source: "function assert(bool assertion) internal {\r\n          if (!assertion) {\r\n            throw;\r\n          }\r\n        }"
+    ParameterList
+       Gas costs: 0
+       Source: "(bool assertion)"
+      VariableDeclaration "assertion"
+         Type: bool
+         Source: "bool assertion"
+        ElementaryTypeName bool
+           Source: "bool"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n          if (!assertion) {\r\n            throw;\r\n          }\r\n        }"
+      IfStatement
+         Source: "if (!assertion) {\r\n            throw;\r\n          }"
+        UnaryOperation (prefix) !
+           Type: bool
+           Gas costs: 6
+           Source: "!assertion"
+          Identifier assertion
+             Type: bool
+             Source: "assertion"
+        Block
+           Source: "{\r\n            throw;\r\n          }"
+          Throw
+             Gas costs: 6
+             Source: "throw"
+  FunctionDefinition "transfer" - public
+     Source: "function transfer(address _to, uint _value) returns (bool){\r\n\r\n        uint check = balances[owner] - _value;\r\n        if(msg.sender == owner && now>=pre_ico_start && now<=pre_ico_end && check < 1900000000000000)\r\n        {\r\n            return false;\r\n        }\r\n        else if(msg.sender ==owner && now>=pre_ico_end && now<=(pre_ico_end + 16 days) && check < 1850000000000000)\r\n        {\r\n            return false;\r\n        }\r\n        else if(msg.sender == owner && check < 130000000000000 && now < ico_start + 180 days)\r\n        {\r\n            return false;\r\n        }\r\n        else if (msg.sender == owner && check < 97500000000000 && now < ico_start + 360 days)\r\n        {\r\n            return false;\r\n        }\r\n        else if (msg.sender == owner && check < 43000000000000 && now < ico_start + 540 days)\r\n        {\r\n            return false;\r\n        }\r\n        //Check provided BOP should not be 0\r\n       else if (_value > 0) {\r\n          //deduct BOP amount from transaction initiator\r\n          balances[msg.sender] = Sub(balances[msg.sender],_value);\r\n          //Add BOP to balace of target account\r\n          balances[_to] = Add(balances[_to],_value);\r\n          //Emit event for transferring BOP\r\n          Transfer(msg.sender, _to, _value);\r\n          return true;\r\n        }\r\n        else{\r\n          return false;\r\n        }\r\n      }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _to, uint _value)"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint _value"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool)"
+      VariableDeclaration ""
+         Type: bool
+         Source: "bool"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n\r\n        uint check = balances[owner] - _value;\r\n        if(msg.sender == owner && now>=pre_ico_start && now<=pre_ico_end && check < 1900000000000000)\r\n        {\r\n            return false;\r\n        }\r\n        else if(msg.sender ==owner && now>=pre_ico_end && now<=(pre_ico_end + 16 days) && check < 1850000000000000)\r\n        {\r\n            return false;\r\n        }\r\n        else if(msg.sender == owner && check < 130000000000000 && now < ico_start + 180 days)\r\n        {\r\n            return false;\r\n        }\r\n        else if (msg.sender == owner && check < 97500000000000 && now < ico_start + 360 days)\r\n        {\r\n            return false;\r\n        }\r\n        else if (msg.sender == owner && check < 43000000000000 && now < ico_start + 540 days)\r\n        {\r\n            return false;\r\n        }\r\n        //Check provided BOP should not be 0\r\n       else if (_value > 0) {\r\n          //deduct BOP amount from transaction initiator\r\n          balances[msg.sender] = Sub(balances[msg.sender],_value);\r\n          //Add BOP to balace of target account\r\n          balances[_to] = Add(balances[_to],_value);\r\n          //Emit event for transferring BOP\r\n          Transfer(msg.sender, _to, _value);\r\n          return true;\r\n        }\r\n        else{\r\n          return false;\r\n        }\r\n      }"
+      VariableDeclarationStatement
+         Gas costs: 549
+         Source: "uint check = balances[owner] - _value"
+        VariableDeclaration "check"
+           Type: uint256
+           Source: "uint check"
+          ElementaryTypeName uint
+             Source: "uint"
+        BinaryOperation using operator -
+           Type: uint256
+           Source: "balances[owner] - _value"
+          IndexAccess
+             Type: uint256
+             Source: "balances[owner]"
+            Identifier balances
+               Type: mapping(address => uint256)
+               Source: "balances"
+            Identifier owner
+               Type: address
+               Source: "owner"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      IfStatement
+         Source: "if(msg.sender == owner && now>=pre_ico_start && now<=pre_ico_end && check < 1900000000000000)\r\n        {\r\n            return false;\r\n        }\r\n        else if(msg.sender ==owner && now>=pre_ico_end && now<=(pre_ico_end + 16 days) && check < 1850000000000000)\r\n        {\r\n            return false;\r\n        }\r\n        else if(msg.sender == owner && check < 130000000000000 && now < ico_start + 180 days)\r\n        {\r\n            return false;\r\n        }\r\n        else if (msg.sender == owner && check < 97500000000000 && now < ico_start + 360 days)\r\n        {\r\n            return false;\r\n        }\r\n        else if (msg.sender == owner && check < 43000000000000 && now < ico_start + 540 days)\r\n        {\r\n            return false;\r\n        }\r\n        //Check provided BOP should not be 0\r\n       else if (_value > 0) {\r\n          //deduct BOP amount from transaction initiator\r\n          balances[msg.sender] = Sub(balances[msg.sender],_value);\r\n          //Add BOP to balace of target account\r\n          balances[_to] = Add(balances[_to],_value);\r\n          //Emit event for transferring BOP\r\n          Transfer(msg.sender, _to, _value);\r\n          return true;\r\n        }\r\n        else{\r\n          return false;\r\n        }"
+        BinaryOperation using operator &&
+           Type: bool
+           Gas costs: 753
+           Source: "msg.sender == owner && now>=pre_ico_start && now<=pre_ico_end && check < 1900000000000000"
+          BinaryOperation using operator &&
+             Type: bool
+             Source: "msg.sender == owner && now>=pre_ico_start && now<=pre_ico_end"
+            BinaryOperation using operator &&
+               Type: bool
+               Source: "msg.sender == owner && now>=pre_ico_start"
+              BinaryOperation using operator ==
+                 Type: bool
+                 Source: "msg.sender == owner"
+                MemberAccess to member sender
+                   Type: address
+                   Source: "msg.sender"
+                  Identifier msg
+                     Type: msg
+                     Source: "msg"
+                Identifier owner
+                   Type: address
+                   Source: "owner"
+              BinaryOperation using operator >=
+                 Type: bool
+                 Source: "now>=pre_ico_start"
+                Identifier now
+                   Type: uint256
+                   Source: "now"
+                Identifier pre_ico_start
+                   Type: uint256
+                   Source: "pre_ico_start"
+            BinaryOperation using operator <=
+               Type: bool
+               Source: "now<=pre_ico_end"
+              Identifier now
+                 Type: uint256
+                 Source: "now"
+              Identifier pre_ico_end
+                 Type: uint256
+                 Source: "pre_ico_end"
+          BinaryOperation using operator <
+             Type: bool
+             Source: "check < 1900000000000000"
+            Identifier check
+               Type: uint256
+               Source: "check"
+            Literal, token: [no token] value: 1900000000000000
+               Type: int_const 1900000000000000
+               Source: "1900000000000000"
+        Block
+           Source: "{\r\n            return false;\r\n        }"
+          Return
+             Gas costs: 19
+             Source: "return false"
+            Literal, token: false value: false
+               Type: bool
+               Source: "false"
+        IfStatement
+           Source: "if(msg.sender ==owner && now>=pre_ico_end && now<=(pre_ico_end + 16 days) && check < 1850000000000000)\r\n        {\r\n            return false;\r\n        }\r\n        else if(msg.sender == owner && check < 130000000000000 && now < ico_start + 180 days)\r\n        {\r\n            return false;\r\n        }\r\n        else if (msg.sender == owner && check < 97500000000000 && now < ico_start + 360 days)\r\n        {\r\n            return false;\r\n        }\r\n        else if (msg.sender == owner && check < 43000000000000 && now < ico_start + 540 days)\r\n        {\r\n            return false;\r\n        }\r\n        //Check provided BOP should not be 0\r\n       else if (_value > 0) {\r\n          //deduct BOP amount from transaction initiator\r\n          balances[msg.sender] = Sub(balances[msg.sender],_value);\r\n          //Add BOP to balace of target account\r\n          balances[_to] = Add(balances[_to],_value);\r\n          //Emit event for transferring BOP\r\n          Transfer(msg.sender, _to, _value);\r\n          return true;\r\n        }\r\n        else{\r\n          return false;\r\n        }"
+          BinaryOperation using operator &&
+             Type: bool
+             Gas costs: 759
+             Source: "msg.sender ==owner && now>=pre_ico_end && now<=(pre_ico_end + 16 days) && check < 1850000000000000"
+            BinaryOperation using operator &&
+               Type: bool
+               Source: "msg.sender ==owner && now>=pre_ico_end && now<=(pre_ico_end + 16 days)"
+              BinaryOperation using operator &&
+                 Type: bool
+                 Source: "msg.sender ==owner && now>=pre_ico_end"
+                BinaryOperation using operator ==
+                   Type: bool
+                   Source: "msg.sender ==owner"
+                  MemberAccess to member sender
+                     Type: address
+                     Source: "msg.sender"
+                    Identifier msg
+                       Type: msg
+                       Source: "msg"
+                  Identifier owner
+                     Type: address
+                     Source: "owner"
+                BinaryOperation using operator >=
+                   Type: bool
+                   Source: "now>=pre_ico_end"
+                  Identifier now
+                     Type: uint256
+                     Source: "now"
+                  Identifier pre_ico_end
+                     Type: uint256
+                     Source: "pre_ico_end"
+              BinaryOperation using operator <=
+                 Type: bool
+                 Source: "now<=(pre_ico_end + 16 days)"
+                Identifier now
+                   Type: uint256
+                   Source: "now"
+                TupleExpression
+                   Type: uint256
+                   Source: "(pre_ico_end + 16 days)"
+                  BinaryOperation using operator +
+                     Type: uint256
+                     Source: "pre_ico_end + 16 days"
+                    Identifier pre_ico_end
+                       Type: uint256
+                       Source: "pre_ico_end"
+                    Literal, token: [no token] value: 16
+                       Type: int_const 1382400
+                       Source: "16 days"
+            BinaryOperation using operator <
+               Type: bool
+               Source: "check < 1850000000000000"
+              Identifier check
+                 Type: uint256
+                 Source: "check"
+              Literal, token: [no token] value: 1850000000000000
+                 Type: int_const 1850000000000000
+                 Source: "1850000000000000"
+          Block
+             Source: "{\r\n            return false;\r\n        }"
+            Return
+               Gas costs: 19
+               Source: "return false"
+              Literal, token: false value: false
+                 Type: bool
+                 Source: "false"
+          IfStatement
+             Source: "if(msg.sender == owner && check < 130000000000000 && now < ico_start + 180 days)\r\n        {\r\n            return false;\r\n        }\r\n        else if (msg.sender == owner && check < 97500000000000 && now < ico_start + 360 days)\r\n        {\r\n            return false;\r\n        }\r\n        else if (msg.sender == owner && check < 43000000000000 && now < ico_start + 540 days)\r\n        {\r\n            return false;\r\n        }\r\n        //Check provided BOP should not be 0\r\n       else if (_value > 0) {\r\n          //deduct BOP amount from transaction initiator\r\n          balances[msg.sender] = Sub(balances[msg.sender],_value);\r\n          //Add BOP to balace of target account\r\n          balances[_to] = Add(balances[_to],_value);\r\n          //Emit event for transferring BOP\r\n          Transfer(msg.sender, _to, _value);\r\n          return true;\r\n        }\r\n        else{\r\n          return false;\r\n        }"
+            BinaryOperation using operator &&
+               Type: bool
+               Gas costs: 523
+               Source: "msg.sender == owner && check < 130000000000000 && now < ico_start + 180 days"
+              BinaryOperation using operator &&
+                 Type: bool
+                 Source: "msg.sender == owner && check < 130000000000000"
+                BinaryOperation using operator ==
+                   Type: bool
+                   Source: "msg.sender == owner"
+                  MemberAccess to member sender
+                     Type: address
+                     Source: "msg.sender"
+                    Identifier msg
+                       Type: msg
+                       Source: "msg"
+                  Identifier owner
+                     Type: address
+                     Source: "owner"
+                BinaryOperation using operator <
+                   Type: bool
+                   Source: "check < 130000000000000"
+                  Identifier check
+                     Type: uint256
+                     Source: "check"
+                  Literal, token: [no token] value: 130000000000000
+                     Type: int_const 130000000000000
+                     Source: "130000000000000"
+              BinaryOperation using operator <
+                 Type: bool
+                 Source: "now < ico_start + 180 days"
+                Identifier now
+                   Type: uint256
+                   Source: "now"
+                BinaryOperation using operator +
+                   Type: uint256
+                   Source: "ico_start + 180 days"
+                  Identifier ico_start
+                     Type: uint256
+                     Source: "ico_start"
+                  Literal, token: [no token] value: 180
+                     Type: int_const 15552000
+                     Source: "180 days"
+            Block
+               Source: "{\r\n            return false;\r\n        }"
+              Return
+                 Gas costs: 19
+                 Source: "return false"
+                Literal, token: false value: false
+                   Type: bool
+                   Source: "false"
+            IfStatement
+               Source: "if (msg.sender == owner && check < 97500000000000 && now < ico_start + 360 days)\r\n        {\r\n            return false;\r\n        }\r\n        else if (msg.sender == owner && check < 43000000000000 && now < ico_start + 540 days)\r\n        {\r\n            return false;\r\n        }\r\n        //Check provided BOP should not be 0\r\n       else if (_value > 0) {\r\n          //deduct BOP amount from transaction initiator\r\n          balances[msg.sender] = Sub(balances[msg.sender],_value);\r\n          //Add BOP to balace of target account\r\n          balances[_to] = Add(balances[_to],_value);\r\n          //Emit event for transferring BOP\r\n          Transfer(msg.sender, _to, _value);\r\n          return true;\r\n        }\r\n        else{\r\n          return false;\r\n        }"
+              BinaryOperation using operator &&
+                 Type: bool
+                 Gas costs: 523
+                 Source: "msg.sender == owner && check < 97500000000000 && now < ico_start + 360 days"
+                BinaryOperation using operator &&
+                   Type: bool
+                   Source: "msg.sender == owner && check < 97500000000000"
+                  BinaryOperation using operator ==
+                     Type: bool
+                     Source: "msg.sender == owner"
+                    MemberAccess to member sender
+                       Type: address
+                       Source: "msg.sender"
+                      Identifier msg
+                         Type: msg
+                         Source: "msg"
+                    Identifier owner
+                       Type: address
+                       Source: "owner"
+                  BinaryOperation using operator <
+                     Type: bool
+                     Source: "check < 97500000000000"
+                    Identifier check
+                       Type: uint256
+                       Source: "check"
+                    Literal, token: [no token] value: 97500000000000
+                       Type: int_const 97500000000000
+                       Source: "97500000000000"
+                BinaryOperation using operator <
+                   Type: bool
+                   Source: "now < ico_start + 360 days"
+                  Identifier now
+                     Type: uint256
+                     Source: "now"
+                  BinaryOperation using operator +
+                     Type: uint256
+                     Source: "ico_start + 360 days"
+                    Identifier ico_start
+                       Type: uint256
+                       Source: "ico_start"
+                    Literal, token: [no token] value: 360
+                       Type: int_const 31104000
+                       Source: "360 days"
+              Block
+                 Source: "{\r\n            return false;\r\n        }"
+                Return
+                   Gas costs: 19
+                   Source: "return false"
+                  Literal, token: false value: false
+                     Type: bool
+                     Source: "false"
+              IfStatement
+                 Source: "if (msg.sender == owner && check < 43000000000000 && now < ico_start + 540 days)\r\n        {\r\n            return false;\r\n        }\r\n        //Check provided BOP should not be 0\r\n       else if (_value > 0) {\r\n          //deduct BOP amount from transaction initiator\r\n          balances[msg.sender] = Sub(balances[msg.sender],_value);\r\n          //Add BOP to balace of target account\r\n          balances[_to] = Add(balances[_to],_value);\r\n          //Emit event for transferring BOP\r\n          Transfer(msg.sender, _to, _value);\r\n          return true;\r\n        }\r\n        else{\r\n          return false;\r\n        }"
+                BinaryOperation using operator &&
+                   Type: bool
+                   Gas costs: 523
+                   Source: "msg.sender == owner && check < 43000000000000 && now < ico_start + 540 days"
+                  BinaryOperation using operator &&
+                     Type: bool
+                     Source: "msg.sender == owner && check < 43000000000000"
+                    BinaryOperation using operator ==
+                       Type: bool
+                       Source: "msg.sender == owner"
+                      MemberAccess to member sender
+                         Type: address
+                         Source: "msg.sender"
+                        Identifier msg
+                           Type: msg
+                           Source: "msg"
+                      Identifier owner
+                         Type: address
+                         Source: "owner"
+                    BinaryOperation using operator <
+                       Type: bool
+                       Source: "check < 43000000000000"
+                      Identifier check
+                         Type: uint256
+                         Source: "check"
+                      Literal, token: [no token] value: 43000000000000
+                         Type: int_const 43000000000000
+                         Source: "43000000000000"
+                  BinaryOperation using operator <
+                     Type: bool
+                     Source: "now < ico_start + 540 days"
+                    Identifier now
+                       Type: uint256
+                       Source: "now"
+                    BinaryOperation using operator +
+                       Type: uint256
+                       Source: "ico_start + 540 days"
+                      Identifier ico_start
+                         Type: uint256
+                         Source: "ico_start"
+                      Literal, token: [no token] value: 540
+                         Type: int_const 46656000
+                         Source: "540 days"
+                Block
+                   Source: "{\r\n            return false;\r\n        }"
+                  Return
+                     Gas costs: 19
+                     Source: "return false"
+                    Literal, token: false value: false
+                       Type: bool
+                       Source: "false"
+                IfStatement
+                   Source: "if (_value > 0) {\r\n          //deduct BOP amount from transaction initiator\r\n          balances[msg.sender] = Sub(balances[msg.sender],_value);\r\n          //Add BOP to balace of target account\r\n          balances[_to] = Add(balances[_to],_value);\r\n          //Emit event for transferring BOP\r\n          Transfer(msg.sender, _to, _value);\r\n          return true;\r\n        }\r\n        else{\r\n          return false;\r\n        }"
+                  BinaryOperation using operator >
+                     Type: bool
+                     Gas costs: 9
+                     Source: "_value > 0"
+                    Identifier _value
+                       Type: uint256
+                       Source: "_value"
+                    Literal, token: [no token] value: 0
+                       Type: int_const 0
+                       Source: "0"
+                  Block
+                     Source: "{\r\n          //deduct BOP amount from transaction initiator\r\n          balances[msg.sender] = Sub(balances[msg.sender],_value);\r\n          //Add BOP to balace of target account\r\n          balances[_to] = Add(balances[_to],_value);\r\n          //Emit event for transferring BOP\r\n          Transfer(msg.sender, _to, _value);\r\n          return true;\r\n        }"
+                    ExpressionStatement
+                       Gas costs: 20422
+                       Source: "balances[msg.sender] = Sub(balances[msg.sender],_value)"
+                      Assignment using operator =
+                         Type: uint256
+                         Source: "balances[msg.sender] = Sub(balances[msg.sender],_value)"
+                        IndexAccess
+                           Type: uint256
+                           Source: "balances[msg.sender]"
+                          Identifier balances
+                             Type: mapping(address => uint256)
+                             Source: "balances"
+                          MemberAccess to member sender
+                             Type: address
+                             Source: "msg.sender"
+                            Identifier msg
+                               Type: msg
+                               Source: "msg"
+                        FunctionCall
+                           Type: uint256
+                           Source: "Sub(balances[msg.sender],_value)"
+                          Identifier Sub
+                             Type: function (uint256,uint256) returns (uint256)
+                             Source: "Sub"
+                          IndexAccess
+                             Type: uint256
+                             Source: "balances[msg.sender]"
+                            Identifier balances
+                               Type: mapping(address => uint256)
+                               Source: "balances"
+                            MemberAccess to member sender
+                               Type: address
+                               Source: "msg.sender"
+                              Identifier msg
+                                 Type: msg
+                                 Source: "msg"
+                          Identifier _value
+                             Type: uint256
+                             Source: "_value"
+                    ExpressionStatement
+                       Gas costs: 20407
+                       Source: "balances[_to] = Add(balances[_to],_value)"
+                      Assignment using operator =
+                         Type: uint256
+                         Source: "balances[_to] = Add(balances[_to],_value)"
+                        IndexAccess
+                           Type: uint256
+                           Source: "balances[_to]"
+                          Identifier balances
+                             Type: mapping(address => uint256)
+                             Source: "balances"
+                          Identifier _to
+                             Type: address
+                             Source: "_to"
+                        FunctionCall
+                           Type: uint256
+                           Source: "Add(balances[_to],_value)"
+                          Identifier Add
+                             Type: function (uint256,uint256) returns (uint256)
+                             Source: "Add"
+                          IndexAccess
+                             Type: uint256
+                             Source: "balances[_to]"
+                            Identifier balances
+                               Type: mapping(address => uint256)
+                               Source: "balances"
+                            Identifier _to
+                               Type: address
+                               Source: "_to"
+                          Identifier _value
+                             Type: uint256
+                             Source: "_value"
+                    ExpressionStatement
+                       Gas costs: [???]
+                       Source: "Transfer(msg.sender, _to, _value)"
+                      FunctionCall
+                         Type: tuple()
+                         Source: "Transfer(msg.sender, _to, _value)"
+                        Identifier Transfer
+                           Type: function (address,address,uint256)
+                           Source: "Transfer"
+                        MemberAccess to member sender
+                           Type: address
+                           Source: "msg.sender"
+                          Identifier msg
+                             Type: msg
+                             Source: "msg"
+                        Identifier _to
+                           Type: address
+                           Source: "_to"
+                        Identifier _value
+                           Type: uint256
+                           Source: "_value"
+                    Return
+                       Gas costs: 19
+                       Source: "return true"
+                      Literal, token: true value: true
+                         Type: bool
+                         Source: "true"
+                  Block
+                     Source: "{\r\n          return false;\r\n        }"
+                    Return
+                       Gas costs: 8
+                       Source: "return false"
+                      Literal, token: false value: false
+                         Type: bool
+                         Source: "false"
+  FunctionDefinition "transferFrom" - public
+     Source: "function transferFrom(address _from, address _to, uint _value) returns (bool) {\r\n    \r\n        //Check provided BOP should not be 0\r\n        if (_value > 0) {\r\n          //Get amount of BOP for which spender is authorized\r\n          var _allowance = allowed[_from][msg.sender];\r\n          //Add amount of BOP in target account's balance\r\n          balances[_to] = Add(balances[_to], _value);\r\n          //Deduct BOPT amount from _from account\r\n          balances[_from] = Sub(balances[_from], _value);\r\n          //Deduct Authorized amount for spender\r\n          allowed[_from][msg.sender] = Sub(_allowance, _value);\r\n          //Emit event for Transfer\r\n          Transfer(_from, _to, _value);\r\n          return true;\r\n        }else{\r\n          return false;\r\n        }\r\n      }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _from, address _to, uint _value)"
+      VariableDeclaration "_from"
+         Type: address
+         Source: "address _from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint _value"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool)"
+      VariableDeclaration ""
+         Type: bool
+         Source: "bool"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n    \r\n        //Check provided BOP should not be 0\r\n        if (_value > 0) {\r\n          //Get amount of BOP for which spender is authorized\r\n          var _allowance = allowed[_from][msg.sender];\r\n          //Add amount of BOP in target account's balance\r\n          balances[_to] = Add(balances[_to], _value);\r\n          //Deduct BOPT amount from _from account\r\n          balances[_from] = Sub(balances[_from], _value);\r\n          //Deduct Authorized amount for spender\r\n          allowed[_from][msg.sender] = Sub(_allowance, _value);\r\n          //Emit event for Transfer\r\n          Transfer(_from, _to, _value);\r\n          return true;\r\n        }else{\r\n          return false;\r\n        }\r\n      }"
+      IfStatement
+         Source: "if (_value > 0) {\r\n          //Get amount of BOP for which spender is authorized\r\n          var _allowance = allowed[_from][msg.sender];\r\n          //Add amount of BOP in target account's balance\r\n          balances[_to] = Add(balances[_to], _value);\r\n          //Deduct BOPT amount from _from account\r\n          balances[_from] = Sub(balances[_from], _value);\r\n          //Deduct Authorized amount for spender\r\n          allowed[_from][msg.sender] = Sub(_allowance, _value);\r\n          //Emit event for Transfer\r\n          Transfer(_from, _to, _value);\r\n          return true;\r\n        }else{\r\n          return false;\r\n        }"
+        BinaryOperation using operator >
+           Type: bool
+           Gas costs: 9
+           Source: "_value > 0"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        Block
+           Source: "{\r\n          //Get amount of BOP for which spender is authorized\r\n          var _allowance = allowed[_from][msg.sender];\r\n          //Add amount of BOP in target account's balance\r\n          balances[_to] = Add(balances[_to], _value);\r\n          //Deduct BOPT amount from _from account\r\n          balances[_from] = Sub(balances[_from], _value);\r\n          //Deduct Authorized amount for spender\r\n          allowed[_from][msg.sender] = Sub(_allowance, _value);\r\n          //Emit event for Transfer\r\n          Transfer(_from, _to, _value);\r\n          return true;\r\n        }"
+          VariableDeclarationStatement
+             Gas costs: 396
+             Source: "var _allowance = allowed[_from][msg.sender]"
+            VariableDeclaration "_allowance"
+               Type: uint256
+               Source: "var _allowance"
+            IndexAccess
+               Type: uint256
+               Source: "allowed[_from][msg.sender]"
+              IndexAccess
+                 Type: mapping(address => uint256)
+                 Source: "allowed[_from]"
+                Identifier allowed
+                   Type: mapping(address => mapping(address => uint256))
+                   Source: "allowed"
+                Identifier _from
+                   Type: address
+                   Source: "_from"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+          ExpressionStatement
+             Gas costs: 20418
+             Source: "balances[_to] = Add(balances[_to], _value)"
+            Assignment using operator =
+               Type: uint256
+               Source: "balances[_to] = Add(balances[_to], _value)"
+              IndexAccess
+                 Type: uint256
+                 Source: "balances[_to]"
+                Identifier balances
+                   Type: mapping(address => uint256)
+                   Source: "balances"
+                Identifier _to
+                   Type: address
+                   Source: "_to"
+              FunctionCall
+                 Type: uint256
+                 Source: "Add(balances[_to], _value)"
+                Identifier Add
+                   Type: function (uint256,uint256) returns (uint256)
+                   Source: "Add"
+                IndexAccess
+                   Type: uint256
+                   Source: "balances[_to]"
+                  Identifier balances
+                     Type: mapping(address => uint256)
+                     Source: "balances"
+                  Identifier _to
+                     Type: address
+                     Source: "_to"
+                Identifier _value
+                   Type: uint256
+                   Source: "_value"
+          ExpressionStatement
+             Gas costs: 20407
+             Source: "balances[_from] = Sub(balances[_from], _value)"
+            Assignment using operator =
+               Type: uint256
+               Source: "balances[_from] = Sub(balances[_from], _value)"
+              IndexAccess
+                 Type: uint256
+                 Source: "balances[_from]"
+                Identifier balances
+                   Type: mapping(address => uint256)
+                   Source: "balances"
+                Identifier _from
+                   Type: address
+                   Source: "_from"
+              FunctionCall
+                 Type: uint256
+                 Source: "Sub(balances[_from], _value)"
+                Identifier Sub
+                   Type: function (uint256,uint256) returns (uint256)
+                   Source: "Sub"
+                IndexAccess
+                   Type: uint256
+                   Source: "balances[_from]"
+                  Identifier balances
+                     Type: mapping(address => uint256)
+                     Source: "balances"
+                  Identifier _from
+                     Type: address
+                     Source: "_from"
+                Identifier _value
+                   Type: uint256
+                   Source: "_value"
+          ExpressionStatement
+             Gas costs: 20217
+             Source: "allowed[_from][msg.sender] = Sub(_allowance, _value)"
+            Assignment using operator =
+               Type: uint256
+               Source: "allowed[_from][msg.sender] = Sub(_allowance, _value)"
+              IndexAccess
+                 Type: uint256
+                 Source: "allowed[_from][msg.sender]"
+                IndexAccess
+                   Type: mapping(address => uint256)
+                   Source: "allowed[_from]"
+                  Identifier allowed
+                     Type: mapping(address => mapping(address => uint256))
+                     Source: "allowed"
+                  Identifier _from
+                     Type: address
+                     Source: "_from"
+                MemberAccess to member sender
+                   Type: address
+                   Source: "msg.sender"
+                  Identifier msg
+                     Type: msg
+                     Source: "msg"
+              FunctionCall
+                 Type: uint256
+                 Source: "Sub(_allowance, _value)"
+                Identifier Sub
+                   Type: function (uint256,uint256) returns (uint256)
+                   Source: "Sub"
+                Identifier _allowance
+                   Type: uint256
+                   Source: "_allowance"
+                Identifier _value
+                   Type: uint256
+                   Source: "_value"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "Transfer(_from, _to, _value)"
+            FunctionCall
+               Type: tuple()
+               Source: "Transfer(_from, _to, _value)"
+              Identifier Transfer
+                 Type: function (address,address,uint256)
+                 Source: "Transfer"
+              Identifier _from
+                 Type: address
+                 Source: "_from"
+              Identifier _to
+                 Type: address
+                 Source: "_to"
+              Identifier _value
+                 Type: uint256
+                 Source: "_value"
+          Return
+             Gas costs: 19
+             Source: "return true"
+            Literal, token: true value: true
+               Type: bool
+               Source: "true"
+        Block
+           Source: "{\r\n          return false;\r\n        }"
+          Return
+             Gas costs: 8
+             Source: "return false"
+            Literal, token: false value: false
+               Type: bool
+               Source: "false"
+  FunctionDefinition "balanceOf" - public - const
+     Source: "function balanceOf(address _owner) constant returns (uint balance) {\r\n        return balances[_owner];\r\n      }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _owner)"
+      VariableDeclaration "_owner"
+         Type: address
+         Source: "address _owner"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint balance)"
+      VariableDeclaration "balance"
+         Type: uint256
+         Source: "uint balance"
+        ElementaryTypeName uint
+           Source: "uint"
+    Block
+       Source: "{\r\n        return balances[_owner];\r\n      }"
+      Return
+         Gas costs: 304
+         Source: "return balances[_owner]"
+        IndexAccess
+           Type: uint256
+           Source: "balances[_owner]"
+          Identifier balances
+             Type: mapping(address => uint256)
+             Source: "balances"
+          Identifier _owner
+             Type: address
+             Source: "_owner"
+  FunctionDefinition "approve" - public
+     Source: "function approve(address _spender, uint _value) returns (bool) {\r\n        allowed[msg.sender][_spender] = _value;\r\n        //Emit event for approval provided to spender\r\n        Approval(msg.sender, _spender, _value);\r\n        return true;\r\n      }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _spender, uint _value)"
+      VariableDeclaration "_spender"
+         Type: address
+         Source: "address _spender"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint _value"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool)"
+      VariableDeclaration ""
+         Type: bool
+         Source: "bool"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n        allowed[msg.sender][_spender] = _value;\r\n        //Emit event for approval provided to spender\r\n        Approval(msg.sender, _spender, _value);\r\n        return true;\r\n      }"
+      ExpressionStatement
+         Gas costs: 20199
+         Source: "allowed[msg.sender][_spender] = _value"
+        Assignment using operator =
+           Type: uint256
+           Source: "allowed[msg.sender][_spender] = _value"
+          IndexAccess
+             Type: uint256
+             Source: "allowed[msg.sender][_spender]"
+            IndexAccess
+               Type: mapping(address => uint256)
+               Source: "allowed[msg.sender]"
+              Identifier allowed
+                 Type: mapping(address => mapping(address => uint256))
+                 Source: "allowed"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+            Identifier _spender
+               Type: address
+               Source: "_spender"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "Approval(msg.sender, _spender, _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "Approval(msg.sender, _spender, _value)"
+          Identifier Approval
+             Type: function (address,address,uint256)
+             Source: "Approval"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier _spender
+             Type: address
+             Source: "_spender"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      Return
+         Gas costs: 8
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+  FunctionDefinition "allowance" - public - const
+     Source: "function allowance(address _owner, address _spender) constant returns (uint remaining) {\r\n        return allowed[_owner][_spender];\r\n      }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _owner, address _spender)"
+      VariableDeclaration "_owner"
+         Type: address
+         Source: "address _owner"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_spender"
+         Type: address
+         Source: "address _spender"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint remaining)"
+      VariableDeclaration "remaining"
+         Type: uint256
+         Source: "uint remaining"
+        ElementaryTypeName uint
+           Source: "uint"
+    Block
+       Source: "{\r\n        return allowed[_owner][_spender];\r\n      }"
+      Return
+         Gas costs: 394
+         Source: "return allowed[_owner][_spender]"
+        IndexAccess
+           Type: uint256
+           Source: "allowed[_owner][_spender]"
+          IndexAccess
+             Type: mapping(address => uint256)
+             Source: "allowed[_owner]"
+            Identifier allowed
+               Type: mapping(address => mapping(address => uint256))
+               Source: "allowed"
+            Identifier _owner
+               Type: address
+               Source: "_owner"
+          Identifier _spender
+             Type: address
+             Source: "_spender"
+  FunctionDefinition "drain" - public
+     Source: "function drain() onlyOwner {\r\n    \t\towner.send(this.balance);\r\n    \t}"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n    \t\towner.send(this.balance);\r\n    \t}"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "owner.send(this.balance)"
+        FunctionCall
+           Type: bool
+           Source: "owner.send(this.balance)"
+          MemberAccess to member send
+             Type: function (uint256) returns (bool)
+             Source: "owner.send"
+            Identifier owner
+               Type: address
+               Source: "owner"
+          MemberAccess to member balance
+             Type: uint256
+             Source: "this.balance"
+            Identifier this
+               Type: contract blockoptions
+               Source: "this"
+  FunctionDefinition "" - public
+     Source: "function() payable \r\n    \t{   \r\n    \t    if(stopped && msg.sender != owner)\r\n    \t    revert();\r\n    \t     else if(msg.sender == owner)\r\n    \t    {\r\n    \t        profit_sent = msg.value;\r\n    \t    }\r\n    \t   else if(now>=pre_ico_start && now<=pre_ico_end)\r\n    \t    {\r\n    \t        uint check = balances[owner]-((400*msg.value)/10000000000);\r\n    \t        if(check >= 1900000000000000)\r\n                pre_ico(msg.sender,msg.value);\r\n    \t    }\r\n            else if (now>=ico_start && now<ico_end)\r\n            {\r\n                main_ico(msg.sender,msg.value);\r\n            }\r\n            \r\n        }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{   \r\n    \t    if(stopped && msg.sender != owner)\r\n    \t    revert();\r\n    \t     else if(msg.sender == owner)\r\n    \t    {\r\n    \t        profit_sent = msg.value;\r\n    \t    }\r\n    \t   else if(now>=pre_ico_start && now<=pre_ico_end)\r\n    \t    {\r\n    \t        uint check = balances[owner]-((400*msg.value)/10000000000);\r\n    \t        if(check >= 1900000000000000)\r\n                pre_ico(msg.sender,msg.value);\r\n    \t    }\r\n            else if (now>=ico_start && now<ico_end)\r\n            {\r\n                main_ico(msg.sender,msg.value);\r\n            }\r\n            \r\n        }"
+      IfStatement
+         Source: "if(stopped && msg.sender != owner)\r\n    \t    revert();\r\n    \t     else if(msg.sender == owner)\r\n    \t    {\r\n    \t        profit_sent = msg.value;\r\n    \t    }\r\n    \t   else if(now>=pre_ico_start && now<=pre_ico_end)\r\n    \t    {\r\n    \t        uint check = balances[owner]-((400*msg.value)/10000000000);\r\n    \t        if(check >= 1900000000000000)\r\n                pre_ico(msg.sender,msg.value);\r\n    \t    }\r\n            else if (now>=ico_start && now<ico_end)\r\n            {\r\n                main_ico(msg.sender,msg.value);\r\n            }"
+        BinaryOperation using operator &&
+           Type: bool
+           Gas costs: 520
+           Source: "stopped && msg.sender != owner"
+          Identifier stopped
+             Type: bool
+             Source: "stopped"
+          BinaryOperation using operator !=
+             Type: bool
+             Source: "msg.sender != owner"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Identifier owner
+               Type: address
+               Source: "owner"
+        ExpressionStatement
+           Gas costs: 6
+           Source: "revert()"
+          FunctionCall
+             Type: tuple()
+             Source: "revert()"
+            Identifier revert
+               Type: function () pure
+               Source: "revert"
+        IfStatement
+           Source: "if(msg.sender == owner)\r\n    \t    {\r\n    \t        profit_sent = msg.value;\r\n    \t    }\r\n    \t   else if(now>=pre_ico_start && now<=pre_ico_end)\r\n    \t    {\r\n    \t        uint check = balances[owner]-((400*msg.value)/10000000000);\r\n    \t        if(check >= 1900000000000000)\r\n                pre_ico(msg.sender,msg.value);\r\n    \t    }\r\n            else if (now>=ico_start && now<ico_end)\r\n            {\r\n                main_ico(msg.sender,msg.value);\r\n            }"
+          BinaryOperation using operator ==
+             Type: bool
+             Gas costs: 256
+             Source: "msg.sender == owner"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Identifier owner
+               Type: address
+               Source: "owner"
+          Block
+             Source: "{\r\n    \t        profit_sent = msg.value;\r\n    \t    }"
+            ExpressionStatement
+               Gas costs: 20013
+               Source: "profit_sent = msg.value"
+              Assignment using operator =
+                 Type: uint256
+                 Source: "profit_sent = msg.value"
+                Identifier profit_sent
+                   Type: uint256
+                   Source: "profit_sent"
+                MemberAccess to member value
+                   Type: uint256
+                   Source: "msg.value"
+                  Identifier msg
+                     Type: msg
+                     Source: "msg"
+          IfStatement
+             Source: "if(now>=pre_ico_start && now<=pre_ico_end)\r\n    \t    {\r\n    \t        uint check = balances[owner]-((400*msg.value)/10000000000);\r\n    \t        if(check >= 1900000000000000)\r\n                pre_ico(msg.sender,msg.value);\r\n    \t    }\r\n            else if (now>=ico_start && now<ico_end)\r\n            {\r\n                main_ico(msg.sender,msg.value);\r\n            }"
+            BinaryOperation using operator &&
+               Type: bool
+               Gas costs: 444
+               Source: "now>=pre_ico_start && now<=pre_ico_end"
+              BinaryOperation using operator >=
+                 Type: bool
+                 Source: "now>=pre_ico_start"
+                Identifier now
+                   Type: uint256
+                   Source: "now"
+                Identifier pre_ico_start
+                   Type: uint256
+                   Source: "pre_ico_start"
+              BinaryOperation using operator <=
+                 Type: bool
+                 Source: "now<=pre_ico_end"
+                Identifier now
+                   Type: uint256
+                   Source: "now"
+                Identifier pre_ico_end
+                   Type: uint256
+                   Source: "pre_ico_end"
+            Block
+               Source: "{\r\n    \t        uint check = balances[owner]-((400*msg.value)/10000000000);\r\n    \t        if(check >= 1900000000000000)\r\n                pre_ico(msg.sender,msg.value);\r\n    \t    }"
+              VariableDeclarationStatement
+                 Gas costs: 587
+                 Source: "uint check = balances[owner]-((400*msg.value)/10000000000)"
+                VariableDeclaration "check"
+                   Type: uint256
+                   Source: "uint check"
+                  ElementaryTypeName uint
+                     Source: "uint"
+                BinaryOperation using operator -
+                   Type: uint256
+                   Source: "balances[owner]-((400*msg.value)/10000000000)"
+                  IndexAccess
+                     Type: uint256
+                     Source: "balances[owner]"
+                    Identifier balances
+                       Type: mapping(address => uint256)
+                       Source: "balances"
+                    Identifier owner
+                       Type: address
+                       Source: "owner"
+                  TupleExpression
+                     Type: uint256
+                     Source: "((400*msg.value)/10000000000)"
+                    BinaryOperation using operator /
+                       Type: uint256
+                       Source: "(400*msg.value)/10000000000"
+                      TupleExpression
+                         Type: uint256
+                         Source: "(400*msg.value)"
+                        BinaryOperation using operator *
+                           Type: uint256
+                           Source: "400*msg.value"
+                          Literal, token: [no token] value: 400
+                             Type: int_const 400
+                             Source: "400"
+                          MemberAccess to member value
+                             Type: uint256
+                             Source: "msg.value"
+                            Identifier msg
+                               Type: msg
+                               Source: "msg"
+                      Literal, token: [no token] value: 10000000000
+                         Type: int_const 10000000000
+                         Source: "10000000000"
+              IfStatement
+                 Source: "if(check >= 1900000000000000)\r\n                pre_ico(msg.sender,msg.value)"
+                BinaryOperation using operator >=
+                   Type: bool
+                   Gas costs: 12
+                   Source: "check >= 1900000000000000"
+                  Identifier check
+                     Type: uint256
+                     Source: "check"
+                  Literal, token: [no token] value: 1900000000000000
+                     Type: int_const 1900000000000000
+                     Source: "1900000000000000"
+                ExpressionStatement
+                   Gas costs: 8
+                   Source: "pre_ico(msg.sender,msg.value)"
+                  FunctionCall
+                     Type: tuple()
+                     Source: "pre_ico(msg.sender,msg.value)"
+                    Identifier pre_ico
+                       Type: function (address,uint256)
+                       Source: "pre_ico"
+                    MemberAccess to member sender
+                       Type: address
+                       Source: "msg.sender"
+                      Identifier msg
+                         Type: msg
+                         Source: "msg"
+                    MemberAccess to member value
+                       Type: uint256
+                       Source: "msg.value"
+                      Identifier msg
+                         Type: msg
+                         Source: "msg"
+            IfStatement
+               Source: "if (now>=ico_start && now<ico_end)\r\n            {\r\n                main_ico(msg.sender,msg.value);\r\n            }"
+              BinaryOperation using operator &&
+                 Type: bool
+                 Gas costs: 441
+                 Source: "now>=ico_start && now<ico_end"
+                BinaryOperation using operator >=
+                   Type: bool
+                   Source: "now>=ico_start"
+                  Identifier now
+                     Type: uint256
+                     Source: "now"
+                  Identifier ico_start
+                     Type: uint256
+                     Source: "ico_start"
+                BinaryOperation using operator <
+                   Type: bool
+                   Source: "now<ico_end"
+                  Identifier now
+                     Type: uint256
+                     Source: "now"
+                  Identifier ico_end
+                     Type: uint256
+                     Source: "ico_end"
+              Block
+                 Source: "{\r\n                main_ico(msg.sender,msg.value);\r\n            }"
+                ExpressionStatement
+                   Gas costs: 8
+                   Source: "main_ico(msg.sender,msg.value)"
+                  FunctionCall
+                     Type: tuple()
+                     Source: "main_ico(msg.sender,msg.value)"
+                    Identifier main_ico
+                       Type: function (address,uint256)
+                       Source: "main_ico"
+                    MemberAccess to member sender
+                       Type: address
+                       Source: "msg.sender"
+                      Identifier msg
+                         Type: msg
+                         Source: "msg"
+                    MemberAccess to member value
+                       Type: uint256
+                       Source: "msg.value"
+                      Identifier msg
+                         Type: msg
+                         Source: "msg"
+  FunctionDefinition "pre_ico"
+     Source: "function pre_ico(address sender, uint value)private\r\n       {\r\n          counter = counter+1;\r\n\t      investor[counter]=sender;\r\n          weireceived[counter]=value;\r\n          optsSent[counter] = (400*value)/10000000000;\r\n          balances[owner]=balances[owner]-optsSent[counter];\r\n          balances[investor[counter]]+=optsSent[counter];\r\n          preico(counter,investor[counter],weireceived[counter],optsSent[counter]);\r\n       }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address sender, uint value)"
+      VariableDeclaration "sender"
+         Type: address
+         Source: "address sender"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "value"
+         Type: uint256
+         Source: "uint value"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n          counter = counter+1;\r\n\t      investor[counter]=sender;\r\n          weireceived[counter]=value;\r\n          optsSent[counter] = (400*value)/10000000000;\r\n          balances[owner]=balances[owner]-optsSent[counter];\r\n          balances[investor[counter]]+=optsSent[counter];\r\n          preico(counter,investor[counter],weireceived[counter],optsSent[counter]);\r\n       }"
+      ExpressionStatement
+         Gas costs: 20220
+         Source: "counter = counter+1"
+        Assignment using operator =
+           Type: uint256
+           Source: "counter = counter+1"
+          Identifier counter
+             Type: uint256
+             Source: "counter"
+          BinaryOperation using operator +
+             Type: uint256
+             Source: "counter+1"
+            Identifier counter
+               Type: uint256
+               Source: "counter"
+            Literal, token: [no token] value: 1
+               Type: int_const 1
+               Source: "1"
+      ExpressionStatement
+         Gas costs: 20551
+         Source: "investor[counter]=sender"
+        Assignment using operator =
+           Type: address
+           Source: "investor[counter]=sender"
+          IndexAccess
+             Type: address
+             Source: "investor[counter]"
+            Identifier investor
+               Type: mapping(uint256 => address)
+               Source: "investor"
+            Identifier counter
+               Type: uint256
+               Source: "counter"
+          Identifier sender
+             Type: address
+             Source: "sender"
+      ExpressionStatement
+         Gas costs: 20292
+         Source: "weireceived[counter]=value"
+        Assignment using operator =
+           Type: uint256
+           Source: "weireceived[counter]=value"
+          IndexAccess
+             Type: uint256
+             Source: "weireceived[counter]"
+            Identifier weireceived
+               Type: mapping(uint256 => uint256)
+               Source: "weireceived"
+            Identifier counter
+               Type: uint256
+               Source: "counter"
+          Identifier value
+             Type: uint256
+             Source: "value"
+      ExpressionStatement
+         Gas costs: 20337
+         Source: "optsSent[counter] = (400*value)/10000000000"
+        Assignment using operator =
+           Type: uint256
+           Source: "optsSent[counter] = (400*value)/10000000000"
+          IndexAccess
+             Type: uint256
+             Source: "optsSent[counter]"
+            Identifier optsSent
+               Type: mapping(uint256 => uint256)
+               Source: "optsSent"
+            Identifier counter
+               Type: uint256
+               Source: "counter"
+          BinaryOperation using operator /
+             Type: uint256
+             Source: "(400*value)/10000000000"
+            TupleExpression
+               Type: uint256
+               Source: "(400*value)"
+              BinaryOperation using operator *
+                 Type: uint256
+                 Source: "400*value"
+                Literal, token: [no token] value: 400
+                   Type: int_const 400
+                   Source: "400"
+                Identifier value
+                   Type: uint256
+                   Source: "value"
+            Literal, token: [no token] value: 10000000000
+               Type: int_const 10000000000
+               Source: "10000000000"
+      ExpressionStatement
+         Gas costs: 21350
+         Source: "balances[owner]=balances[owner]-optsSent[counter]"
+        Assignment using operator =
+           Type: uint256
+           Source: "balances[owner]=balances[owner]-optsSent[counter]"
+          IndexAccess
+             Type: uint256
+             Source: "balances[owner]"
+            Identifier balances
+               Type: mapping(address => uint256)
+               Source: "balances"
+            Identifier owner
+               Type: address
+               Source: "owner"
+          BinaryOperation using operator -
+             Type: uint256
+             Source: "balances[owner]-optsSent[counter]"
+            IndexAccess
+               Type: uint256
+               Source: "balances[owner]"
+              Identifier balances
+                 Type: mapping(address => uint256)
+                 Source: "balances"
+              Identifier owner
+                 Type: address
+                 Source: "owner"
+            IndexAccess
+               Type: uint256
+               Source: "optsSent[counter]"
+              Identifier optsSent
+                 Type: mapping(uint256 => uint256)
+                 Source: "optsSent"
+              Identifier counter
+                 Type: uint256
+                 Source: "counter"
+      ExpressionStatement
+         Gas costs: 21315
+         Source: "balances[investor[counter]]+=optsSent[counter]"
+        Assignment using operator +=
+           Type: uint256
+           Source: "balances[investor[counter]]+=optsSent[counter]"
+          IndexAccess
+             Type: uint256
+             Source: "balances[investor[counter]]"
+            Identifier balances
+               Type: mapping(address => uint256)
+               Source: "balances"
+            IndexAccess
+               Type: address
+               Source: "investor[counter]"
+              Identifier investor
+                 Type: mapping(uint256 => address)
+                 Source: "investor"
+              Identifier counter
+                 Type: uint256
+                 Source: "counter"
+          IndexAccess
+             Type: uint256
+             Source: "optsSent[counter]"
+            Identifier optsSent
+               Type: mapping(uint256 => uint256)
+               Source: "optsSent"
+            Identifier counter
+               Type: uint256
+               Source: "counter"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "preico(counter,investor[counter],weireceived[counter],optsSent[counter])"
+        FunctionCall
+           Type: tuple()
+           Source: "preico(counter,investor[counter],weireceived[counter],optsSent[counter])"
+          Identifier preico
+             Type: function (uint256,address,uint256,uint256)
+             Source: "preico"
+          Identifier counter
+             Type: uint256
+             Source: "counter"
+          IndexAccess
+             Type: address
+             Source: "investor[counter]"
+            Identifier investor
+               Type: mapping(uint256 => address)
+               Source: "investor"
+            Identifier counter
+               Type: uint256
+               Source: "counter"
+          IndexAccess
+             Type: uint256
+             Source: "weireceived[counter]"
+            Identifier weireceived
+               Type: mapping(uint256 => uint256)
+               Source: "weireceived"
+            Identifier counter
+               Type: uint256
+               Source: "counter"
+          IndexAccess
+             Type: uint256
+             Source: "optsSent[counter]"
+            Identifier optsSent
+               Type: mapping(uint256 => uint256)
+               Source: "optsSent"
+            Identifier counter
+               Type: uint256
+               Source: "counter"
+  FunctionDefinition "main_ico"
+     Source: "function  main_ico(address sender, uint value)private\r\n       {\r\n           if(now >= ico_start && now <= (ico_start + 7 days)) //20% discount on BOPT\r\n           {\r\n              counter = counter+1;\r\n    \t      investor[counter]=sender;\r\n              weireceived[counter]=value;\r\n              optsSent[counter] = (250*value)/10000000000;\r\n              balances[owner]=balances[owner]-optsSent[counter];\r\n              balances[investor[counter]]+=optsSent[counter];\r\n              ico(counter,investor[counter],weireceived[counter],optsSent[counter]);\r\n           }\r\n           else if (now >= (ico_start + 7 days) && now <= (ico_start + 14 days)) //10% discount on BOPT\r\n           {\r\n              counter = counter+1;\r\n    \t      investor[counter]=sender;\r\n              weireceived[counter]=value;\r\n              optsSent[counter] = (220*value)/10000000000;\r\n              balances[owner]=balances[owner]-optsSent[counter];\r\n              balances[investor[counter]]+=optsSent[counter];\r\n              ico(counter,investor[counter],weireceived[counter],optsSent[counter]);\r\n           }\r\n           else if (now >= (ico_start + 14 days) && now <= (ico_start + 31 days)) //no discount on BOPT\r\n           {\r\n              counter = counter+1;\r\n    \t      investor[counter]=sender;\r\n              weireceived[counter]=value;\r\n              optsSent[counter] = (200*value)/10000000000;\r\n              balances[owner]=balances[owner]-optsSent[counter];\r\n              balances[investor[counter]]+=optsSent[counter];\r\n              ico(counter,investor[counter],weireceived[counter],optsSent[counter]);\r\n           }\r\n       }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address sender, uint value)"
+      VariableDeclaration "sender"
+         Type: address
+         Source: "address sender"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "value"
+         Type: uint256
+         Source: "uint value"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n           if(now >= ico_start && now <= (ico_start + 7 days)) //20% discount on BOPT\r\n           {\r\n              counter = counter+1;\r\n    \t      investor[counter]=sender;\r\n              weireceived[counter]=value;\r\n              optsSent[counter] = (250*value)/10000000000;\r\n              balances[owner]=balances[owner]-optsSent[counter];\r\n              balances[investor[counter]]+=optsSent[counter];\r\n              ico(counter,investor[counter],weireceived[counter],optsSent[counter]);\r\n           }\r\n           else if (now >= (ico_start + 7 days) && now <= (ico_start + 14 days)) //10% discount on BOPT\r\n           {\r\n              counter = counter+1;\r\n    \t      investor[counter]=sender;\r\n              weireceived[counter]=value;\r\n              optsSent[counter] = (220*value)/10000000000;\r\n              balances[owner]=balances[owner]-optsSent[counter];\r\n              balances[investor[counter]]+=optsSent[counter];\r\n              ico(counter,investor[counter],weireceived[counter],optsSent[counter]);\r\n           }\r\n           else if (now >= (ico_start + 14 days) && now <= (ico_start + 31 days)) //no discount on BOPT\r\n           {\r\n              counter = counter+1;\r\n    \t      investor[counter]=sender;\r\n              weireceived[counter]=value;\r\n              optsSent[counter] = (200*value)/10000000000;\r\n              balances[owner]=balances[owner]-optsSent[counter];\r\n              balances[investor[counter]]+=optsSent[counter];\r\n              ico(counter,investor[counter],weireceived[counter],optsSent[counter]);\r\n           }\r\n       }"
+      IfStatement
+         Source: "if(now >= ico_start && now <= (ico_start + 7 days)) //20% discount on BOPT\r\n           {\r\n              counter = counter+1;\r\n    \t      investor[counter]=sender;\r\n              weireceived[counter]=value;\r\n              optsSent[counter] = (250*value)/10000000000;\r\n              balances[owner]=balances[owner]-optsSent[counter];\r\n              balances[investor[counter]]+=optsSent[counter];\r\n              ico(counter,investor[counter],weireceived[counter],optsSent[counter]);\r\n           }\r\n           else if (now >= (ico_start + 7 days) && now <= (ico_start + 14 days)) //10% discount on BOPT\r\n           {\r\n              counter = counter+1;\r\n    \t      investor[counter]=sender;\r\n              weireceived[counter]=value;\r\n              optsSent[counter] = (220*value)/10000000000;\r\n              balances[owner]=balances[owner]-optsSent[counter];\r\n              balances[investor[counter]]+=optsSent[counter];\r\n              ico(counter,investor[counter],weireceived[counter],optsSent[counter]);\r\n           }\r\n           else if (now >= (ico_start + 14 days) && now <= (ico_start + 31 days)) //no discount on BOPT\r\n           {\r\n              counter = counter+1;\r\n    \t      investor[counter]=sender;\r\n              weireceived[counter]=value;\r\n              optsSent[counter] = (200*value)/10000000000;\r\n              balances[owner]=balances[owner]-optsSent[counter];\r\n              balances[investor[counter]]+=optsSent[counter];\r\n              ico(counter,investor[counter],weireceived[counter],optsSent[counter]);\r\n           }"
+        BinaryOperation using operator &&
+           Type: bool
+           Gas costs: 450
+           Source: "now >= ico_start && now <= (ico_start + 7 days)"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "now >= ico_start"
+            Identifier now
+               Type: uint256
+               Source: "now"
+            Identifier ico_start
+               Type: uint256
+               Source: "ico_start"
+          BinaryOperation using operator <=
+             Type: bool
+             Source: "now <= (ico_start + 7 days)"
+            Identifier now
+               Type: uint256
+               Source: "now"
+            TupleExpression
+               Type: uint256
+               Source: "(ico_start + 7 days)"
+              BinaryOperation using operator +
+                 Type: uint256
+                 Source: "ico_start + 7 days"
+                Identifier ico_start
+                   Type: uint256
+                   Source: "ico_start"
+                Literal, token: [no token] value: 7
+                   Type: int_const 604800
+                   Source: "7 days"
+        Block
+           Source: "{\r\n              counter = counter+1;\r\n    \t      investor[counter]=sender;\r\n              weireceived[counter]=value;\r\n              optsSent[counter] = (250*value)/10000000000;\r\n              balances[owner]=balances[owner]-optsSent[counter];\r\n              balances[investor[counter]]+=optsSent[counter];\r\n              ico(counter,investor[counter],weireceived[counter],optsSent[counter]);\r\n           }"
+          ExpressionStatement
+             Gas costs: 20220
+             Source: "counter = counter+1"
+            Assignment using operator =
+               Type: uint256
+               Source: "counter = counter+1"
+              Identifier counter
+                 Type: uint256
+                 Source: "counter"
+              BinaryOperation using operator +
+                 Type: uint256
+                 Source: "counter+1"
+                Identifier counter
+                   Type: uint256
+                   Source: "counter"
+                Literal, token: [no token] value: 1
+                   Type: int_const 1
+                   Source: "1"
+          ExpressionStatement
+             Gas costs: 20551
+             Source: "investor[counter]=sender"
+            Assignment using operator =
+               Type: address
+               Source: "investor[counter]=sender"
+              IndexAccess
+                 Type: address
+                 Source: "investor[counter]"
+                Identifier investor
+                   Type: mapping(uint256 => address)
+                   Source: "investor"
+                Identifier counter
+                   Type: uint256
+                   Source: "counter"
+              Identifier sender
+                 Type: address
+                 Source: "sender"
+          ExpressionStatement
+             Gas costs: 20292
+             Source: "weireceived[counter]=value"
+            Assignment using operator =
+               Type: uint256
+               Source: "weireceived[counter]=value"
+              IndexAccess
+                 Type: uint256
+                 Source: "weireceived[counter]"
+                Identifier weireceived
+                   Type: mapping(uint256 => uint256)
+                   Source: "weireceived"
+                Identifier counter
+                   Type: uint256
+                   Source: "counter"
+              Identifier value
+                 Type: uint256
+                 Source: "value"
+          ExpressionStatement
+             Gas costs: 20337
+             Source: "optsSent[counter] = (250*value)/10000000000"
+            Assignment using operator =
+               Type: uint256
+               Source: "optsSent[counter] = (250*value)/10000000000"
+              IndexAccess
+                 Type: uint256
+                 Source: "optsSent[counter]"
+                Identifier optsSent
+                   Type: mapping(uint256 => uint256)
+                   Source: "optsSent"
+                Identifier counter
+                   Type: uint256
+                   Source: "counter"
+              BinaryOperation using operator /
+                 Type: uint256
+                 Source: "(250*value)/10000000000"
+                TupleExpression
+                   Type: uint256
+                   Source: "(250*value)"
+                  BinaryOperation using operator *
+                     Type: uint256
+                     Source: "250*value"
+                    Literal, token: [no token] value: 250
+                       Type: int_const 250
+                       Source: "250"
+                    Identifier value
+                       Type: uint256
+                       Source: "value"
+                Literal, token: [no token] value: 10000000000
+                   Type: int_const 10000000000
+                   Source: "10000000000"
+          ExpressionStatement
+             Gas costs: 21350
+             Source: "balances[owner]=balances[owner]-optsSent[counter]"
+            Assignment using operator =
+               Type: uint256
+               Source: "balances[owner]=balances[owner]-optsSent[counter]"
+              IndexAccess
+                 Type: uint256
+                 Source: "balances[owner]"
+                Identifier balances
+                   Type: mapping(address => uint256)
+                   Source: "balances"
+                Identifier owner
+                   Type: address
+                   Source: "owner"
+              BinaryOperation using operator -
+                 Type: uint256
+                 Source: "balances[owner]-optsSent[counter]"
+                IndexAccess
+                   Type: uint256
+                   Source: "balances[owner]"
+                  Identifier balances
+                     Type: mapping(address => uint256)
+                     Source: "balances"
+                  Identifier owner
+                     Type: address
+                     Source: "owner"
+                IndexAccess
+                   Type: uint256
+                   Source: "optsSent[counter]"
+                  Identifier optsSent
+                     Type: mapping(uint256 => uint256)
+                     Source: "optsSent"
+                  Identifier counter
+                     Type: uint256
+                     Source: "counter"
+          ExpressionStatement
+             Gas costs: 21315
+             Source: "balances[investor[counter]]+=optsSent[counter]"
+            Assignment using operator +=
+               Type: uint256
+               Source: "balances[investor[counter]]+=optsSent[counter]"
+              IndexAccess
+                 Type: uint256
+                 Source: "balances[investor[counter]]"
+                Identifier balances
+                   Type: mapping(address => uint256)
+                   Source: "balances"
+                IndexAccess
+                   Type: address
+                   Source: "investor[counter]"
+                  Identifier investor
+                     Type: mapping(uint256 => address)
+                     Source: "investor"
+                  Identifier counter
+                     Type: uint256
+                     Source: "counter"
+              IndexAccess
+                 Type: uint256
+                 Source: "optsSent[counter]"
+                Identifier optsSent
+                   Type: mapping(uint256 => uint256)
+                   Source: "optsSent"
+                Identifier counter
+                   Type: uint256
+                   Source: "counter"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "ico(counter,investor[counter],weireceived[counter],optsSent[counter])"
+            FunctionCall
+               Type: tuple()
+               Source: "ico(counter,investor[counter],weireceived[counter],optsSent[counter])"
+              Identifier ico
+                 Type: function (uint256,address,uint256,uint256)
+                 Source: "ico"
+              Identifier counter
+                 Type: uint256
+                 Source: "counter"
+              IndexAccess
+                 Type: address
+                 Source: "investor[counter]"
+                Identifier investor
+                   Type: mapping(uint256 => address)
+                   Source: "investor"
+                Identifier counter
+                   Type: uint256
+                   Source: "counter"
+              IndexAccess
+                 Type: uint256
+                 Source: "weireceived[counter]"
+                Identifier weireceived
+                   Type: mapping(uint256 => uint256)
+                   Source: "weireceived"
+                Identifier counter
+                   Type: uint256
+                   Source: "counter"
+              IndexAccess
+                 Type: uint256
+                 Source: "optsSent[counter]"
+                Identifier optsSent
+                   Type: mapping(uint256 => uint256)
+                   Source: "optsSent"
+                Identifier counter
+                   Type: uint256
+                   Source: "counter"
+        IfStatement
+           Source: "if (now >= (ico_start + 7 days) && now <= (ico_start + 14 days)) //10% discount on BOPT\r\n           {\r\n              counter = counter+1;\r\n    \t      investor[counter]=sender;\r\n              weireceived[counter]=value;\r\n              optsSent[counter] = (220*value)/10000000000;\r\n              balances[owner]=balances[owner]-optsSent[counter];\r\n              balances[investor[counter]]+=optsSent[counter];\r\n              ico(counter,investor[counter],weireceived[counter],optsSent[counter]);\r\n           }\r\n           else if (now >= (ico_start + 14 days) && now <= (ico_start + 31 days)) //no discount on BOPT\r\n           {\r\n              counter = counter+1;\r\n    \t      investor[counter]=sender;\r\n              weireceived[counter]=value;\r\n              optsSent[counter] = (200*value)/10000000000;\r\n              balances[owner]=balances[owner]-optsSent[counter];\r\n              balances[investor[counter]]+=optsSent[counter];\r\n              ico(counter,investor[counter],weireceived[counter],optsSent[counter]);\r\n           }"
+          BinaryOperation using operator &&
+             Type: bool
+             Gas costs: 456
+             Source: "now >= (ico_start + 7 days) && now <= (ico_start + 14 days)"
+            BinaryOperation using operator >=
+               Type: bool
+               Source: "now >= (ico_start + 7 days)"
+              Identifier now
+                 Type: uint256
+                 Source: "now"
+              TupleExpression
+                 Type: uint256
+                 Source: "(ico_start + 7 days)"
+                BinaryOperation using operator +
+                   Type: uint256
+                   Source: "ico_start + 7 days"
+                  Identifier ico_start
+                     Type: uint256
+                     Source: "ico_start"
+                  Literal, token: [no token] value: 7
+                     Type: int_const 604800
+                     Source: "7 days"
+            BinaryOperation using operator <=
+               Type: bool
+               Source: "now <= (ico_start + 14 days)"
+              Identifier now
+                 Type: uint256
+                 Source: "now"
+              TupleExpression
+                 Type: uint256
+                 Source: "(ico_start + 14 days)"
+                BinaryOperation using operator +
+                   Type: uint256
+                   Source: "ico_start + 14 days"
+                  Identifier ico_start
+                     Type: uint256
+                     Source: "ico_start"
+                  Literal, token: [no token] value: 14
+                     Type: int_const 1209600
+                     Source: "14 days"
+          Block
+             Source: "{\r\n              counter = counter+1;\r\n    \t      investor[counter]=sender;\r\n              weireceived[counter]=value;\r\n              optsSent[counter] = (220*value)/10000000000;\r\n              balances[owner]=balances[owner]-optsSent[counter];\r\n              balances[investor[counter]]+=optsSent[counter];\r\n              ico(counter,investor[counter],weireceived[counter],optsSent[counter]);\r\n           }"
+            ExpressionStatement
+               Gas costs: 20220
+               Source: "counter = counter+1"
+              Assignment using operator =
+                 Type: uint256
+                 Source: "counter = counter+1"
+                Identifier counter
+                   Type: uint256
+                   Source: "counter"
+                BinaryOperation using operator +
+                   Type: uint256
+                   Source: "counter+1"
+                  Identifier counter
+                     Type: uint256
+                     Source: "counter"
+                  Literal, token: [no token] value: 1
+                     Type: int_const 1
+                     Source: "1"
+            ExpressionStatement
+               Gas costs: 20551
+               Source: "investor[counter]=sender"
+              Assignment using operator =
+                 Type: address
+                 Source: "investor[counter]=sender"
+                IndexAccess
+                   Type: address
+                   Source: "investor[counter]"
+                  Identifier investor
+                     Type: mapping(uint256 => address)
+                     Source: "investor"
+                  Identifier counter
+                     Type: uint256
+                     Source: "counter"
+                Identifier sender
+                   Type: address
+                   Source: "sender"
+            ExpressionStatement
+               Gas costs: 20292
+               Source: "weireceived[counter]=value"
+              Assignment using operator =
+                 Type: uint256
+                 Source: "weireceived[counter]=value"
+                IndexAccess
+                   Type: uint256
+                   Source: "weireceived[counter]"
+                  Identifier weireceived
+                     Type: mapping(uint256 => uint256)
+                     Source: "weireceived"
+                  Identifier counter
+                     Type: uint256
+                     Source: "counter"
+                Identifier value
+                   Type: uint256
+                   Source: "value"
+            ExpressionStatement
+               Gas costs: 20337
+               Source: "optsSent[counter] = (220*value)/10000000000"
+              Assignment using operator =
+                 Type: uint256
+                 Source: "optsSent[counter] = (220*value)/10000000000"
+                IndexAccess
+                   Type: uint256
+                   Source: "optsSent[counter]"
+                  Identifier optsSent
+                     Type: mapping(uint256 => uint256)
+                     Source: "optsSent"
+                  Identifier counter
+                     Type: uint256
+                     Source: "counter"
+                BinaryOperation using operator /
+                   Type: uint256
+                   Source: "(220*value)/10000000000"
+                  TupleExpression
+                     Type: uint256
+                     Source: "(220*value)"
+                    BinaryOperation using operator *
+                       Type: uint256
+                       Source: "220*value"
+                      Literal, token: [no token] value: 220
+                         Type: int_const 220
+                         Source: "220"
+                      Identifier value
+                         Type: uint256
+                         Source: "value"
+                  Literal, token: [no token] value: 10000000000
+                     Type: int_const 10000000000
+                     Source: "10000000000"
+            ExpressionStatement
+               Gas costs: 21350
+               Source: "balances[owner]=balances[owner]-optsSent[counter]"
+              Assignment using operator =
+                 Type: uint256
+                 Source: "balances[owner]=balances[owner]-optsSent[counter]"
+                IndexAccess
+                   Type: uint256
+                   Source: "balances[owner]"
+                  Identifier balances
+                     Type: mapping(address => uint256)
+                     Source: "balances"
+                  Identifier owner
+                     Type: address
+                     Source: "owner"
+                BinaryOperation using operator -
+                   Type: uint256
+                   Source: "balances[owner]-optsSent[counter]"
+                  IndexAccess
+                     Type: uint256
+                     Source: "balances[owner]"
+                    Identifier balances
+                       Type: mapping(address => uint256)
+                       Source: "balances"
+                    Identifier owner
+                       Type: address
+                       Source: "owner"
+                  IndexAccess
+                     Type: uint256
+                     Source: "optsSent[counter]"
+                    Identifier optsSent
+                       Type: mapping(uint256 => uint256)
+                       Source: "optsSent"
+                    Identifier counter
+                       Type: uint256
+                       Source: "counter"
+            ExpressionStatement
+               Gas costs: 21315
+               Source: "balances[investor[counter]]+=optsSent[counter]"
+              Assignment using operator +=
+                 Type: uint256
+                 Source: "balances[investor[counter]]+=optsSent[counter]"
+                IndexAccess
+                   Type: uint256
+                   Source: "balances[investor[counter]]"
+                  Identifier balances
+                     Type: mapping(address => uint256)
+                     Source: "balances"
+                  IndexAccess
+                     Type: address
+                     Source: "investor[counter]"
+                    Identifier investor
+                       Type: mapping(uint256 => address)
+                       Source: "investor"
+                    Identifier counter
+                       Type: uint256
+                       Source: "counter"
+                IndexAccess
+                   Type: uint256
+                   Source: "optsSent[counter]"
+                  Identifier optsSent
+                     Type: mapping(uint256 => uint256)
+                     Source: "optsSent"
+                  Identifier counter
+                     Type: uint256
+                     Source: "counter"
+            ExpressionStatement
+               Gas costs: [???]
+               Source: "ico(counter,investor[counter],weireceived[counter],optsSent[counter])"
+              FunctionCall
+                 Type: tuple()
+                 Source: "ico(counter,investor[counter],weireceived[counter],optsSent[counter])"
+                Identifier ico
+                   Type: function (uint256,address,uint256,uint256)
+                   Source: "ico"
+                Identifier counter
+                   Type: uint256
+                   Source: "counter"
+                IndexAccess
+                   Type: address
+                   Source: "investor[counter]"
+                  Identifier investor
+                     Type: mapping(uint256 => address)
+                     Source: "investor"
+                  Identifier counter
+                     Type: uint256
+                     Source: "counter"
+                IndexAccess
+                   Type: uint256
+                   Source: "weireceived[counter]"
+                  Identifier weireceived
+                     Type: mapping(uint256 => uint256)
+                     Source: "weireceived"
+                  Identifier counter
+                     Type: uint256
+                     Source: "counter"
+                IndexAccess
+                   Type: uint256
+                   Source: "optsSent[counter]"
+                  Identifier optsSent
+                     Type: mapping(uint256 => uint256)
+                     Source: "optsSent"
+                  Identifier counter
+                     Type: uint256
+                     Source: "counter"
+          IfStatement
+             Source: "if (now >= (ico_start + 14 days) && now <= (ico_start + 31 days)) //no discount on BOPT\r\n           {\r\n              counter = counter+1;\r\n    \t      investor[counter]=sender;\r\n              weireceived[counter]=value;\r\n              optsSent[counter] = (200*value)/10000000000;\r\n              balances[owner]=balances[owner]-optsSent[counter];\r\n              balances[investor[counter]]+=optsSent[counter];\r\n              ico(counter,investor[counter],weireceived[counter],optsSent[counter]);\r\n           }"
+            BinaryOperation using operator &&
+               Type: bool
+               Gas costs: 456
+               Source: "now >= (ico_start + 14 days) && now <= (ico_start + 31 days)"
+              BinaryOperation using operator >=
+                 Type: bool
+                 Source: "now >= (ico_start + 14 days)"
+                Identifier now
+                   Type: uint256
+                   Source: "now"
+                TupleExpression
+                   Type: uint256
+                   Source: "(ico_start + 14 days)"
+                  BinaryOperation using operator +
+                     Type: uint256
+                     Source: "ico_start + 14 days"
+                    Identifier ico_start
+                       Type: uint256
+                       Source: "ico_start"
+                    Literal, token: [no token] value: 14
+                       Type: int_const 1209600
+                       Source: "14 days"
+              BinaryOperation using operator <=
+                 Type: bool
+                 Source: "now <= (ico_start + 31 days)"
+                Identifier now
+                   Type: uint256
+                   Source: "now"
+                TupleExpression
+                   Type: uint256
+                   Source: "(ico_start + 31 days)"
+                  BinaryOperation using operator +
+                     Type: uint256
+                     Source: "ico_start + 31 days"
+                    Identifier ico_start
+                       Type: uint256
+                       Source: "ico_start"
+                    Literal, token: [no token] value: 31
+                       Type: int_const 2678400
+                       Source: "31 days"
+            Block
+               Source: "{\r\n              counter = counter+1;\r\n    \t      investor[counter]=sender;\r\n              weireceived[counter]=value;\r\n              optsSent[counter] = (200*value)/10000000000;\r\n              balances[owner]=balances[owner]-optsSent[counter];\r\n              balances[investor[counter]]+=optsSent[counter];\r\n              ico(counter,investor[counter],weireceived[counter],optsSent[counter]);\r\n           }"
+              ExpressionStatement
+                 Gas costs: 20220
+                 Source: "counter = counter+1"
+                Assignment using operator =
+                   Type: uint256
+                   Source: "counter = counter+1"
+                  Identifier counter
+                     Type: uint256
+                     Source: "counter"
+                  BinaryOperation using operator +
+                     Type: uint256
+                     Source: "counter+1"
+                    Identifier counter
+                       Type: uint256
+                       Source: "counter"
+                    Literal, token: [no token] value: 1
+                       Type: int_const 1
+                       Source: "1"
+              ExpressionStatement
+                 Gas costs: 20551
+                 Source: "investor[counter]=sender"
+                Assignment using operator =
+                   Type: address
+                   Source: "investor[counter]=sender"
+                  IndexAccess
+                     Type: address
+                     Source: "investor[counter]"
+                    Identifier investor
+                       Type: mapping(uint256 => address)
+                       Source: "investor"
+                    Identifier counter
+                       Type: uint256
+                       Source: "counter"
+                  Identifier sender
+                     Type: address
+                     Source: "sender"
+              ExpressionStatement
+                 Gas costs: 20292
+                 Source: "weireceived[counter]=value"
+                Assignment using operator =
+                   Type: uint256
+                   Source: "weireceived[counter]=value"
+                  IndexAccess
+                     Type: uint256
+                     Source: "weireceived[counter]"
+                    Identifier weireceived
+                       Type: mapping(uint256 => uint256)
+                       Source: "weireceived"
+                    Identifier counter
+                       Type: uint256
+                       Source: "counter"
+                  Identifier value
+                     Type: uint256
+                     Source: "value"
+              ExpressionStatement
+                 Gas costs: 20337
+                 Source: "optsSent[counter] = (200*value)/10000000000"
+                Assignment using operator =
+                   Type: uint256
+                   Source: "optsSent[counter] = (200*value)/10000000000"
+                  IndexAccess
+                     Type: uint256
+                     Source: "optsSent[counter]"
+                    Identifier optsSent
+                       Type: mapping(uint256 => uint256)
+                       Source: "optsSent"
+                    Identifier counter
+                       Type: uint256
+                       Source: "counter"
+                  BinaryOperation using operator /
+                     Type: uint256
+                     Source: "(200*value)/10000000000"
+                    TupleExpression
+                       Type: uint256
+                       Source: "(200*value)"
+                      BinaryOperation using operator *
+                         Type: uint256
+                         Source: "200*value"
+                        Literal, token: [no token] value: 200
+                           Type: int_const 200
+                           Source: "200"
+                        Identifier value
+                           Type: uint256
+                           Source: "value"
+                    Literal, token: [no token] value: 10000000000
+                       Type: int_const 10000000000
+                       Source: "10000000000"
+              ExpressionStatement
+                 Gas costs: 21350
+                 Source: "balances[owner]=balances[owner]-optsSent[counter]"
+                Assignment using operator =
+                   Type: uint256
+                   Source: "balances[owner]=balances[owner]-optsSent[counter]"
+                  IndexAccess
+                     Type: uint256
+                     Source: "balances[owner]"
+                    Identifier balances
+                       Type: mapping(address => uint256)
+                       Source: "balances"
+                    Identifier owner
+                       Type: address
+                       Source: "owner"
+                  BinaryOperation using operator -
+                     Type: uint256
+                     Source: "balances[owner]-optsSent[counter]"
+                    IndexAccess
+                       Type: uint256
+                       Source: "balances[owner]"
+                      Identifier balances
+                         Type: mapping(address => uint256)
+                         Source: "balances"
+                      Identifier owner
+                         Type: address
+                         Source: "owner"
+                    IndexAccess
+                       Type: uint256
+                       Source: "optsSent[counter]"
+                      Identifier optsSent
+                         Type: mapping(uint256 => uint256)
+                         Source: "optsSent"
+                      Identifier counter
+                         Type: uint256
+                         Source: "counter"
+              ExpressionStatement
+                 Gas costs: 21315
+                 Source: "balances[investor[counter]]+=optsSent[counter]"
+                Assignment using operator +=
+                   Type: uint256
+                   Source: "balances[investor[counter]]+=optsSent[counter]"
+                  IndexAccess
+                     Type: uint256
+                     Source: "balances[investor[counter]]"
+                    Identifier balances
+                       Type: mapping(address => uint256)
+                       Source: "balances"
+                    IndexAccess
+                       Type: address
+                       Source: "investor[counter]"
+                      Identifier investor
+                         Type: mapping(uint256 => address)
+                         Source: "investor"
+                      Identifier counter
+                         Type: uint256
+                         Source: "counter"
+                  IndexAccess
+                     Type: uint256
+                     Source: "optsSent[counter]"
+                    Identifier optsSent
+                       Type: mapping(uint256 => uint256)
+                       Source: "optsSent"
+                    Identifier counter
+                       Type: uint256
+                       Source: "counter"
+              ExpressionStatement
+                 Gas costs: [???]
+                 Source: "ico(counter,investor[counter],weireceived[counter],optsSent[counter])"
+                FunctionCall
+                   Type: tuple()
+                   Source: "ico(counter,investor[counter],weireceived[counter],optsSent[counter])"
+                  Identifier ico
+                     Type: function (uint256,address,uint256,uint256)
+                     Source: "ico"
+                  Identifier counter
+                     Type: uint256
+                     Source: "counter"
+                  IndexAccess
+                     Type: address
+                     Source: "investor[counter]"
+                    Identifier investor
+                       Type: mapping(uint256 => address)
+                       Source: "investor"
+                    Identifier counter
+                       Type: uint256
+                       Source: "counter"
+                  IndexAccess
+                     Type: uint256
+                     Source: "weireceived[counter]"
+                    Identifier weireceived
+                       Type: mapping(uint256 => uint256)
+                       Source: "weireceived"
+                    Identifier counter
+                       Type: uint256
+                       Source: "counter"
+                  IndexAccess
+                     Type: uint256
+                     Source: "optsSent[counter]"
+                    Identifier optsSent
+                       Type: mapping(uint256 => uint256)
+                       Source: "optsSent"
+                    Identifier counter
+                       Type: uint256
+                       Source: "counter"
+  FunctionDefinition "startICO" - public
+     Source: "function startICO()onlyOwner\r\n       {\r\n           ico_start = now;\r\n           ico_end=ico_start + 31 days;\r\n           pre_ico_start = 0;\r\n           pre_ico_end = 0;\r\n           \r\n       }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n           ico_start = now;\r\n           ico_end=ico_start + 31 days;\r\n           pre_ico_start = 0;\r\n           pre_ico_end = 0;\r\n           \r\n       }"
+      ExpressionStatement
+         Gas costs: 20013
+         Source: "ico_start = now"
+        Assignment using operator =
+           Type: uint256
+           Source: "ico_start = now"
+          Identifier ico_start
+             Type: uint256
+             Source: "ico_start"
+          Identifier now
+             Type: uint256
+             Source: "now"
+      ExpressionStatement
+         Gas costs: 20220
+         Source: "ico_end=ico_start + 31 days"
+        Assignment using operator =
+           Type: uint256
+           Source: "ico_end=ico_start + 31 days"
+          Identifier ico_end
+             Type: uint256
+             Source: "ico_end"
+          BinaryOperation using operator +
+             Type: uint256
+             Source: "ico_start + 31 days"
+            Identifier ico_start
+               Type: uint256
+               Source: "ico_start"
+            Literal, token: [no token] value: 31
+               Type: int_const 2678400
+               Source: "31 days"
+      ExpressionStatement
+         Gas costs: 5014
+         Source: "pre_ico_start = 0"
+        Assignment using operator =
+           Type: uint256
+           Source: "pre_ico_start = 0"
+          Identifier pre_ico_start
+             Type: uint256
+             Source: "pre_ico_start"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+      ExpressionStatement
+         Gas costs: 5014
+         Source: "pre_ico_end = 0"
+        Assignment using operator =
+           Type: uint256
+           Source: "pre_ico_end = 0"
+          Identifier pre_ico_end
+             Type: uint256
+             Source: "pre_ico_end"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+  FunctionDefinition "totalSupply" - public - const
+     Source: "function totalSupply() constant returns(uint256 totalSupply) \r\n        {\r\n        totalSupply = _totalSupply;\r\n        }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint256 totalSupply)"
+      VariableDeclaration "totalSupply"
+         Type: uint256
+         Source: "uint256 totalSupply"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{\r\n        totalSupply = _totalSupply;\r\n        }"
+      ExpressionStatement
+         Gas costs: 208
+         Source: "totalSupply = _totalSupply"
+        Assignment using operator =
+           Type: uint256
+           Source: "totalSupply = _totalSupply"
+          Identifier totalSupply
+             Type: uint256
+             Source: "totalSupply"
+          Identifier _totalSupply
+             Type: uint256
+             Source: "_totalSupply"
+  FunctionDefinition "endICO" - public
+     Source: "function endICO()onlyOwner\r\n       {\r\n          stopped=true;\r\n          if(balances[owner] > 130000000000000)\r\n          {\r\n              uint burnedTokens = balances[owner]-130000000000000;\r\n           _totalSupply = _totalSupply-burnedTokens;\r\n           balances[owner] = 130000000000000;\r\n          }\r\n       }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n          stopped=true;\r\n          if(balances[owner] > 130000000000000)\r\n          {\r\n              uint burnedTokens = balances[owner]-130000000000000;\r\n           _totalSupply = _totalSupply-burnedTokens;\r\n           balances[owner] = 130000000000000;\r\n          }\r\n       }"
+      ExpressionStatement
+         Gas costs: 20267
+         Source: "stopped=true"
+        Assignment using operator =
+           Type: bool
+           Source: "stopped=true"
+          Identifier stopped
+             Type: bool
+             Source: "stopped"
+          Literal, token: true value: true
+             Type: bool
+             Source: "true"
+      IfStatement
+         Source: "if(balances[owner] > 130000000000000)\r\n          {\r\n              uint burnedTokens = balances[owner]-130000000000000;\r\n           _totalSupply = _totalSupply-burnedTokens;\r\n           balances[owner] = 130000000000000;\r\n          }"
+        BinaryOperation using operator >
+           Type: bool
+           Gas costs: 541
+           Source: "balances[owner] > 130000000000000"
+          IndexAccess
+             Type: uint256
+             Source: "balances[owner]"
+            Identifier balances
+               Type: mapping(address => uint256)
+               Source: "balances"
+            Identifier owner
+               Type: address
+               Source: "owner"
+          Literal, token: [no token] value: 130000000000000
+             Type: int_const 130000000000000
+             Source: "130000000000000"
+        Block
+           Source: "{\r\n              uint burnedTokens = balances[owner]-130000000000000;\r\n           _totalSupply = _totalSupply-burnedTokens;\r\n           balances[owner] = 130000000000000;\r\n          }"
+          VariableDeclarationStatement
+             Gas costs: 549
+             Source: "uint burnedTokens = balances[owner]-130000000000000"
+            VariableDeclaration "burnedTokens"
+               Type: uint256
+               Source: "uint burnedTokens"
+              ElementaryTypeName uint
+                 Source: "uint"
+            BinaryOperation using operator -
+               Type: uint256
+               Source: "balances[owner]-130000000000000"
+              IndexAccess
+                 Type: uint256
+                 Source: "balances[owner]"
+                Identifier balances
+                   Type: mapping(address => uint256)
+                   Source: "balances"
+                Identifier owner
+                   Type: address
+                   Source: "owner"
+              Literal, token: [no token] value: 130000000000000
+                 Type: int_const 130000000000000
+                 Source: "130000000000000"
+          ExpressionStatement
+             Gas costs: 20220
+             Source: "_totalSupply = _totalSupply-burnedTokens"
+            Assignment using operator =
+               Type: uint256
+               Source: "_totalSupply = _totalSupply-burnedTokens"
+              Identifier _totalSupply
+                 Type: uint256
+                 Source: "_totalSupply"
+              BinaryOperation using operator -
+                 Type: uint256
+                 Source: "_totalSupply-burnedTokens"
+                Identifier _totalSupply
+                   Type: uint256
+                   Source: "_totalSupply"
+                Identifier burnedTokens
+                   Type: uint256
+                   Source: "burnedTokens"
+          ExpressionStatement
+             Gas costs: 20340
+             Source: "balances[owner] = 130000000000000"
+            Assignment using operator =
+               Type: uint256
+               Source: "balances[owner] = 130000000000000"
+              IndexAccess
+                 Type: uint256
+                 Source: "balances[owner]"
+                Identifier balances
+                   Type: mapping(address => uint256)
+                   Source: "balances"
+                Identifier owner
+                   Type: address
+                   Source: "owner"
+              Literal, token: [no token] value: 130000000000000
+                 Type: int_const 130000000000000
+                 Source: "130000000000000"

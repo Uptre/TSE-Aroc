@@ -1,0 +1,57 @@
+Syntax trees:
+
+
+======= /home/fabric/ArocRevision/Aroc/dataSet/smartbugs-21-7-13/arithmetic15/integer_overflow_mapping_sym_1.sol =======
+PragmaDirective
+   Gas costs: 0
+   Source: "pragma solidity ^0.4.11;"
+ContractDefinition "IntegerOverflowMappingSym1"
+   Source: "contract IntegerOverflowMappingSym1 {\n    mapping(uint256 => uint256) map;\n\n    function init(uint256 k, uint256 v) public {\n        // <yes> <report> ARITHMETIC\n        map[k] -= v;\n    }\n}"
+  VariableDeclaration "map"
+     Type: mapping(uint256 => uint256)
+     Gas costs: 0
+     Source: "mapping(uint256 => uint256) map"
+    Mapping
+       Source: "mapping(uint256 => uint256)"
+      ElementaryTypeName uint256
+         Source: "uint256"
+      ElementaryTypeName uint256
+         Source: "uint256"
+  FunctionDefinition "init" - public
+     Source: "function init(uint256 k, uint256 v) public {\n        // <yes> <report> ARITHMETIC\n        map[k] -= v;\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 k, uint256 v)"
+      VariableDeclaration "k"
+         Type: uint256
+         Source: "uint256 k"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "v"
+         Type: uint256
+         Source: "uint256 v"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\n        // <yes> <report> ARITHMETIC\n        map[k] -= v;\n    }"
+      ExpressionStatement
+         Gas costs: 20317
+         Source: "map[k] -= v"
+        Assignment using operator -=
+           Type: uint256
+           Source: "map[k] -= v"
+          IndexAccess
+             Type: uint256
+             Source: "map[k]"
+            Identifier map
+               Type: mapping(uint256 => uint256)
+               Source: "map"
+            Identifier k
+               Type: uint256
+               Source: "k"
+          Identifier v
+             Type: uint256
+             Source: "v"

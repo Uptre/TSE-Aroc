@@ -1,0 +1,1238 @@
+Syntax trees:
+
+
+======= /home/fabric/ArocRevision/Aroc/osirisData/contractSrc/0xd403cc1e2da3aa7d954e0ad34bef2df2b9a9f238.sol =======
+PragmaDirective
+   Gas costs: 0
+   Source: "pragma solidity ^0.4.18;"
+ContractDefinition "ERC20"
+   Gas costs: 0
+   Source: "interface ERC20 {\r\n    function balanceOf(address _owner) public constant returns (uint256 balance);\r\n    function transfer(address _to, uint256 _value) public returns (bool success);\r\n}"
+  FunctionDefinition "balanceOf" - public - const
+     Source: "function balanceOf(address _owner) public constant returns (uint256 balance);"
+    ParameterList
+       Source: "(address _owner)"
+      VariableDeclaration "_owner"
+         Type: address
+         Source: "address _owner"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Source: "(uint256 balance)"
+      VariableDeclaration "balance"
+         Type: uint256
+         Source: "uint256 balance"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  FunctionDefinition "transfer" - public
+     Source: "function transfer(address _to, uint256 _value) public returns (bool success);"
+    ParameterList
+       Source: "(address _to, uint256 _value)"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+ContractDefinition "SafeMath"
+   Source: "library SafeMath {\r\n  function mul(uint256 a, uint256 b) internal pure returns (uint256) {\r\n    if (a == 0) {\r\n      return 0;\r\n    }\r\n    uint256 c = a * b;\r\n    require(c / a == b);\r\n    return c;\r\n  }\r\n}"
+  FunctionDefinition "mul"
+     Source: "function mul(uint256 a, uint256 b) internal pure returns (uint256) {\r\n    if (a == 0) {\r\n      return 0;\r\n    }\r\n    uint256 c = a * b;\r\n    require(c / a == b);\r\n    return c;\r\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 a, uint256 b)"
+      VariableDeclaration "a"
+         Type: uint256
+         Source: "uint256 a"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "b"
+         Type: uint256
+         Source: "uint256 b"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint256)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint256"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{\r\n    if (a == 0) {\r\n      return 0;\r\n    }\r\n    uint256 c = a * b;\r\n    require(c / a == b);\r\n    return c;\r\n  }"
+      IfStatement
+         Source: "if (a == 0) {\r\n      return 0;\r\n    }"
+        BinaryOperation using operator ==
+           Type: bool
+           Gas costs: 9
+           Source: "a == 0"
+          Identifier a
+             Type: uint256
+             Source: "a"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        Block
+           Source: "{\r\n      return 0;\r\n    }"
+          Return
+             Gas costs: 19
+             Source: "return 0"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+      VariableDeclarationStatement
+         Gas costs: 19
+         Source: "uint256 c = a * b"
+        VariableDeclaration "c"
+           Type: uint256
+           Source: "uint256 c"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        BinaryOperation using operator *
+           Type: uint256
+           Source: "a * b"
+          Identifier a
+             Type: uint256
+             Source: "a"
+          Identifier b
+             Type: uint256
+             Source: "b"
+      ExpressionStatement
+         Gas costs: 66
+         Source: "require(c / a == b)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(c / a == b)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "c / a == b"
+            BinaryOperation using operator /
+               Type: uint256
+               Source: "c / a"
+              Identifier c
+                 Type: uint256
+                 Source: "c"
+              Identifier a
+                 Type: uint256
+                 Source: "a"
+            Identifier b
+               Type: uint256
+               Source: "b"
+      Return
+         Gas costs: 8
+         Source: "return c"
+        Identifier c
+           Type: uint256
+           Source: "c"
+ContractDefinition "Distribution"
+   Source: "contract Distribution {\r\n  using SafeMath for uint256;\r\n\r\n  enum State {\r\n    AwaitingTokens,\r\n    DistributingNormally,\r\n    DistributingProRata,\r\n    Done\r\n  }\r\n \r\n  address admin;\r\n  ERC20 tokenContract;\r\n  State state;\r\n  uint256 actualTotalTokens;\r\n  uint256 tokensTransferred;\r\n\r\n  bytes32[] contributionHashes;\r\n  uint256 expectedTotalTokens;\r\n\r\n  function Distribution(address _admin, ERC20 _tokenContract,\r\n                        bytes32[] _contributionHashes, uint256 _expectedTotalTokens) public {\r\n    expectedTotalTokens = _expectedTotalTokens;\r\n    contributionHashes = _contributionHashes;\r\n    tokenContract = _tokenContract;\r\n    admin = _admin;\r\n\r\n    state = State.AwaitingTokens;\r\n  }\r\n\r\n  function handleTokensReceived() public {\r\n    require(state == State.AwaitingTokens);\r\n    uint256 totalTokens = tokenContract.balanceOf(this);\r\n    require(totalTokens > 0);\r\n\r\n    tokensTransferred = 0;\r\n    if (totalTokens == expectedTotalTokens) {\r\n      state = State.DistributingNormally;\r\n    } else {\r\n      actualTotalTokens = totalTokens;\r\n      state = State.DistributingProRata;\r\n    }\r\n  }\r\n\r\n  function _numTokensForContributor(uint256 contributorExpectedTokens, State _state)\r\n      internal view returns (uint256) {\r\n    if (_state == State.DistributingNormally) {\r\n      return contributorExpectedTokens;\r\n    } else if (_state == State.DistributingProRata) {\r\n      uint256 tokensRemaining = actualTotalTokens - tokensTransferred;\r\n      uint256 tokens = actualTotalTokens.mul(contributorExpectedTokens) / expectedTotalTokens;\r\n\r\n      // Handle roundoff on last contributor.\r\n      if (tokens < tokensRemaining) {\r\n        return tokens;\r\n      } else {\r\n        return tokensRemaining;\r\n      }\r\n    } else {\r\n      revert();\r\n    }\r\n  }\r\n\r\n  function doDistribution(uint256 contributorIndex, address contributor,\r\n                          uint256 contributorExpectedTokens)\r\n      public {\r\n    require(contributionHashes[contributorIndex] == keccak256(contributor, contributorExpectedTokens));\r\n\r\n    uint256 numTokens = _numTokensForContributor(contributorExpectedTokens, state);\r\n    contributionHashes[contributorIndex] = 0x00000000000000000000000000000000;\r\n    tokensTransferred += numTokens;\r\n    if (tokensTransferred == actualTotalTokens) {\r\n      state = State.Done;\r\n    }\r\n\r\n    require(tokenContract.transfer(contributor, numTokens));\r\n  }\r\n\r\n  function doDistributionRange(uint256 start, address[] contributors,\r\n                               uint256[] contributorExpectedTokens) public {\r\n    require(contributors.length == contributorExpectedTokens.length);\r\n\r\n    uint256 tokensTransferredThisCall = 0;\r\n    uint256 end = start + contributors.length;\r\n    State _state = state;\r\n    for (uint256 i = start; i < end; ++i) {\r\n      address contributor = contributors[i];\r\n      uint256 expectedTokens = contributorExpectedTokens[i];\r\n      require(contributionHashes[i] == keccak256(contributor, expectedTokens));\r\n      contributionHashes[i] = 0x00000000000000000000000000000000;\r\n\r\n      uint256 numTokens = _numTokensForContributor(expectedTokens, _state);\r\n      tokensTransferredThisCall += numTokens;\r\n      require(tokenContract.transfer(contributor, numTokens));\r\n    }\r\n\r\n    tokensTransferred += tokensTransferredThisCall;\r\n    if (tokensTransferred == actualTotalTokens) {\r\n      state = State.Done;\r\n    }\r\n  }\r\n\r\n  function numTokensForContributor(uint256 contributorExpectedTokens)\r\n      public view returns (uint256) {\r\n    return _numTokensForContributor(contributorExpectedTokens, state);\r\n  }\r\n\r\n  function temporaryEscapeHatch(address to, uint256 value, bytes data) public {\r\n    require(msg.sender == admin);\r\n    require(to.call.value(value)(data));\r\n  }\r\n\r\n  function temporaryKill(address to) public {\r\n    require(msg.sender == admin);\r\n    require(tokenContract.balanceOf(this) == 0);\r\n    selfdestruct(to);\r\n  }\r\n}"
+  UsingForDirective
+     Gas costs: 0
+     Source: "using SafeMath for uint256;"
+    UserDefinedTypeName "SafeMath"
+       Source: "SafeMath"
+    ElementaryTypeName uint256
+       Source: "uint256"
+  EnumDefinition "State"
+    EnumValue "AwaitingTokens"
+    EnumValue "DistributingNormally"
+    EnumValue "DistributingProRata"
+    EnumValue "Done"
+  VariableDeclaration "admin"
+     Type: address
+     Gas costs: 0
+     Source: "address admin"
+    ElementaryTypeName address
+       Source: "address"
+  VariableDeclaration "tokenContract"
+     Type: contract ERC20
+     Gas costs: 0
+     Source: "ERC20 tokenContract"
+    UserDefinedTypeName "ERC20"
+       Source: "ERC20"
+  VariableDeclaration "state"
+     Type: enum Distribution.State
+     Gas costs: 0
+     Source: "State state"
+    UserDefinedTypeName "State"
+       Source: "State"
+  VariableDeclaration "actualTotalTokens"
+     Type: uint256
+     Gas costs: 0
+     Source: "uint256 actualTotalTokens"
+    ElementaryTypeName uint256
+       Source: "uint256"
+  VariableDeclaration "tokensTransferred"
+     Type: uint256
+     Gas costs: 0
+     Source: "uint256 tokensTransferred"
+    ElementaryTypeName uint256
+       Source: "uint256"
+  VariableDeclaration "contributionHashes"
+     Type: bytes32[] storage ref
+     Gas costs: 0
+     Source: "bytes32[] contributionHashes"
+    ArrayTypeName
+       Source: "bytes32[]"
+      ElementaryTypeName bytes32
+         Source: "bytes32"
+  VariableDeclaration "expectedTotalTokens"
+     Type: uint256
+     Gas costs: 0
+     Source: "uint256 expectedTotalTokens"
+    ElementaryTypeName uint256
+       Source: "uint256"
+  FunctionDefinition "Distribution" - public
+     Source: "function Distribution(address _admin, ERC20 _tokenContract,\r\n                        bytes32[] _contributionHashes, uint256 _expectedTotalTokens) public {\r\n    expectedTotalTokens = _expectedTotalTokens;\r\n    contributionHashes = _contributionHashes;\r\n    tokenContract = _tokenContract;\r\n    admin = _admin;\r\n\r\n    state = State.AwaitingTokens;\r\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _admin, ERC20 _tokenContract,\r\n                        bytes32[] _contributionHashes, uint256 _expectedTotalTokens)"
+      VariableDeclaration "_admin"
+         Type: address
+         Source: "address _admin"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_tokenContract"
+         Type: contract ERC20
+         Source: "ERC20 _tokenContract"
+        UserDefinedTypeName "ERC20"
+           Source: "ERC20"
+      VariableDeclaration "_contributionHashes"
+         Type: bytes32[] memory
+         Source: "bytes32[] _contributionHashes"
+        ArrayTypeName
+           Source: "bytes32[]"
+          ElementaryTypeName bytes32
+             Source: "bytes32"
+      VariableDeclaration "_expectedTotalTokens"
+         Type: uint256
+         Source: "uint256 _expectedTotalTokens"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n    expectedTotalTokens = _expectedTotalTokens;\r\n    contributionHashes = _contributionHashes;\r\n    tokenContract = _tokenContract;\r\n    admin = _admin;\r\n\r\n    state = State.AwaitingTokens;\r\n  }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "expectedTotalTokens = _expectedTotalTokens"
+        Assignment using operator =
+           Type: uint256
+           Source: "expectedTotalTokens = _expectedTotalTokens"
+          Identifier expectedTotalTokens
+             Type: uint256
+             Source: "expectedTotalTokens"
+          Identifier _expectedTotalTokens
+             Type: uint256
+             Source: "_expectedTotalTokens"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "contributionHashes = _contributionHashes"
+        Assignment using operator =
+           Type: bytes32[] storage ref
+           Source: "contributionHashes = _contributionHashes"
+          Identifier contributionHashes
+             Type: bytes32[] storage ref
+             Source: "contributionHashes"
+          Identifier _contributionHashes
+             Type: bytes32[] memory
+             Source: "_contributionHashes"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "tokenContract = _tokenContract"
+        Assignment using operator =
+           Type: contract ERC20
+           Source: "tokenContract = _tokenContract"
+          Identifier tokenContract
+             Type: contract ERC20
+             Source: "tokenContract"
+          Identifier _tokenContract
+             Type: contract ERC20
+             Source: "_tokenContract"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "admin = _admin"
+        Assignment using operator =
+           Type: address
+           Source: "admin = _admin"
+          Identifier admin
+             Type: address
+             Source: "admin"
+          Identifier _admin
+             Type: address
+             Source: "_admin"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "state = State.AwaitingTokens"
+        Assignment using operator =
+           Type: enum Distribution.State
+           Source: "state = State.AwaitingTokens"
+          Identifier state
+             Type: enum Distribution.State
+             Source: "state"
+          MemberAccess to member AwaitingTokens
+             Type: enum Distribution.State
+             Source: "State.AwaitingTokens"
+            Identifier State
+               Type: type(enum Distribution.State)
+               Source: "State"
+  FunctionDefinition "handleTokensReceived" - public
+     Source: "function handleTokensReceived() public {\r\n    require(state == State.AwaitingTokens);\r\n    uint256 totalTokens = tokenContract.balanceOf(this);\r\n    require(totalTokens > 0);\r\n\r\n    tokensTransferred = 0;\r\n    if (totalTokens == expectedTotalTokens) {\r\n      state = State.DistributingNormally;\r\n    } else {\r\n      actualTotalTokens = totalTokens;\r\n      state = State.DistributingProRata;\r\n    }\r\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n    require(state == State.AwaitingTokens);\r\n    uint256 totalTokens = tokenContract.balanceOf(this);\r\n    require(totalTokens > 0);\r\n\r\n    tokensTransferred = 0;\r\n    if (totalTokens == expectedTotalTokens) {\r\n      state = State.DistributingNormally;\r\n    } else {\r\n      actualTotalTokens = totalTokens;\r\n      state = State.DistributingProRata;\r\n    }\r\n  }"
+      ExpressionStatement
+         Gas costs: 373
+         Source: "require(state == State.AwaitingTokens)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(state == State.AwaitingTokens)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "state == State.AwaitingTokens"
+            Identifier state
+               Type: enum Distribution.State
+               Source: "state"
+            MemberAccess to member AwaitingTokens
+               Type: enum Distribution.State
+               Source: "State.AwaitingTokens"
+              Identifier State
+                 Type: type(enum Distribution.State)
+                 Source: "State"
+      VariableDeclarationStatement
+         Gas costs: [???]
+         Source: "uint256 totalTokens = tokenContract.balanceOf(this)"
+        VariableDeclaration "totalTokens"
+           Type: uint256
+           Source: "uint256 totalTokens"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        FunctionCall
+           Type: uint256
+           Source: "tokenContract.balanceOf(this)"
+          MemberAccess to member balanceOf
+             Type: function (address) view external returns (uint256)
+             Source: "tokenContract.balanceOf"
+            Identifier tokenContract
+               Type: contract ERC20
+               Source: "tokenContract"
+          Identifier this
+             Type: contract Distribution
+             Source: "this"
+      ExpressionStatement
+         Gas costs: 35
+         Source: "require(totalTokens > 0)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(totalTokens > 0)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >
+             Type: bool
+             Source: "totalTokens > 0"
+            Identifier totalTokens
+               Type: uint256
+               Source: "totalTokens"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+      ExpressionStatement
+         Gas costs: 5014
+         Source: "tokensTransferred = 0"
+        Assignment using operator =
+           Type: uint256
+           Source: "tokensTransferred = 0"
+          Identifier tokensTransferred
+             Type: uint256
+             Source: "tokensTransferred"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+      IfStatement
+         Source: "if (totalTokens == expectedTotalTokens) {\r\n      state = State.DistributingNormally;\r\n    } else {\r\n      actualTotalTokens = totalTokens;\r\n      state = State.DistributingProRata;\r\n    }"
+        BinaryOperation using operator ==
+           Type: bool
+           Gas costs: 209
+           Source: "totalTokens == expectedTotalTokens"
+          Identifier totalTokens
+             Type: uint256
+             Source: "totalTokens"
+          Identifier expectedTotalTokens
+             Type: uint256
+             Source: "expectedTotalTokens"
+        Block
+           Source: "{\r\n      state = State.DistributingNormally;\r\n    }"
+          ExpressionStatement
+             Gas costs: 20337
+             Source: "state = State.DistributingNormally"
+            Assignment using operator =
+               Type: enum Distribution.State
+               Source: "state = State.DistributingNormally"
+              Identifier state
+                 Type: enum Distribution.State
+                 Source: "state"
+              MemberAccess to member DistributingNormally
+                 Type: enum Distribution.State
+                 Source: "State.DistributingNormally"
+                Identifier State
+                   Type: type(enum Distribution.State)
+                   Source: "State"
+        Block
+           Source: "{\r\n      actualTotalTokens = totalTokens;\r\n      state = State.DistributingProRata;\r\n    }"
+          ExpressionStatement
+             Gas costs: 20014
+             Source: "actualTotalTokens = totalTokens"
+            Assignment using operator =
+               Type: uint256
+               Source: "actualTotalTokens = totalTokens"
+              Identifier actualTotalTokens
+                 Type: uint256
+                 Source: "actualTotalTokens"
+              Identifier totalTokens
+                 Type: uint256
+                 Source: "totalTokens"
+          ExpressionStatement
+             Gas costs: 20337
+             Source: "state = State.DistributingProRata"
+            Assignment using operator =
+               Type: enum Distribution.State
+               Source: "state = State.DistributingProRata"
+              Identifier state
+                 Type: enum Distribution.State
+                 Source: "state"
+              MemberAccess to member DistributingProRata
+                 Type: enum Distribution.State
+                 Source: "State.DistributingProRata"
+                Identifier State
+                   Type: type(enum Distribution.State)
+                   Source: "State"
+  FunctionDefinition "_numTokensForContributor" - const
+     Source: "function _numTokensForContributor(uint256 contributorExpectedTokens, State _state)\r\n      internal view returns (uint256) {\r\n    if (_state == State.DistributingNormally) {\r\n      return contributorExpectedTokens;\r\n    } else if (_state == State.DistributingProRata) {\r\n      uint256 tokensRemaining = actualTotalTokens - tokensTransferred;\r\n      uint256 tokens = actualTotalTokens.mul(contributorExpectedTokens) / expectedTotalTokens;\r\n\r\n      // Handle roundoff on last contributor.\r\n      if (tokens < tokensRemaining) {\r\n        return tokens;\r\n      } else {\r\n        return tokensRemaining;\r\n      }\r\n    } else {\r\n      revert();\r\n    }\r\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 contributorExpectedTokens, State _state)"
+      VariableDeclaration "contributorExpectedTokens"
+         Type: uint256
+         Source: "uint256 contributorExpectedTokens"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "_state"
+         Type: enum Distribution.State
+         Source: "State _state"
+        UserDefinedTypeName "State"
+           Source: "State"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint256)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint256"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{\r\n    if (_state == State.DistributingNormally) {\r\n      return contributorExpectedTokens;\r\n    } else if (_state == State.DistributingProRata) {\r\n      uint256 tokensRemaining = actualTotalTokens - tokensTransferred;\r\n      uint256 tokens = actualTotalTokens.mul(contributorExpectedTokens) / expectedTotalTokens;\r\n\r\n      // Handle roundoff on last contributor.\r\n      if (tokens < tokensRemaining) {\r\n        return tokens;\r\n      } else {\r\n        return tokensRemaining;\r\n      }\r\n    } else {\r\n      revert();\r\n    }\r\n  }"
+      IfStatement
+         Source: "if (_state == State.DistributingNormally) {\r\n      return contributorExpectedTokens;\r\n    } else if (_state == State.DistributingProRata) {\r\n      uint256 tokensRemaining = actualTotalTokens - tokensTransferred;\r\n      uint256 tokens = actualTotalTokens.mul(contributorExpectedTokens) / expectedTotalTokens;\r\n\r\n      // Handle roundoff on last contributor.\r\n      if (tokens < tokensRemaining) {\r\n        return tokens;\r\n      } else {\r\n        return tokensRemaining;\r\n      }\r\n    } else {\r\n      revert();\r\n    }"
+        BinaryOperation using operator ==
+           Type: bool
+           Gas costs: 61
+           Source: "_state == State.DistributingNormally"
+          Identifier _state
+             Type: enum Distribution.State
+             Source: "_state"
+          MemberAccess to member DistributingNormally
+             Type: enum Distribution.State
+             Source: "State.DistributingNormally"
+            Identifier State
+               Type: type(enum Distribution.State)
+               Source: "State"
+        Block
+           Source: "{\r\n      return contributorExpectedTokens;\r\n    }"
+          Return
+             Gas costs: 19
+             Source: "return contributorExpectedTokens"
+            Identifier contributorExpectedTokens
+               Type: uint256
+               Source: "contributorExpectedTokens"
+        IfStatement
+           Source: "if (_state == State.DistributingProRata) {\r\n      uint256 tokensRemaining = actualTotalTokens - tokensTransferred;\r\n      uint256 tokens = actualTotalTokens.mul(contributorExpectedTokens) / expectedTotalTokens;\r\n\r\n      // Handle roundoff on last contributor.\r\n      if (tokens < tokensRemaining) {\r\n        return tokens;\r\n      } else {\r\n        return tokensRemaining;\r\n      }\r\n    } else {\r\n      revert();\r\n    }"
+          BinaryOperation using operator ==
+             Type: bool
+             Gas costs: 61
+             Source: "_state == State.DistributingProRata"
+            Identifier _state
+               Type: enum Distribution.State
+               Source: "_state"
+            MemberAccess to member DistributingProRata
+               Type: enum Distribution.State
+               Source: "State.DistributingProRata"
+              Identifier State
+                 Type: type(enum Distribution.State)
+                 Source: "State"
+          Block
+             Source: "{\r\n      uint256 tokensRemaining = actualTotalTokens - tokensTransferred;\r\n      uint256 tokens = actualTotalTokens.mul(contributorExpectedTokens) / expectedTotalTokens;\r\n\r\n      // Handle roundoff on last contributor.\r\n      if (tokens < tokensRemaining) {\r\n        return tokens;\r\n      } else {\r\n        return tokensRemaining;\r\n      }\r\n    }"
+            VariableDeclarationStatement
+               Gas costs: 417
+               Source: "uint256 tokensRemaining = actualTotalTokens - tokensTransferred"
+              VariableDeclaration "tokensRemaining"
+                 Type: uint256
+                 Source: "uint256 tokensRemaining"
+                ElementaryTypeName uint256
+                   Source: "uint256"
+              BinaryOperation using operator -
+                 Type: uint256
+                 Source: "actualTotalTokens - tokensTransferred"
+                Identifier actualTotalTokens
+                   Type: uint256
+                   Source: "actualTotalTokens"
+                Identifier tokensTransferred
+                   Type: uint256
+                   Source: "tokensTransferred"
+            VariableDeclarationStatement
+               Gas costs: 475
+               Source: "uint256 tokens = actualTotalTokens.mul(contributorExpectedTokens) / expectedTotalTokens"
+              VariableDeclaration "tokens"
+                 Type: uint256
+                 Source: "uint256 tokens"
+                ElementaryTypeName uint256
+                   Source: "uint256"
+              BinaryOperation using operator /
+                 Type: uint256
+                 Source: "actualTotalTokens.mul(contributorExpectedTokens) / expectedTotalTokens"
+                FunctionCall
+                   Type: uint256
+                   Source: "actualTotalTokens.mul(contributorExpectedTokens)"
+                  MemberAccess to member mul
+                     Type: function (uint256,uint256) pure returns (uint256)
+                     Source: "actualTotalTokens.mul"
+                    Identifier actualTotalTokens
+                       Type: uint256
+                       Source: "actualTotalTokens"
+                  Identifier contributorExpectedTokens
+                     Type: uint256
+                     Source: "contributorExpectedTokens"
+                Identifier expectedTotalTokens
+                   Type: uint256
+                   Source: "expectedTotalTokens"
+            IfStatement
+               Source: "if (tokens < tokensRemaining) {\r\n        return tokens;\r\n      } else {\r\n        return tokensRemaining;\r\n      }"
+              BinaryOperation using operator <
+                 Type: bool
+                 Gas costs: 9
+                 Source: "tokens < tokensRemaining"
+                Identifier tokens
+                   Type: uint256
+                   Source: "tokens"
+                Identifier tokensRemaining
+                   Type: uint256
+                   Source: "tokensRemaining"
+              Block
+                 Source: "{\r\n        return tokens;\r\n      }"
+                Return
+                   Gas costs: 19
+                   Source: "return tokens"
+                  Identifier tokens
+                     Type: uint256
+                     Source: "tokens"
+              Block
+                 Source: "{\r\n        return tokensRemaining;\r\n      }"
+                Return
+                   Gas costs: 8
+                   Source: "return tokensRemaining"
+                  Identifier tokensRemaining
+                     Type: uint256
+                     Source: "tokensRemaining"
+          Block
+             Source: "{\r\n      revert();\r\n    }"
+            ExpressionStatement
+               Gas costs: 6
+               Source: "revert()"
+              FunctionCall
+                 Type: tuple()
+                 Source: "revert()"
+                Identifier revert
+                   Type: function () pure
+                   Source: "revert"
+  FunctionDefinition "doDistribution" - public
+     Source: "function doDistribution(uint256 contributorIndex, address contributor,\r\n                          uint256 contributorExpectedTokens)\r\n      public {\r\n    require(contributionHashes[contributorIndex] == keccak256(contributor, contributorExpectedTokens));\r\n\r\n    uint256 numTokens = _numTokensForContributor(contributorExpectedTokens, state);\r\n    contributionHashes[contributorIndex] = 0x00000000000000000000000000000000;\r\n    tokensTransferred += numTokens;\r\n    if (tokensTransferred == actualTotalTokens) {\r\n      state = State.Done;\r\n    }\r\n\r\n    require(tokenContract.transfer(contributor, numTokens));\r\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 contributorIndex, address contributor,\r\n                          uint256 contributorExpectedTokens)"
+      VariableDeclaration "contributorIndex"
+         Type: uint256
+         Source: "uint256 contributorIndex"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "contributor"
+         Type: address
+         Source: "address contributor"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "contributorExpectedTokens"
+         Type: uint256
+         Source: "uint256 contributorExpectedTokens"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n    require(contributionHashes[contributorIndex] == keccak256(contributor, contributorExpectedTokens));\r\n\r\n    uint256 numTokens = _numTokensForContributor(contributorExpectedTokens, state);\r\n    contributionHashes[contributorIndex] = 0x00000000000000000000000000000000;\r\n    tokensTransferred += numTokens;\r\n    if (tokensTransferred == actualTotalTokens) {\r\n      state = State.Done;\r\n    }\r\n\r\n    require(tokenContract.transfer(contributor, numTokens));\r\n  }"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "require(contributionHashes[contributorIndex] == keccak256(contributor, contributorExpectedTokens))"
+        FunctionCall
+           Type: tuple()
+           Source: "require(contributionHashes[contributorIndex] == keccak256(contributor, contributorExpectedTokens))"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "contributionHashes[contributorIndex] == keccak256(contributor, contributorExpectedTokens)"
+            IndexAccess
+               Type: bytes32
+               Source: "contributionHashes[contributorIndex]"
+              Identifier contributionHashes
+                 Type: bytes32[] storage ref
+                 Source: "contributionHashes"
+              Identifier contributorIndex
+                 Type: uint256
+                 Source: "contributorIndex"
+            FunctionCall
+               Type: bytes32
+               Source: "keccak256(contributor, contributorExpectedTokens)"
+              Identifier keccak256
+                 Type: function () pure returns (bytes32)
+                 Source: "keccak256"
+              Identifier contributor
+                 Type: address
+                 Source: "contributor"
+              Identifier contributorExpectedTokens
+                 Type: uint256
+                 Source: "contributorExpectedTokens"
+      VariableDeclarationStatement
+         Gas costs: 315
+         Source: "uint256 numTokens = _numTokensForContributor(contributorExpectedTokens, state)"
+        VariableDeclaration "numTokens"
+           Type: uint256
+           Source: "uint256 numTokens"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        FunctionCall
+           Type: uint256
+           Source: "_numTokensForContributor(contributorExpectedTokens, state)"
+          Identifier _numTokensForContributor
+             Type: function (uint256,enum Distribution.State) view returns (uint256)
+             Source: "_numTokensForContributor"
+          Identifier contributorExpectedTokens
+             Type: uint256
+             Source: "contributorExpectedTokens"
+          Identifier state
+             Type: enum Distribution.State
+             Source: "state"
+      ExpressionStatement
+         Gas costs: 20320
+         Source: "contributionHashes[contributorIndex] = 0x00000000000000000000000000000000"
+        Assignment using operator =
+           Type: bytes32
+           Source: "contributionHashes[contributorIndex] = 0x00000000000000000000000000000000"
+          IndexAccess
+             Type: bytes32
+             Source: "contributionHashes[contributorIndex]"
+            Identifier contributionHashes
+               Type: bytes32[] storage ref
+               Source: "contributionHashes"
+            Identifier contributorIndex
+               Type: uint256
+               Source: "contributorIndex"
+          Literal, token: [no token] value: 0x00000000000000000000000000000000
+             Type: int_const 0
+             Source: "0x00000000000000000000000000000000"
+      ExpressionStatement
+         Gas costs: 20233
+         Source: "tokensTransferred += numTokens"
+        Assignment using operator +=
+           Type: uint256
+           Source: "tokensTransferred += numTokens"
+          Identifier tokensTransferred
+             Type: uint256
+             Source: "tokensTransferred"
+          Identifier numTokens
+             Type: uint256
+             Source: "numTokens"
+      IfStatement
+         Source: "if (tokensTransferred == actualTotalTokens) {\r\n      state = State.Done;\r\n    }"
+        BinaryOperation using operator ==
+           Type: bool
+           Gas costs: 409
+           Source: "tokensTransferred == actualTotalTokens"
+          Identifier tokensTransferred
+             Type: uint256
+             Source: "tokensTransferred"
+          Identifier actualTotalTokens
+             Type: uint256
+             Source: "actualTotalTokens"
+        Block
+           Source: "{\r\n      state = State.Done;\r\n    }"
+          ExpressionStatement
+             Gas costs: 20337
+             Source: "state = State.Done"
+            Assignment using operator =
+               Type: enum Distribution.State
+               Source: "state = State.Done"
+              Identifier state
+                 Type: enum Distribution.State
+                 Source: "state"
+              MemberAccess to member Done
+                 Type: enum Distribution.State
+                 Source: "State.Done"
+                Identifier State
+                   Type: type(enum Distribution.State)
+                   Source: "State"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "require(tokenContract.transfer(contributor, numTokens))"
+        FunctionCall
+           Type: tuple()
+           Source: "require(tokenContract.transfer(contributor, numTokens))"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          FunctionCall
+             Type: bool
+             Source: "tokenContract.transfer(contributor, numTokens)"
+            MemberAccess to member transfer
+               Type: function (address,uint256) external returns (bool)
+               Source: "tokenContract.transfer"
+              Identifier tokenContract
+                 Type: contract ERC20
+                 Source: "tokenContract"
+            Identifier contributor
+               Type: address
+               Source: "contributor"
+            Identifier numTokens
+               Type: uint256
+               Source: "numTokens"
+  FunctionDefinition "doDistributionRange" - public
+     Source: "function doDistributionRange(uint256 start, address[] contributors,\r\n                               uint256[] contributorExpectedTokens) public {\r\n    require(contributors.length == contributorExpectedTokens.length);\r\n\r\n    uint256 tokensTransferredThisCall = 0;\r\n    uint256 end = start + contributors.length;\r\n    State _state = state;\r\n    for (uint256 i = start; i < end; ++i) {\r\n      address contributor = contributors[i];\r\n      uint256 expectedTokens = contributorExpectedTokens[i];\r\n      require(contributionHashes[i] == keccak256(contributor, expectedTokens));\r\n      contributionHashes[i] = 0x00000000000000000000000000000000;\r\n\r\n      uint256 numTokens = _numTokensForContributor(expectedTokens, _state);\r\n      tokensTransferredThisCall += numTokens;\r\n      require(tokenContract.transfer(contributor, numTokens));\r\n    }\r\n\r\n    tokensTransferred += tokensTransferredThisCall;\r\n    if (tokensTransferred == actualTotalTokens) {\r\n      state = State.Done;\r\n    }\r\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 start, address[] contributors,\r\n                               uint256[] contributorExpectedTokens)"
+      VariableDeclaration "start"
+         Type: uint256
+         Source: "uint256 start"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "contributors"
+         Type: address[] memory
+         Source: "address[] contributors"
+        ArrayTypeName
+           Source: "address[]"
+          ElementaryTypeName address
+             Source: "address"
+      VariableDeclaration "contributorExpectedTokens"
+         Type: uint256[] memory
+         Source: "uint256[] contributorExpectedTokens"
+        ArrayTypeName
+           Source: "uint256[]"
+          ElementaryTypeName uint256
+             Source: "uint256"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n    require(contributors.length == contributorExpectedTokens.length);\r\n\r\n    uint256 tokensTransferredThisCall = 0;\r\n    uint256 end = start + contributors.length;\r\n    State _state = state;\r\n    for (uint256 i = start; i < end; ++i) {\r\n      address contributor = contributors[i];\r\n      uint256 expectedTokens = contributorExpectedTokens[i];\r\n      require(contributionHashes[i] == keccak256(contributor, expectedTokens));\r\n      contributionHashes[i] = 0x00000000000000000000000000000000;\r\n\r\n      uint256 numTokens = _numTokensForContributor(expectedTokens, _state);\r\n      tokensTransferredThisCall += numTokens;\r\n      require(tokenContract.transfer(contributor, numTokens));\r\n    }\r\n\r\n    tokensTransferred += tokensTransferredThisCall;\r\n    if (tokensTransferred == actualTotalTokens) {\r\n      state = State.Done;\r\n    }\r\n  }"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "require(contributors.length == contributorExpectedTokens.length)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(contributors.length == contributorExpectedTokens.length)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "contributors.length == contributorExpectedTokens.length"
+            MemberAccess to member length
+               Type: uint256
+               Source: "contributors.length"
+              Identifier contributors
+                 Type: address[] memory
+                 Source: "contributors"
+            MemberAccess to member length
+               Type: uint256
+               Source: "contributorExpectedTokens.length"
+              Identifier contributorExpectedTokens
+                 Type: uint256[] memory
+                 Source: "contributorExpectedTokens"
+      VariableDeclarationStatement
+         Gas costs: 11
+         Source: "uint256 tokensTransferredThisCall = 0"
+        VariableDeclaration "tokensTransferredThisCall"
+           Type: uint256
+           Source: "uint256 tokensTransferredThisCall"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        Literal, token: [no token] value: 0
+           Type: int_const 0
+           Source: "0"
+      VariableDeclarationStatement
+         Gas costs: [???]
+         Source: "uint256 end = start + contributors.length"
+        VariableDeclaration "end"
+           Type: uint256
+           Source: "uint256 end"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        BinaryOperation using operator +
+           Type: uint256
+           Source: "start + contributors.length"
+          Identifier start
+             Type: uint256
+             Source: "start"
+          MemberAccess to member length
+             Type: uint256
+             Source: "contributors.length"
+            Identifier contributors
+               Type: address[] memory
+               Source: "contributors"
+      VariableDeclarationStatement
+         Gas costs: 297
+         Source: "State _state = state"
+        VariableDeclaration "_state"
+           Type: enum Distribution.State
+           Source: "State _state"
+          UserDefinedTypeName "State"
+             Source: "State"
+        Identifier state
+           Type: enum Distribution.State
+           Source: "state"
+      ForStatement
+         Source: "for (uint256 i = start; i < end; ++i) {\r\n      address contributor = contributors[i];\r\n      uint256 expectedTokens = contributorExpectedTokens[i];\r\n      require(contributionHashes[i] == keccak256(contributor, expectedTokens));\r\n      contributionHashes[i] = 0x00000000000000000000000000000000;\r\n\r\n      uint256 numTokens = _numTokensForContributor(expectedTokens, _state);\r\n      tokensTransferredThisCall += numTokens;\r\n      require(tokenContract.transfer(contributor, numTokens));\r\n    }"
+        VariableDeclarationStatement
+           Gas costs: 11
+           Source: "uint256 i = start"
+          VariableDeclaration "i"
+             Type: uint256
+             Source: "uint256 i"
+            ElementaryTypeName uint256
+               Source: "uint256"
+          Identifier start
+             Type: uint256
+             Source: "start"
+        BinaryOperation using operator <
+           Type: bool
+           Gas costs: 9
+           Source: "i < end"
+          Identifier i
+             Type: uint256
+             Source: "i"
+          Identifier end
+             Type: uint256
+             Source: "end"
+        ExpressionStatement
+           Gas costs: 14
+           Source: "++i"
+          UnaryOperation (prefix) ++
+             Type: uint256
+             Source: "++i"
+            Identifier i
+               Type: uint256
+               Source: "i"
+        Block
+           Source: "{\r\n      address contributor = contributors[i];\r\n      uint256 expectedTokens = contributorExpectedTokens[i];\r\n      require(contributionHashes[i] == keccak256(contributor, expectedTokens));\r\n      contributionHashes[i] = 0x00000000000000000000000000000000;\r\n\r\n      uint256 numTokens = _numTokensForContributor(expectedTokens, _state);\r\n      tokensTransferredThisCall += numTokens;\r\n      require(tokenContract.transfer(contributor, numTokens));\r\n    }"
+          VariableDeclarationStatement
+             Gas costs: [???]
+             Source: "address contributor = contributors[i]"
+            VariableDeclaration "contributor"
+               Type: address
+               Source: "address contributor"
+              ElementaryTypeName address
+                 Source: "address"
+            IndexAccess
+               Type: address
+               Source: "contributors[i]"
+              Identifier contributors
+                 Type: address[] memory
+                 Source: "contributors"
+              Identifier i
+                 Type: uint256
+                 Source: "i"
+          VariableDeclarationStatement
+             Gas costs: [???]
+             Source: "uint256 expectedTokens = contributorExpectedTokens[i]"
+            VariableDeclaration "expectedTokens"
+               Type: uint256
+               Source: "uint256 expectedTokens"
+              ElementaryTypeName uint256
+                 Source: "uint256"
+            IndexAccess
+               Type: uint256
+               Source: "contributorExpectedTokens[i]"
+              Identifier contributorExpectedTokens
+                 Type: uint256[] memory
+                 Source: "contributorExpectedTokens"
+              Identifier i
+                 Type: uint256
+                 Source: "i"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "require(contributionHashes[i] == keccak256(contributor, expectedTokens))"
+            FunctionCall
+               Type: tuple()
+               Source: "require(contributionHashes[i] == keccak256(contributor, expectedTokens))"
+              Identifier require
+                 Type: function (bool) pure
+                 Source: "require"
+              BinaryOperation using operator ==
+                 Type: bool
+                 Source: "contributionHashes[i] == keccak256(contributor, expectedTokens)"
+                IndexAccess
+                   Type: bytes32
+                   Source: "contributionHashes[i]"
+                  Identifier contributionHashes
+                     Type: bytes32[] storage ref
+                     Source: "contributionHashes"
+                  Identifier i
+                     Type: uint256
+                     Source: "i"
+                FunctionCall
+                   Type: bytes32
+                   Source: "keccak256(contributor, expectedTokens)"
+                  Identifier keccak256
+                     Type: function () pure returns (bytes32)
+                     Source: "keccak256"
+                  Identifier contributor
+                     Type: address
+                     Source: "contributor"
+                  Identifier expectedTokens
+                     Type: uint256
+                     Source: "expectedTokens"
+          ExpressionStatement
+             Gas costs: 20320
+             Source: "contributionHashes[i] = 0x00000000000000000000000000000000"
+            Assignment using operator =
+               Type: bytes32
+               Source: "contributionHashes[i] = 0x00000000000000000000000000000000"
+              IndexAccess
+                 Type: bytes32
+                 Source: "contributionHashes[i]"
+                Identifier contributionHashes
+                   Type: bytes32[] storage ref
+                   Source: "contributionHashes"
+                Identifier i
+                   Type: uint256
+                   Source: "i"
+              Literal, token: [no token] value: 0x00000000000000000000000000000000
+                 Type: int_const 0
+                 Source: "0x00000000000000000000000000000000"
+          VariableDeclarationStatement
+             Gas costs: 29
+             Source: "uint256 numTokens = _numTokensForContributor(expectedTokens, _state)"
+            VariableDeclaration "numTokens"
+               Type: uint256
+               Source: "uint256 numTokens"
+              ElementaryTypeName uint256
+                 Source: "uint256"
+            FunctionCall
+               Type: uint256
+               Source: "_numTokensForContributor(expectedTokens, _state)"
+              Identifier _numTokensForContributor
+                 Type: function (uint256,enum Distribution.State) view returns (uint256)
+                 Source: "_numTokensForContributor"
+              Identifier expectedTokens
+                 Type: uint256
+                 Source: "expectedTokens"
+              Identifier _state
+                 Type: enum Distribution.State
+                 Source: "_state"
+          ExpressionStatement
+             Gas costs: 14
+             Source: "tokensTransferredThisCall += numTokens"
+            Assignment using operator +=
+               Type: uint256
+               Source: "tokensTransferredThisCall += numTokens"
+              Identifier tokensTransferredThisCall
+                 Type: uint256
+                 Source: "tokensTransferredThisCall"
+              Identifier numTokens
+                 Type: uint256
+                 Source: "numTokens"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "require(tokenContract.transfer(contributor, numTokens))"
+            FunctionCall
+               Type: tuple()
+               Source: "require(tokenContract.transfer(contributor, numTokens))"
+              Identifier require
+                 Type: function (bool) pure
+                 Source: "require"
+              FunctionCall
+                 Type: bool
+                 Source: "tokenContract.transfer(contributor, numTokens)"
+                MemberAccess to member transfer
+                   Type: function (address,uint256) external returns (bool)
+                   Source: "tokenContract.transfer"
+                  Identifier tokenContract
+                     Type: contract ERC20
+                     Source: "tokenContract"
+                Identifier contributor
+                   Type: address
+                   Source: "contributor"
+                Identifier numTokens
+                   Type: uint256
+                   Source: "numTokens"
+      ExpressionStatement
+         Gas costs: 20233
+         Source: "tokensTransferred += tokensTransferredThisCall"
+        Assignment using operator +=
+           Type: uint256
+           Source: "tokensTransferred += tokensTransferredThisCall"
+          Identifier tokensTransferred
+             Type: uint256
+             Source: "tokensTransferred"
+          Identifier tokensTransferredThisCall
+             Type: uint256
+             Source: "tokensTransferredThisCall"
+      IfStatement
+         Source: "if (tokensTransferred == actualTotalTokens) {\r\n      state = State.Done;\r\n    }"
+        BinaryOperation using operator ==
+           Type: bool
+           Gas costs: 409
+           Source: "tokensTransferred == actualTotalTokens"
+          Identifier tokensTransferred
+             Type: uint256
+             Source: "tokensTransferred"
+          Identifier actualTotalTokens
+             Type: uint256
+             Source: "actualTotalTokens"
+        Block
+           Source: "{\r\n      state = State.Done;\r\n    }"
+          ExpressionStatement
+             Gas costs: 20337
+             Source: "state = State.Done"
+            Assignment using operator =
+               Type: enum Distribution.State
+               Source: "state = State.Done"
+              Identifier state
+                 Type: enum Distribution.State
+                 Source: "state"
+              MemberAccess to member Done
+                 Type: enum Distribution.State
+                 Source: "State.Done"
+                Identifier State
+                   Type: type(enum Distribution.State)
+                   Source: "State"
+  FunctionDefinition "numTokensForContributor" - public - const
+     Source: "function numTokensForContributor(uint256 contributorExpectedTokens)\r\n      public view returns (uint256) {\r\n    return _numTokensForContributor(contributorExpectedTokens, state);\r\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 contributorExpectedTokens)"
+      VariableDeclaration "contributorExpectedTokens"
+         Type: uint256
+         Source: "uint256 contributorExpectedTokens"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint256)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint256"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{\r\n    return _numTokensForContributor(contributorExpectedTokens, state);\r\n  }"
+      Return
+         Gas costs: 301
+         Source: "return _numTokensForContributor(contributorExpectedTokens, state)"
+        FunctionCall
+           Type: uint256
+           Source: "_numTokensForContributor(contributorExpectedTokens, state)"
+          Identifier _numTokensForContributor
+             Type: function (uint256,enum Distribution.State) view returns (uint256)
+             Source: "_numTokensForContributor"
+          Identifier contributorExpectedTokens
+             Type: uint256
+             Source: "contributorExpectedTokens"
+          Identifier state
+             Type: enum Distribution.State
+             Source: "state"
+  FunctionDefinition "temporaryEscapeHatch" - public
+     Source: "function temporaryEscapeHatch(address to, uint256 value, bytes data) public {\r\n    require(msg.sender == admin);\r\n    require(to.call.value(value)(data));\r\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address to, uint256 value, bytes data)"
+      VariableDeclaration "to"
+         Type: address
+         Source: "address to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "value"
+         Type: uint256
+         Source: "uint256 value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "data"
+         Type: bytes memory
+         Source: "bytes data"
+        ElementaryTypeName bytes
+           Source: "bytes"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n    require(msg.sender == admin);\r\n    require(to.call.value(value)(data));\r\n  }"
+      ExpressionStatement
+         Gas costs: 282
+         Source: "require(msg.sender == admin)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(msg.sender == admin)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "msg.sender == admin"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Identifier admin
+               Type: address
+               Source: "admin"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "require(to.call.value(value)(data))"
+        FunctionCall
+           Type: tuple()
+           Source: "require(to.call.value(value)(data))"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          FunctionCall
+             Type: bool
+             Source: "to.call.value(value)(data)"
+            FunctionCall
+               Type: function () payable returns (bool)
+               Source: "to.call.value(value)"
+              MemberAccess to member value
+                 Type: function (uint256) returns (function () payable returns (bool))
+                 Source: "to.call.value"
+                MemberAccess to member call
+                   Type: function () payable returns (bool)
+                   Source: "to.call"
+                  Identifier to
+                     Type: address
+                     Source: "to"
+              Identifier value
+                 Type: uint256
+                 Source: "value"
+            Identifier data
+               Type: bytes memory
+               Source: "data"
+  FunctionDefinition "temporaryKill" - public
+     Source: "function temporaryKill(address to) public {\r\n    require(msg.sender == admin);\r\n    require(tokenContract.balanceOf(this) == 0);\r\n    selfdestruct(to);\r\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address to)"
+      VariableDeclaration "to"
+         Type: address
+         Source: "address to"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n    require(msg.sender == admin);\r\n    require(tokenContract.balanceOf(this) == 0);\r\n    selfdestruct(to);\r\n  }"
+      ExpressionStatement
+         Gas costs: 282
+         Source: "require(msg.sender == admin)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(msg.sender == admin)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "msg.sender == admin"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Identifier admin
+               Type: address
+               Source: "admin"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "require(tokenContract.balanceOf(this) == 0)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(tokenContract.balanceOf(this) == 0)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "tokenContract.balanceOf(this) == 0"
+            FunctionCall
+               Type: uint256
+               Source: "tokenContract.balanceOf(this)"
+              MemberAccess to member balanceOf
+                 Type: function (address) view external returns (uint256)
+                 Source: "tokenContract.balanceOf"
+                Identifier tokenContract
+                   Type: contract ERC20
+                   Source: "tokenContract"
+              Identifier this
+                 Type: contract Distribution
+                 Source: "this"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+      ExpressionStatement
+         Gas costs: 30009
+         Source: "selfdestruct(to)"
+        FunctionCall
+           Type: tuple()
+           Source: "selfdestruct(to)"
+          Identifier selfdestruct
+             Type: function (address)
+             Source: "selfdestruct"
+          Identifier to
+             Type: address
+             Source: "to"

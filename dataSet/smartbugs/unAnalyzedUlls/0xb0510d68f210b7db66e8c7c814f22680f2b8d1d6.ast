@@ -1,0 +1,1096 @@
+Syntax trees:
+
+
+======= 0xb0510d68f210b7db66e8c7c814f22680f2b8d1d6.sol =======
+PragmaDirective
+   Gas costs: 0
+   Source: "pragma solidity ^0.4.23;"
+ContractDefinition "Splitter"
+   Source: "contract Splitter{\r\n    \r\n    address public owner;\r\n    address[] public puppets;\r\n    mapping (uint256 => address) public extra;\r\n    address private _addy;\r\n    uint256 private _share;\r\n    uint256 private _count;\r\n\r\n\r\n//constructor\r\n\r\n    constructor() payable public{\r\n        owner = msg.sender;\r\n        newPuppet();\r\n        newPuppet();\r\n        newPuppet();\r\n        newPuppet();\r\n        extra[0] = puppets[0];\r\n        extra[1] = puppets[1];\r\n        extra[2] = puppets[2];\r\n        extra[3] = puppets[3];\r\n    }\r\n\r\n//withdraw (just in case)\r\n    \r\n    function withdraw() public{\r\n        require(msg.sender == owner);\r\n        owner.transfer(address(this).balance);\r\n    }\r\n\r\n//puppet count\r\n\r\n    function getPuppetCount() public constant returns(uint256 puppetCount){\r\n        return puppets.length;\r\n      }\r\n\r\n//deploy contracts\r\n\r\n    function newPuppet() public returns(address newPuppet){\r\n        require(msg.sender == owner);\r\n        Puppet p = new Puppet();\r\n        puppets.push(p);\r\n        return p;\r\n          }\r\n \r\n//update mapping\r\n\r\n    function setExtra(uint256 _id, address _newExtra) public {\r\n        require(_newExtra != address(0));\r\n        extra[_id] = _newExtra;\r\n    }\r\n\r\n    \r\n//fund puppets TROUBLESHOOT gas\r\n\r\n    function fundPuppets() public payable {\r\n        require(msg.sender == owner);\r\n        _share = SafeMath.div(msg.value, 4);\r\n        // <yes> <report> UNCHECKED_LL_CALLS\r\n        extra[0].call.value(_share).gas(800000)();\r\n        // <yes> <report> UNCHECKED_LL_CALLS\r\n        extra[1].call.value(_share).gas(800000)();\r\n        // <yes> <report> UNCHECKED_LL_CALLS\r\n        extra[2].call.value(_share).gas(800000)();\r\n        // <yes> <report> UNCHECKED_LL_CALLS\r\n        extra[3].call.value(_share).gas(800000)();\r\n        }\r\n        \r\n//fallback function\r\n\r\nfunction() payable public{\r\n    }\r\n}"
+  VariableDeclaration "owner"
+     Type: address
+     Gas costs: 0
+     Source: "address public owner"
+    ElementaryTypeName address
+       Source: "address"
+  VariableDeclaration "puppets"
+     Type: address[] storage ref
+     Gas costs: 0
+     Source: "address[] public puppets"
+    ArrayTypeName
+       Source: "address[]"
+      ElementaryTypeName address
+         Source: "address"
+  VariableDeclaration "extra"
+     Type: mapping(uint256 => address)
+     Gas costs: 0
+     Source: "mapping (uint256 => address) public extra"
+    Mapping
+       Source: "mapping (uint256 => address)"
+      ElementaryTypeName uint256
+         Source: "uint256"
+      ElementaryTypeName address
+         Source: "address"
+  VariableDeclaration "_addy"
+     Type: address
+     Gas costs: 0
+     Source: "address private _addy"
+    ElementaryTypeName address
+       Source: "address"
+  VariableDeclaration "_share"
+     Type: uint256
+     Gas costs: 0
+     Source: "uint256 private _share"
+    ElementaryTypeName uint256
+       Source: "uint256"
+  VariableDeclaration "_count"
+     Type: uint256
+     Gas costs: 0
+     Source: "uint256 private _count"
+    ElementaryTypeName uint256
+       Source: "uint256"
+  FunctionDefinition "" - public
+     Source: "constructor() payable public{\r\n        owner = msg.sender;\r\n        newPuppet();\r\n        newPuppet();\r\n        newPuppet();\r\n        newPuppet();\r\n        extra[0] = puppets[0];\r\n        extra[1] = puppets[1];\r\n        extra[2] = puppets[2];\r\n        extra[3] = puppets[3];\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        owner = msg.sender;\r\n        newPuppet();\r\n        newPuppet();\r\n        newPuppet();\r\n        newPuppet();\r\n        extra[0] = puppets[0];\r\n        extra[1] = puppets[1];\r\n        extra[2] = puppets[2];\r\n        extra[3] = puppets[3];\r\n    }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "owner = msg.sender"
+        Assignment using operator =
+           Type: address
+           Source: "owner = msg.sender"
+          Identifier owner
+             Type: address
+             Source: "owner"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "newPuppet()"
+        FunctionCall
+           Type: address
+           Source: "newPuppet()"
+          Identifier newPuppet
+             Type: function () returns (address)
+             Source: "newPuppet"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "newPuppet()"
+        FunctionCall
+           Type: address
+           Source: "newPuppet()"
+          Identifier newPuppet
+             Type: function () returns (address)
+             Source: "newPuppet"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "newPuppet()"
+        FunctionCall
+           Type: address
+           Source: "newPuppet()"
+          Identifier newPuppet
+             Type: function () returns (address)
+             Source: "newPuppet"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "newPuppet()"
+        FunctionCall
+           Type: address
+           Source: "newPuppet()"
+          Identifier newPuppet
+             Type: function () returns (address)
+             Source: "newPuppet"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "extra[0] = puppets[0]"
+        Assignment using operator =
+           Type: address
+           Source: "extra[0] = puppets[0]"
+          IndexAccess
+             Type: address
+             Source: "extra[0]"
+            Identifier extra
+               Type: mapping(uint256 => address)
+               Source: "extra"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+          IndexAccess
+             Type: address
+             Source: "puppets[0]"
+            Identifier puppets
+               Type: address[] storage ref
+               Source: "puppets"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "extra[1] = puppets[1]"
+        Assignment using operator =
+           Type: address
+           Source: "extra[1] = puppets[1]"
+          IndexAccess
+             Type: address
+             Source: "extra[1]"
+            Identifier extra
+               Type: mapping(uint256 => address)
+               Source: "extra"
+            Literal, token: [no token] value: 1
+               Type: int_const 1
+               Source: "1"
+          IndexAccess
+             Type: address
+             Source: "puppets[1]"
+            Identifier puppets
+               Type: address[] storage ref
+               Source: "puppets"
+            Literal, token: [no token] value: 1
+               Type: int_const 1
+               Source: "1"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "extra[2] = puppets[2]"
+        Assignment using operator =
+           Type: address
+           Source: "extra[2] = puppets[2]"
+          IndexAccess
+             Type: address
+             Source: "extra[2]"
+            Identifier extra
+               Type: mapping(uint256 => address)
+               Source: "extra"
+            Literal, token: [no token] value: 2
+               Type: int_const 2
+               Source: "2"
+          IndexAccess
+             Type: address
+             Source: "puppets[2]"
+            Identifier puppets
+               Type: address[] storage ref
+               Source: "puppets"
+            Literal, token: [no token] value: 2
+               Type: int_const 2
+               Source: "2"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "extra[3] = puppets[3]"
+        Assignment using operator =
+           Type: address
+           Source: "extra[3] = puppets[3]"
+          IndexAccess
+             Type: address
+             Source: "extra[3]"
+            Identifier extra
+               Type: mapping(uint256 => address)
+               Source: "extra"
+            Literal, token: [no token] value: 3
+               Type: int_const 3
+               Source: "3"
+          IndexAccess
+             Type: address
+             Source: "puppets[3]"
+            Identifier puppets
+               Type: address[] storage ref
+               Source: "puppets"
+            Literal, token: [no token] value: 3
+               Type: int_const 3
+               Source: "3"
+  FunctionDefinition "withdraw" - public
+     Source: "function withdraw() public{\r\n        require(msg.sender == owner);\r\n        owner.transfer(address(this).balance);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        require(msg.sender == owner);\r\n        owner.transfer(address(this).balance);\r\n    }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "require(msg.sender == owner)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(msg.sender == owner)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "msg.sender == owner"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Identifier owner
+               Type: address
+               Source: "owner"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "owner.transfer(address(this).balance)"
+        FunctionCall
+           Type: tuple()
+           Source: "owner.transfer(address(this).balance)"
+          MemberAccess to member transfer
+             Type: function (uint256)
+             Source: "owner.transfer"
+            Identifier owner
+               Type: address
+               Source: "owner"
+          MemberAccess to member balance
+             Type: uint256
+             Source: "address(this).balance"
+            FunctionCall
+               Type: address
+               Source: "address(this)"
+              ElementaryTypeNameExpression address
+                 Type: type(address)
+                 Source: "address"
+              Identifier this
+                 Type: contract Splitter
+                 Source: "this"
+  FunctionDefinition "getPuppetCount" - public - const
+     Source: "function getPuppetCount() public constant returns(uint256 puppetCount){\r\n        return puppets.length;\r\n      }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 puppetCount)"
+      VariableDeclaration "puppetCount"
+         Type: uint256
+         Source: "uint256 puppetCount"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{\r\n        return puppets.length;\r\n      }"
+      Return
+         Gas costs: 0
+         Source: "return puppets.length"
+        MemberAccess to member length
+           Type: uint256
+           Source: "puppets.length"
+          Identifier puppets
+             Type: address[] storage ref
+             Source: "puppets"
+  FunctionDefinition "newPuppet" - public
+     Source: "function newPuppet() public returns(address newPuppet){\r\n        require(msg.sender == owner);\r\n        Puppet p = new Puppet();\r\n        puppets.push(p);\r\n        return p;\r\n          }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: "(address newPuppet)"
+      VariableDeclaration "newPuppet"
+         Type: address
+         Source: "address newPuppet"
+        ElementaryTypeName address
+           Source: "address"
+    Block
+       Source: "{\r\n        require(msg.sender == owner);\r\n        Puppet p = new Puppet();\r\n        puppets.push(p);\r\n        return p;\r\n          }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "require(msg.sender == owner)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(msg.sender == owner)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "msg.sender == owner"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Identifier owner
+               Type: address
+               Source: "owner"
+      VariableDeclarationStatement
+         Gas costs: 0
+         Source: "Puppet p = new Puppet()"
+        VariableDeclaration "p"
+           Type: contract Puppet
+           Source: "Puppet p"
+          UserDefinedTypeName "Puppet"
+             Source: "Puppet"
+        FunctionCall
+           Type: contract Puppet
+           Source: "new Puppet()"
+          NewExpression
+             Type: function () payable returns (contract Puppet)
+             Source: "new Puppet"
+            UserDefinedTypeName "Puppet"
+               Source: "Puppet"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "puppets.push(p)"
+        FunctionCall
+           Type: uint256
+           Source: "puppets.push(p)"
+          MemberAccess to member push
+             Type: function (address) returns (uint256)
+             Source: "puppets.push"
+            Identifier puppets
+               Type: address[] storage ref
+               Source: "puppets"
+          Identifier p
+             Type: contract Puppet
+             Source: "p"
+      Return
+         Gas costs: 0
+         Source: "return p"
+        Identifier p
+           Type: contract Puppet
+           Source: "p"
+  FunctionDefinition "setExtra" - public
+     Source: "function setExtra(uint256 _id, address _newExtra) public {\r\n        require(_newExtra != address(0));\r\n        extra[_id] = _newExtra;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 _id, address _newExtra)"
+      VariableDeclaration "_id"
+         Type: uint256
+         Source: "uint256 _id"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "_newExtra"
+         Type: address
+         Source: "address _newExtra"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        require(_newExtra != address(0));\r\n        extra[_id] = _newExtra;\r\n    }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "require(_newExtra != address(0))"
+        FunctionCall
+           Type: tuple()
+           Source: "require(_newExtra != address(0))"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator !=
+             Type: bool
+             Source: "_newExtra != address(0)"
+            Identifier _newExtra
+               Type: address
+               Source: "_newExtra"
+            FunctionCall
+               Type: address
+               Source: "address(0)"
+              ElementaryTypeNameExpression address
+                 Type: type(address)
+                 Source: "address"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "extra[_id] = _newExtra"
+        Assignment using operator =
+           Type: address
+           Source: "extra[_id] = _newExtra"
+          IndexAccess
+             Type: address
+             Source: "extra[_id]"
+            Identifier extra
+               Type: mapping(uint256 => address)
+               Source: "extra"
+            Identifier _id
+               Type: uint256
+               Source: "_id"
+          Identifier _newExtra
+             Type: address
+             Source: "_newExtra"
+  FunctionDefinition "fundPuppets" - public
+     Source: "function fundPuppets() public payable {\r\n        require(msg.sender == owner);\r\n        _share = SafeMath.div(msg.value, 4);\r\n        // <yes> <report> UNCHECKED_LL_CALLS\r\n        extra[0].call.value(_share).gas(800000)();\r\n        // <yes> <report> UNCHECKED_LL_CALLS\r\n        extra[1].call.value(_share).gas(800000)();\r\n        // <yes> <report> UNCHECKED_LL_CALLS\r\n        extra[2].call.value(_share).gas(800000)();\r\n        // <yes> <report> UNCHECKED_LL_CALLS\r\n        extra[3].call.value(_share).gas(800000)();\r\n        }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        require(msg.sender == owner);\r\n        _share = SafeMath.div(msg.value, 4);\r\n        // <yes> <report> UNCHECKED_LL_CALLS\r\n        extra[0].call.value(_share).gas(800000)();\r\n        // <yes> <report> UNCHECKED_LL_CALLS\r\n        extra[1].call.value(_share).gas(800000)();\r\n        // <yes> <report> UNCHECKED_LL_CALLS\r\n        extra[2].call.value(_share).gas(800000)();\r\n        // <yes> <report> UNCHECKED_LL_CALLS\r\n        extra[3].call.value(_share).gas(800000)();\r\n        }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "require(msg.sender == owner)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(msg.sender == owner)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "msg.sender == owner"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Identifier owner
+               Type: address
+               Source: "owner"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "_share = SafeMath.div(msg.value, 4)"
+        Assignment using operator =
+           Type: uint256
+           Source: "_share = SafeMath.div(msg.value, 4)"
+          Identifier _share
+             Type: uint256
+             Source: "_share"
+          FunctionCall
+             Type: uint256
+             Source: "SafeMath.div(msg.value, 4)"
+            MemberAccess to member div
+               Type: function (uint256,uint256) pure returns (uint256)
+               Source: "SafeMath.div"
+              Identifier SafeMath
+                 Type: type(library SafeMath)
+                 Source: "SafeMath"
+            MemberAccess to member value
+               Type: uint256
+               Source: "msg.value"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Literal, token: [no token] value: 4
+               Type: int_const 4
+               Source: "4"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "extra[0].call.value(_share).gas(800000)()"
+        FunctionCall
+           Type: bool
+           Source: "extra[0].call.value(_share).gas(800000)()"
+          FunctionCall
+             Type: function () payable returns (bool)
+             Source: "extra[0].call.value(_share).gas(800000)"
+            MemberAccess to member gas
+               Type: function (uint256) returns (function () payable returns (bool))
+               Source: "extra[0].call.value(_share).gas"
+              FunctionCall
+                 Type: function () payable returns (bool)
+                 Source: "extra[0].call.value(_share)"
+                MemberAccess to member value
+                   Type: function (uint256) returns (function () payable returns (bool))
+                   Source: "extra[0].call.value"
+                  MemberAccess to member call
+                     Type: function () payable returns (bool)
+                     Source: "extra[0].call"
+                    IndexAccess
+                       Type: address
+                       Source: "extra[0]"
+                      Identifier extra
+                         Type: mapping(uint256 => address)
+                         Source: "extra"
+                      Literal, token: [no token] value: 0
+                         Type: int_const 0
+                         Source: "0"
+                Identifier _share
+                   Type: uint256
+                   Source: "_share"
+            Literal, token: [no token] value: 800000
+               Type: int_const 800000
+               Source: "800000"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "extra[1].call.value(_share).gas(800000)()"
+        FunctionCall
+           Type: bool
+           Source: "extra[1].call.value(_share).gas(800000)()"
+          FunctionCall
+             Type: function () payable returns (bool)
+             Source: "extra[1].call.value(_share).gas(800000)"
+            MemberAccess to member gas
+               Type: function (uint256) returns (function () payable returns (bool))
+               Source: "extra[1].call.value(_share).gas"
+              FunctionCall
+                 Type: function () payable returns (bool)
+                 Source: "extra[1].call.value(_share)"
+                MemberAccess to member value
+                   Type: function (uint256) returns (function () payable returns (bool))
+                   Source: "extra[1].call.value"
+                  MemberAccess to member call
+                     Type: function () payable returns (bool)
+                     Source: "extra[1].call"
+                    IndexAccess
+                       Type: address
+                       Source: "extra[1]"
+                      Identifier extra
+                         Type: mapping(uint256 => address)
+                         Source: "extra"
+                      Literal, token: [no token] value: 1
+                         Type: int_const 1
+                         Source: "1"
+                Identifier _share
+                   Type: uint256
+                   Source: "_share"
+            Literal, token: [no token] value: 800000
+               Type: int_const 800000
+               Source: "800000"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "extra[2].call.value(_share).gas(800000)()"
+        FunctionCall
+           Type: bool
+           Source: "extra[2].call.value(_share).gas(800000)()"
+          FunctionCall
+             Type: function () payable returns (bool)
+             Source: "extra[2].call.value(_share).gas(800000)"
+            MemberAccess to member gas
+               Type: function (uint256) returns (function () payable returns (bool))
+               Source: "extra[2].call.value(_share).gas"
+              FunctionCall
+                 Type: function () payable returns (bool)
+                 Source: "extra[2].call.value(_share)"
+                MemberAccess to member value
+                   Type: function (uint256) returns (function () payable returns (bool))
+                   Source: "extra[2].call.value"
+                  MemberAccess to member call
+                     Type: function () payable returns (bool)
+                     Source: "extra[2].call"
+                    IndexAccess
+                       Type: address
+                       Source: "extra[2]"
+                      Identifier extra
+                         Type: mapping(uint256 => address)
+                         Source: "extra"
+                      Literal, token: [no token] value: 2
+                         Type: int_const 2
+                         Source: "2"
+                Identifier _share
+                   Type: uint256
+                   Source: "_share"
+            Literal, token: [no token] value: 800000
+               Type: int_const 800000
+               Source: "800000"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "extra[3].call.value(_share).gas(800000)()"
+        FunctionCall
+           Type: bool
+           Source: "extra[3].call.value(_share).gas(800000)()"
+          FunctionCall
+             Type: function () payable returns (bool)
+             Source: "extra[3].call.value(_share).gas(800000)"
+            MemberAccess to member gas
+               Type: function (uint256) returns (function () payable returns (bool))
+               Source: "extra[3].call.value(_share).gas"
+              FunctionCall
+                 Type: function () payable returns (bool)
+                 Source: "extra[3].call.value(_share)"
+                MemberAccess to member value
+                   Type: function (uint256) returns (function () payable returns (bool))
+                   Source: "extra[3].call.value"
+                  MemberAccess to member call
+                     Type: function () payable returns (bool)
+                     Source: "extra[3].call"
+                    IndexAccess
+                       Type: address
+                       Source: "extra[3]"
+                      Identifier extra
+                         Type: mapping(uint256 => address)
+                         Source: "extra"
+                      Literal, token: [no token] value: 3
+                         Type: int_const 3
+                         Source: "3"
+                Identifier _share
+                   Type: uint256
+                   Source: "_share"
+            Literal, token: [no token] value: 800000
+               Type: int_const 800000
+               Source: "800000"
+  FunctionDefinition "" - public
+     Source: "function() payable public{\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Gas costs: 0
+       Source: "{\r\n    }"
+ContractDefinition "Puppet"
+   Source: "contract Puppet {\r\n    \r\n    mapping (uint256 => address) public target;\r\n    mapping (uint256 => address) public master;\r\n\r\n    //send shares to doubler\r\n    //return profit to master\r\n\r\n    function () public payable{\r\n        if(msg.sender != target[0]){\r\n            // <yes> <report> UNCHECKED_LL_CALLS\r\n            target[0].call.value(msg.value).gas(600000)();\r\n        }\r\n    }\r\n    \r\n    constructor() payable public{\r\n        //target[0] = 0x42D21d1182F3aDD44064F23c1F98843D4B9fd8aa;\r\n        target[0] = 0x509Cb8cB2F8ba04aE81eEC394175707Edd37e109;\r\n        master[0] = 0x5C035Bb4Cb7dacbfeE076A5e61AA39a10da2E956;\r\n    }\r\n\r\n    \r\n    //emergency withdraw\r\n\r\n    function withdraw() public{\r\n        require(msg.sender == master[0]);\r\n        master[0].transfer(address(this).balance);\r\n    }\r\n}"
+  VariableDeclaration "target"
+     Type: mapping(uint256 => address)
+     Gas costs: 0
+     Source: "mapping (uint256 => address) public target"
+    Mapping
+       Source: "mapping (uint256 => address)"
+      ElementaryTypeName uint256
+         Source: "uint256"
+      ElementaryTypeName address
+         Source: "address"
+  VariableDeclaration "master"
+     Type: mapping(uint256 => address)
+     Gas costs: 0
+     Source: "mapping (uint256 => address) public master"
+    Mapping
+       Source: "mapping (uint256 => address)"
+      ElementaryTypeName uint256
+         Source: "uint256"
+      ElementaryTypeName address
+         Source: "address"
+  FunctionDefinition "" - public
+     Source: "function () public payable{\r\n        if(msg.sender != target[0]){\r\n            // <yes> <report> UNCHECKED_LL_CALLS\r\n            target[0].call.value(msg.value).gas(600000)();\r\n        }\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        if(msg.sender != target[0]){\r\n            // <yes> <report> UNCHECKED_LL_CALLS\r\n            target[0].call.value(msg.value).gas(600000)();\r\n        }\r\n    }"
+      IfStatement
+         Source: "if(msg.sender != target[0]){\r\n            // <yes> <report> UNCHECKED_LL_CALLS\r\n            target[0].call.value(msg.value).gas(600000)();\r\n        }"
+        BinaryOperation using operator !=
+           Type: bool
+           Gas costs: 0
+           Source: "msg.sender != target[0]"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          IndexAccess
+             Type: address
+             Source: "target[0]"
+            Identifier target
+               Type: mapping(uint256 => address)
+               Source: "target"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+        Block
+           Source: "{\r\n            // <yes> <report> UNCHECKED_LL_CALLS\r\n            target[0].call.value(msg.value).gas(600000)();\r\n        }"
+          ExpressionStatement
+             Gas costs: 0
+             Source: "target[0].call.value(msg.value).gas(600000)()"
+            FunctionCall
+               Type: bool
+               Source: "target[0].call.value(msg.value).gas(600000)()"
+              FunctionCall
+                 Type: function () payable returns (bool)
+                 Source: "target[0].call.value(msg.value).gas(600000)"
+                MemberAccess to member gas
+                   Type: function (uint256) returns (function () payable returns (bool))
+                   Source: "target[0].call.value(msg.value).gas"
+                  FunctionCall
+                     Type: function () payable returns (bool)
+                     Source: "target[0].call.value(msg.value)"
+                    MemberAccess to member value
+                       Type: function (uint256) returns (function () payable returns (bool))
+                       Source: "target[0].call.value"
+                      MemberAccess to member call
+                         Type: function () payable returns (bool)
+                         Source: "target[0].call"
+                        IndexAccess
+                           Type: address
+                           Source: "target[0]"
+                          Identifier target
+                             Type: mapping(uint256 => address)
+                             Source: "target"
+                          Literal, token: [no token] value: 0
+                             Type: int_const 0
+                             Source: "0"
+                    MemberAccess to member value
+                       Type: uint256
+                       Source: "msg.value"
+                      Identifier msg
+                         Type: msg
+                         Source: "msg"
+                Literal, token: [no token] value: 600000
+                   Type: int_const 600000
+                   Source: "600000"
+  FunctionDefinition "" - public
+     Source: "constructor() payable public{\r\n        //target[0] = 0x42D21d1182F3aDD44064F23c1F98843D4B9fd8aa;\r\n        target[0] = 0x509Cb8cB2F8ba04aE81eEC394175707Edd37e109;\r\n        master[0] = 0x5C035Bb4Cb7dacbfeE076A5e61AA39a10da2E956;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        //target[0] = 0x42D21d1182F3aDD44064F23c1F98843D4B9fd8aa;\r\n        target[0] = 0x509Cb8cB2F8ba04aE81eEC394175707Edd37e109;\r\n        master[0] = 0x5C035Bb4Cb7dacbfeE076A5e61AA39a10da2E956;\r\n    }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "target[0] = 0x509Cb8cB2F8ba04aE81eEC394175707Edd37e109"
+        Assignment using operator =
+           Type: address
+           Source: "target[0] = 0x509Cb8cB2F8ba04aE81eEC394175707Edd37e109"
+          IndexAccess
+             Type: address
+             Source: "target[0]"
+            Identifier target
+               Type: mapping(uint256 => address)
+               Source: "target"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+          Literal, token: [no token] value: 0x509Cb8cB2F8ba04aE81eEC394175707Edd37e109
+             Type: address
+             Source: "0x509Cb8cB2F8ba04aE81eEC394175707Edd37e109"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "master[0] = 0x5C035Bb4Cb7dacbfeE076A5e61AA39a10da2E956"
+        Assignment using operator =
+           Type: address
+           Source: "master[0] = 0x5C035Bb4Cb7dacbfeE076A5e61AA39a10da2E956"
+          IndexAccess
+             Type: address
+             Source: "master[0]"
+            Identifier master
+               Type: mapping(uint256 => address)
+               Source: "master"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+          Literal, token: [no token] value: 0x5C035Bb4Cb7dacbfeE076A5e61AA39a10da2E956
+             Type: address
+             Source: "0x5C035Bb4Cb7dacbfeE076A5e61AA39a10da2E956"
+  FunctionDefinition "withdraw" - public
+     Source: "function withdraw() public{\r\n        require(msg.sender == master[0]);\r\n        master[0].transfer(address(this).balance);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        require(msg.sender == master[0]);\r\n        master[0].transfer(address(this).balance);\r\n    }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "require(msg.sender == master[0])"
+        FunctionCall
+           Type: tuple()
+           Source: "require(msg.sender == master[0])"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "msg.sender == master[0]"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            IndexAccess
+               Type: address
+               Source: "master[0]"
+              Identifier master
+                 Type: mapping(uint256 => address)
+                 Source: "master"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "master[0].transfer(address(this).balance)"
+        FunctionCall
+           Type: tuple()
+           Source: "master[0].transfer(address(this).balance)"
+          MemberAccess to member transfer
+             Type: function (uint256)
+             Source: "master[0].transfer"
+            IndexAccess
+               Type: address
+               Source: "master[0]"
+              Identifier master
+                 Type: mapping(uint256 => address)
+                 Source: "master"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+          MemberAccess to member balance
+             Type: uint256
+             Source: "address(this).balance"
+            FunctionCall
+               Type: address
+               Source: "address(this)"
+              ElementaryTypeNameExpression address
+                 Type: type(address)
+                 Source: "address"
+              Identifier this
+                 Type: contract Puppet
+                 Source: "this"
+ContractDefinition "SafeMath"
+   Source: "library SafeMath {\r\n\r\n  function mul(uint256 a, uint256 b) internal pure returns (uint256 c) {\r\n    if (a == 0) {\r\n      return 0;\r\n    }\r\n    c = a * b;\r\n    assert(c / a == b);\r\n    return c;\r\n  }\r\n\r\n  function div(uint256 a, uint256 b) internal pure returns (uint256) {\r\n    return a / b;\r\n  }\r\n\r\n  function sub(uint256 a, uint256 b) internal pure returns (uint256) {\r\n    assert(b <= a);\r\n    return a - b;\r\n  }\r\n\r\n  function add(uint256 a, uint256 b) internal pure returns (uint256 c) {\r\n    c = a + b;\r\n    assert(c >= a);\r\n    return c;\r\n  }\r\n}"
+  FunctionDefinition "mul"
+     Source: "function mul(uint256 a, uint256 b) internal pure returns (uint256 c) {\r\n    if (a == 0) {\r\n      return 0;\r\n    }\r\n    c = a * b;\r\n    assert(c / a == b);\r\n    return c;\r\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 a, uint256 b)"
+      VariableDeclaration "a"
+         Type: uint256
+         Source: "uint256 a"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "b"
+         Type: uint256
+         Source: "uint256 b"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 c)"
+      VariableDeclaration "c"
+         Type: uint256
+         Source: "uint256 c"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{\r\n    if (a == 0) {\r\n      return 0;\r\n    }\r\n    c = a * b;\r\n    assert(c / a == b);\r\n    return c;\r\n  }"
+      IfStatement
+         Source: "if (a == 0) {\r\n      return 0;\r\n    }"
+        BinaryOperation using operator ==
+           Type: bool
+           Gas costs: 0
+           Source: "a == 0"
+          Identifier a
+             Type: uint256
+             Source: "a"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        Block
+           Source: "{\r\n      return 0;\r\n    }"
+          Return
+             Gas costs: 0
+             Source: "return 0"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "c = a * b"
+        Assignment using operator =
+           Type: uint256
+           Source: "c = a * b"
+          Identifier c
+             Type: uint256
+             Source: "c"
+          BinaryOperation using operator *
+             Type: uint256
+             Source: "a * b"
+            Identifier a
+               Type: uint256
+               Source: "a"
+            Identifier b
+               Type: uint256
+               Source: "b"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "assert(c / a == b)"
+        FunctionCall
+           Type: tuple()
+           Source: "assert(c / a == b)"
+          Identifier assert
+             Type: function (bool) pure
+             Source: "assert"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "c / a == b"
+            BinaryOperation using operator /
+               Type: uint256
+               Source: "c / a"
+              Identifier c
+                 Type: uint256
+                 Source: "c"
+              Identifier a
+                 Type: uint256
+                 Source: "a"
+            Identifier b
+               Type: uint256
+               Source: "b"
+      Return
+         Gas costs: 0
+         Source: "return c"
+        Identifier c
+           Type: uint256
+           Source: "c"
+  FunctionDefinition "div"
+     Source: "function div(uint256 a, uint256 b) internal pure returns (uint256) {\r\n    return a / b;\r\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 a, uint256 b)"
+      VariableDeclaration "a"
+         Type: uint256
+         Source: "uint256 a"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "b"
+         Type: uint256
+         Source: "uint256 b"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint256"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{\r\n    return a / b;\r\n  }"
+      Return
+         Gas costs: 0
+         Source: "return a / b"
+        BinaryOperation using operator /
+           Type: uint256
+           Source: "a / b"
+          Identifier a
+             Type: uint256
+             Source: "a"
+          Identifier b
+             Type: uint256
+             Source: "b"
+  FunctionDefinition "sub"
+     Source: "function sub(uint256 a, uint256 b) internal pure returns (uint256) {\r\n    assert(b <= a);\r\n    return a - b;\r\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 a, uint256 b)"
+      VariableDeclaration "a"
+         Type: uint256
+         Source: "uint256 a"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "b"
+         Type: uint256
+         Source: "uint256 b"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint256"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{\r\n    assert(b <= a);\r\n    return a - b;\r\n  }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "assert(b <= a)"
+        FunctionCall
+           Type: tuple()
+           Source: "assert(b <= a)"
+          Identifier assert
+             Type: function (bool) pure
+             Source: "assert"
+          BinaryOperation using operator <=
+             Type: bool
+             Source: "b <= a"
+            Identifier b
+               Type: uint256
+               Source: "b"
+            Identifier a
+               Type: uint256
+               Source: "a"
+      Return
+         Gas costs: 0
+         Source: "return a - b"
+        BinaryOperation using operator -
+           Type: uint256
+           Source: "a - b"
+          Identifier a
+             Type: uint256
+             Source: "a"
+          Identifier b
+             Type: uint256
+             Source: "b"
+  FunctionDefinition "add"
+     Source: "function add(uint256 a, uint256 b) internal pure returns (uint256 c) {\r\n    c = a + b;\r\n    assert(c >= a);\r\n    return c;\r\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 a, uint256 b)"
+      VariableDeclaration "a"
+         Type: uint256
+         Source: "uint256 a"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "b"
+         Type: uint256
+         Source: "uint256 b"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 c)"
+      VariableDeclaration "c"
+         Type: uint256
+         Source: "uint256 c"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{\r\n    c = a + b;\r\n    assert(c >= a);\r\n    return c;\r\n  }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "c = a + b"
+        Assignment using operator =
+           Type: uint256
+           Source: "c = a + b"
+          Identifier c
+             Type: uint256
+             Source: "c"
+          BinaryOperation using operator +
+             Type: uint256
+             Source: "a + b"
+            Identifier a
+               Type: uint256
+               Source: "a"
+            Identifier b
+               Type: uint256
+               Source: "b"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "assert(c >= a)"
+        FunctionCall
+           Type: tuple()
+           Source: "assert(c >= a)"
+          Identifier assert
+             Type: function (bool) pure
+             Source: "assert"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "c >= a"
+            Identifier c
+               Type: uint256
+               Source: "c"
+            Identifier a
+               Type: uint256
+               Source: "a"
+      Return
+         Gas costs: 0
+         Source: "return c"
+        Identifier c
+           Type: uint256
+           Source: "c"

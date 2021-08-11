@@ -1,0 +1,2100 @@
+Syntax trees:
+
+
+======= /home/fabric/ArocRevision/Aroc/osirisData/contractSrc/0x2926ba12e333ddb29257f52dde90fce89e2e1b7d.sol =======
+PragmaDirective
+   Gas costs: 0
+   Source: "pragma solidity ^0.4.10;"
+ContractDefinition "HodlDAO"
+   Source: "contract HodlDAO {\r\n    /* ERC20 Public variables of the token */\r\n    string public version = 'HDAO 0.3';\r\n    string public name;\r\n    string public symbol;\r\n    uint8 public decimals;\r\n    uint256 public totalSupply;\r\n\r\n    /* ERC20 This creates an array with all balances */\r\n    mapping (address => uint256) public balanceOf;\r\n    mapping (address => mapping (address => uint256)) public allowance;\r\n\r\n\r\n    /* store the block number when a withdrawal has been requested*/\r\n    mapping (address => withdrawalRequest) public withdrawalRequests;\r\n    struct withdrawalRequest {\r\n        uint sinceBlock;\r\n        uint256 amount;\r\n    }\r\n\r\n    /**\r\n     * feePot collects fees from quick withdrawals. This gets re-distributed to slow-withdrawals\r\n    */\r\n    uint256 public feePot;\r\n\r\n    uint32 public constant blockWait = 172800; // roughly 30 days,  (2592000 / 15) - assuming block time is ~15 sec.\r\n    //uint public constant blockWait = 8; // roughly assuming block time is ~15 sec. (uncomment when testing on testnet)\r\n\r\n\r\n    /**\r\n     * ERC20 events these generate a public event on the blockchain that will notify clients\r\n    */\r\n    event Transfer(address indexed from, address indexed to, uint256 value);\r\n    event Approval(address indexed _owner, address indexed _spender, uint256 _value);\r\n\r\n    event WithdrawalQuick(address indexed by, uint256 amount, uint256 fee); // quick withdrawal done\r\n    event InsufficientFee(address indexed by, uint256 feeRequired);  // not enough fee paid for quick withdrawal\r\n    event WithdrawalStarted(address indexed by, uint256 amount);\r\n    event WithdrawalDone(address indexed by, uint256 amount, uint256 reward); // amount is the amount that was used to calculate reward\r\n    event WithdrawalPremature(address indexed by, uint blocksToWait); // Needs to wait blocksToWait before withdrawal unlocked\r\n    event Deposited(address indexed by, uint256 amount);\r\n\r\n    /**\r\n     * Initializes contract with initial supply tokens to the creator of the contract\r\n     * In our case, there's no initial supply. Tokens will be created as ether is sent\r\n     * to the fall-back function. Then tokens are burned when ether is withdrawn.\r\n     */\r\n    function HodlDAO(\r\n        uint256 initialSupply,\r\n        string tokenName,\r\n        uint8 decimalUnits,\r\n        string tokenSymbol\r\n    ) {\r\n\r\n        balanceOf[msg.sender] = initialSupply;              // Give the creator all initial tokens\r\n        totalSupply = initialSupply;                        // Update total supply\r\n        name = tokenName;                                   // Set the name for display purposes\r\n        symbol = tokenSymbol;                               // Set the symbol for display purposes\r\n        decimals = decimalUnits;                            // Amount of decimals for display purposes\r\n    }\r\n\r\n    /**\r\n     * notPendingWithdrawal modifier guards the function from executing when a\r\n     * withdrawal has been requested and is currently pending\r\n     */\r\n    modifier notPendingWithdrawal {\r\n        if (withdrawalRequests[msg.sender].sinceBlock > 0) throw;\r\n        _;\r\n    }\r\n\r\n    /** ERC20 - transfer sends tokens\r\n     * @notice send `_value` token to `_to` from `msg.sender`\r\n     * @param _to The address of the recipient\r\n     * @param _value The amount of token to be transferred\r\n     * @return Whether the transfer was successful or not\r\n     */\r\n    function transfer(address _to, uint256 _value) notPendingWithdrawal {\r\n        if (balanceOf[msg.sender] < _value) throw;           // Check if the sender has enough\r\n        if (balanceOf[_to] + _value < balanceOf[_to]) throw; // Check for overflows\r\n        balanceOf[msg.sender] -= _value;                     // Subtract from the sender\r\n        balanceOf[_to] += _value;                            // Add the same to the recipient\r\n        Transfer(msg.sender, _to, _value);                   // Notify anyone listening that this transfer took place\r\n    }\r\n\r\n    /** ERC20 approve allows another contract to spend some tokens in your behalf\r\n     * @notice `msg.sender` approves `_spender` to spend `_value` tokens\r\n     * @param _spender The address of the account able to transfer the tokens\r\n     * @param _value The amount of tokens to be approved for transfer\r\n     * @return Whether the approval was successful or not\r\n     *\r\n     *\r\n     * Note, there are some edge-cases with the ERC-20 approve mechanism. In this case a 'bounds check'\r\n     * was added to make sure Alice cant' approve Bob for more tokens than she has.\r\n     * The assumptions are that these scenarios could still happen if not mitigated by Alice:\r\n     *\r\n     * Scenario 1:\r\n     *\r\n     * The following scenario could be the expected outcome by Alice, but if not, Alice would need to set\r\n     * her approval to Bob to 0 before Alice purchases more tokens.\r\n     *\r\n     *  1. Alice has 100 tokens.\r\n     *  2. Alice approves 50 tokens for Bob.\r\n     *  3. Alice approves 100 tokens for Charles\r\n     *  4. Bob calls transferFrom and receives his 50 tokens.\r\n     *  5. Charles calls transferFrom and receives the remaining 50 tokens\r\n     *  6. Charles still has an approval for 50 more tokens from Alice, even though she now owns 0 tokens.\r\n     *  7. Alice purchases 50 more tokens\r\n     *  8. Charles sees this, and immediately calls transferFrom and receives those 50 tokens.\r\n     *\r\n     * Scenario 2:\r\n     *\r\n     * This is a race condition. To mitigate this problem, Alice should set the allowance to 0 in step 2,\r\n     * then wait until it's mined, then if Bob didn't take the 100 she can set to 50. (Otherwise Bob may\r\n     * potentially get 150 tokens)\r\n     *\r\n     *\r\n     *  1. Alice approves Bob for 100,\r\n     *  2. Alice changes it to 50\r\n     *  3. Bob sees the change in the mempool before it's mined, and sends a new transaction\r\n     *     that will hopefully win the race and withdraw the 100 first, meanwhile the 50 will\r\n     *     be mined after and allow Bob to withdraw another 50.\r\n     *\r\n     *\r\n     */\r\n    function approve(address _spender, uint256 _value) notPendingWithdrawal\r\n    returns (bool success) {\r\n        if (balanceOf[msg.sender] < _value) return false; // Don't allow more than they currently have (bounds check)\r\n        // To change the approve amount you first have to reduce the addresses\u00b4\r\n        //  allowance to zero by calling `approve(_spender,0)` if it is not\r\n        //  already 0 to mitigate the race condition described here:\r\n        //  https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729\r\n        if ((_value != 0) && (allowance[msg.sender][_spender] != 0)) throw;\r\n        allowance[msg.sender][_spender] = _value;\r\n        Approval(msg.sender, _spender, _value);\r\n        return true;                                      // we must return a bool as part of the ERC20\r\n    }\r\n\r\n\r\n    /**\r\n     * ERC-20 Approves and then calls the receiving contract\r\n    */\r\n    function approveAndCall(address _spender, uint256 _value, bytes _extraData) notPendingWithdrawal\r\n    returns (bool success) {\r\n        allowance[msg.sender][_spender] = _value;\r\n        Approval(msg.sender, _spender, _value);\r\n\r\n        //call the receiveApproval function on the contract you want to be notified. This crafts the function signature manually so one doesn't have to include a contract in here just for this.\r\n        //receiveApproval(address _from, uint256 _value, address _tokenContract, bytes _extraData)\r\n        //it is assumed that when does this that the call *should* succeed, otherwise one would use vanilla approve instead.\r\n        if(!_spender.call(bytes4(bytes32(sha3(\"receiveApproval(address,uint256,address,bytes)\"))), msg.sender, _value, this, _extraData)) {\r\n            throw;\r\n        }\r\n        return true;\r\n    }\r\n\r\n    /**\r\n     * ERC20 A contract attempts to get the coins\r\n     * @notice send `_value` token to `_to` from `_from` on the condition it is approved by `_from`\r\n     * @param _from The address of the sender\r\n     * @param _to The address of the recipient\r\n     * @param _value The amount of token to be transferred\r\n     * @return Whether the transfer was successful or not\r\n     */\r\n    function transferFrom(address _from, address _to, uint256 _value)\r\n    returns (bool success) {\r\n        // note that we can't use notPendingWithdrawal modifier here since this function does a transfer\r\n        // on the behalf of _from\r\n        if (withdrawalRequests[_from].sinceBlock > 0) throw;  // can't move tokens when _from is pending withdrawal\r\n        if (withdrawalRequests[_to].sinceBlock > 0) throw;    // can't move tokens when _to is pending withdrawal\r\n        if (balanceOf[_from] < _value) throw;                 // Check if the sender has enough\r\n        if (balanceOf[_to] + _value < balanceOf[_to]) throw;  // Check for overflows\r\n        if (_value > allowance[_from][msg.sender]) throw;     // Check allowance\r\n        balanceOf[_from] -= _value;                           // Subtract from the sender\r\n        balanceOf[_to] += _value;                             // Add the same to the recipient\r\n        allowance[_from][msg.sender] -= _value;\r\n        Transfer(_from, _to, _value);\r\n        return true;\r\n    }\r\n\r\n    /**\r\n     * withdrawalInitiate initiates the withdrawal by going into a waiting period\r\n     * It remembers the block number & amount held at the time of request.\r\n     * Tokens cannot be moved out during the waiting period, locking the tokens until then.\r\n     * After the waiting period finishes, the call withdrawalComplete\r\n     *\r\n     * Gas: 64490\r\n     *\r\n     */\r\n    function withdrawalInitiate() notPendingWithdrawal {\r\n        WithdrawalStarted(msg.sender, balanceOf[msg.sender]);\r\n        withdrawalRequests[msg.sender] = withdrawalRequest(block.number, balanceOf[msg.sender]);\r\n    }\r\n\r\n    /**\r\n     * withdrawalComplete is called after the waiting period. The ether will be\r\n     * returned to the caller and the tokens will be burned.\r\n     * A reward will be issued based on the current amount in the feePot, relative to the\r\n     * amount that was requested for withdrawal when withdrawalInitiate() was called.\r\n     *\r\n     * Gas: 30946\r\n     */\r\n    function withdrawalComplete() returns (bool) {\r\n        withdrawalRequest r = withdrawalRequests[msg.sender];\r\n        if (r.sinceBlock == 0) throw;\r\n        if ((r.sinceBlock + blockWait) > block.number) {\r\n            // holder needs to wait some more blocks\r\n            WithdrawalPremature(msg.sender, r.sinceBlock + blockWait - block.number);\r\n            return false;\r\n        }\r\n        uint256 amount = withdrawalRequests[msg.sender].amount;\r\n        uint256 reward = calculateReward(r.amount);\r\n        withdrawalRequests[msg.sender].sinceBlock = 0;  // This will unlock the holders tokens\r\n        withdrawalRequests[msg.sender].amount = 0;      // clear the amount that was requested\r\n\r\n        if (reward > 0) {\r\n            if (feePot - reward > feePot) {\r\n                feePot = 0; // overflow\r\n            } else {\r\n                feePot -= reward;\r\n            }\r\n        }\r\n        doWithdrawal(reward);                           // burn the tokens and send back the ether\r\n        WithdrawalDone(msg.sender, amount, reward);\r\n        return true;\r\n\r\n    }\r\n\r\n    /**\r\n     * Reward is based on the amount held, relative to total supply of tokens.\r\n     */\r\n    function calculateReward(uint256 v) constant returns (uint256) {\r\n        uint256 reward = 0;\r\n        if (feePot > 0) {\r\n            reward = feePot * v / totalSupply;\r\n        }\r\n        return reward;\r\n    }\r\n\r\n    /** calculate the fee for quick withdrawal\r\n     */\r\n    function calculateFee(uint256 v) constant returns  (uint256) {\r\n        uint256 feeRequired = v / 100; // 1%\r\n        return feeRequired;\r\n    }\r\n\r\n    /**\r\n     * Quick withdrawal, needs to send ether to this function for the fee.\r\n     *\r\n     * Gas use: 35384 (including call to processWithdrawal)\r\n    */\r\n    function quickWithdraw() payable notPendingWithdrawal returns (bool) {\r\n        // calculate required fee\r\n        uint256 amount = balanceOf[msg.sender];\r\n        if (amount <= 0) throw;\r\n        uint256 feeRequired = calculateFee(amount);\r\n        if (msg.value < feeRequired) {\r\n            InsufficientFee(msg.sender, feeRequired); // not enough fees sent\r\n            return false;\r\n        }\r\n        uint256 overAmount = msg.value - feeRequired; // calculate any over-payment\r\n\r\n        feePot += msg.value - overAmount;             // add fee to the feePot, excluding any over-payment\r\n\r\n        doWithdrawal(overAmount);                     // withdraw + return any over payment\r\n        WithdrawalDone(msg.sender, amount, 0);\r\n        return true;\r\n    }\r\n\r\n    /**\r\n     * do withdrawal\r\n     */\r\n    function doWithdrawal(uint256 extra) internal {\r\n        uint256 amount = balanceOf[msg.sender];\r\n        if (amount <= 0) throw;                      // cannot withdraw\r\n        if (amount + extra > this.balance) {\r\n            throw;                                   // contract doesn't have enough balance\r\n        }\r\n        balanceOf[msg.sender] = 0;\r\n        if (totalSupply > totalSupply - amount) {\r\n            totalSupply = 0;                         // don't let it overflow\r\n        } else {\r\n            totalSupply -= amount;                   // deflate the supply!\r\n        }\r\n        Transfer(msg.sender, 0, amount);             // burn baby burn\r\n        if (!msg.sender.send(amount + extra)) throw; // return back the ether or rollback if failed\r\n    }\r\n\r\n\r\n    /**\r\n     * Fallback function when sending ether to the contract\r\n     * Gas use: 65051\r\n    */\r\n    function () payable notPendingWithdrawal {\r\n        uint256 amount = msg.value;         // amount that was sent\r\n        if (amount <= 0) throw;             // need to send some ETH\r\n        balanceOf[msg.sender] += amount;    // mint new tokens\r\n        totalSupply += amount;              // track the supply\r\n        Transfer(0, msg.sender, amount);    // notify of the event\r\n        Deposited(msg.sender, amount);\r\n    }\r\n}"
+  VariableDeclaration "version"
+     Type: string storage ref
+     Gas costs: [???]
+     Source: "string public version = 'HDAO 0.3'"
+    ElementaryTypeName string
+       Source: "string"
+    Literal, token: [no token] value: HDAO 0.3
+       Type: literal_string "HDAO 0.3"
+       Source: "'HDAO 0.3'"
+  VariableDeclaration "name"
+     Type: string storage ref
+     Gas costs: [???]
+     Source: "string public name"
+    ElementaryTypeName string
+       Source: "string"
+  VariableDeclaration "symbol"
+     Type: string storage ref
+     Gas costs: [???]
+     Source: "string public symbol"
+    ElementaryTypeName string
+       Source: "string"
+  VariableDeclaration "decimals"
+     Type: uint8
+     Gas costs: [???]
+     Source: "uint8 public decimals"
+    ElementaryTypeName uint8
+       Source: "uint8"
+  VariableDeclaration "totalSupply"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint256 public totalSupply"
+    ElementaryTypeName uint256
+       Source: "uint256"
+  VariableDeclaration "balanceOf"
+     Type: mapping(address => uint256)
+     Gas costs: [???]
+     Source: "mapping (address => uint256) public balanceOf"
+    Mapping
+       Source: "mapping (address => uint256)"
+      ElementaryTypeName address
+         Source: "address"
+      ElementaryTypeName uint256
+         Source: "uint256"
+  VariableDeclaration "allowance"
+     Type: mapping(address => mapping(address => uint256))
+     Gas costs: [???]
+     Source: "mapping (address => mapping (address => uint256)) public allowance"
+    Mapping
+       Source: "mapping (address => mapping (address => uint256))"
+      ElementaryTypeName address
+         Source: "address"
+      Mapping
+         Source: "mapping (address => uint256)"
+        ElementaryTypeName address
+           Source: "address"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  VariableDeclaration "withdrawalRequests"
+     Type: mapping(address => struct HodlDAO.withdrawalRequest storage ref)
+     Gas costs: [???]
+     Source: "mapping (address => withdrawalRequest) public withdrawalRequests"
+    Mapping
+       Source: "mapping (address => withdrawalRequest)"
+      ElementaryTypeName address
+         Source: "address"
+      UserDefinedTypeName "withdrawalRequest"
+         Source: "withdrawalRequest"
+  StructDefinition "withdrawalRequest"
+     Gas costs: 0
+     Source: "struct withdrawalRequest {\r\n        uint sinceBlock;\r\n        uint256 amount;\r\n    }"
+    VariableDeclaration "sinceBlock"
+       Type: uint256
+       Source: "uint sinceBlock"
+      ElementaryTypeName uint
+         Source: "uint"
+    VariableDeclaration "amount"
+       Type: uint256
+       Source: "uint256 amount"
+      ElementaryTypeName uint256
+         Source: "uint256"
+  VariableDeclaration "feePot"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint256 public feePot"
+    ElementaryTypeName uint256
+       Source: "uint256"
+  VariableDeclaration "blockWait"
+     Type: uint32
+     Gas costs: [???]
+     Source: "uint32 public constant blockWait = 172800"
+    ElementaryTypeName uint32
+       Source: "uint32"
+    Literal, token: [no token] value: 172800
+       Type: int_const 172800
+       Source: "172800"
+  EventDefinition "Transfer"
+     Gas costs: 0
+     Source: "event Transfer(address indexed from, address indexed to, uint256 value);"
+    ParameterList
+       Source: "(address indexed from, address indexed to, uint256 value)"
+      VariableDeclaration "from"
+         Type: address
+         Source: "address indexed from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "to"
+         Type: address
+         Source: "address indexed to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "value"
+         Type: uint256
+         Source: "uint256 value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  EventDefinition "Approval"
+     Gas costs: 0
+     Source: "event Approval(address indexed _owner, address indexed _spender, uint256 _value);"
+    ParameterList
+       Source: "(address indexed _owner, address indexed _spender, uint256 _value)"
+      VariableDeclaration "_owner"
+         Type: address
+         Source: "address indexed _owner"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_spender"
+         Type: address
+         Source: "address indexed _spender"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  EventDefinition "WithdrawalQuick"
+     Gas costs: 0
+     Source: "event WithdrawalQuick(address indexed by, uint256 amount, uint256 fee);"
+    ParameterList
+       Source: "(address indexed by, uint256 amount, uint256 fee)"
+      VariableDeclaration "by"
+         Type: address
+         Source: "address indexed by"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "amount"
+         Type: uint256
+         Source: "uint256 amount"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "fee"
+         Type: uint256
+         Source: "uint256 fee"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  EventDefinition "InsufficientFee"
+     Gas costs: 0
+     Source: "event InsufficientFee(address indexed by, uint256 feeRequired);"
+    ParameterList
+       Source: "(address indexed by, uint256 feeRequired)"
+      VariableDeclaration "by"
+         Type: address
+         Source: "address indexed by"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "feeRequired"
+         Type: uint256
+         Source: "uint256 feeRequired"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  EventDefinition "WithdrawalStarted"
+     Gas costs: 0
+     Source: "event WithdrawalStarted(address indexed by, uint256 amount);"
+    ParameterList
+       Source: "(address indexed by, uint256 amount)"
+      VariableDeclaration "by"
+         Type: address
+         Source: "address indexed by"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "amount"
+         Type: uint256
+         Source: "uint256 amount"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  EventDefinition "WithdrawalDone"
+     Gas costs: 0
+     Source: "event WithdrawalDone(address indexed by, uint256 amount, uint256 reward);"
+    ParameterList
+       Source: "(address indexed by, uint256 amount, uint256 reward)"
+      VariableDeclaration "by"
+         Type: address
+         Source: "address indexed by"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "amount"
+         Type: uint256
+         Source: "uint256 amount"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "reward"
+         Type: uint256
+         Source: "uint256 reward"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  EventDefinition "WithdrawalPremature"
+     Gas costs: 0
+     Source: "event WithdrawalPremature(address indexed by, uint blocksToWait);"
+    ParameterList
+       Source: "(address indexed by, uint blocksToWait)"
+      VariableDeclaration "by"
+         Type: address
+         Source: "address indexed by"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "blocksToWait"
+         Type: uint256
+         Source: "uint blocksToWait"
+        ElementaryTypeName uint
+           Source: "uint"
+  EventDefinition "Deposited"
+     Gas costs: 0
+     Source: "event Deposited(address indexed by, uint256 amount);"
+    ParameterList
+       Source: "(address indexed by, uint256 amount)"
+      VariableDeclaration "by"
+         Type: address
+         Source: "address indexed by"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "amount"
+         Type: uint256
+         Source: "uint256 amount"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  FunctionDefinition "HodlDAO" - public
+     Source: "function HodlDAO(\r\n        uint256 initialSupply,\r\n        string tokenName,\r\n        uint8 decimalUnits,\r\n        string tokenSymbol\r\n    ) {\r\n\r\n        balanceOf[msg.sender] = initialSupply;              // Give the creator all initial tokens\r\n        totalSupply = initialSupply;                        // Update total supply\r\n        name = tokenName;                                   // Set the name for display purposes\r\n        symbol = tokenSymbol;                               // Set the symbol for display purposes\r\n        decimals = decimalUnits;                            // Amount of decimals for display purposes\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(\r\n        uint256 initialSupply,\r\n        string tokenName,\r\n        uint8 decimalUnits,\r\n        string tokenSymbol\r\n    )"
+      VariableDeclaration "initialSupply"
+         Type: uint256
+         Source: "uint256 initialSupply"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "tokenName"
+         Type: string memory
+         Source: "string tokenName"
+        ElementaryTypeName string
+           Source: "string"
+      VariableDeclaration "decimalUnits"
+         Type: uint8
+         Source: "uint8 decimalUnits"
+        ElementaryTypeName uint8
+           Source: "uint8"
+      VariableDeclaration "tokenSymbol"
+         Type: string memory
+         Source: "string tokenSymbol"
+        ElementaryTypeName string
+           Source: "string"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n\r\n        balanceOf[msg.sender] = initialSupply;              // Give the creator all initial tokens\r\n        totalSupply = initialSupply;                        // Update total supply\r\n        name = tokenName;                                   // Set the name for display purposes\r\n        symbol = tokenSymbol;                               // Set the symbol for display purposes\r\n        decimals = decimalUnits;                            // Amount of decimals for display purposes\r\n    }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "balanceOf[msg.sender] = initialSupply"
+        Assignment using operator =
+           Type: uint256
+           Source: "balanceOf[msg.sender] = initialSupply"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[msg.sender]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Identifier initialSupply
+             Type: uint256
+             Source: "initialSupply"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "totalSupply = initialSupply"
+        Assignment using operator =
+           Type: uint256
+           Source: "totalSupply = initialSupply"
+          Identifier totalSupply
+             Type: uint256
+             Source: "totalSupply"
+          Identifier initialSupply
+             Type: uint256
+             Source: "initialSupply"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "name = tokenName"
+        Assignment using operator =
+           Type: string storage ref
+           Source: "name = tokenName"
+          Identifier name
+             Type: string storage ref
+             Source: "name"
+          Identifier tokenName
+             Type: string memory
+             Source: "tokenName"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "symbol = tokenSymbol"
+        Assignment using operator =
+           Type: string storage ref
+           Source: "symbol = tokenSymbol"
+          Identifier symbol
+             Type: string storage ref
+             Source: "symbol"
+          Identifier tokenSymbol
+             Type: string memory
+             Source: "tokenSymbol"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "decimals = decimalUnits"
+        Assignment using operator =
+           Type: uint8
+           Source: "decimals = decimalUnits"
+          Identifier decimals
+             Type: uint8
+             Source: "decimals"
+          Identifier decimalUnits
+             Type: uint8
+             Source: "decimalUnits"
+  ModifierDefinition "notPendingWithdrawal"
+     Source: "modifier notPendingWithdrawal {\r\n        if (withdrawalRequests[msg.sender].sinceBlock > 0) throw;\r\n        _;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        if (withdrawalRequests[msg.sender].sinceBlock > 0) throw;\r\n        _;\r\n    }"
+      IfStatement
+         Source: "if (withdrawalRequests[msg.sender].sinceBlock > 0) throw"
+        BinaryOperation using operator >
+           Type: bool
+           Gas costs: 1860
+           Source: "withdrawalRequests[msg.sender].sinceBlock > 0"
+          MemberAccess to member sinceBlock
+             Type: uint256
+             Source: "withdrawalRequests[msg.sender].sinceBlock"
+            IndexAccess
+               Type: struct HodlDAO.withdrawalRequest storage ref
+               Source: "withdrawalRequests[msg.sender]"
+              Identifier withdrawalRequests
+                 Type: mapping(address => struct HodlDAO.withdrawalRequest storage ref)
+                 Source: "withdrawalRequests"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        Throw
+           Gas costs: 36
+           Source: "throw"
+      PlaceholderStatement
+         Gas costs: 2
+         Source: "_"
+  FunctionDefinition "transfer" - public
+     Source: "function transfer(address _to, uint256 _value) notPendingWithdrawal {\r\n        if (balanceOf[msg.sender] < _value) throw;           // Check if the sender has enough\r\n        if (balanceOf[_to] + _value < balanceOf[_to]) throw; // Check for overflows\r\n        balanceOf[msg.sender] -= _value;                     // Subtract from the sender\r\n        balanceOf[_to] += _value;                            // Add the same to the recipient\r\n        Transfer(msg.sender, _to, _value);                   // Notify anyone listening that this transfer took place\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _to, uint256 _value)"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "notPendingWithdrawal"
+       Gas costs: 0
+       Source: "notPendingWithdrawal"
+      Identifier notPendingWithdrawal
+         Type: modifier ()
+         Source: "notPendingWithdrawal"
+    Block
+       Source: "{\r\n        if (balanceOf[msg.sender] < _value) throw;           // Check if the sender has enough\r\n        if (balanceOf[_to] + _value < balanceOf[_to]) throw; // Check for overflows\r\n        balanceOf[msg.sender] -= _value;                     // Subtract from the sender\r\n        balanceOf[_to] += _value;                            // Add the same to the recipient\r\n        Transfer(msg.sender, _to, _value);                   // Notify anyone listening that this transfer took place\r\n    }"
+      IfStatement
+         Source: "if (balanceOf[msg.sender] < _value) throw"
+        BinaryOperation using operator <
+           Type: bool
+           Gas costs: 304
+           Source: "balanceOf[msg.sender] < _value"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[msg.sender]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+        Throw
+           Gas costs: 6
+           Source: "throw"
+      IfStatement
+         Source: "if (balanceOf[_to] + _value < balanceOf[_to]) throw"
+        BinaryOperation using operator <
+           Type: bool
+           Gas costs: 601
+           Source: "balanceOf[_to] + _value < balanceOf[_to]"
+          BinaryOperation using operator +
+             Type: uint256
+             Source: "balanceOf[_to] + _value"
+            IndexAccess
+               Type: uint256
+               Source: "balanceOf[_to]"
+              Identifier balanceOf
+                 Type: mapping(address => uint256)
+                 Source: "balanceOf"
+              Identifier _to
+                 Type: address
+                 Source: "_to"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[_to]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            Identifier _to
+               Type: address
+               Source: "_to"
+        Throw
+           Gas costs: 6
+           Source: "throw"
+      ExpressionStatement
+         Gas costs: 20328
+         Source: "balanceOf[msg.sender] -= _value"
+        Assignment using operator -=
+           Type: uint256
+           Source: "balanceOf[msg.sender] -= _value"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[msg.sender]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: 20323
+         Source: "balanceOf[_to] += _value"
+        Assignment using operator +=
+           Type: uint256
+           Source: "balanceOf[_to] += _value"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[_to]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            Identifier _to
+               Type: address
+               Source: "_to"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "Transfer(msg.sender, _to, _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "Transfer(msg.sender, _to, _value)"
+          Identifier Transfer
+             Type: function (address,address,uint256)
+             Source: "Transfer"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier _to
+             Type: address
+             Source: "_to"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+  FunctionDefinition "approve" - public
+     Source: "function approve(address _spender, uint256 _value) notPendingWithdrawal\r\n    returns (bool success) {\r\n        if (balanceOf[msg.sender] < _value) return false; // Don't allow more than they currently have (bounds check)\r\n        // To change the approve amount you first have to reduce the addresses\u00b4\r\n        //  allowance to zero by calling `approve(_spender,0)` if it is not\r\n        //  already 0 to mitigate the race condition described here:\r\n        //  https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729\r\n        if ((_value != 0) && (allowance[msg.sender][_spender] != 0)) throw;\r\n        allowance[msg.sender][_spender] = _value;\r\n        Approval(msg.sender, _spender, _value);\r\n        return true;                                      // we must return a bool as part of the ERC20\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _spender, uint256 _value)"
+      VariableDeclaration "_spender"
+         Type: address
+         Source: "address _spender"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+    ModifierInvocation "notPendingWithdrawal"
+       Gas costs: 0
+       Source: "notPendingWithdrawal"
+      Identifier notPendingWithdrawal
+         Type: modifier ()
+         Source: "notPendingWithdrawal"
+    Block
+       Source: "{\r\n        if (balanceOf[msg.sender] < _value) return false; // Don't allow more than they currently have (bounds check)\r\n        // To change the approve amount you first have to reduce the addresses\u00b4\r\n        //  allowance to zero by calling `approve(_spender,0)` if it is not\r\n        //  already 0 to mitigate the race condition described here:\r\n        //  https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729\r\n        if ((_value != 0) && (allowance[msg.sender][_spender] != 0)) throw;\r\n        allowance[msg.sender][_spender] = _value;\r\n        Approval(msg.sender, _spender, _value);\r\n        return true;                                      // we must return a bool as part of the ERC20\r\n    }"
+      IfStatement
+         Source: "if (balanceOf[msg.sender] < _value) return false"
+        BinaryOperation using operator <
+           Type: bool
+           Gas costs: 304
+           Source: "balanceOf[msg.sender] < _value"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[msg.sender]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+        Return
+           Gas costs: 19
+           Source: "return false"
+          Literal, token: false value: false
+             Type: bool
+             Source: "false"
+      IfStatement
+         Source: "if ((_value != 0) && (allowance[msg.sender][_spender] != 0)) throw"
+        BinaryOperation using operator &&
+           Type: bool
+           Gas costs: 431
+           Source: "(_value != 0) && (allowance[msg.sender][_spender] != 0)"
+          TupleExpression
+             Type: bool
+             Source: "(_value != 0)"
+            BinaryOperation using operator !=
+               Type: bool
+               Source: "_value != 0"
+              Identifier _value
+                 Type: uint256
+                 Source: "_value"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+          TupleExpression
+             Type: bool
+             Source: "(allowance[msg.sender][_spender] != 0)"
+            BinaryOperation using operator !=
+               Type: bool
+               Source: "allowance[msg.sender][_spender] != 0"
+              IndexAccess
+                 Type: uint256
+                 Source: "allowance[msg.sender][_spender]"
+                IndexAccess
+                   Type: mapping(address => uint256)
+                   Source: "allowance[msg.sender]"
+                  Identifier allowance
+                     Type: mapping(address => mapping(address => uint256))
+                     Source: "allowance"
+                  MemberAccess to member sender
+                     Type: address
+                     Source: "msg.sender"
+                    Identifier msg
+                       Type: msg
+                       Source: "msg"
+                Identifier _spender
+                   Type: address
+                   Source: "_spender"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+        Throw
+           Gas costs: 6
+           Source: "throw"
+      ExpressionStatement
+         Gas costs: 20199
+         Source: "allowance[msg.sender][_spender] = _value"
+        Assignment using operator =
+           Type: uint256
+           Source: "allowance[msg.sender][_spender] = _value"
+          IndexAccess
+             Type: uint256
+             Source: "allowance[msg.sender][_spender]"
+            IndexAccess
+               Type: mapping(address => uint256)
+               Source: "allowance[msg.sender]"
+              Identifier allowance
+                 Type: mapping(address => mapping(address => uint256))
+                 Source: "allowance"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+            Identifier _spender
+               Type: address
+               Source: "_spender"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "Approval(msg.sender, _spender, _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "Approval(msg.sender, _spender, _value)"
+          Identifier Approval
+             Type: function (address,address,uint256)
+             Source: "Approval"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier _spender
+             Type: address
+             Source: "_spender"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      Return
+         Gas costs: 8
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+  FunctionDefinition "approveAndCall" - public
+     Source: "function approveAndCall(address _spender, uint256 _value, bytes _extraData) notPendingWithdrawal\r\n    returns (bool success) {\r\n        allowance[msg.sender][_spender] = _value;\r\n        Approval(msg.sender, _spender, _value);\r\n\r\n        //call the receiveApproval function on the contract you want to be notified. This crafts the function signature manually so one doesn't have to include a contract in here just for this.\r\n        //receiveApproval(address _from, uint256 _value, address _tokenContract, bytes _extraData)\r\n        //it is assumed that when does this that the call *should* succeed, otherwise one would use vanilla approve instead.\r\n        if(!_spender.call(bytes4(bytes32(sha3(\"receiveApproval(address,uint256,address,bytes)\"))), msg.sender, _value, this, _extraData)) {\r\n            throw;\r\n        }\r\n        return true;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _spender, uint256 _value, bytes _extraData)"
+      VariableDeclaration "_spender"
+         Type: address
+         Source: "address _spender"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "_extraData"
+         Type: bytes memory
+         Source: "bytes _extraData"
+        ElementaryTypeName bytes
+           Source: "bytes"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+    ModifierInvocation "notPendingWithdrawal"
+       Gas costs: 0
+       Source: "notPendingWithdrawal"
+      Identifier notPendingWithdrawal
+         Type: modifier ()
+         Source: "notPendingWithdrawal"
+    Block
+       Source: "{\r\n        allowance[msg.sender][_spender] = _value;\r\n        Approval(msg.sender, _spender, _value);\r\n\r\n        //call the receiveApproval function on the contract you want to be notified. This crafts the function signature manually so one doesn't have to include a contract in here just for this.\r\n        //receiveApproval(address _from, uint256 _value, address _tokenContract, bytes _extraData)\r\n        //it is assumed that when does this that the call *should* succeed, otherwise one would use vanilla approve instead.\r\n        if(!_spender.call(bytes4(bytes32(sha3(\"receiveApproval(address,uint256,address,bytes)\"))), msg.sender, _value, this, _extraData)) {\r\n            throw;\r\n        }\r\n        return true;\r\n    }"
+      ExpressionStatement
+         Gas costs: 20199
+         Source: "allowance[msg.sender][_spender] = _value"
+        Assignment using operator =
+           Type: uint256
+           Source: "allowance[msg.sender][_spender] = _value"
+          IndexAccess
+             Type: uint256
+             Source: "allowance[msg.sender][_spender]"
+            IndexAccess
+               Type: mapping(address => uint256)
+               Source: "allowance[msg.sender]"
+              Identifier allowance
+                 Type: mapping(address => mapping(address => uint256))
+                 Source: "allowance"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+            Identifier _spender
+               Type: address
+               Source: "_spender"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "Approval(msg.sender, _spender, _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "Approval(msg.sender, _spender, _value)"
+          Identifier Approval
+             Type: function (address,address,uint256)
+             Source: "Approval"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier _spender
+             Type: address
+             Source: "_spender"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      IfStatement
+         Source: "if(!_spender.call(bytes4(bytes32(sha3(\"receiveApproval(address,uint256,address,bytes)\"))), msg.sender, _value, this, _extraData)) {\r\n            throw;\r\n        }"
+        UnaryOperation (prefix) !
+           Type: bool
+           Gas costs: [???]
+           Source: "!_spender.call(bytes4(bytes32(sha3(\"receiveApproval(address,uint256,address,bytes)\"))), msg.sender, _value, this, _extraData)"
+          FunctionCall
+             Type: bool
+             Source: "_spender.call(bytes4(bytes32(sha3(\"receiveApproval(address,uint256,address,bytes)\"))), msg.sender, _value, this, _extraData)"
+            MemberAccess to member call
+               Type: function () payable returns (bool)
+               Source: "_spender.call"
+              Identifier _spender
+                 Type: address
+                 Source: "_spender"
+            FunctionCall
+               Type: bytes4
+               Source: "bytes4(bytes32(sha3(\"receiveApproval(address,uint256,address,bytes)\")))"
+              ElementaryTypeNameExpression bytes4
+                 Type: type(bytes4)
+                 Source: "bytes4"
+              FunctionCall
+                 Type: bytes32
+                 Source: "bytes32(sha3(\"receiveApproval(address,uint256,address,bytes)\"))"
+                ElementaryTypeNameExpression bytes32
+                   Type: type(bytes32)
+                   Source: "bytes32"
+                FunctionCall
+                   Type: bytes32
+                   Source: "sha3(\"receiveApproval(address,uint256,address,bytes)\")"
+                  Identifier sha3
+                     Type: function () pure returns (bytes32)
+                     Source: "sha3"
+                  Literal, token: [no token] value: receiveApproval(address,uint256,address,bytes)
+                     Type: literal_string "receiveApproval(address,uint256,address,bytes)"
+                     Source: "\"receiveApproval(address,uint256,address,bytes)\""
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+            Identifier this
+               Type: contract HodlDAO
+               Source: "this"
+            Identifier _extraData
+               Type: bytes memory
+               Source: "_extraData"
+        Block
+           Source: "{\r\n            throw;\r\n        }"
+          Throw
+             Gas costs: 6
+             Source: "throw"
+      Return
+         Gas costs: 8
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+  FunctionDefinition "transferFrom" - public
+     Source: "function transferFrom(address _from, address _to, uint256 _value)\r\n    returns (bool success) {\r\n        // note that we can't use notPendingWithdrawal modifier here since this function does a transfer\r\n        // on the behalf of _from\r\n        if (withdrawalRequests[_from].sinceBlock > 0) throw;  // can't move tokens when _from is pending withdrawal\r\n        if (withdrawalRequests[_to].sinceBlock > 0) throw;    // can't move tokens when _to is pending withdrawal\r\n        if (balanceOf[_from] < _value) throw;                 // Check if the sender has enough\r\n        if (balanceOf[_to] + _value < balanceOf[_to]) throw;  // Check for overflows\r\n        if (_value > allowance[_from][msg.sender]) throw;     // Check allowance\r\n        balanceOf[_from] -= _value;                           // Subtract from the sender\r\n        balanceOf[_to] += _value;                             // Add the same to the recipient\r\n        allowance[_from][msg.sender] -= _value;\r\n        Transfer(_from, _to, _value);\r\n        return true;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _from, address _to, uint256 _value)"
+      VariableDeclaration "_from"
+         Type: address
+         Source: "address _from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n        // note that we can't use notPendingWithdrawal modifier here since this function does a transfer\r\n        // on the behalf of _from\r\n        if (withdrawalRequests[_from].sinceBlock > 0) throw;  // can't move tokens when _from is pending withdrawal\r\n        if (withdrawalRequests[_to].sinceBlock > 0) throw;    // can't move tokens when _to is pending withdrawal\r\n        if (balanceOf[_from] < _value) throw;                 // Check if the sender has enough\r\n        if (balanceOf[_to] + _value < balanceOf[_to]) throw;  // Check for overflows\r\n        if (_value > allowance[_from][msg.sender]) throw;     // Check allowance\r\n        balanceOf[_from] -= _value;                           // Subtract from the sender\r\n        balanceOf[_to] += _value;                             // Add the same to the recipient\r\n        allowance[_from][msg.sender] -= _value;\r\n        Transfer(_from, _to, _value);\r\n        return true;\r\n    }"
+      IfStatement
+         Source: "if (withdrawalRequests[_from].sinceBlock > 0) throw"
+        BinaryOperation using operator >
+           Type: bool
+           Gas costs: 311
+           Source: "withdrawalRequests[_from].sinceBlock > 0"
+          MemberAccess to member sinceBlock
+             Type: uint256
+             Source: "withdrawalRequests[_from].sinceBlock"
+            IndexAccess
+               Type: struct HodlDAO.withdrawalRequest storage ref
+               Source: "withdrawalRequests[_from]"
+              Identifier withdrawalRequests
+                 Type: mapping(address => struct HodlDAO.withdrawalRequest storage ref)
+                 Source: "withdrawalRequests"
+              Identifier _from
+                 Type: address
+                 Source: "_from"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        Throw
+           Gas costs: 6
+           Source: "throw"
+      IfStatement
+         Source: "if (withdrawalRequests[_to].sinceBlock > 0) throw"
+        BinaryOperation using operator >
+           Type: bool
+           Gas costs: 311
+           Source: "withdrawalRequests[_to].sinceBlock > 0"
+          MemberAccess to member sinceBlock
+             Type: uint256
+             Source: "withdrawalRequests[_to].sinceBlock"
+            IndexAccess
+               Type: struct HodlDAO.withdrawalRequest storage ref
+               Source: "withdrawalRequests[_to]"
+              Identifier withdrawalRequests
+                 Type: mapping(address => struct HodlDAO.withdrawalRequest storage ref)
+                 Source: "withdrawalRequests"
+              Identifier _to
+                 Type: address
+                 Source: "_to"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        Throw
+           Gas costs: 6
+           Source: "throw"
+      IfStatement
+         Source: "if (balanceOf[_from] < _value) throw"
+        BinaryOperation using operator <
+           Type: bool
+           Gas costs: 305
+           Source: "balanceOf[_from] < _value"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[_from]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            Identifier _from
+               Type: address
+               Source: "_from"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+        Throw
+           Gas costs: 6
+           Source: "throw"
+      IfStatement
+         Source: "if (balanceOf[_to] + _value < balanceOf[_to]) throw"
+        BinaryOperation using operator <
+           Type: bool
+           Gas costs: 601
+           Source: "balanceOf[_to] + _value < balanceOf[_to]"
+          BinaryOperation using operator +
+             Type: uint256
+             Source: "balanceOf[_to] + _value"
+            IndexAccess
+               Type: uint256
+               Source: "balanceOf[_to]"
+              Identifier balanceOf
+                 Type: mapping(address => uint256)
+                 Source: "balanceOf"
+              Identifier _to
+                 Type: address
+                 Source: "_to"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[_to]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            Identifier _to
+               Type: address
+               Source: "_to"
+        Throw
+           Gas costs: 6
+           Source: "throw"
+      IfStatement
+         Source: "if (_value > allowance[_from][msg.sender]) throw"
+        BinaryOperation using operator >
+           Type: bool
+           Gas costs: 394
+           Source: "_value > allowance[_from][msg.sender]"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+          IndexAccess
+             Type: uint256
+             Source: "allowance[_from][msg.sender]"
+            IndexAccess
+               Type: mapping(address => uint256)
+               Source: "allowance[_from]"
+              Identifier allowance
+                 Type: mapping(address => mapping(address => uint256))
+                 Source: "allowance"
+              Identifier _from
+                 Type: address
+                 Source: "_from"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+        Throw
+           Gas costs: 6
+           Source: "throw"
+      ExpressionStatement
+         Gas costs: 20329
+         Source: "balanceOf[_from] -= _value"
+        Assignment using operator -=
+           Type: uint256
+           Source: "balanceOf[_from] -= _value"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[_from]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            Identifier _from
+               Type: address
+               Source: "_from"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: 20323
+         Source: "balanceOf[_to] += _value"
+        Assignment using operator +=
+           Type: uint256
+           Source: "balanceOf[_to] += _value"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[_to]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            Identifier _to
+               Type: address
+               Source: "_to"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: 20412
+         Source: "allowance[_from][msg.sender] -= _value"
+        Assignment using operator -=
+           Type: uint256
+           Source: "allowance[_from][msg.sender] -= _value"
+          IndexAccess
+             Type: uint256
+             Source: "allowance[_from][msg.sender]"
+            IndexAccess
+               Type: mapping(address => uint256)
+               Source: "allowance[_from]"
+              Identifier allowance
+                 Type: mapping(address => mapping(address => uint256))
+                 Source: "allowance"
+              Identifier _from
+                 Type: address
+                 Source: "_from"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "Transfer(_from, _to, _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "Transfer(_from, _to, _value)"
+          Identifier Transfer
+             Type: function (address,address,uint256)
+             Source: "Transfer"
+          Identifier _from
+             Type: address
+             Source: "_from"
+          Identifier _to
+             Type: address
+             Source: "_to"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      Return
+         Gas costs: 8
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+  FunctionDefinition "withdrawalInitiate" - public
+     Source: "function withdrawalInitiate() notPendingWithdrawal {\r\n        WithdrawalStarted(msg.sender, balanceOf[msg.sender]);\r\n        withdrawalRequests[msg.sender] = withdrawalRequest(block.number, balanceOf[msg.sender]);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "notPendingWithdrawal"
+       Gas costs: 0
+       Source: "notPendingWithdrawal"
+      Identifier notPendingWithdrawal
+         Type: modifier ()
+         Source: "notPendingWithdrawal"
+    Block
+       Source: "{\r\n        WithdrawalStarted(msg.sender, balanceOf[msg.sender]);\r\n        withdrawalRequests[msg.sender] = withdrawalRequest(block.number, balanceOf[msg.sender]);\r\n    }"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "WithdrawalStarted(msg.sender, balanceOf[msg.sender])"
+        FunctionCall
+           Type: tuple()
+           Source: "WithdrawalStarted(msg.sender, balanceOf[msg.sender])"
+          Identifier WithdrawalStarted
+             Type: function (address,uint256)
+             Source: "WithdrawalStarted"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[msg.sender]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "withdrawalRequests[msg.sender] = withdrawalRequest(block.number, balanceOf[msg.sender])"
+        Assignment using operator =
+           Type: struct HodlDAO.withdrawalRequest storage ref
+           Source: "withdrawalRequests[msg.sender] = withdrawalRequest(block.number, balanceOf[msg.sender])"
+          IndexAccess
+             Type: struct HodlDAO.withdrawalRequest storage ref
+             Source: "withdrawalRequests[msg.sender]"
+            Identifier withdrawalRequests
+               Type: mapping(address => struct HodlDAO.withdrawalRequest storage ref)
+               Source: "withdrawalRequests"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          FunctionCall
+             Type: struct HodlDAO.withdrawalRequest memory
+             Source: "withdrawalRequest(block.number, balanceOf[msg.sender])"
+            Identifier withdrawalRequest
+               Type: type(struct HodlDAO.withdrawalRequest storage pointer)
+               Source: "withdrawalRequest"
+            MemberAccess to member number
+               Type: uint256
+               Source: "block.number"
+              Identifier block
+                 Type: block
+                 Source: "block"
+            IndexAccess
+               Type: uint256
+               Source: "balanceOf[msg.sender]"
+              Identifier balanceOf
+                 Type: mapping(address => uint256)
+                 Source: "balanceOf"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+  FunctionDefinition "withdrawalComplete" - public
+     Source: "function withdrawalComplete() returns (bool) {\r\n        withdrawalRequest r = withdrawalRequests[msg.sender];\r\n        if (r.sinceBlock == 0) throw;\r\n        if ((r.sinceBlock + blockWait) > block.number) {\r\n            // holder needs to wait some more blocks\r\n            WithdrawalPremature(msg.sender, r.sinceBlock + blockWait - block.number);\r\n            return false;\r\n        }\r\n        uint256 amount = withdrawalRequests[msg.sender].amount;\r\n        uint256 reward = calculateReward(r.amount);\r\n        withdrawalRequests[msg.sender].sinceBlock = 0;  // This will unlock the holders tokens\r\n        withdrawalRequests[msg.sender].amount = 0;      // clear the amount that was requested\r\n\r\n        if (reward > 0) {\r\n            if (feePot - reward > feePot) {\r\n                feePot = 0; // overflow\r\n            } else {\r\n                feePot -= reward;\r\n            }\r\n        }\r\n        doWithdrawal(reward);                           // burn the tokens and send back the ether\r\n        WithdrawalDone(msg.sender, amount, reward);\r\n        return true;\r\n\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool)"
+      VariableDeclaration ""
+         Type: bool
+         Source: "bool"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n        withdrawalRequest r = withdrawalRequests[msg.sender];\r\n        if (r.sinceBlock == 0) throw;\r\n        if ((r.sinceBlock + blockWait) > block.number) {\r\n            // holder needs to wait some more blocks\r\n            WithdrawalPremature(msg.sender, r.sinceBlock + blockWait - block.number);\r\n            return false;\r\n        }\r\n        uint256 amount = withdrawalRequests[msg.sender].amount;\r\n        uint256 reward = calculateReward(r.amount);\r\n        withdrawalRequests[msg.sender].sinceBlock = 0;  // This will unlock the holders tokens\r\n        withdrawalRequests[msg.sender].amount = 0;      // clear the amount that was requested\r\n\r\n        if (reward > 0) {\r\n            if (feePot - reward > feePot) {\r\n                feePot = 0; // overflow\r\n            } else {\r\n                feePot -= reward;\r\n            }\r\n        }\r\n        doWithdrawal(reward);                           // burn the tokens and send back the ether\r\n        WithdrawalDone(msg.sender, amount, reward);\r\n        return true;\r\n\r\n    }"
+      VariableDeclarationStatement
+         Gas costs: 106
+         Source: "withdrawalRequest r = withdrawalRequests[msg.sender]"
+        VariableDeclaration "r"
+           Type: struct HodlDAO.withdrawalRequest storage pointer
+           Source: "withdrawalRequest r"
+          UserDefinedTypeName "withdrawalRequest"
+             Source: "withdrawalRequest"
+        IndexAccess
+           Type: struct HodlDAO.withdrawalRequest storage ref
+           Source: "withdrawalRequests[msg.sender]"
+          Identifier withdrawalRequests
+             Type: mapping(address => struct HodlDAO.withdrawalRequest storage ref)
+             Source: "withdrawalRequests"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+      IfStatement
+         Source: "if (r.sinceBlock == 0) throw"
+        BinaryOperation using operator ==
+           Type: bool
+           Gas costs: 215
+           Source: "r.sinceBlock == 0"
+          MemberAccess to member sinceBlock
+             Type: uint256
+             Source: "r.sinceBlock"
+            Identifier r
+               Type: struct HodlDAO.withdrawalRequest storage pointer
+               Source: "r"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        Throw
+           Gas costs: 6
+           Source: "throw"
+      IfStatement
+         Source: "if ((r.sinceBlock + blockWait) > block.number) {\r\n            // holder needs to wait some more blocks\r\n            WithdrawalPremature(msg.sender, r.sinceBlock + blockWait - block.number);\r\n            return false;\r\n        }"
+        BinaryOperation using operator >
+           Type: bool
+           Gas costs: 223
+           Source: "(r.sinceBlock + blockWait) > block.number"
+          TupleExpression
+             Type: uint256
+             Source: "(r.sinceBlock + blockWait)"
+            BinaryOperation using operator +
+               Type: uint256
+               Source: "r.sinceBlock + blockWait"
+              MemberAccess to member sinceBlock
+                 Type: uint256
+                 Source: "r.sinceBlock"
+                Identifier r
+                   Type: struct HodlDAO.withdrawalRequest storage pointer
+                   Source: "r"
+              Identifier blockWait
+                 Type: uint32
+                 Source: "blockWait"
+          MemberAccess to member number
+             Type: uint256
+             Source: "block.number"
+            Identifier block
+               Type: block
+               Source: "block"
+        Block
+           Source: "{\r\n            // holder needs to wait some more blocks\r\n            WithdrawalPremature(msg.sender, r.sinceBlock + blockWait - block.number);\r\n            return false;\r\n        }"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "WithdrawalPremature(msg.sender, r.sinceBlock + blockWait - block.number)"
+            FunctionCall
+               Type: tuple()
+               Source: "WithdrawalPremature(msg.sender, r.sinceBlock + blockWait - block.number)"
+              Identifier WithdrawalPremature
+                 Type: function (address,uint256)
+                 Source: "WithdrawalPremature"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+              BinaryOperation using operator -
+                 Type: uint256
+                 Source: "r.sinceBlock + blockWait - block.number"
+                BinaryOperation using operator +
+                   Type: uint256
+                   Source: "r.sinceBlock + blockWait"
+                  MemberAccess to member sinceBlock
+                     Type: uint256
+                     Source: "r.sinceBlock"
+                    Identifier r
+                       Type: struct HodlDAO.withdrawalRequest storage pointer
+                       Source: "r"
+                  Identifier blockWait
+                     Type: uint32
+                     Source: "blockWait"
+                MemberAccess to member number
+                   Type: uint256
+                   Source: "block.number"
+                  Identifier block
+                     Type: block
+                     Source: "block"
+          Return
+             Gas costs: 19
+             Source: "return false"
+            Literal, token: false value: false
+               Type: bool
+               Source: "false"
+      VariableDeclarationStatement
+         Gas costs: 312
+         Source: "uint256 amount = withdrawalRequests[msg.sender].amount"
+        VariableDeclaration "amount"
+           Type: uint256
+           Source: "uint256 amount"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        MemberAccess to member amount
+           Type: uint256
+           Source: "withdrawalRequests[msg.sender].amount"
+          IndexAccess
+             Type: struct HodlDAO.withdrawalRequest storage ref
+             Source: "withdrawalRequests[msg.sender]"
+            Identifier withdrawalRequests
+               Type: mapping(address => struct HodlDAO.withdrawalRequest storage ref)
+               Source: "withdrawalRequests"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+      VariableDeclarationStatement
+         Gas costs: 232
+         Source: "uint256 reward = calculateReward(r.amount)"
+        VariableDeclaration "reward"
+           Type: uint256
+           Source: "uint256 reward"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        FunctionCall
+           Type: uint256
+           Source: "calculateReward(r.amount)"
+          Identifier calculateReward
+             Type: function (uint256) view returns (uint256)
+             Source: "calculateReward"
+          MemberAccess to member amount
+             Type: uint256
+             Source: "r.amount"
+            Identifier r
+               Type: struct HodlDAO.withdrawalRequest storage pointer
+               Source: "r"
+      ExpressionStatement
+         Gas costs: 5115
+         Source: "withdrawalRequests[msg.sender].sinceBlock = 0"
+        Assignment using operator =
+           Type: uint256
+           Source: "withdrawalRequests[msg.sender].sinceBlock = 0"
+          MemberAccess to member sinceBlock
+             Type: uint256
+             Source: "withdrawalRequests[msg.sender].sinceBlock"
+            IndexAccess
+               Type: struct HodlDAO.withdrawalRequest storage ref
+               Source: "withdrawalRequests[msg.sender]"
+              Identifier withdrawalRequests
+                 Type: mapping(address => struct HodlDAO.withdrawalRequest storage ref)
+                 Source: "withdrawalRequests"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+      ExpressionStatement
+         Gas costs: 5109
+         Source: "withdrawalRequests[msg.sender].amount = 0"
+        Assignment using operator =
+           Type: uint256
+           Source: "withdrawalRequests[msg.sender].amount = 0"
+          MemberAccess to member amount
+             Type: uint256
+             Source: "withdrawalRequests[msg.sender].amount"
+            IndexAccess
+               Type: struct HodlDAO.withdrawalRequest storage ref
+               Source: "withdrawalRequests[msg.sender]"
+              Identifier withdrawalRequests
+                 Type: mapping(address => struct HodlDAO.withdrawalRequest storage ref)
+                 Source: "withdrawalRequests"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+      IfStatement
+         Source: "if (reward > 0) {\r\n            if (feePot - reward > feePot) {\r\n                feePot = 0; // overflow\r\n            } else {\r\n                feePot -= reward;\r\n            }\r\n        }"
+        BinaryOperation using operator >
+           Type: bool
+           Gas costs: 9
+           Source: "reward > 0"
+          Identifier reward
+             Type: uint256
+             Source: "reward"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        Block
+           Source: "{\r\n            if (feePot - reward > feePot) {\r\n                feePot = 0; // overflow\r\n            } else {\r\n                feePot -= reward;\r\n            }\r\n        }"
+          IfStatement
+             Source: "if (feePot - reward > feePot) {\r\n                feePot = 0; // overflow\r\n            } else {\r\n                feePot -= reward;\r\n            }"
+            BinaryOperation using operator >
+               Type: bool
+               Gas costs: 415
+               Source: "feePot - reward > feePot"
+              BinaryOperation using operator -
+                 Type: uint256
+                 Source: "feePot - reward"
+                Identifier feePot
+                   Type: uint256
+                   Source: "feePot"
+                Identifier reward
+                   Type: uint256
+                   Source: "reward"
+              Identifier feePot
+                 Type: uint256
+                 Source: "feePot"
+            Block
+               Source: "{\r\n                feePot = 0; // overflow\r\n            }"
+              ExpressionStatement
+                 Gas costs: 5014
+                 Source: "feePot = 0"
+                Assignment using operator =
+                   Type: uint256
+                   Source: "feePot = 0"
+                  Identifier feePot
+                     Type: uint256
+                     Source: "feePot"
+                  Literal, token: [no token] value: 0
+                     Type: int_const 0
+                     Source: "0"
+            Block
+               Source: "{\r\n                feePot -= reward;\r\n            }"
+              ExpressionStatement
+                 Gas costs: 20233
+                 Source: "feePot -= reward"
+                Assignment using operator -=
+                   Type: uint256
+                   Source: "feePot -= reward"
+                  Identifier feePot
+                     Type: uint256
+                     Source: "feePot"
+                  Identifier reward
+                     Type: uint256
+                     Source: "reward"
+      ExpressionStatement
+         Gas costs: 18
+         Source: "doWithdrawal(reward)"
+        FunctionCall
+           Type: tuple()
+           Source: "doWithdrawal(reward)"
+          Identifier doWithdrawal
+             Type: function (uint256)
+             Source: "doWithdrawal"
+          Identifier reward
+             Type: uint256
+             Source: "reward"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "WithdrawalDone(msg.sender, amount, reward)"
+        FunctionCall
+           Type: tuple()
+           Source: "WithdrawalDone(msg.sender, amount, reward)"
+          Identifier WithdrawalDone
+             Type: function (address,uint256,uint256)
+             Source: "WithdrawalDone"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier amount
+             Type: uint256
+             Source: "amount"
+          Identifier reward
+             Type: uint256
+             Source: "reward"
+      Return
+         Gas costs: 8
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+  FunctionDefinition "calculateReward" - public - const
+     Source: "function calculateReward(uint256 v) constant returns (uint256) {\r\n        uint256 reward = 0;\r\n        if (feePot > 0) {\r\n            reward = feePot * v / totalSupply;\r\n        }\r\n        return reward;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 v)"
+      VariableDeclaration "v"
+         Type: uint256
+         Source: "uint256 v"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint256)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint256"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{\r\n        uint256 reward = 0;\r\n        if (feePot > 0) {\r\n            reward = feePot * v / totalSupply;\r\n        }\r\n        return reward;\r\n    }"
+      VariableDeclarationStatement
+         Gas costs: 11
+         Source: "uint256 reward = 0"
+        VariableDeclaration "reward"
+           Type: uint256
+           Source: "uint256 reward"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        Literal, token: [no token] value: 0
+           Type: int_const 0
+           Source: "0"
+      IfStatement
+         Source: "if (feePot > 0) {\r\n            reward = feePot * v / totalSupply;\r\n        }"
+        BinaryOperation using operator >
+           Type: bool
+           Gas costs: 209
+           Source: "feePot > 0"
+          Identifier feePot
+             Type: uint256
+             Source: "feePot"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        Block
+           Source: "{\r\n            reward = feePot * v / totalSupply;\r\n        }"
+          ExpressionStatement
+             Gas costs: 447
+             Source: "reward = feePot * v / totalSupply"
+            Assignment using operator =
+               Type: uint256
+               Source: "reward = feePot * v / totalSupply"
+              Identifier reward
+                 Type: uint256
+                 Source: "reward"
+              BinaryOperation using operator /
+                 Type: uint256
+                 Source: "feePot * v / totalSupply"
+                BinaryOperation using operator *
+                   Type: uint256
+                   Source: "feePot * v"
+                  Identifier feePot
+                     Type: uint256
+                     Source: "feePot"
+                  Identifier v
+                     Type: uint256
+                     Source: "v"
+                Identifier totalSupply
+                   Type: uint256
+                   Source: "totalSupply"
+      Return
+         Gas costs: 8
+         Source: "return reward"
+        Identifier reward
+           Type: uint256
+           Source: "reward"
+  FunctionDefinition "calculateFee" - public - const
+     Source: "function calculateFee(uint256 v) constant returns  (uint256) {\r\n        uint256 feeRequired = v / 100; // 1%\r\n        return feeRequired;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 v)"
+      VariableDeclaration "v"
+         Type: uint256
+         Source: "uint256 v"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint256)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint256"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{\r\n        uint256 feeRequired = v / 100; // 1%\r\n        return feeRequired;\r\n    }"
+      VariableDeclarationStatement
+         Gas costs: 42
+         Source: "uint256 feeRequired = v / 100"
+        VariableDeclaration "feeRequired"
+           Type: uint256
+           Source: "uint256 feeRequired"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        BinaryOperation using operator /
+           Type: uint256
+           Source: "v / 100"
+          Identifier v
+             Type: uint256
+             Source: "v"
+          Literal, token: [no token] value: 100
+             Type: int_const 100
+             Source: "100"
+      Return
+         Gas costs: 8
+         Source: "return feeRequired"
+        Identifier feeRequired
+           Type: uint256
+           Source: "feeRequired"
+  FunctionDefinition "quickWithdraw" - public
+     Source: "function quickWithdraw() payable notPendingWithdrawal returns (bool) {\r\n        // calculate required fee\r\n        uint256 amount = balanceOf[msg.sender];\r\n        if (amount <= 0) throw;\r\n        uint256 feeRequired = calculateFee(amount);\r\n        if (msg.value < feeRequired) {\r\n            InsufficientFee(msg.sender, feeRequired); // not enough fees sent\r\n            return false;\r\n        }\r\n        uint256 overAmount = msg.value - feeRequired; // calculate any over-payment\r\n\r\n        feePot += msg.value - overAmount;             // add fee to the feePot, excluding any over-payment\r\n\r\n        doWithdrawal(overAmount);                     // withdraw + return any over payment\r\n        WithdrawalDone(msg.sender, amount, 0);\r\n        return true;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool)"
+      VariableDeclaration ""
+         Type: bool
+         Source: "bool"
+        ElementaryTypeName bool
+           Source: "bool"
+    ModifierInvocation "notPendingWithdrawal"
+       Gas costs: 0
+       Source: "notPendingWithdrawal"
+      Identifier notPendingWithdrawal
+         Type: modifier ()
+         Source: "notPendingWithdrawal"
+    Block
+       Source: "{\r\n        // calculate required fee\r\n        uint256 amount = balanceOf[msg.sender];\r\n        if (amount <= 0) throw;\r\n        uint256 feeRequired = calculateFee(amount);\r\n        if (msg.value < feeRequired) {\r\n            InsufficientFee(msg.sender, feeRequired); // not enough fees sent\r\n            return false;\r\n        }\r\n        uint256 overAmount = msg.value - feeRequired; // calculate any over-payment\r\n\r\n        feePot += msg.value - overAmount;             // add fee to the feePot, excluding any over-payment\r\n\r\n        doWithdrawal(overAmount);                     // withdraw + return any over payment\r\n        WithdrawalDone(msg.sender, amount, 0);\r\n        return true;\r\n    }"
+      VariableDeclarationStatement
+         Gas costs: 306
+         Source: "uint256 amount = balanceOf[msg.sender]"
+        VariableDeclaration "amount"
+           Type: uint256
+           Source: "uint256 amount"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        IndexAccess
+           Type: uint256
+           Source: "balanceOf[msg.sender]"
+          Identifier balanceOf
+             Type: mapping(address => uint256)
+             Source: "balanceOf"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+      IfStatement
+         Source: "if (amount <= 0) throw"
+        BinaryOperation using operator <=
+           Type: bool
+           Gas costs: 12
+           Source: "amount <= 0"
+          Identifier amount
+             Type: uint256
+             Source: "amount"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        Throw
+           Gas costs: 6
+           Source: "throw"
+      VariableDeclarationStatement
+         Gas costs: 26
+         Source: "uint256 feeRequired = calculateFee(amount)"
+        VariableDeclaration "feeRequired"
+           Type: uint256
+           Source: "uint256 feeRequired"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        FunctionCall
+           Type: uint256
+           Source: "calculateFee(amount)"
+          Identifier calculateFee
+             Type: function (uint256) view returns (uint256)
+             Source: "calculateFee"
+          Identifier amount
+             Type: uint256
+             Source: "amount"
+      IfStatement
+         Source: "if (msg.value < feeRequired) {\r\n            InsufficientFee(msg.sender, feeRequired); // not enough fees sent\r\n            return false;\r\n        }"
+        BinaryOperation using operator <
+           Type: bool
+           Gas costs: 8
+           Source: "msg.value < feeRequired"
+          MemberAccess to member value
+             Type: uint256
+             Source: "msg.value"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier feeRequired
+             Type: uint256
+             Source: "feeRequired"
+        Block
+           Source: "{\r\n            InsufficientFee(msg.sender, feeRequired); // not enough fees sent\r\n            return false;\r\n        }"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "InsufficientFee(msg.sender, feeRequired)"
+            FunctionCall
+               Type: tuple()
+               Source: "InsufficientFee(msg.sender, feeRequired)"
+              Identifier InsufficientFee
+                 Type: function (address,uint256)
+                 Source: "InsufficientFee"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+              Identifier feeRequired
+                 Type: uint256
+                 Source: "feeRequired"
+          Return
+             Gas costs: 19
+             Source: "return false"
+            Literal, token: false value: false
+               Type: bool
+               Source: "false"
+      VariableDeclarationStatement
+         Gas costs: 16
+         Source: "uint256 overAmount = msg.value - feeRequired"
+        VariableDeclaration "overAmount"
+           Type: uint256
+           Source: "uint256 overAmount"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        BinaryOperation using operator -
+           Type: uint256
+           Source: "msg.value - feeRequired"
+          MemberAccess to member value
+             Type: uint256
+             Source: "msg.value"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier feeRequired
+             Type: uint256
+             Source: "feeRequired"
+      ExpressionStatement
+         Gas costs: 20238
+         Source: "feePot += msg.value - overAmount"
+        Assignment using operator +=
+           Type: uint256
+           Source: "feePot += msg.value - overAmount"
+          Identifier feePot
+             Type: uint256
+             Source: "feePot"
+          BinaryOperation using operator -
+             Type: uint256
+             Source: "msg.value - overAmount"
+            MemberAccess to member value
+               Type: uint256
+               Source: "msg.value"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Identifier overAmount
+               Type: uint256
+               Source: "overAmount"
+      ExpressionStatement
+         Gas costs: 7
+         Source: "doWithdrawal(overAmount)"
+        FunctionCall
+           Type: tuple()
+           Source: "doWithdrawal(overAmount)"
+          Identifier doWithdrawal
+             Type: function (uint256)
+             Source: "doWithdrawal"
+          Identifier overAmount
+             Type: uint256
+             Source: "overAmount"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "WithdrawalDone(msg.sender, amount, 0)"
+        FunctionCall
+           Type: tuple()
+           Source: "WithdrawalDone(msg.sender, amount, 0)"
+          Identifier WithdrawalDone
+             Type: function (address,uint256,uint256)
+             Source: "WithdrawalDone"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier amount
+             Type: uint256
+             Source: "amount"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+      Return
+         Gas costs: 8
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+  FunctionDefinition "doWithdrawal"
+     Source: "function doWithdrawal(uint256 extra) internal {\r\n        uint256 amount = balanceOf[msg.sender];\r\n        if (amount <= 0) throw;                      // cannot withdraw\r\n        if (amount + extra > this.balance) {\r\n            throw;                                   // contract doesn't have enough balance\r\n        }\r\n        balanceOf[msg.sender] = 0;\r\n        if (totalSupply > totalSupply - amount) {\r\n            totalSupply = 0;                         // don't let it overflow\r\n        } else {\r\n            totalSupply -= amount;                   // deflate the supply!\r\n        }\r\n        Transfer(msg.sender, 0, amount);             // burn baby burn\r\n        if (!msg.sender.send(amount + extra)) throw; // return back the ether or rollback if failed\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 extra)"
+      VariableDeclaration "extra"
+         Type: uint256
+         Source: "uint256 extra"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        uint256 amount = balanceOf[msg.sender];\r\n        if (amount <= 0) throw;                      // cannot withdraw\r\n        if (amount + extra > this.balance) {\r\n            throw;                                   // contract doesn't have enough balance\r\n        }\r\n        balanceOf[msg.sender] = 0;\r\n        if (totalSupply > totalSupply - amount) {\r\n            totalSupply = 0;                         // don't let it overflow\r\n        } else {\r\n            totalSupply -= amount;                   // deflate the supply!\r\n        }\r\n        Transfer(msg.sender, 0, amount);             // burn baby burn\r\n        if (!msg.sender.send(amount + extra)) throw; // return back the ether or rollback if failed\r\n    }"
+      VariableDeclarationStatement
+         Gas costs: 306
+         Source: "uint256 amount = balanceOf[msg.sender]"
+        VariableDeclaration "amount"
+           Type: uint256
+           Source: "uint256 amount"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        IndexAccess
+           Type: uint256
+           Source: "balanceOf[msg.sender]"
+          Identifier balanceOf
+             Type: mapping(address => uint256)
+             Source: "balanceOf"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+      IfStatement
+         Source: "if (amount <= 0) throw"
+        BinaryOperation using operator <=
+           Type: bool
+           Gas costs: 12
+           Source: "amount <= 0"
+          Identifier amount
+             Type: uint256
+             Source: "amount"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        Throw
+           Gas costs: 6
+           Source: "throw"
+      IfStatement
+         Source: "if (amount + extra > this.balance) {\r\n            throw;                                   // contract doesn't have enough balance\r\n        }"
+        BinaryOperation using operator >
+           Type: bool
+           Gas costs: 420
+           Source: "amount + extra > this.balance"
+          BinaryOperation using operator +
+             Type: uint256
+             Source: "amount + extra"
+            Identifier amount
+               Type: uint256
+               Source: "amount"
+            Identifier extra
+               Type: uint256
+               Source: "extra"
+          MemberAccess to member balance
+             Type: uint256
+             Source: "this.balance"
+            Identifier this
+               Type: contract HodlDAO
+               Source: "this"
+        Block
+           Source: "{\r\n            throw;                                   // contract doesn't have enough balance\r\n        }"
+          Throw
+             Gas costs: 6
+             Source: "throw"
+      ExpressionStatement
+         Gas costs: 5109
+         Source: "balanceOf[msg.sender] = 0"
+        Assignment using operator =
+           Type: uint256
+           Source: "balanceOf[msg.sender] = 0"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[msg.sender]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+      IfStatement
+         Source: "if (totalSupply > totalSupply - amount) {\r\n            totalSupply = 0;                         // don't let it overflow\r\n        } else {\r\n            totalSupply -= amount;                   // deflate the supply!\r\n        }"
+        BinaryOperation using operator >
+           Type: bool
+           Gas costs: 415
+           Source: "totalSupply > totalSupply - amount"
+          Identifier totalSupply
+             Type: uint256
+             Source: "totalSupply"
+          BinaryOperation using operator -
+             Type: uint256
+             Source: "totalSupply - amount"
+            Identifier totalSupply
+               Type: uint256
+               Source: "totalSupply"
+            Identifier amount
+               Type: uint256
+               Source: "amount"
+        Block
+           Source: "{\r\n            totalSupply = 0;                         // don't let it overflow\r\n        }"
+          ExpressionStatement
+             Gas costs: 5014
+             Source: "totalSupply = 0"
+            Assignment using operator =
+               Type: uint256
+               Source: "totalSupply = 0"
+              Identifier totalSupply
+                 Type: uint256
+                 Source: "totalSupply"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+        Block
+           Source: "{\r\n            totalSupply -= amount;                   // deflate the supply!\r\n        }"
+          ExpressionStatement
+             Gas costs: 20233
+             Source: "totalSupply -= amount"
+            Assignment using operator -=
+               Type: uint256
+               Source: "totalSupply -= amount"
+              Identifier totalSupply
+                 Type: uint256
+                 Source: "totalSupply"
+              Identifier amount
+                 Type: uint256
+                 Source: "amount"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "Transfer(msg.sender, 0, amount)"
+        FunctionCall
+           Type: tuple()
+           Source: "Transfer(msg.sender, 0, amount)"
+          Identifier Transfer
+             Type: function (address,address,uint256)
+             Source: "Transfer"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+          Identifier amount
+             Type: uint256
+             Source: "amount"
+      IfStatement
+         Source: "if (!msg.sender.send(amount + extra)) throw"
+        UnaryOperation (prefix) !
+           Type: bool
+           Gas costs: [???]
+           Source: "!msg.sender.send(amount + extra)"
+          FunctionCall
+             Type: bool
+             Source: "msg.sender.send(amount + extra)"
+            MemberAccess to member send
+               Type: function (uint256) returns (bool)
+               Source: "msg.sender.send"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+            BinaryOperation using operator +
+               Type: uint256
+               Source: "amount + extra"
+              Identifier amount
+                 Type: uint256
+                 Source: "amount"
+              Identifier extra
+                 Type: uint256
+                 Source: "extra"
+        Throw
+           Gas costs: 6
+           Source: "throw"
+  FunctionDefinition "" - public
+     Source: "function () payable notPendingWithdrawal {\r\n        uint256 amount = msg.value;         // amount that was sent\r\n        if (amount <= 0) throw;             // need to send some ETH\r\n        balanceOf[msg.sender] += amount;    // mint new tokens\r\n        totalSupply += amount;              // track the supply\r\n        Transfer(0, msg.sender, amount);    // notify of the event\r\n        Deposited(msg.sender, amount);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "notPendingWithdrawal"
+       Gas costs: 0
+       Source: "notPendingWithdrawal"
+      Identifier notPendingWithdrawal
+         Type: modifier ()
+         Source: "notPendingWithdrawal"
+    Block
+       Source: "{\r\n        uint256 amount = msg.value;         // amount that was sent\r\n        if (amount <= 0) throw;             // need to send some ETH\r\n        balanceOf[msg.sender] += amount;    // mint new tokens\r\n        totalSupply += amount;              // track the supply\r\n        Transfer(0, msg.sender, amount);    // notify of the event\r\n        Deposited(msg.sender, amount);\r\n    }"
+      VariableDeclarationStatement
+         Gas costs: 10
+         Source: "uint256 amount = msg.value"
+        VariableDeclaration "amount"
+           Type: uint256
+           Source: "uint256 amount"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        MemberAccess to member value
+           Type: uint256
+           Source: "msg.value"
+          Identifier msg
+             Type: msg
+             Source: "msg"
+      IfStatement
+         Source: "if (amount <= 0) throw"
+        BinaryOperation using operator <=
+           Type: bool
+           Gas costs: 12
+           Source: "amount <= 0"
+          Identifier amount
+             Type: uint256
+             Source: "amount"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        Throw
+           Gas costs: 6
+           Source: "throw"
+      ExpressionStatement
+         Gas costs: 20328
+         Source: "balanceOf[msg.sender] += amount"
+        Assignment using operator +=
+           Type: uint256
+           Source: "balanceOf[msg.sender] += amount"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[msg.sender]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Identifier amount
+             Type: uint256
+             Source: "amount"
+      ExpressionStatement
+         Gas costs: 20233
+         Source: "totalSupply += amount"
+        Assignment using operator +=
+           Type: uint256
+           Source: "totalSupply += amount"
+          Identifier totalSupply
+             Type: uint256
+             Source: "totalSupply"
+          Identifier amount
+             Type: uint256
+             Source: "amount"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "Transfer(0, msg.sender, amount)"
+        FunctionCall
+           Type: tuple()
+           Source: "Transfer(0, msg.sender, amount)"
+          Identifier Transfer
+             Type: function (address,address,uint256)
+             Source: "Transfer"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier amount
+             Type: uint256
+             Source: "amount"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "Deposited(msg.sender, amount)"
+        FunctionCall
+           Type: tuple()
+           Source: "Deposited(msg.sender, amount)"
+          Identifier Deposited
+             Type: function (address,uint256)
+             Source: "Deposited"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier amount
+             Type: uint256
+             Source: "amount"

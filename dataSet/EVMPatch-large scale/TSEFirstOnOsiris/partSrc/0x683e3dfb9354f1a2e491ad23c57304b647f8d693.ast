@@ -1,0 +1,1952 @@
+Syntax trees:
+
+
+======= /home/fabric/ArocRevision/Aroc/osirisData/contractSrc/0x683e3dfb9354f1a2e491ad23c57304b647f8d693.sol =======
+PragmaDirective
+   Gas costs: 0
+   Source: "pragma solidity ^0.4.15;"
+ContractDefinition "admined"
+   Source: "contract admined {\r\n    address public admin;\r\n\t\r\n    function admined(){\r\n        admin = msg.sender;\r\n    }\r\n\r\n    modifier onlyAdmin(){\r\n        // if(msg.sender != admin) throw;\r\n        require(msg.sender == admin);\r\n        _;\r\n    }\r\n\r\n    function transferAdminship(address newAdmin) onlyAdmin {\r\n        admin = newAdmin;\r\n    }\r\n\r\n}"
+  VariableDeclaration "admin"
+     Type: address
+     Gas costs: [???]
+     Source: "address public admin"
+    ElementaryTypeName address
+       Source: "address"
+  FunctionDefinition "admined" - public
+     Source: "function admined(){\r\n        admin = msg.sender;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        admin = msg.sender;\r\n    }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "admin = msg.sender"
+        Assignment using operator =
+           Type: address
+           Source: "admin = msg.sender"
+          Identifier admin
+             Type: address
+             Source: "admin"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+  ModifierDefinition "onlyAdmin"
+     Source: "modifier onlyAdmin(){\r\n        // if(msg.sender != admin) throw;\r\n        require(msg.sender == admin);\r\n        _;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    Block
+       Source: "{\r\n        // if(msg.sender != admin) throw;\r\n        require(msg.sender == admin);\r\n        _;\r\n    }"
+      ExpressionStatement
+         Gas costs: 1128
+         Source: "require(msg.sender == admin)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(msg.sender == admin)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "msg.sender == admin"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Identifier admin
+               Type: address
+               Source: "admin"
+      PlaceholderStatement
+         Gas costs: 0
+         Source: "_"
+  FunctionDefinition "transferAdminship" - public
+     Source: "function transferAdminship(address newAdmin) onlyAdmin {\r\n        admin = newAdmin;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address newAdmin)"
+      VariableDeclaration "newAdmin"
+         Type: address
+         Source: "address newAdmin"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyAdmin"
+       Gas costs: 0
+       Source: "onlyAdmin"
+      Identifier onlyAdmin
+         Type: modifier ()
+         Source: "onlyAdmin"
+    Block
+       Source: "{\r\n        admin = newAdmin;\r\n    }"
+      ExpressionStatement
+         Gas costs: 20267
+         Source: "admin = newAdmin"
+        Assignment using operator =
+           Type: address
+           Source: "admin = newAdmin"
+          Identifier admin
+             Type: address
+             Source: "admin"
+          Identifier newAdmin
+             Type: address
+             Source: "newAdmin"
+ContractDefinition "BitsaleERC20"
+   Source: "contract BitsaleERC20 {\r\n\r\n    mapping (address => uint256) public balanceOf;\r\n    mapping (address => mapping (address => uint256)) public allowance;\r\n    // balanceOf[address] = 5;\r\n    string public standard = \"BitsaleERC20 v1.0\";\r\n    string public name = \"BitsaleERC20\";\r\n    string public symbol = \"BSL\";\r\n    uint8 public decimals = 8; \r\n    uint256 public totalSupply = 1200000000 ;\r\n    event Transfer(address indexed from, address indexed to, uint256 value);\r\n\r\n    function BitsaleERC20(){\r\n        balanceOf[msg.sender] = 1200000000;\r\n    \r\n    }\r\n\r\n    function transfer(address _to, uint256 _value){\r\n        // if(balanceOf[msg.sender] < _value) throw;\r\n        // if(balanceOf[_to] + _value < balanceOf[_to]) throw;\r\n        require(balanceOf[msg.sender] >= _value);\r\n        require(balanceOf[_to] + _value >= balanceOf[_to]);\r\n        //if(admin)\r\n\r\n        balanceOf[msg.sender] -= _value;\r\n        balanceOf[_to] += _value;\r\n        Transfer(msg.sender, _to, _value);\r\n    }\r\n\r\n    function approve(address _spender, uint256 _value) returns (bool success){\r\n        allowance[msg.sender][_spender] = _value;\r\n        return true;\r\n    }\r\n\r\n    function transferFrom(address _from, address _to, uint256 _value) returns (bool success){\r\n        // if(balanceOf[_from] < _value) throw;\r\n        require(balanceOf[_from] >= _value);\r\n        // if(balanceOf[_to] + _value < balanceOf[_to]) throw;\r\n        require(balanceOf[_to] + _value >= balanceOf[_to]);\r\n        // if(_value > allowance[_from][msg.sender]) throw;\r\n        require(_value < allowance[_from][msg.sender]);\r\n        balanceOf[_from] -= _value;\r\n        balanceOf[_to] += _value;\r\n        allowance[_from][msg.sender] -= _value;\r\n        Transfer(_from, _to, _value);\r\n        return true;\r\n\r\n    }\r\n}"
+  VariableDeclaration "balanceOf"
+     Type: mapping(address => uint256)
+     Gas costs: [???]
+     Source: "mapping (address => uint256) public balanceOf"
+    Mapping
+       Source: "mapping (address => uint256)"
+      ElementaryTypeName address
+         Source: "address"
+      ElementaryTypeName uint256
+         Source: "uint256"
+  VariableDeclaration "allowance"
+     Type: mapping(address => mapping(address => uint256))
+     Gas costs: [???]
+     Source: "mapping (address => mapping (address => uint256)) public allowance"
+    Mapping
+       Source: "mapping (address => mapping (address => uint256))"
+      ElementaryTypeName address
+         Source: "address"
+      Mapping
+         Source: "mapping (address => uint256)"
+        ElementaryTypeName address
+           Source: "address"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  VariableDeclaration "standard"
+     Type: string storage ref
+     Gas costs: [???]
+     Source: "string public standard = \"BitsaleERC20 v1.0\""
+    ElementaryTypeName string
+       Source: "string"
+    Literal, token: [no token] value: BitsaleERC20 v1.0
+       Type: literal_string "BitsaleERC20 v1.0"
+       Source: "\"BitsaleERC20 v1.0\""
+  VariableDeclaration "name"
+     Type: string storage ref
+     Gas costs: [???]
+     Source: "string public name = \"BitsaleERC20\""
+    ElementaryTypeName string
+       Source: "string"
+    Literal, token: [no token] value: BitsaleERC20
+       Type: literal_string "BitsaleERC20"
+       Source: "\"BitsaleERC20\""
+  VariableDeclaration "symbol"
+     Type: string storage ref
+     Gas costs: [???]
+     Source: "string public symbol = \"BSL\""
+    ElementaryTypeName string
+       Source: "string"
+    Literal, token: [no token] value: BSL
+       Type: literal_string "BSL"
+       Source: "\"BSL\""
+  VariableDeclaration "decimals"
+     Type: uint8
+     Gas costs: [???]
+     Source: "uint8 public decimals = 8"
+    ElementaryTypeName uint8
+       Source: "uint8"
+    Literal, token: [no token] value: 8
+       Type: int_const 8
+       Source: "8"
+  VariableDeclaration "totalSupply"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint256 public totalSupply = 1200000000"
+    ElementaryTypeName uint256
+       Source: "uint256"
+    Literal, token: [no token] value: 1200000000
+       Type: int_const 1200000000
+       Source: "1200000000"
+  EventDefinition "Transfer"
+     Gas costs: 0
+     Source: "event Transfer(address indexed from, address indexed to, uint256 value);"
+    ParameterList
+       Source: "(address indexed from, address indexed to, uint256 value)"
+      VariableDeclaration "from"
+         Type: address
+         Source: "address indexed from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "to"
+         Type: address
+         Source: "address indexed to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "value"
+         Type: uint256
+         Source: "uint256 value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  FunctionDefinition "BitsaleERC20" - public
+     Source: "function BitsaleERC20(){\r\n        balanceOf[msg.sender] = 1200000000;\r\n    \r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        balanceOf[msg.sender] = 1200000000;\r\n    \r\n    }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "balanceOf[msg.sender] = 1200000000"
+        Assignment using operator =
+           Type: uint256
+           Source: "balanceOf[msg.sender] = 1200000000"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[msg.sender]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Literal, token: [no token] value: 1200000000
+             Type: int_const 1200000000
+             Source: "1200000000"
+  FunctionDefinition "transfer" - public
+     Source: "function transfer(address _to, uint256 _value){\r\n        // if(balanceOf[msg.sender] < _value) throw;\r\n        // if(balanceOf[_to] + _value < balanceOf[_to]) throw;\r\n        require(balanceOf[msg.sender] >= _value);\r\n        require(balanceOf[_to] + _value >= balanceOf[_to]);\r\n        //if(admin)\r\n\r\n        balanceOf[msg.sender] -= _value;\r\n        balanceOf[_to] += _value;\r\n        Transfer(msg.sender, _to, _value);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _to, uint256 _value)"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        // if(balanceOf[msg.sender] < _value) throw;\r\n        // if(balanceOf[_to] + _value < balanceOf[_to]) throw;\r\n        require(balanceOf[msg.sender] >= _value);\r\n        require(balanceOf[_to] + _value >= balanceOf[_to]);\r\n        //if(admin)\r\n\r\n        balanceOf[msg.sender] -= _value;\r\n        balanceOf[_to] += _value;\r\n        Transfer(msg.sender, _to, _value);\r\n    }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "require(balanceOf[msg.sender] >= _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(balanceOf[msg.sender] >= _value)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "balanceOf[msg.sender] >= _value"
+            IndexAccess
+               Type: uint256
+               Source: "balanceOf[msg.sender]"
+              Identifier balanceOf
+                 Type: mapping(address => uint256)
+                 Source: "balanceOf"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "require(balanceOf[_to] + _value >= balanceOf[_to])"
+        FunctionCall
+           Type: tuple()
+           Source: "require(balanceOf[_to] + _value >= balanceOf[_to])"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "balanceOf[_to] + _value >= balanceOf[_to]"
+            BinaryOperation using operator +
+               Type: uint256
+               Source: "balanceOf[_to] + _value"
+              IndexAccess
+                 Type: uint256
+                 Source: "balanceOf[_to]"
+                Identifier balanceOf
+                   Type: mapping(address => uint256)
+                   Source: "balanceOf"
+                Identifier _to
+                   Type: address
+                   Source: "_to"
+              Identifier _value
+                 Type: uint256
+                 Source: "_value"
+            IndexAccess
+               Type: uint256
+               Source: "balanceOf[_to]"
+              Identifier balanceOf
+                 Type: mapping(address => uint256)
+                 Source: "balanceOf"
+              Identifier _to
+                 Type: address
+                 Source: "_to"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "balanceOf[msg.sender] -= _value"
+        Assignment using operator -=
+           Type: uint256
+           Source: "balanceOf[msg.sender] -= _value"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[msg.sender]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "balanceOf[_to] += _value"
+        Assignment using operator +=
+           Type: uint256
+           Source: "balanceOf[_to] += _value"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[_to]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            Identifier _to
+               Type: address
+               Source: "_to"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "Transfer(msg.sender, _to, _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "Transfer(msg.sender, _to, _value)"
+          Identifier Transfer
+             Type: function (address,address,uint256)
+             Source: "Transfer"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier _to
+             Type: address
+             Source: "_to"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+  FunctionDefinition "approve" - public
+     Source: "function approve(address _spender, uint256 _value) returns (bool success){\r\n        allowance[msg.sender][_spender] = _value;\r\n        return true;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _spender, uint256 _value)"
+      VariableDeclaration "_spender"
+         Type: address
+         Source: "address _spender"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n        allowance[msg.sender][_spender] = _value;\r\n        return true;\r\n    }"
+      ExpressionStatement
+         Gas costs: 20199
+         Source: "allowance[msg.sender][_spender] = _value"
+        Assignment using operator =
+           Type: uint256
+           Source: "allowance[msg.sender][_spender] = _value"
+          IndexAccess
+             Type: uint256
+             Source: "allowance[msg.sender][_spender]"
+            IndexAccess
+               Type: mapping(address => uint256)
+               Source: "allowance[msg.sender]"
+              Identifier allowance
+                 Type: mapping(address => mapping(address => uint256))
+                 Source: "allowance"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+            Identifier _spender
+               Type: address
+               Source: "_spender"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      Return
+         Gas costs: 8
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+  FunctionDefinition "transferFrom" - public
+     Source: "function transferFrom(address _from, address _to, uint256 _value) returns (bool success){\r\n        // if(balanceOf[_from] < _value) throw;\r\n        require(balanceOf[_from] >= _value);\r\n        // if(balanceOf[_to] + _value < balanceOf[_to]) throw;\r\n        require(balanceOf[_to] + _value >= balanceOf[_to]);\r\n        // if(_value > allowance[_from][msg.sender]) throw;\r\n        require(_value < allowance[_from][msg.sender]);\r\n        balanceOf[_from] -= _value;\r\n        balanceOf[_to] += _value;\r\n        allowance[_from][msg.sender] -= _value;\r\n        Transfer(_from, _to, _value);\r\n        return true;\r\n\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _from, address _to, uint256 _value)"
+      VariableDeclaration "_from"
+         Type: address
+         Source: "address _from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 0
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n        // if(balanceOf[_from] < _value) throw;\r\n        require(balanceOf[_from] >= _value);\r\n        // if(balanceOf[_to] + _value < balanceOf[_to]) throw;\r\n        require(balanceOf[_to] + _value >= balanceOf[_to]);\r\n        // if(_value > allowance[_from][msg.sender]) throw;\r\n        require(_value < allowance[_from][msg.sender]);\r\n        balanceOf[_from] -= _value;\r\n        balanceOf[_to] += _value;\r\n        allowance[_from][msg.sender] -= _value;\r\n        Transfer(_from, _to, _value);\r\n        return true;\r\n\r\n    }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "require(balanceOf[_from] >= _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(balanceOf[_from] >= _value)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "balanceOf[_from] >= _value"
+            IndexAccess
+               Type: uint256
+               Source: "balanceOf[_from]"
+              Identifier balanceOf
+                 Type: mapping(address => uint256)
+                 Source: "balanceOf"
+              Identifier _from
+                 Type: address
+                 Source: "_from"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "require(balanceOf[_to] + _value >= balanceOf[_to])"
+        FunctionCall
+           Type: tuple()
+           Source: "require(balanceOf[_to] + _value >= balanceOf[_to])"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "balanceOf[_to] + _value >= balanceOf[_to]"
+            BinaryOperation using operator +
+               Type: uint256
+               Source: "balanceOf[_to] + _value"
+              IndexAccess
+                 Type: uint256
+                 Source: "balanceOf[_to]"
+                Identifier balanceOf
+                   Type: mapping(address => uint256)
+                   Source: "balanceOf"
+                Identifier _to
+                   Type: address
+                   Source: "_to"
+              Identifier _value
+                 Type: uint256
+                 Source: "_value"
+            IndexAccess
+               Type: uint256
+               Source: "balanceOf[_to]"
+              Identifier balanceOf
+                 Type: mapping(address => uint256)
+                 Source: "balanceOf"
+              Identifier _to
+                 Type: address
+                 Source: "_to"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "require(_value < allowance[_from][msg.sender])"
+        FunctionCall
+           Type: tuple()
+           Source: "require(_value < allowance[_from][msg.sender])"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator <
+             Type: bool
+             Source: "_value < allowance[_from][msg.sender]"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+            IndexAccess
+               Type: uint256
+               Source: "allowance[_from][msg.sender]"
+              IndexAccess
+                 Type: mapping(address => uint256)
+                 Source: "allowance[_from]"
+                Identifier allowance
+                   Type: mapping(address => mapping(address => uint256))
+                   Source: "allowance"
+                Identifier _from
+                   Type: address
+                   Source: "_from"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "balanceOf[_from] -= _value"
+        Assignment using operator -=
+           Type: uint256
+           Source: "balanceOf[_from] -= _value"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[_from]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            Identifier _from
+               Type: address
+               Source: "_from"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "balanceOf[_to] += _value"
+        Assignment using operator +=
+           Type: uint256
+           Source: "balanceOf[_to] += _value"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[_to]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            Identifier _to
+               Type: address
+               Source: "_to"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "allowance[_from][msg.sender] -= _value"
+        Assignment using operator -=
+           Type: uint256
+           Source: "allowance[_from][msg.sender] -= _value"
+          IndexAccess
+             Type: uint256
+             Source: "allowance[_from][msg.sender]"
+            IndexAccess
+               Type: mapping(address => uint256)
+               Source: "allowance[_from]"
+              Identifier allowance
+                 Type: mapping(address => mapping(address => uint256))
+                 Source: "allowance"
+              Identifier _from
+                 Type: address
+                 Source: "_from"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "Transfer(_from, _to, _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "Transfer(_from, _to, _value)"
+          Identifier Transfer
+             Type: function (address,address,uint256)
+             Source: "Transfer"
+          Identifier _from
+             Type: address
+             Source: "_from"
+          Identifier _to
+             Type: address
+             Source: "_to"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      Return
+         Gas costs: 0
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+ContractDefinition "Bitsale"
+   Source: "contract Bitsale is admined, BitsaleERC20{\r\n\r\n    uint256 minimumBalanceForAccounts = 5 finney;\r\n    uint256 public sellPrice;\r\n    uint256 public buyPrice;\r\n    mapping (address => bool) public frozenAccount;\r\n\r\n    event FrozenFund(address target, bool frozen);\r\n\r\n    function Bitsale() BitsaleERC20 (){\r\n        admin = msg.sender;\r\n        balanceOf[admin] = 1200000000;\r\n        totalSupply = 1200000000;    \r\n    }\r\n\r\n    function mintToken(address target, uint256 mintedAmount) onlyAdmin{\r\n        balanceOf[target] += mintedAmount;\r\n        totalSupply += mintedAmount;\r\n        Transfer(0, this, mintedAmount);\r\n        Transfer(this, target, mintedAmount);\r\n    }\r\n\r\n    function freezeAccount(address target, bool freeze) onlyAdmin{\r\n        frozenAccount[target] = freeze;\r\n        FrozenFund(target, freeze);\r\n    }\r\n\r\n    function transfer(address _to, uint256 _value){\r\n        if(msg.sender.balance < minimumBalanceForAccounts)\r\n        sell((minimumBalanceForAccounts - msg.sender.balance)/sellPrice);\r\n\r\n        // if(frozenAccount[msg.sender]) throw;\r\n        require(!frozenAccount[msg.sender]);\r\n        // if(balanceOf[msg.sender] < _value) throw;\r\n        require(balanceOf[msg.sender] >= _value);\r\n        // if(balanceOf[_to] + _value < balanceOf[_to]) throw;\r\n        require(balanceOf[_to] + _value >= balanceOf[_to]);\r\n        //if(admin)\r\n\r\n        balanceOf[msg.sender] -= _value;\r\n        balanceOf[_to] += _value;\r\n        Transfer(msg.sender, _to, _value);\r\n    }\r\n\r\n    function transferFrom(address _from, address _to, uint256 _value) returns (bool success){\r\n        // if(frozenAccount[_from]) throw;\r\n        require(!frozenAccount[_from]);\r\n        // if(balanceOf[_from] < _value) throw;\r\n        require(balanceOf[_from] >= _value);\r\n        // if(balanceOf[_to] + _value < balanceOf[_to]) throw;\r\n        require(balanceOf[_to] + _value >= balanceOf[_to]);\r\n        // if(_value > allowance[_from][msg.sender]) throw;\r\n        require(_value <= allowance[_from][msg.sender]);\r\n        balanceOf[_from] -= _value;\r\n        balanceOf[_to] += _value;\r\n        allowance[_from][msg.sender] -= _value;\r\n        Transfer(_from, _to, _value);\r\n        return true;\r\n\r\n    }\r\n\r\n    function setPrices(uint256 newSellPrice, uint256 newBuyPrice) onlyAdmin{\r\n        sellPrice = newSellPrice;\r\n        buyPrice = newBuyPrice;\r\n    }\r\n\r\n    function buy() payable {\r\n        uint256 amount = (msg.value/(1 ether)) / buyPrice;\r\n        // if(balanceOf[this] < amount) throw;\r\n        require(balanceOf[this] >= amount);\r\n        balanceOf[msg.sender] += amount;\r\n        balanceOf[this] -= amount;\r\n        Transfer(this, msg.sender, amount);\r\n    }\r\n\r\n    function sell(uint256 amount){\r\n        // if(balanceOf[msg.sender] < amount) throw;\r\n        require(balanceOf[msg.sender] >= amount);\r\n        balanceOf[this] +=amount;\r\n        balanceOf[msg.sender] -= amount;\r\n        if(!msg.sender.send(amount * sellPrice * 1 ether)){\r\n            revert();\r\n        } else {\r\n            Transfer(msg.sender, this, amount);\r\n        }\r\n    }\r\n\r\n    function giveBlockreward(){\r\n        balanceOf[block.coinbase] += 1;\r\n    }\r\n\r\n    bytes32 public currentChallenge;\r\n    uint public timeOfLastProof;\r\n    uint public difficulty = 10**32;\r\n\r\n    function proofOfWork(uint nonce){\r\n        bytes8 n = bytes8(sha3(nonce, currentChallenge));\r\n\r\n        // if(n < bytes8(difficulty)) throw;\r\n        require(n >= bytes8(difficulty));\r\n        uint timeSinceLastBlock = (now - timeOfLastProof);\r\n        // if(timeSinceLastBlock < 5 seconds) throw;\r\n        require(timeSinceLastBlock >= 5 seconds);\r\n\r\n        balanceOf[msg.sender] += timeSinceLastBlock / 60 seconds;\r\n        difficulty = difficulty * 10 minutes / timeOfLastProof + 1;\r\n        timeOfLastProof = now;\r\n        currentChallenge = sha3(nonce, currentChallenge, block.blockhash(block.number-1));\r\n     }\r\n\r\n\r\n}"
+  InheritanceSpecifier
+     Gas costs: 0
+     Source: "admined"
+    UserDefinedTypeName "admined"
+       Source: "admined"
+  InheritanceSpecifier
+     Gas costs: 0
+     Source: "BitsaleERC20"
+    UserDefinedTypeName "BitsaleERC20"
+       Source: "BitsaleERC20"
+  VariableDeclaration "minimumBalanceForAccounts"
+     Type: uint256
+     Gas costs: 0
+     Source: "uint256 minimumBalanceForAccounts = 5 finney"
+    ElementaryTypeName uint256
+       Source: "uint256"
+    Literal, token: [no token] value: 5
+       Type: int_const 5000000000000000
+       Source: "5 finney"
+  VariableDeclaration "sellPrice"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint256 public sellPrice"
+    ElementaryTypeName uint256
+       Source: "uint256"
+  VariableDeclaration "buyPrice"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint256 public buyPrice"
+    ElementaryTypeName uint256
+       Source: "uint256"
+  VariableDeclaration "frozenAccount"
+     Type: mapping(address => bool)
+     Gas costs: [???]
+     Source: "mapping (address => bool) public frozenAccount"
+    Mapping
+       Source: "mapping (address => bool)"
+      ElementaryTypeName address
+         Source: "address"
+      ElementaryTypeName bool
+         Source: "bool"
+  EventDefinition "FrozenFund"
+     Gas costs: 0
+     Source: "event FrozenFund(address target, bool frozen);"
+    ParameterList
+       Source: "(address target, bool frozen)"
+      VariableDeclaration "target"
+         Type: address
+         Source: "address target"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "frozen"
+         Type: bool
+         Source: "bool frozen"
+        ElementaryTypeName bool
+           Source: "bool"
+  FunctionDefinition "Bitsale" - public
+     Source: "function Bitsale() BitsaleERC20 (){\r\n        admin = msg.sender;\r\n        balanceOf[admin] = 1200000000;\r\n        totalSupply = 1200000000;    \r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "BitsaleERC20"
+       Gas costs: 0
+       Source: "BitsaleERC20 ()"
+      Identifier BitsaleERC20
+         Type: type(contract BitsaleERC20)
+         Source: "BitsaleERC20"
+    Block
+       Source: "{\r\n        admin = msg.sender;\r\n        balanceOf[admin] = 1200000000;\r\n        totalSupply = 1200000000;    \r\n    }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "admin = msg.sender"
+        Assignment using operator =
+           Type: address
+           Source: "admin = msg.sender"
+          Identifier admin
+             Type: address
+             Source: "admin"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "balanceOf[admin] = 1200000000"
+        Assignment using operator =
+           Type: uint256
+           Source: "balanceOf[admin] = 1200000000"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[admin]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            Identifier admin
+               Type: address
+               Source: "admin"
+          Literal, token: [no token] value: 1200000000
+             Type: int_const 1200000000
+             Source: "1200000000"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "totalSupply = 1200000000"
+        Assignment using operator =
+           Type: uint256
+           Source: "totalSupply = 1200000000"
+          Identifier totalSupply
+             Type: uint256
+             Source: "totalSupply"
+          Literal, token: [no token] value: 1200000000
+             Type: int_const 1200000000
+             Source: "1200000000"
+  FunctionDefinition "mintToken" - public
+     Source: "function mintToken(address target, uint256 mintedAmount) onlyAdmin{\r\n        balanceOf[target] += mintedAmount;\r\n        totalSupply += mintedAmount;\r\n        Transfer(0, this, mintedAmount);\r\n        Transfer(this, target, mintedAmount);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address target, uint256 mintedAmount)"
+      VariableDeclaration "target"
+         Type: address
+         Source: "address target"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "mintedAmount"
+         Type: uint256
+         Source: "uint256 mintedAmount"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyAdmin"
+       Gas costs: 0
+       Source: "onlyAdmin"
+      Identifier onlyAdmin
+         Type: modifier ()
+         Source: "onlyAdmin"
+    Block
+       Source: "{\r\n        balanceOf[target] += mintedAmount;\r\n        totalSupply += mintedAmount;\r\n        Transfer(0, this, mintedAmount);\r\n        Transfer(this, target, mintedAmount);\r\n    }"
+      ExpressionStatement
+         Gas costs: 20329
+         Source: "balanceOf[target] += mintedAmount"
+        Assignment using operator +=
+           Type: uint256
+           Source: "balanceOf[target] += mintedAmount"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[target]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            Identifier target
+               Type: address
+               Source: "target"
+          Identifier mintedAmount
+             Type: uint256
+             Source: "mintedAmount"
+      ExpressionStatement
+         Gas costs: 20233
+         Source: "totalSupply += mintedAmount"
+        Assignment using operator +=
+           Type: uint256
+           Source: "totalSupply += mintedAmount"
+          Identifier totalSupply
+             Type: uint256
+             Source: "totalSupply"
+          Identifier mintedAmount
+             Type: uint256
+             Source: "mintedAmount"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "Transfer(0, this, mintedAmount)"
+        FunctionCall
+           Type: tuple()
+           Source: "Transfer(0, this, mintedAmount)"
+          Identifier Transfer
+             Type: function (address,address,uint256)
+             Source: "Transfer"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+          Identifier this
+             Type: contract Bitsale
+             Source: "this"
+          Identifier mintedAmount
+             Type: uint256
+             Source: "mintedAmount"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "Transfer(this, target, mintedAmount)"
+        FunctionCall
+           Type: tuple()
+           Source: "Transfer(this, target, mintedAmount)"
+          Identifier Transfer
+             Type: function (address,address,uint256)
+             Source: "Transfer"
+          Identifier this
+             Type: contract Bitsale
+             Source: "this"
+          Identifier target
+             Type: address
+             Source: "target"
+          Identifier mintedAmount
+             Type: uint256
+             Source: "mintedAmount"
+  FunctionDefinition "freezeAccount" - public
+     Source: "function freezeAccount(address target, bool freeze) onlyAdmin{\r\n        frozenAccount[target] = freeze;\r\n        FrozenFund(target, freeze);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address target, bool freeze)"
+      VariableDeclaration "target"
+         Type: address
+         Source: "address target"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "freeze"
+         Type: bool
+         Source: "bool freeze"
+        ElementaryTypeName bool
+           Source: "bool"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyAdmin"
+       Gas costs: 0
+       Source: "onlyAdmin"
+      Identifier onlyAdmin
+         Type: modifier ()
+         Source: "onlyAdmin"
+    Block
+       Source: "{\r\n        frozenAccount[target] = freeze;\r\n        FrozenFund(target, freeze);\r\n    }"
+      ExpressionStatement
+         Gas costs: 20363
+         Source: "frozenAccount[target] = freeze"
+        Assignment using operator =
+           Type: bool
+           Source: "frozenAccount[target] = freeze"
+          IndexAccess
+             Type: bool
+             Source: "frozenAccount[target]"
+            Identifier frozenAccount
+               Type: mapping(address => bool)
+               Source: "frozenAccount"
+            Identifier target
+               Type: address
+               Source: "target"
+          Identifier freeze
+             Type: bool
+             Source: "freeze"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "FrozenFund(target, freeze)"
+        FunctionCall
+           Type: tuple()
+           Source: "FrozenFund(target, freeze)"
+          Identifier FrozenFund
+             Type: function (address,bool)
+             Source: "FrozenFund"
+          Identifier target
+             Type: address
+             Source: "target"
+          Identifier freeze
+             Type: bool
+             Source: "freeze"
+  FunctionDefinition "transfer" - public
+     Source: "function transfer(address _to, uint256 _value){\r\n        if(msg.sender.balance < minimumBalanceForAccounts)\r\n        sell((minimumBalanceForAccounts - msg.sender.balance)/sellPrice);\r\n\r\n        // if(frozenAccount[msg.sender]) throw;\r\n        require(!frozenAccount[msg.sender]);\r\n        // if(balanceOf[msg.sender] < _value) throw;\r\n        require(balanceOf[msg.sender] >= _value);\r\n        // if(balanceOf[_to] + _value < balanceOf[_to]) throw;\r\n        require(balanceOf[_to] + _value >= balanceOf[_to]);\r\n        //if(admin)\r\n\r\n        balanceOf[msg.sender] -= _value;\r\n        balanceOf[_to] += _value;\r\n        Transfer(msg.sender, _to, _value);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _to, uint256 _value)"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        if(msg.sender.balance < minimumBalanceForAccounts)\r\n        sell((minimumBalanceForAccounts - msg.sender.balance)/sellPrice);\r\n\r\n        // if(frozenAccount[msg.sender]) throw;\r\n        require(!frozenAccount[msg.sender]);\r\n        // if(balanceOf[msg.sender] < _value) throw;\r\n        require(balanceOf[msg.sender] >= _value);\r\n        // if(balanceOf[_to] + _value < balanceOf[_to]) throw;\r\n        require(balanceOf[_to] + _value >= balanceOf[_to]);\r\n        //if(admin)\r\n\r\n        balanceOf[msg.sender] -= _value;\r\n        balanceOf[_to] += _value;\r\n        Transfer(msg.sender, _to, _value);\r\n    }"
+      IfStatement
+         Source: "if(msg.sender.balance < minimumBalanceForAccounts)\r\n        sell((minimumBalanceForAccounts - msg.sender.balance)/sellPrice)"
+        BinaryOperation using operator <
+           Type: bool
+           Gas costs: 614
+           Source: "msg.sender.balance < minimumBalanceForAccounts"
+          MemberAccess to member balance
+             Type: uint256
+             Source: "msg.sender.balance"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Identifier minimumBalanceForAccounts
+             Type: uint256
+             Source: "minimumBalanceForAccounts"
+        ExpressionStatement
+           Gas costs: 860
+           Source: "sell((minimumBalanceForAccounts - msg.sender.balance)/sellPrice)"
+          FunctionCall
+             Type: tuple()
+             Source: "sell((minimumBalanceForAccounts - msg.sender.balance)/sellPrice)"
+            Identifier sell
+               Type: function (uint256)
+               Source: "sell"
+            BinaryOperation using operator /
+               Type: uint256
+               Source: "(minimumBalanceForAccounts - msg.sender.balance)/sellPrice"
+              TupleExpression
+                 Type: uint256
+                 Source: "(minimumBalanceForAccounts - msg.sender.balance)"
+                BinaryOperation using operator -
+                   Type: uint256
+                   Source: "minimumBalanceForAccounts - msg.sender.balance"
+                  Identifier minimumBalanceForAccounts
+                     Type: uint256
+                     Source: "minimumBalanceForAccounts"
+                  MemberAccess to member balance
+                     Type: uint256
+                     Source: "msg.sender.balance"
+                    MemberAccess to member sender
+                       Type: address
+                       Source: "msg.sender"
+                      Identifier msg
+                         Type: msg
+                         Source: "msg"
+              Identifier sellPrice
+                 Type: uint256
+                 Source: "sellPrice"
+      ExpressionStatement
+         Gas costs: 363
+         Source: "require(!frozenAccount[msg.sender])"
+        FunctionCall
+           Type: tuple()
+           Source: "require(!frozenAccount[msg.sender])"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          UnaryOperation (prefix) !
+             Type: bool
+             Source: "!frozenAccount[msg.sender]"
+            IndexAccess
+               Type: bool
+               Source: "frozenAccount[msg.sender]"
+              Identifier frozenAccount
+                 Type: mapping(address => bool)
+                 Source: "frozenAccount"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+      ExpressionStatement
+         Gas costs: 333
+         Source: "require(balanceOf[msg.sender] >= _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(balanceOf[msg.sender] >= _value)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "balanceOf[msg.sender] >= _value"
+            IndexAccess
+               Type: uint256
+               Source: "balanceOf[msg.sender]"
+              Identifier balanceOf
+                 Type: mapping(address => uint256)
+                 Source: "balanceOf"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+      ExpressionStatement
+         Gas costs: 630
+         Source: "require(balanceOf[_to] + _value >= balanceOf[_to])"
+        FunctionCall
+           Type: tuple()
+           Source: "require(balanceOf[_to] + _value >= balanceOf[_to])"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "balanceOf[_to] + _value >= balanceOf[_to]"
+            BinaryOperation using operator +
+               Type: uint256
+               Source: "balanceOf[_to] + _value"
+              IndexAccess
+                 Type: uint256
+                 Source: "balanceOf[_to]"
+                Identifier balanceOf
+                   Type: mapping(address => uint256)
+                   Source: "balanceOf"
+                Identifier _to
+                   Type: address
+                   Source: "_to"
+              Identifier _value
+                 Type: uint256
+                 Source: "_value"
+            IndexAccess
+               Type: uint256
+               Source: "balanceOf[_to]"
+              Identifier balanceOf
+                 Type: mapping(address => uint256)
+                 Source: "balanceOf"
+              Identifier _to
+                 Type: address
+                 Source: "_to"
+      ExpressionStatement
+         Gas costs: 20328
+         Source: "balanceOf[msg.sender] -= _value"
+        Assignment using operator -=
+           Type: uint256
+           Source: "balanceOf[msg.sender] -= _value"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[msg.sender]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: 20323
+         Source: "balanceOf[_to] += _value"
+        Assignment using operator +=
+           Type: uint256
+           Source: "balanceOf[_to] += _value"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[_to]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            Identifier _to
+               Type: address
+               Source: "_to"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "Transfer(msg.sender, _to, _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "Transfer(msg.sender, _to, _value)"
+          Identifier Transfer
+             Type: function (address,address,uint256)
+             Source: "Transfer"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier _to
+             Type: address
+             Source: "_to"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+  FunctionDefinition "transferFrom" - public
+     Source: "function transferFrom(address _from, address _to, uint256 _value) returns (bool success){\r\n        // if(frozenAccount[_from]) throw;\r\n        require(!frozenAccount[_from]);\r\n        // if(balanceOf[_from] < _value) throw;\r\n        require(balanceOf[_from] >= _value);\r\n        // if(balanceOf[_to] + _value < balanceOf[_to]) throw;\r\n        require(balanceOf[_to] + _value >= balanceOf[_to]);\r\n        // if(_value > allowance[_from][msg.sender]) throw;\r\n        require(_value <= allowance[_from][msg.sender]);\r\n        balanceOf[_from] -= _value;\r\n        balanceOf[_to] += _value;\r\n        allowance[_from][msg.sender] -= _value;\r\n        Transfer(_from, _to, _value);\r\n        return true;\r\n\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _from, address _to, uint256 _value)"
+      VariableDeclaration "_from"
+         Type: address
+         Source: "address _from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n        // if(frozenAccount[_from]) throw;\r\n        require(!frozenAccount[_from]);\r\n        // if(balanceOf[_from] < _value) throw;\r\n        require(balanceOf[_from] >= _value);\r\n        // if(balanceOf[_to] + _value < balanceOf[_to]) throw;\r\n        require(balanceOf[_to] + _value >= balanceOf[_to]);\r\n        // if(_value > allowance[_from][msg.sender]) throw;\r\n        require(_value <= allowance[_from][msg.sender]);\r\n        balanceOf[_from] -= _value;\r\n        balanceOf[_to] += _value;\r\n        allowance[_from][msg.sender] -= _value;\r\n        Transfer(_from, _to, _value);\r\n        return true;\r\n\r\n    }"
+      ExpressionStatement
+         Gas costs: 364
+         Source: "require(!frozenAccount[_from])"
+        FunctionCall
+           Type: tuple()
+           Source: "require(!frozenAccount[_from])"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          UnaryOperation (prefix) !
+             Type: bool
+             Source: "!frozenAccount[_from]"
+            IndexAccess
+               Type: bool
+               Source: "frozenAccount[_from]"
+              Identifier frozenAccount
+                 Type: mapping(address => bool)
+                 Source: "frozenAccount"
+              Identifier _from
+                 Type: address
+                 Source: "_from"
+      ExpressionStatement
+         Gas costs: 334
+         Source: "require(balanceOf[_from] >= _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(balanceOf[_from] >= _value)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "balanceOf[_from] >= _value"
+            IndexAccess
+               Type: uint256
+               Source: "balanceOf[_from]"
+              Identifier balanceOf
+                 Type: mapping(address => uint256)
+                 Source: "balanceOf"
+              Identifier _from
+                 Type: address
+                 Source: "_from"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+      ExpressionStatement
+         Gas costs: 630
+         Source: "require(balanceOf[_to] + _value >= balanceOf[_to])"
+        FunctionCall
+           Type: tuple()
+           Source: "require(balanceOf[_to] + _value >= balanceOf[_to])"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "balanceOf[_to] + _value >= balanceOf[_to]"
+            BinaryOperation using operator +
+               Type: uint256
+               Source: "balanceOf[_to] + _value"
+              IndexAccess
+                 Type: uint256
+                 Source: "balanceOf[_to]"
+                Identifier balanceOf
+                   Type: mapping(address => uint256)
+                   Source: "balanceOf"
+                Identifier _to
+                   Type: address
+                   Source: "_to"
+              Identifier _value
+                 Type: uint256
+                 Source: "_value"
+            IndexAccess
+               Type: uint256
+               Source: "balanceOf[_to]"
+              Identifier balanceOf
+                 Type: mapping(address => uint256)
+                 Source: "balanceOf"
+              Identifier _to
+                 Type: address
+                 Source: "_to"
+      ExpressionStatement
+         Gas costs: 423
+         Source: "require(_value <= allowance[_from][msg.sender])"
+        FunctionCall
+           Type: tuple()
+           Source: "require(_value <= allowance[_from][msg.sender])"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator <=
+             Type: bool
+             Source: "_value <= allowance[_from][msg.sender]"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+            IndexAccess
+               Type: uint256
+               Source: "allowance[_from][msg.sender]"
+              IndexAccess
+                 Type: mapping(address => uint256)
+                 Source: "allowance[_from]"
+                Identifier allowance
+                   Type: mapping(address => mapping(address => uint256))
+                   Source: "allowance"
+                Identifier _from
+                   Type: address
+                   Source: "_from"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+      ExpressionStatement
+         Gas costs: 20329
+         Source: "balanceOf[_from] -= _value"
+        Assignment using operator -=
+           Type: uint256
+           Source: "balanceOf[_from] -= _value"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[_from]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            Identifier _from
+               Type: address
+               Source: "_from"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: 20323
+         Source: "balanceOf[_to] += _value"
+        Assignment using operator +=
+           Type: uint256
+           Source: "balanceOf[_to] += _value"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[_to]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            Identifier _to
+               Type: address
+               Source: "_to"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: 20412
+         Source: "allowance[_from][msg.sender] -= _value"
+        Assignment using operator -=
+           Type: uint256
+           Source: "allowance[_from][msg.sender] -= _value"
+          IndexAccess
+             Type: uint256
+             Source: "allowance[_from][msg.sender]"
+            IndexAccess
+               Type: mapping(address => uint256)
+               Source: "allowance[_from]"
+              Identifier allowance
+                 Type: mapping(address => mapping(address => uint256))
+                 Source: "allowance"
+              Identifier _from
+                 Type: address
+                 Source: "_from"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "Transfer(_from, _to, _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "Transfer(_from, _to, _value)"
+          Identifier Transfer
+             Type: function (address,address,uint256)
+             Source: "Transfer"
+          Identifier _from
+             Type: address
+             Source: "_from"
+          Identifier _to
+             Type: address
+             Source: "_to"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      Return
+         Gas costs: 8
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+  FunctionDefinition "setPrices" - public
+     Source: "function setPrices(uint256 newSellPrice, uint256 newBuyPrice) onlyAdmin{\r\n        sellPrice = newSellPrice;\r\n        buyPrice = newBuyPrice;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 newSellPrice, uint256 newBuyPrice)"
+      VariableDeclaration "newSellPrice"
+         Type: uint256
+         Source: "uint256 newSellPrice"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "newBuyPrice"
+         Type: uint256
+         Source: "uint256 newBuyPrice"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyAdmin"
+       Gas costs: 0
+       Source: "onlyAdmin"
+      Identifier onlyAdmin
+         Type: modifier ()
+         Source: "onlyAdmin"
+    Block
+       Source: "{\r\n        sellPrice = newSellPrice;\r\n        buyPrice = newBuyPrice;\r\n    }"
+      ExpressionStatement
+         Gas costs: 20014
+         Source: "sellPrice = newSellPrice"
+        Assignment using operator =
+           Type: uint256
+           Source: "sellPrice = newSellPrice"
+          Identifier sellPrice
+             Type: uint256
+             Source: "sellPrice"
+          Identifier newSellPrice
+             Type: uint256
+             Source: "newSellPrice"
+      ExpressionStatement
+         Gas costs: 20014
+         Source: "buyPrice = newBuyPrice"
+        Assignment using operator =
+           Type: uint256
+           Source: "buyPrice = newBuyPrice"
+          Identifier buyPrice
+             Type: uint256
+             Source: "buyPrice"
+          Identifier newBuyPrice
+             Type: uint256
+             Source: "newBuyPrice"
+  FunctionDefinition "buy" - public
+     Source: "function buy() payable {\r\n        uint256 amount = (msg.value/(1 ether)) / buyPrice;\r\n        // if(balanceOf[this] < amount) throw;\r\n        require(balanceOf[this] >= amount);\r\n        balanceOf[msg.sender] += amount;\r\n        balanceOf[this] -= amount;\r\n        Transfer(this, msg.sender, amount);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        uint256 amount = (msg.value/(1 ether)) / buyPrice;\r\n        // if(balanceOf[this] < amount) throw;\r\n        require(balanceOf[this] >= amount);\r\n        balanceOf[msg.sender] += amount;\r\n        balanceOf[this] -= amount;\r\n        Transfer(this, msg.sender, amount);\r\n    }"
+      VariableDeclarationStatement
+         Gas costs: 272
+         Source: "uint256 amount = (msg.value/(1 ether)) / buyPrice"
+        VariableDeclaration "amount"
+           Type: uint256
+           Source: "uint256 amount"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        BinaryOperation using operator /
+           Type: uint256
+           Source: "(msg.value/(1 ether)) / buyPrice"
+          TupleExpression
+             Type: uint256
+             Source: "(msg.value/(1 ether))"
+            BinaryOperation using operator /
+               Type: uint256
+               Source: "msg.value/(1 ether)"
+              MemberAccess to member value
+                 Type: uint256
+                 Source: "msg.value"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+              TupleExpression
+                 Type: int_const 1000000000000000000
+                 Source: "(1 ether)"
+                Literal, token: [no token] value: 1
+                   Type: int_const 1000000000000000000
+                   Source: "1 ether"
+          Identifier buyPrice
+             Type: uint256
+             Source: "buyPrice"
+      ExpressionStatement
+         Gas costs: 333
+         Source: "require(balanceOf[this] >= amount)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(balanceOf[this] >= amount)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "balanceOf[this] >= amount"
+            IndexAccess
+               Type: uint256
+               Source: "balanceOf[this]"
+              Identifier balanceOf
+                 Type: mapping(address => uint256)
+                 Source: "balanceOf"
+              Identifier this
+                 Type: contract Bitsale
+                 Source: "this"
+            Identifier amount
+               Type: uint256
+               Source: "amount"
+      ExpressionStatement
+         Gas costs: 20328
+         Source: "balanceOf[msg.sender] += amount"
+        Assignment using operator +=
+           Type: uint256
+           Source: "balanceOf[msg.sender] += amount"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[msg.sender]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Identifier amount
+             Type: uint256
+             Source: "amount"
+      ExpressionStatement
+         Gas costs: 20322
+         Source: "balanceOf[this] -= amount"
+        Assignment using operator -=
+           Type: uint256
+           Source: "balanceOf[this] -= amount"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[this]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            Identifier this
+               Type: contract Bitsale
+               Source: "this"
+          Identifier amount
+             Type: uint256
+             Source: "amount"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "Transfer(this, msg.sender, amount)"
+        FunctionCall
+           Type: tuple()
+           Source: "Transfer(this, msg.sender, amount)"
+          Identifier Transfer
+             Type: function (address,address,uint256)
+             Source: "Transfer"
+          Identifier this
+             Type: contract Bitsale
+             Source: "this"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier amount
+             Type: uint256
+             Source: "amount"
+  FunctionDefinition "sell" - public
+     Source: "function sell(uint256 amount){\r\n        // if(balanceOf[msg.sender] < amount) throw;\r\n        require(balanceOf[msg.sender] >= amount);\r\n        balanceOf[this] +=amount;\r\n        balanceOf[msg.sender] -= amount;\r\n        if(!msg.sender.send(amount * sellPrice * 1 ether)){\r\n            revert();\r\n        } else {\r\n            Transfer(msg.sender, this, amount);\r\n        }\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 amount)"
+      VariableDeclaration "amount"
+         Type: uint256
+         Source: "uint256 amount"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        // if(balanceOf[msg.sender] < amount) throw;\r\n        require(balanceOf[msg.sender] >= amount);\r\n        balanceOf[this] +=amount;\r\n        balanceOf[msg.sender] -= amount;\r\n        if(!msg.sender.send(amount * sellPrice * 1 ether)){\r\n            revert();\r\n        } else {\r\n            Transfer(msg.sender, this, amount);\r\n        }\r\n    }"
+      ExpressionStatement
+         Gas costs: 333
+         Source: "require(balanceOf[msg.sender] >= amount)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(balanceOf[msg.sender] >= amount)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "balanceOf[msg.sender] >= amount"
+            IndexAccess
+               Type: uint256
+               Source: "balanceOf[msg.sender]"
+              Identifier balanceOf
+                 Type: mapping(address => uint256)
+                 Source: "balanceOf"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+            Identifier amount
+               Type: uint256
+               Source: "amount"
+      ExpressionStatement
+         Gas costs: 20328
+         Source: "balanceOf[this] +=amount"
+        Assignment using operator +=
+           Type: uint256
+           Source: "balanceOf[this] +=amount"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[this]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            Identifier this
+               Type: contract Bitsale
+               Source: "this"
+          Identifier amount
+             Type: uint256
+             Source: "amount"
+      ExpressionStatement
+         Gas costs: 20322
+         Source: "balanceOf[msg.sender] -= amount"
+        Assignment using operator -=
+           Type: uint256
+           Source: "balanceOf[msg.sender] -= amount"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[msg.sender]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Identifier amount
+             Type: uint256
+             Source: "amount"
+      IfStatement
+         Source: "if(!msg.sender.send(amount * sellPrice * 1 ether)){\r\n            revert();\r\n        } else {\r\n            Transfer(msg.sender, this, amount);\r\n        }"
+        UnaryOperation (prefix) !
+           Type: bool
+           Gas costs: [???]
+           Source: "!msg.sender.send(amount * sellPrice * 1 ether)"
+          FunctionCall
+             Type: bool
+             Source: "msg.sender.send(amount * sellPrice * 1 ether)"
+            MemberAccess to member send
+               Type: function (uint256) returns (bool)
+               Source: "msg.sender.send"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+            BinaryOperation using operator *
+               Type: uint256
+               Source: "amount * sellPrice * 1 ether"
+              BinaryOperation using operator *
+                 Type: uint256
+                 Source: "amount * sellPrice"
+                Identifier amount
+                   Type: uint256
+                   Source: "amount"
+                Identifier sellPrice
+                   Type: uint256
+                   Source: "sellPrice"
+              Literal, token: [no token] value: 1
+                 Type: int_const 1000000000000000000
+                 Source: "1 ether"
+        Block
+           Source: "{\r\n            revert();\r\n        }"
+          ExpressionStatement
+             Gas costs: 6
+             Source: "revert()"
+            FunctionCall
+               Type: tuple()
+               Source: "revert()"
+              Identifier revert
+                 Type: function () pure
+                 Source: "revert"
+        Block
+           Source: "{\r\n            Transfer(msg.sender, this, amount);\r\n        }"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "Transfer(msg.sender, this, amount)"
+            FunctionCall
+               Type: tuple()
+               Source: "Transfer(msg.sender, this, amount)"
+              Identifier Transfer
+                 Type: function (address,address,uint256)
+                 Source: "Transfer"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+              Identifier this
+                 Type: contract Bitsale
+                 Source: "this"
+              Identifier amount
+                 Type: uint256
+                 Source: "amount"
+  FunctionDefinition "giveBlockreward" - public
+     Source: "function giveBlockreward(){\r\n        balanceOf[block.coinbase] += 1;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        balanceOf[block.coinbase] += 1;\r\n    }"
+      ExpressionStatement
+         Gas costs: 20328
+         Source: "balanceOf[block.coinbase] += 1"
+        Assignment using operator +=
+           Type: uint256
+           Source: "balanceOf[block.coinbase] += 1"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[block.coinbase]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            MemberAccess to member coinbase
+               Type: address
+               Source: "block.coinbase"
+              Identifier block
+                 Type: block
+                 Source: "block"
+          Literal, token: [no token] value: 1
+             Type: int_const 1
+             Source: "1"
+  VariableDeclaration "currentChallenge"
+     Type: bytes32
+     Gas costs: [???]
+     Source: "bytes32 public currentChallenge"
+    ElementaryTypeName bytes32
+       Source: "bytes32"
+  VariableDeclaration "timeOfLastProof"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint public timeOfLastProof"
+    ElementaryTypeName uint
+       Source: "uint"
+  VariableDeclaration "difficulty"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint public difficulty = 10**32"
+    ElementaryTypeName uint
+       Source: "uint"
+    BinaryOperation using operator **
+       Type: int_const 1000...(25 digits omitted)...0000
+       Source: "10**32"
+      Literal, token: [no token] value: 10
+         Type: int_const 10
+         Source: "10"
+      Literal, token: [no token] value: 32
+         Type: int_const 32
+         Source: "32"
+  FunctionDefinition "proofOfWork" - public
+     Source: "function proofOfWork(uint nonce){\r\n        bytes8 n = bytes8(sha3(nonce, currentChallenge));\r\n\r\n        // if(n < bytes8(difficulty)) throw;\r\n        require(n >= bytes8(difficulty));\r\n        uint timeSinceLastBlock = (now - timeOfLastProof);\r\n        // if(timeSinceLastBlock < 5 seconds) throw;\r\n        require(timeSinceLastBlock >= 5 seconds);\r\n\r\n        balanceOf[msg.sender] += timeSinceLastBlock / 60 seconds;\r\n        difficulty = difficulty * 10 minutes / timeOfLastProof + 1;\r\n        timeOfLastProof = now;\r\n        currentChallenge = sha3(nonce, currentChallenge, block.blockhash(block.number-1));\r\n     }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint nonce)"
+      VariableDeclaration "nonce"
+         Type: uint256
+         Source: "uint nonce"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        bytes8 n = bytes8(sha3(nonce, currentChallenge));\r\n\r\n        // if(n < bytes8(difficulty)) throw;\r\n        require(n >= bytes8(difficulty));\r\n        uint timeSinceLastBlock = (now - timeOfLastProof);\r\n        // if(timeSinceLastBlock < 5 seconds) throw;\r\n        require(timeSinceLastBlock >= 5 seconds);\r\n\r\n        balanceOf[msg.sender] += timeSinceLastBlock / 60 seconds;\r\n        difficulty = difficulty * 10 minutes / timeOfLastProof + 1;\r\n        timeOfLastProof = now;\r\n        currentChallenge = sha3(nonce, currentChallenge, block.blockhash(block.number-1));\r\n     }"
+      VariableDeclarationStatement
+         Gas costs: [???]
+         Source: "bytes8 n = bytes8(sha3(nonce, currentChallenge))"
+        VariableDeclaration "n"
+           Type: bytes8
+           Source: "bytes8 n"
+          ElementaryTypeName bytes8
+             Source: "bytes8"
+        FunctionCall
+           Type: bytes8
+           Source: "bytes8(sha3(nonce, currentChallenge))"
+          ElementaryTypeNameExpression bytes8
+             Type: type(bytes8)
+             Source: "bytes8"
+          FunctionCall
+             Type: bytes32
+             Source: "sha3(nonce, currentChallenge)"
+            Identifier sha3
+               Type: function () pure returns (bytes32)
+               Source: "sha3"
+            Identifier nonce
+               Type: uint256
+               Source: "nonce"
+            Identifier currentChallenge
+               Type: bytes32
+               Source: "currentChallenge"
+      ExpressionStatement
+         Gas costs: 264
+         Source: "require(n >= bytes8(difficulty))"
+        FunctionCall
+           Type: tuple()
+           Source: "require(n >= bytes8(difficulty))"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "n >= bytes8(difficulty)"
+            Identifier n
+               Type: bytes8
+               Source: "n"
+            FunctionCall
+               Type: bytes8
+               Source: "bytes8(difficulty)"
+              ElementaryTypeNameExpression bytes8
+                 Type: type(bytes8)
+                 Source: "bytes8"
+              Identifier difficulty
+                 Type: uint256
+                 Source: "difficulty"
+      VariableDeclarationStatement
+         Gas costs: 216
+         Source: "uint timeSinceLastBlock = (now - timeOfLastProof)"
+        VariableDeclaration "timeSinceLastBlock"
+           Type: uint256
+           Source: "uint timeSinceLastBlock"
+          ElementaryTypeName uint
+             Source: "uint"
+        TupleExpression
+           Type: uint256
+           Source: "(now - timeOfLastProof)"
+          BinaryOperation using operator -
+             Type: uint256
+             Source: "now - timeOfLastProof"
+            Identifier now
+               Type: uint256
+               Source: "now"
+            Identifier timeOfLastProof
+               Type: uint256
+               Source: "timeOfLastProof"
+      ExpressionStatement
+         Gas costs: 38
+         Source: "require(timeSinceLastBlock >= 5 seconds)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(timeSinceLastBlock >= 5 seconds)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "timeSinceLastBlock >= 5 seconds"
+            Identifier timeSinceLastBlock
+               Type: uint256
+               Source: "timeSinceLastBlock"
+            Literal, token: [no token] value: 5
+               Type: int_const 5
+               Source: "5 seconds"
+      ExpressionStatement
+         Gas costs: 20359
+         Source: "balanceOf[msg.sender] += timeSinceLastBlock / 60 seconds"
+        Assignment using operator +=
+           Type: uint256
+           Source: "balanceOf[msg.sender] += timeSinceLastBlock / 60 seconds"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[msg.sender]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          BinaryOperation using operator /
+             Type: uint256
+             Source: "timeSinceLastBlock / 60 seconds"
+            Identifier timeSinceLastBlock
+               Type: uint256
+               Source: "timeSinceLastBlock"
+            Literal, token: [no token] value: 60
+               Type: int_const 60
+               Source: "60 seconds"
+      ExpressionStatement
+         Gas costs: 20459
+         Source: "difficulty = difficulty * 10 minutes / timeOfLastProof + 1"
+        Assignment using operator =
+           Type: uint256
+           Source: "difficulty = difficulty * 10 minutes / timeOfLastProof + 1"
+          Identifier difficulty
+             Type: uint256
+             Source: "difficulty"
+          BinaryOperation using operator +
+             Type: uint256
+             Source: "difficulty * 10 minutes / timeOfLastProof + 1"
+            BinaryOperation using operator /
+               Type: uint256
+               Source: "difficulty * 10 minutes / timeOfLastProof"
+              BinaryOperation using operator *
+                 Type: uint256
+                 Source: "difficulty * 10 minutes"
+                Identifier difficulty
+                   Type: uint256
+                   Source: "difficulty"
+                Literal, token: [no token] value: 10
+                   Type: int_const 600
+                   Source: "10 minutes"
+              Identifier timeOfLastProof
+                 Type: uint256
+                 Source: "timeOfLastProof"
+            Literal, token: [no token] value: 1
+               Type: int_const 1
+               Source: "1"
+      ExpressionStatement
+         Gas costs: 20013
+         Source: "timeOfLastProof = now"
+        Assignment using operator =
+           Type: uint256
+           Source: "timeOfLastProof = now"
+          Identifier timeOfLastProof
+             Type: uint256
+             Source: "timeOfLastProof"
+          Identifier now
+             Type: uint256
+             Source: "now"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "currentChallenge = sha3(nonce, currentChallenge, block.blockhash(block.number-1))"
+        Assignment using operator =
+           Type: bytes32
+           Source: "currentChallenge = sha3(nonce, currentChallenge, block.blockhash(block.number-1))"
+          Identifier currentChallenge
+             Type: bytes32
+             Source: "currentChallenge"
+          FunctionCall
+             Type: bytes32
+             Source: "sha3(nonce, currentChallenge, block.blockhash(block.number-1))"
+            Identifier sha3
+               Type: function () pure returns (bytes32)
+               Source: "sha3"
+            Identifier nonce
+               Type: uint256
+               Source: "nonce"
+            Identifier currentChallenge
+               Type: bytes32
+               Source: "currentChallenge"
+            FunctionCall
+               Type: bytes32
+               Source: "block.blockhash(block.number-1)"
+              MemberAccess to member blockhash
+                 Type: function (uint256) view returns (bytes32)
+                 Source: "block.blockhash"
+                Identifier block
+                   Type: block
+                   Source: "block"
+              BinaryOperation using operator -
+                 Type: uint256
+                 Source: "block.number-1"
+                MemberAccess to member number
+                   Type: uint256
+                   Source: "block.number"
+                  Identifier block
+                     Type: block
+                     Source: "block"
+                Literal, token: [no token] value: 1
+                   Type: int_const 1
+                   Source: "1"

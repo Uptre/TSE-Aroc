@@ -1,0 +1,249 @@
+Syntax trees:
+
+
+======= /home/fabric/ArocRevision/Aroc/dataSet/smartbugs-21-7-13/arithmetic15/timelock.sol =======
+PragmaDirective
+   Gas costs: 0
+   Source: "pragma solidity ^0.4.0;"
+ContractDefinition "TimeLock"
+   Source: "contract TimeLock {\n\n     mapping(address => uint) public balances;\n     mapping(address => uint) public lockTime;\n\n     function deposit() public payable {\n         balances[msg.sender] += msg.value;\n         lockTime[msg.sender] = now + 1 weeks;\n     }\n\n     function increaseLockTime(uint _secondsToIncrease) public {\n         // <yes> <report> ARITHMETIC\n         lockTime[msg.sender] += _secondsToIncrease;\n     }\n\n     function withdraw() public {\n         require(balances[msg.sender] > 0);\n         require(now > lockTime[msg.sender]);\n         uint transferValue = balances[msg.sender];\n         balances[msg.sender] = 0;\n         msg.sender.transfer(transferValue);\n     }\n }"
+  VariableDeclaration "balances"
+     Type: mapping(address => uint256)
+     Gas costs: 431
+     Source: "mapping(address => uint) public balances"
+    Mapping
+       Source: "mapping(address => uint)"
+      ElementaryTypeName address
+         Source: "address"
+      ElementaryTypeName uint
+         Source: "uint"
+  VariableDeclaration "lockTime"
+     Type: mapping(address => uint256)
+     Gas costs: 431
+     Source: "mapping(address => uint) public lockTime"
+    Mapping
+       Source: "mapping(address => uint)"
+      ElementaryTypeName address
+         Source: "address"
+      ElementaryTypeName uint
+         Source: "uint"
+  FunctionDefinition "deposit" - public
+     Source: "function deposit() public payable {\n         balances[msg.sender] += msg.value;\n         lockTime[msg.sender] = now + 1 weeks;\n     }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\n         balances[msg.sender] += msg.value;\n         lockTime[msg.sender] = now + 1 weeks;\n     }"
+      ExpressionStatement
+         Gas costs: 20327
+         Source: "balances[msg.sender] += msg.value"
+        Assignment using operator +=
+           Type: uint256
+           Source: "balances[msg.sender] += msg.value"
+          IndexAccess
+             Type: uint256
+             Source: "balances[msg.sender]"
+            Identifier balances
+               Type: mapping(address => uint256)
+               Source: "balances"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          MemberAccess to member value
+             Type: uint256
+             Source: "msg.value"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+      ExpressionStatement
+         Gas costs: 20108
+         Source: "lockTime[msg.sender] = now + 1 weeks"
+        Assignment using operator =
+           Type: uint256
+           Source: "lockTime[msg.sender] = now + 1 weeks"
+          IndexAccess
+             Type: uint256
+             Source: "lockTime[msg.sender]"
+            Identifier lockTime
+               Type: mapping(address => uint256)
+               Source: "lockTime"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          BinaryOperation using operator +
+             Type: uint256
+             Source: "now + 1 weeks"
+            Identifier now
+               Type: uint256
+               Source: "now"
+            Literal, token: [no token] value: 1
+               Type: int_const 604800
+               Source: "1 weeks"
+  FunctionDefinition "increaseLockTime" - public
+     Source: "function increaseLockTime(uint _secondsToIncrease) public {\n         // <yes> <report> ARITHMETIC\n         lockTime[msg.sender] += _secondsToIncrease;\n     }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint _secondsToIncrease)"
+      VariableDeclaration "_secondsToIncrease"
+         Type: uint256
+         Source: "uint _secondsToIncrease"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\n         // <yes> <report> ARITHMETIC\n         lockTime[msg.sender] += _secondsToIncrease;\n     }"
+      ExpressionStatement
+         Gas costs: 20328
+         Source: "lockTime[msg.sender] += _secondsToIncrease"
+        Assignment using operator +=
+           Type: uint256
+           Source: "lockTime[msg.sender] += _secondsToIncrease"
+          IndexAccess
+             Type: uint256
+             Source: "lockTime[msg.sender]"
+            Identifier lockTime
+               Type: mapping(address => uint256)
+               Source: "lockTime"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Identifier _secondsToIncrease
+             Type: uint256
+             Source: "_secondsToIncrease"
+  FunctionDefinition "withdraw" - public
+     Source: "function withdraw() public {\n         require(balances[msg.sender] > 0);\n         require(now > lockTime[msg.sender]);\n         uint transferValue = balances[msg.sender];\n         balances[msg.sender] = 0;\n         msg.sender.transfer(transferValue);\n     }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\n         require(balances[msg.sender] > 0);\n         require(now > lockTime[msg.sender]);\n         uint transferValue = balances[msg.sender];\n         balances[msg.sender] = 0;\n         msg.sender.transfer(transferValue);\n     }"
+      ExpressionStatement
+         Gas costs: 330
+         Source: "require(balances[msg.sender] > 0)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(balances[msg.sender] > 0)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >
+             Type: bool
+             Source: "balances[msg.sender] > 0"
+            IndexAccess
+               Type: uint256
+               Source: "balances[msg.sender]"
+              Identifier balances
+                 Type: mapping(address => uint256)
+                 Source: "balances"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+      ExpressionStatement
+         Gas costs: 329
+         Source: "require(now > lockTime[msg.sender])"
+        FunctionCall
+           Type: tuple()
+           Source: "require(now > lockTime[msg.sender])"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >
+             Type: bool
+             Source: "now > lockTime[msg.sender]"
+            Identifier now
+               Type: uint256
+               Source: "now"
+            IndexAccess
+               Type: uint256
+               Source: "lockTime[msg.sender]"
+              Identifier lockTime
+                 Type: mapping(address => uint256)
+                 Source: "lockTime"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+      VariableDeclarationStatement
+         Gas costs: 306
+         Source: "uint transferValue = balances[msg.sender]"
+        VariableDeclaration "transferValue"
+           Type: uint256
+           Source: "uint transferValue"
+          ElementaryTypeName uint
+             Source: "uint"
+        IndexAccess
+           Type: uint256
+           Source: "balances[msg.sender]"
+          Identifier balances
+             Type: mapping(address => uint256)
+             Source: "balances"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+      ExpressionStatement
+         Gas costs: 5103
+         Source: "balances[msg.sender] = 0"
+        Assignment using operator =
+           Type: uint256
+           Source: "balances[msg.sender] = 0"
+          IndexAccess
+             Type: uint256
+             Source: "balances[msg.sender]"
+            Identifier balances
+               Type: mapping(address => uint256)
+               Source: "balances"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "msg.sender.transfer(transferValue)"
+        FunctionCall
+           Type: tuple()
+           Source: "msg.sender.transfer(transferValue)"
+          MemberAccess to member transfer
+             Type: function (uint256)
+             Source: "msg.sender.transfer"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Identifier transferValue
+             Type: uint256
+             Source: "transferValue"

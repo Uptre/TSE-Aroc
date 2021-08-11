@@ -1,0 +1,2314 @@
+Syntax trees:
+
+
+======= /home/fabric/ArocRevision/Aroc/osirisData/contractSrc/0xbd1e1ea13de6f320e89f33a7076b29d1a00506d8.sol =======
+PragmaDirective
+   Gas costs: 0
+   Source: "pragma solidity ^0.4.15;"
+ContractDefinition "BMICOAffiliateProgramm"
+   Source: "contract BMICOAffiliateProgramm {\r\n    mapping (string => address) partnersPromo;\r\n    mapping (address => uint256) referrals;\r\n\r\n    struct itemPartners {\r\n    uint256 balance;\r\n    string promo;\r\n    bool create;\r\n    }\r\n    mapping (address => itemPartners) partnersInfo;\r\n\r\n    uint256 public ref_percent = 100; //1 = 0.01%, 10000 = 100%\r\n\r\n\r\n    struct itemHistory {\r\n    uint256 datetime;\r\n    address referral;\r\n    uint256 amount_invest;\r\n    }\r\n    mapping(address => itemHistory[]) history;\r\n\r\n    uint256 public amount_referral_invest;\r\n\r\n    address public owner;\r\n    address public contractPreICO;\r\n    address public contractICO;\r\n\r\n    function BMICOAffiliateProgramm(){\r\n        owner = msg.sender;\r\n        contractPreICO = address(0x0);\r\n        contractICO = address(0x0);\r\n    }\r\n\r\n    modifier isOwner()\r\n    {\r\n        assert(msg.sender == owner);\r\n        _;\r\n    }\r\n\r\n    function str_length(string x) constant internal returns (uint256) {\r\n        bytes32 str;\r\n        assembly {\r\n        str := mload(add(x, 32))\r\n        }\r\n        bytes memory bytesString = new bytes(32);\r\n        uint256 charCount = 0;\r\n        for (uint j = 0; j < 32; j++) {\r\n            byte char = byte(bytes32(uint(str) * 2 ** (8 * j)));\r\n            if (char != 0) {\r\n                bytesString[charCount] = char;\r\n                charCount++;\r\n            }\r\n        }\r\n        return charCount;\r\n    }\r\n\r\n    function changeOwner(address new_owner) isOwner {\r\n        assert(new_owner!=address(0x0));\r\n        assert(new_owner!=address(this));\r\n\r\n        owner = new_owner;\r\n    }\r\n\r\n    function setReferralPercent(uint256 new_percent) isOwner {\r\n        ref_percent = new_percent;\r\n    }\r\n\r\n    function setContractPreICO(address new_address) isOwner {\r\n        assert(contractPreICO==address(0x0));\r\n        assert(new_address!=address(0x0));\r\n        assert(new_address!=address(this));\r\n\r\n        contractPreICO = new_address;\r\n    }\r\n\r\n    function setContractICO(address new_address) isOwner {\r\n        assert(contractICO==address(0x0));\r\n        assert(new_address!=address(0x0));\r\n        assert(new_address!=address(this));\r\n\r\n        contractICO = new_address;\r\n    }\r\n\r\n    function setPromoToPartner(string promo) {\r\n        assert(partnersPromo[promo]==address(0x0));\r\n        assert(partnersInfo[msg.sender].create==false);\r\n        assert(str_length(promo)>0 && str_length(promo)<=6);\r\n\r\n        partnersPromo[promo] = msg.sender;\r\n        partnersInfo[msg.sender].balance = 0;\r\n        partnersInfo[msg.sender].promo = promo;\r\n        partnersInfo[msg.sender].create = true;\r\n    }\r\n\r\n    function checkPromo(string promo) constant returns(bool){\r\n        return partnersPromo[promo]!=address(0x0);\r\n    }\r\n\r\n    function checkPartner(address partner_address) constant returns(bool isPartner, string promo){\r\n        isPartner = partnersInfo[partner_address].create;\r\n        promo = '-1';\r\n        if(isPartner){\r\n            promo = partnersInfo[partner_address].promo;\r\n        }\r\n    }\r\n\r\n    function calc_partnerPercent(uint256 ref_amount_invest) constant internal returns(uint16 percent){\r\n        percent = 0;\r\n        if(ref_amount_invest > 0){\r\n            if(ref_amount_invest < 2 ether){\r\n                percent = 100; //1 = 0.01%, 10000 = 100%\r\n            }\r\n            else if(ref_amount_invest >= 2 ether && ref_amount_invest < 3 ether){\r\n                percent = 200;\r\n            }\r\n            else if(ref_amount_invest >= 3 ether && ref_amount_invest < 4 ether){\r\n                percent = 300;\r\n            }\r\n            else if(ref_amount_invest >= 4 ether && ref_amount_invest < 5 ether){\r\n                percent = 400;\r\n            }\r\n            else if(ref_amount_invest >= 5 ether){\r\n                percent = 500;\r\n            }\r\n        }\r\n    }\r\n\r\n    function partnerInfo(address partner_address) constant internal returns(string promo, uint256 balance, uint256[] h_datetime, uint256[] h_invest, address[] h_referrals){\r\n        if(partner_address != address(0x0) && partnersInfo[partner_address].create){\r\n            promo = partnersInfo[partner_address].promo;\r\n            balance = partnersInfo[partner_address].balance;\r\n\r\n            h_datetime = new uint256[](history[partner_address].length);\r\n            h_invest = new uint256[](history[partner_address].length);\r\n            h_referrals = new address[](history[partner_address].length);\r\n\r\n            for(var i=0; i<history[partner_address].length; i++){\r\n                h_datetime[i] = history[partner_address][i].datetime;\r\n                h_invest[i] = history[partner_address][i].amount_invest;\r\n                h_referrals[i] = history[partner_address][i].referral;\r\n            }\r\n        }\r\n        else{\r\n            promo = '-1';\r\n            balance = 0;\r\n            h_datetime = new uint256[](0);\r\n            h_invest = new uint256[](0);\r\n            h_referrals = new address[](0);\r\n        }\r\n    }\r\n\r\n    function partnerInfo_for_Partner(bytes32 hash, uint8 v, bytes32 r, bytes32 s) constant returns(string, uint256, uint256[], uint256[], address[]){\r\n        address partner_address = ecrecover(hash, v, r, s);\r\n        return partnerInfo(partner_address);\r\n    }\r\n\r\n    function partnerInfo_for_Owner (address partner, bytes32 hash, uint8 v, bytes32 r, bytes32 s) constant returns(string, uint256, uint256[], uint256[], address[]){\r\n        if(owner == ecrecover(hash, v, r, s)){\r\n            return partnerInfo(partner);\r\n        }\r\n        else {\r\n            return ('-1', 0, new uint256[](0), new uint256[](0), new address[](0));\r\n        }\r\n    }\r\n\r\n    function add_referral(address referral, string promo, uint256 amount) external returns(address partner, uint256 p_partner, uint256 p_referral){\r\n        p_partner = 0;\r\n        p_referral = 0;\r\n        partner = address(0x0);\r\n        if (msg.sender == contractPreICO || msg.sender == contractICO){\r\n            if(partnersPromo[promo] != address(0x0) && partnersPromo[promo] != referral){\r\n                partner = partnersPromo[promo];\r\n                referrals[referral] += amount;\r\n                amount_referral_invest += amount;\r\n                partnersInfo[partner].balance += amount;\r\n                history[partner].push(itemHistory(now, referral, amount));\r\n                p_partner = (amount*uint256(calc_partnerPercent(amount)))/10000;\r\n                p_referral = (amount*ref_percent)/10000;\r\n            }\r\n        }\r\n    }\r\n}"
+  VariableDeclaration "partnersPromo"
+     Type: mapping(string memory => address)
+     Gas costs: 0
+     Source: "mapping (string => address) partnersPromo"
+    Mapping
+       Source: "mapping (string => address)"
+      ElementaryTypeName string
+         Source: "string"
+      ElementaryTypeName address
+         Source: "address"
+  VariableDeclaration "referrals"
+     Type: mapping(address => uint256)
+     Gas costs: 0
+     Source: "mapping (address => uint256) referrals"
+    Mapping
+       Source: "mapping (address => uint256)"
+      ElementaryTypeName address
+         Source: "address"
+      ElementaryTypeName uint256
+         Source: "uint256"
+  StructDefinition "itemPartners"
+     Gas costs: 0
+     Source: "struct itemPartners {\r\n    uint256 balance;\r\n    string promo;\r\n    bool create;\r\n    }"
+    VariableDeclaration "balance"
+       Type: uint256
+       Source: "uint256 balance"
+      ElementaryTypeName uint256
+         Source: "uint256"
+    VariableDeclaration "promo"
+       Type: string storage pointer
+       Source: "string promo"
+      ElementaryTypeName string
+         Source: "string"
+    VariableDeclaration "create"
+       Type: bool
+       Source: "bool create"
+      ElementaryTypeName bool
+         Source: "bool"
+  VariableDeclaration "partnersInfo"
+     Type: mapping(address => struct BMICOAffiliateProgramm.itemPartners storage ref)
+     Gas costs: 0
+     Source: "mapping (address => itemPartners) partnersInfo"
+    Mapping
+       Source: "mapping (address => itemPartners)"
+      ElementaryTypeName address
+         Source: "address"
+      UserDefinedTypeName "itemPartners"
+         Source: "itemPartners"
+  VariableDeclaration "ref_percent"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint256 public ref_percent = 100"
+    ElementaryTypeName uint256
+       Source: "uint256"
+    Literal, token: [no token] value: 100
+       Type: int_const 100
+       Source: "100"
+  StructDefinition "itemHistory"
+     Gas costs: 0
+     Source: "struct itemHistory {\r\n    uint256 datetime;\r\n    address referral;\r\n    uint256 amount_invest;\r\n    }"
+    VariableDeclaration "datetime"
+       Type: uint256
+       Source: "uint256 datetime"
+      ElementaryTypeName uint256
+         Source: "uint256"
+    VariableDeclaration "referral"
+       Type: address
+       Source: "address referral"
+      ElementaryTypeName address
+         Source: "address"
+    VariableDeclaration "amount_invest"
+       Type: uint256
+       Source: "uint256 amount_invest"
+      ElementaryTypeName uint256
+         Source: "uint256"
+  VariableDeclaration "history"
+     Type: mapping(address => struct BMICOAffiliateProgramm.itemHistory storage ref[] storage ref)
+     Gas costs: 0
+     Source: "mapping(address => itemHistory[]) history"
+    Mapping
+       Source: "mapping(address => itemHistory[])"
+      ElementaryTypeName address
+         Source: "address"
+      ArrayTypeName
+         Source: "itemHistory[]"
+        UserDefinedTypeName "itemHistory"
+           Source: "itemHistory"
+  VariableDeclaration "amount_referral_invest"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint256 public amount_referral_invest"
+    ElementaryTypeName uint256
+       Source: "uint256"
+  VariableDeclaration "owner"
+     Type: address
+     Gas costs: [???]
+     Source: "address public owner"
+    ElementaryTypeName address
+       Source: "address"
+  VariableDeclaration "contractPreICO"
+     Type: address
+     Gas costs: [???]
+     Source: "address public contractPreICO"
+    ElementaryTypeName address
+       Source: "address"
+  VariableDeclaration "contractICO"
+     Type: address
+     Gas costs: [???]
+     Source: "address public contractICO"
+    ElementaryTypeName address
+       Source: "address"
+  FunctionDefinition "BMICOAffiliateProgramm" - public
+     Source: "function BMICOAffiliateProgramm(){\r\n        owner = msg.sender;\r\n        contractPreICO = address(0x0);\r\n        contractICO = address(0x0);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        owner = msg.sender;\r\n        contractPreICO = address(0x0);\r\n        contractICO = address(0x0);\r\n    }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "owner = msg.sender"
+        Assignment using operator =
+           Type: address
+           Source: "owner = msg.sender"
+          Identifier owner
+             Type: address
+             Source: "owner"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "contractPreICO = address(0x0)"
+        Assignment using operator =
+           Type: address
+           Source: "contractPreICO = address(0x0)"
+          Identifier contractPreICO
+             Type: address
+             Source: "contractPreICO"
+          FunctionCall
+             Type: address
+             Source: "address(0x0)"
+            ElementaryTypeNameExpression address
+               Type: type(address)
+               Source: "address"
+            Literal, token: [no token] value: 0x0
+               Type: int_const 0
+               Source: "0x0"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "contractICO = address(0x0)"
+        Assignment using operator =
+           Type: address
+           Source: "contractICO = address(0x0)"
+          Identifier contractICO
+             Type: address
+             Source: "contractICO"
+          FunctionCall
+             Type: address
+             Source: "address(0x0)"
+            ElementaryTypeNameExpression address
+               Type: type(address)
+               Source: "address"
+            Literal, token: [no token] value: 0x0
+               Type: int_const 0
+               Source: "0x0"
+  ModifierDefinition "isOwner"
+     Source: "modifier isOwner()\r\n    {\r\n        assert(msg.sender == owner);\r\n        _;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    Block
+       Source: "{\r\n        assert(msg.sender == owner);\r\n        _;\r\n    }"
+      ExpressionStatement
+         Gas costs: 1104
+         Source: "assert(msg.sender == owner)"
+        FunctionCall
+           Type: tuple()
+           Source: "assert(msg.sender == owner)"
+          Identifier assert
+             Type: function (bool) pure
+             Source: "assert"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "msg.sender == owner"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Identifier owner
+               Type: address
+               Source: "owner"
+      PlaceholderStatement
+         Gas costs: 0
+         Source: "_"
+  FunctionDefinition "str_length" - const
+     Source: "function str_length(string x) constant internal returns (uint256) {\r\n        bytes32 str;\r\n        assembly {\r\n        str := mload(add(x, 32))\r\n        }\r\n        bytes memory bytesString = new bytes(32);\r\n        uint256 charCount = 0;\r\n        for (uint j = 0; j < 32; j++) {\r\n            byte char = byte(bytes32(uint(str) * 2 ** (8 * j)));\r\n            if (char != 0) {\r\n                bytesString[charCount] = char;\r\n                charCount++;\r\n            }\r\n        }\r\n        return charCount;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(string x)"
+      VariableDeclaration "x"
+         Type: string memory
+         Source: "string x"
+        ElementaryTypeName string
+           Source: "string"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint256)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint256"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{\r\n        bytes32 str;\r\n        assembly {\r\n        str := mload(add(x, 32))\r\n        }\r\n        bytes memory bytesString = new bytes(32);\r\n        uint256 charCount = 0;\r\n        for (uint j = 0; j < 32; j++) {\r\n            byte char = byte(bytes32(uint(str) * 2 ** (8 * j)));\r\n            if (char != 0) {\r\n                bytesString[charCount] = char;\r\n                charCount++;\r\n            }\r\n        }\r\n        return charCount;\r\n    }"
+      VariableDeclarationStatement
+         Gas costs: 3
+         Source: "bytes32 str"
+        VariableDeclaration "str"
+           Type: bytes32
+           Source: "bytes32 str"
+          ElementaryTypeName bytes32
+             Source: "bytes32"
+      InlineAssembly
+         Gas costs: 0
+         Source: "assembly {\r\n        str := mload(add(x, 32))\r\n        }\r\n        bytes"
+      VariableDeclarationStatement
+         Gas costs: [???]
+         Source: "bytes memory bytesString = new bytes(32)"
+        VariableDeclaration "bytesString"
+           Type: bytes memory
+           Source: "bytes memory bytesString"
+          ElementaryTypeName bytes
+             Source: "bytes"
+        FunctionCall
+           Type: bytes memory
+           Source: "new bytes(32)"
+          NewExpression
+             Type: function (uint256) pure returns (bytes memory)
+             Source: "new bytes"
+            ElementaryTypeName bytes
+               Source: "bytes"
+          Literal, token: [no token] value: 32
+             Type: int_const 32
+             Source: "32"
+      VariableDeclarationStatement
+         Gas costs: 11
+         Source: "uint256 charCount = 0"
+        VariableDeclaration "charCount"
+           Type: uint256
+           Source: "uint256 charCount"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        Literal, token: [no token] value: 0
+           Type: int_const 0
+           Source: "0"
+      ForStatement
+         Source: "for (uint j = 0; j < 32; j++) {\r\n            byte char = byte(bytes32(uint(str) * 2 ** (8 * j)));\r\n            if (char != 0) {\r\n                bytesString[charCount] = char;\r\n                charCount++;\r\n            }\r\n        }"
+        VariableDeclarationStatement
+           Gas costs: 11
+           Source: "uint j = 0"
+          VariableDeclaration "j"
+             Type: uint256
+             Source: "uint j"
+            ElementaryTypeName uint
+               Source: "uint"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        BinaryOperation using operator <
+           Type: bool
+           Gas costs: 9
+           Source: "j < 32"
+          Identifier j
+             Type: uint256
+             Source: "j"
+          Literal, token: [no token] value: 32
+             Type: int_const 32
+             Source: "32"
+        ExpressionStatement
+           Gas costs: 19
+           Source: "j++"
+          UnaryOperation (postfix) ++
+             Type: uint256
+             Source: "j++"
+            Identifier j
+               Type: uint256
+               Source: "j"
+        Block
+           Source: "{\r\n            byte char = byte(bytes32(uint(str) * 2 ** (8 * j)));\r\n            if (char != 0) {\r\n                bytesString[charCount] = char;\r\n                charCount++;\r\n            }\r\n        }"
+          VariableDeclarationStatement
+             Gas costs: 1659
+             Source: "byte char = byte(bytes32(uint(str) * 2 ** (8 * j)))"
+            VariableDeclaration "char"
+               Type: bytes1
+               Source: "byte char"
+              ElementaryTypeName byte
+                 Source: "byte"
+            FunctionCall
+               Type: bytes1
+               Source: "byte(bytes32(uint(str) * 2 ** (8 * j)))"
+              ElementaryTypeNameExpression byte
+                 Type: type(bytes1)
+                 Source: "byte"
+              FunctionCall
+                 Type: bytes32
+                 Source: "bytes32(uint(str) * 2 ** (8 * j))"
+                ElementaryTypeNameExpression bytes32
+                   Type: type(bytes32)
+                   Source: "bytes32"
+                BinaryOperation using operator *
+                   Type: uint256
+                   Source: "uint(str) * 2 ** (8 * j)"
+                  FunctionCall
+                     Type: uint256
+                     Source: "uint(str)"
+                    ElementaryTypeNameExpression uint
+                       Type: type(uint256)
+                       Source: "uint"
+                    Identifier str
+                       Type: bytes32
+                       Source: "str"
+                  BinaryOperation using operator **
+                     Type: uint256
+                     Source: "2 ** (8 * j)"
+                    Literal, token: [no token] value: 2
+                       Type: int_const 2
+                       Source: "2"
+                    TupleExpression
+                       Type: uint256
+                       Source: "(8 * j)"
+                      BinaryOperation using operator *
+                         Type: uint256
+                         Source: "8 * j"
+                        Literal, token: [no token] value: 8
+                           Type: int_const 8
+                           Source: "8"
+                        Identifier j
+                           Type: uint256
+                           Source: "j"
+          IfStatement
+             Source: "if (char != 0) {\r\n                bytesString[charCount] = char;\r\n                charCount++;\r\n            }"
+            BinaryOperation using operator !=
+               Type: bool
+               Gas costs: 29
+               Source: "char != 0"
+              Identifier char
+                 Type: bytes1
+                 Source: "char"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+            Block
+               Source: "{\r\n                bytesString[charCount] = char;\r\n                charCount++;\r\n            }"
+              ExpressionStatement
+                 Gas costs: [???]
+                 Source: "bytesString[charCount] = char"
+                Assignment using operator =
+                   Type: bytes1
+                   Source: "bytesString[charCount] = char"
+                  IndexAccess
+                     Type: bytes1
+                     Source: "bytesString[charCount]"
+                    Identifier bytesString
+                       Type: bytes memory
+                       Source: "bytesString"
+                    Identifier charCount
+                       Type: uint256
+                       Source: "charCount"
+                  Identifier char
+                     Type: bytes1
+                     Source: "char"
+              ExpressionStatement
+                 Gas costs: 19
+                 Source: "charCount++"
+                UnaryOperation (postfix) ++
+                   Type: uint256
+                   Source: "charCount++"
+                  Identifier charCount
+                     Type: uint256
+                     Source: "charCount"
+      Return
+         Gas costs: 8
+         Source: "return charCount"
+        Identifier charCount
+           Type: uint256
+           Source: "charCount"
+  FunctionDefinition "changeOwner" - public
+     Source: "function changeOwner(address new_owner) isOwner {\r\n        assert(new_owner!=address(0x0));\r\n        assert(new_owner!=address(this));\r\n\r\n        owner = new_owner;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address new_owner)"
+      VariableDeclaration "new_owner"
+         Type: address
+         Source: "address new_owner"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "isOwner"
+       Gas costs: 0
+       Source: "isOwner"
+      Identifier isOwner
+         Type: modifier ()
+         Source: "isOwner"
+    Block
+       Source: "{\r\n        assert(new_owner!=address(0x0));\r\n        assert(new_owner!=address(this));\r\n\r\n        owner = new_owner;\r\n    }"
+      ExpressionStatement
+         Gas costs: 44
+         Source: "assert(new_owner!=address(0x0))"
+        FunctionCall
+           Type: tuple()
+           Source: "assert(new_owner!=address(0x0))"
+          Identifier assert
+             Type: function (bool) pure
+             Source: "assert"
+          BinaryOperation using operator !=
+             Type: bool
+             Source: "new_owner!=address(0x0)"
+            Identifier new_owner
+               Type: address
+               Source: "new_owner"
+            FunctionCall
+               Type: address
+               Source: "address(0x0)"
+              ElementaryTypeNameExpression address
+                 Type: type(address)
+                 Source: "address"
+              Literal, token: [no token] value: 0x0
+                 Type: int_const 0
+                 Source: "0x0"
+      ExpressionStatement
+         Gas costs: 43
+         Source: "assert(new_owner!=address(this))"
+        FunctionCall
+           Type: tuple()
+           Source: "assert(new_owner!=address(this))"
+          Identifier assert
+             Type: function (bool) pure
+             Source: "assert"
+          BinaryOperation using operator !=
+             Type: bool
+             Source: "new_owner!=address(this)"
+            Identifier new_owner
+               Type: address
+               Source: "new_owner"
+            FunctionCall
+               Type: address
+               Source: "address(this)"
+              ElementaryTypeNameExpression address
+                 Type: type(address)
+                 Source: "address"
+              Identifier this
+                 Type: contract BMICOAffiliateProgramm
+                 Source: "this"
+      ExpressionStatement
+         Gas costs: 20267
+         Source: "owner = new_owner"
+        Assignment using operator =
+           Type: address
+           Source: "owner = new_owner"
+          Identifier owner
+             Type: address
+             Source: "owner"
+          Identifier new_owner
+             Type: address
+             Source: "new_owner"
+  FunctionDefinition "setReferralPercent" - public
+     Source: "function setReferralPercent(uint256 new_percent) isOwner {\r\n        ref_percent = new_percent;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 new_percent)"
+      VariableDeclaration "new_percent"
+         Type: uint256
+         Source: "uint256 new_percent"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "isOwner"
+       Gas costs: 0
+       Source: "isOwner"
+      Identifier isOwner
+         Type: modifier ()
+         Source: "isOwner"
+    Block
+       Source: "{\r\n        ref_percent = new_percent;\r\n    }"
+      ExpressionStatement
+         Gas costs: 20014
+         Source: "ref_percent = new_percent"
+        Assignment using operator =
+           Type: uint256
+           Source: "ref_percent = new_percent"
+          Identifier ref_percent
+             Type: uint256
+             Source: "ref_percent"
+          Identifier new_percent
+             Type: uint256
+             Source: "new_percent"
+  FunctionDefinition "setContractPreICO" - public
+     Source: "function setContractPreICO(address new_address) isOwner {\r\n        assert(contractPreICO==address(0x0));\r\n        assert(new_address!=address(0x0));\r\n        assert(new_address!=address(this));\r\n\r\n        contractPreICO = new_address;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address new_address)"
+      VariableDeclaration "new_address"
+         Type: address
+         Source: "address new_address"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "isOwner"
+       Gas costs: 0
+       Source: "isOwner"
+      Identifier isOwner
+         Type: modifier ()
+         Source: "isOwner"
+    Block
+       Source: "{\r\n        assert(contractPreICO==address(0x0));\r\n        assert(new_address!=address(0x0));\r\n        assert(new_address!=address(this));\r\n\r\n        contractPreICO = new_address;\r\n    }"
+      ExpressionStatement
+         Gas costs: 277
+         Source: "assert(contractPreICO==address(0x0))"
+        FunctionCall
+           Type: tuple()
+           Source: "assert(contractPreICO==address(0x0))"
+          Identifier assert
+             Type: function (bool) pure
+             Source: "assert"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "contractPreICO==address(0x0)"
+            Identifier contractPreICO
+               Type: address
+               Source: "contractPreICO"
+            FunctionCall
+               Type: address
+               Source: "address(0x0)"
+              ElementaryTypeNameExpression address
+                 Type: type(address)
+                 Source: "address"
+              Literal, token: [no token] value: 0x0
+                 Type: int_const 0
+                 Source: "0x0"
+      ExpressionStatement
+         Gas costs: 44
+         Source: "assert(new_address!=address(0x0))"
+        FunctionCall
+           Type: tuple()
+           Source: "assert(new_address!=address(0x0))"
+          Identifier assert
+             Type: function (bool) pure
+             Source: "assert"
+          BinaryOperation using operator !=
+             Type: bool
+             Source: "new_address!=address(0x0)"
+            Identifier new_address
+               Type: address
+               Source: "new_address"
+            FunctionCall
+               Type: address
+               Source: "address(0x0)"
+              ElementaryTypeNameExpression address
+                 Type: type(address)
+                 Source: "address"
+              Literal, token: [no token] value: 0x0
+                 Type: int_const 0
+                 Source: "0x0"
+      ExpressionStatement
+         Gas costs: 43
+         Source: "assert(new_address!=address(this))"
+        FunctionCall
+           Type: tuple()
+           Source: "assert(new_address!=address(this))"
+          Identifier assert
+             Type: function (bool) pure
+             Source: "assert"
+          BinaryOperation using operator !=
+             Type: bool
+             Source: "new_address!=address(this)"
+            Identifier new_address
+               Type: address
+               Source: "new_address"
+            FunctionCall
+               Type: address
+               Source: "address(this)"
+              ElementaryTypeNameExpression address
+                 Type: type(address)
+                 Source: "address"
+              Identifier this
+                 Type: contract BMICOAffiliateProgramm
+                 Source: "this"
+      ExpressionStatement
+         Gas costs: 20267
+         Source: "contractPreICO = new_address"
+        Assignment using operator =
+           Type: address
+           Source: "contractPreICO = new_address"
+          Identifier contractPreICO
+             Type: address
+             Source: "contractPreICO"
+          Identifier new_address
+             Type: address
+             Source: "new_address"
+  FunctionDefinition "setContractICO" - public
+     Source: "function setContractICO(address new_address) isOwner {\r\n        assert(contractICO==address(0x0));\r\n        assert(new_address!=address(0x0));\r\n        assert(new_address!=address(this));\r\n\r\n        contractICO = new_address;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address new_address)"
+      VariableDeclaration "new_address"
+         Type: address
+         Source: "address new_address"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "isOwner"
+       Gas costs: 0
+       Source: "isOwner"
+      Identifier isOwner
+         Type: modifier ()
+         Source: "isOwner"
+    Block
+       Source: "{\r\n        assert(contractICO==address(0x0));\r\n        assert(new_address!=address(0x0));\r\n        assert(new_address!=address(this));\r\n\r\n        contractICO = new_address;\r\n    }"
+      ExpressionStatement
+         Gas costs: 277
+         Source: "assert(contractICO==address(0x0))"
+        FunctionCall
+           Type: tuple()
+           Source: "assert(contractICO==address(0x0))"
+          Identifier assert
+             Type: function (bool) pure
+             Source: "assert"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "contractICO==address(0x0)"
+            Identifier contractICO
+               Type: address
+               Source: "contractICO"
+            FunctionCall
+               Type: address
+               Source: "address(0x0)"
+              ElementaryTypeNameExpression address
+                 Type: type(address)
+                 Source: "address"
+              Literal, token: [no token] value: 0x0
+                 Type: int_const 0
+                 Source: "0x0"
+      ExpressionStatement
+         Gas costs: 44
+         Source: "assert(new_address!=address(0x0))"
+        FunctionCall
+           Type: tuple()
+           Source: "assert(new_address!=address(0x0))"
+          Identifier assert
+             Type: function (bool) pure
+             Source: "assert"
+          BinaryOperation using operator !=
+             Type: bool
+             Source: "new_address!=address(0x0)"
+            Identifier new_address
+               Type: address
+               Source: "new_address"
+            FunctionCall
+               Type: address
+               Source: "address(0x0)"
+              ElementaryTypeNameExpression address
+                 Type: type(address)
+                 Source: "address"
+              Literal, token: [no token] value: 0x0
+                 Type: int_const 0
+                 Source: "0x0"
+      ExpressionStatement
+         Gas costs: 43
+         Source: "assert(new_address!=address(this))"
+        FunctionCall
+           Type: tuple()
+           Source: "assert(new_address!=address(this))"
+          Identifier assert
+             Type: function (bool) pure
+             Source: "assert"
+          BinaryOperation using operator !=
+             Type: bool
+             Source: "new_address!=address(this)"
+            Identifier new_address
+               Type: address
+               Source: "new_address"
+            FunctionCall
+               Type: address
+               Source: "address(this)"
+              ElementaryTypeNameExpression address
+                 Type: type(address)
+                 Source: "address"
+              Identifier this
+                 Type: contract BMICOAffiliateProgramm
+                 Source: "this"
+      ExpressionStatement
+         Gas costs: 20267
+         Source: "contractICO = new_address"
+        Assignment using operator =
+           Type: address
+           Source: "contractICO = new_address"
+          Identifier contractICO
+             Type: address
+             Source: "contractICO"
+          Identifier new_address
+             Type: address
+             Source: "new_address"
+  FunctionDefinition "setPromoToPartner" - public
+     Source: "function setPromoToPartner(string promo) {\r\n        assert(partnersPromo[promo]==address(0x0));\r\n        assert(partnersInfo[msg.sender].create==false);\r\n        assert(str_length(promo)>0 && str_length(promo)<=6);\r\n\r\n        partnersPromo[promo] = msg.sender;\r\n        partnersInfo[msg.sender].balance = 0;\r\n        partnersInfo[msg.sender].promo = promo;\r\n        partnersInfo[msg.sender].create = true;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(string promo)"
+      VariableDeclaration "promo"
+         Type: string memory
+         Source: "string promo"
+        ElementaryTypeName string
+           Source: "string"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        assert(partnersPromo[promo]==address(0x0));\r\n        assert(partnersInfo[msg.sender].create==false);\r\n        assert(str_length(promo)>0 && str_length(promo)<=6);\r\n\r\n        partnersPromo[promo] = msg.sender;\r\n        partnersInfo[msg.sender].balance = 0;\r\n        partnersInfo[msg.sender].promo = promo;\r\n        partnersInfo[msg.sender].create = true;\r\n    }"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "assert(partnersPromo[promo]==address(0x0))"
+        FunctionCall
+           Type: tuple()
+           Source: "assert(partnersPromo[promo]==address(0x0))"
+          Identifier assert
+             Type: function (bool) pure
+             Source: "assert"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "partnersPromo[promo]==address(0x0)"
+            IndexAccess
+               Type: address
+               Source: "partnersPromo[promo]"
+              Identifier partnersPromo
+                 Type: mapping(string memory => address)
+                 Source: "partnersPromo"
+              Identifier promo
+                 Type: string memory
+                 Source: "promo"
+            FunctionCall
+               Type: address
+               Source: "address(0x0)"
+              ElementaryTypeNameExpression address
+                 Type: type(address)
+                 Source: "address"
+              Literal, token: [no token] value: 0x0
+                 Type: int_const 0
+                 Source: "0x0"
+      ExpressionStatement
+         Gas costs: 378
+         Source: "assert(partnersInfo[msg.sender].create==false)"
+        FunctionCall
+           Type: tuple()
+           Source: "assert(partnersInfo[msg.sender].create==false)"
+          Identifier assert
+             Type: function (bool) pure
+             Source: "assert"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "partnersInfo[msg.sender].create==false"
+            MemberAccess to member create
+               Type: bool
+               Source: "partnersInfo[msg.sender].create"
+              IndexAccess
+                 Type: struct BMICOAffiliateProgramm.itemPartners storage ref
+                 Source: "partnersInfo[msg.sender]"
+                Identifier partnersInfo
+                   Type: mapping(address => struct BMICOAffiliateProgramm.itemPartners storage ref)
+                   Source: "partnersInfo"
+                MemberAccess to member sender
+                   Type: address
+                   Source: "msg.sender"
+                  Identifier msg
+                     Type: msg
+                     Source: "msg"
+            Literal, token: false value: false
+               Type: bool
+               Source: "false"
+      ExpressionStatement
+         Gas costs: 82
+         Source: "assert(str_length(promo)>0 && str_length(promo)<=6)"
+        FunctionCall
+           Type: tuple()
+           Source: "assert(str_length(promo)>0 && str_length(promo)<=6)"
+          Identifier assert
+             Type: function (bool) pure
+             Source: "assert"
+          BinaryOperation using operator &&
+             Type: bool
+             Source: "str_length(promo)>0 && str_length(promo)<=6"
+            BinaryOperation using operator >
+               Type: bool
+               Source: "str_length(promo)>0"
+              FunctionCall
+                 Type: uint256
+                 Source: "str_length(promo)"
+                Identifier str_length
+                   Type: function (string memory) view returns (uint256)
+                   Source: "str_length"
+                Identifier promo
+                   Type: string memory
+                   Source: "promo"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+            BinaryOperation using operator <=
+               Type: bool
+               Source: "str_length(promo)<=6"
+              FunctionCall
+                 Type: uint256
+                 Source: "str_length(promo)"
+                Identifier str_length
+                   Type: function (string memory) view returns (uint256)
+                   Source: "str_length"
+                Identifier promo
+                   Type: string memory
+                   Source: "promo"
+              Literal, token: [no token] value: 6
+                 Type: int_const 6
+                 Source: "6"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "partnersPromo[promo] = msg.sender"
+        Assignment using operator =
+           Type: address
+           Source: "partnersPromo[promo] = msg.sender"
+          IndexAccess
+             Type: address
+             Source: "partnersPromo[promo]"
+            Identifier partnersPromo
+               Type: mapping(string memory => address)
+               Source: "partnersPromo"
+            Identifier promo
+               Type: string memory
+               Source: "promo"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+      ExpressionStatement
+         Gas costs: 5109
+         Source: "partnersInfo[msg.sender].balance = 0"
+        Assignment using operator =
+           Type: uint256
+           Source: "partnersInfo[msg.sender].balance = 0"
+          MemberAccess to member balance
+             Type: uint256
+             Source: "partnersInfo[msg.sender].balance"
+            IndexAccess
+               Type: struct BMICOAffiliateProgramm.itemPartners storage ref
+               Source: "partnersInfo[msg.sender]"
+              Identifier partnersInfo
+                 Type: mapping(address => struct BMICOAffiliateProgramm.itemPartners storage ref)
+                 Source: "partnersInfo"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "partnersInfo[msg.sender].promo = promo"
+        Assignment using operator =
+           Type: string storage ref
+           Source: "partnersInfo[msg.sender].promo = promo"
+          MemberAccess to member promo
+             Type: string storage ref
+             Source: "partnersInfo[msg.sender].promo"
+            IndexAccess
+               Type: struct BMICOAffiliateProgramm.itemPartners storage ref
+               Source: "partnersInfo[msg.sender]"
+              Identifier partnersInfo
+                 Type: mapping(address => struct BMICOAffiliateProgramm.itemPartners storage ref)
+                 Source: "partnersInfo"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+          Identifier promo
+             Type: string memory
+             Source: "promo"
+      ExpressionStatement
+         Gas costs: 20368
+         Source: "partnersInfo[msg.sender].create = true"
+        Assignment using operator =
+           Type: bool
+           Source: "partnersInfo[msg.sender].create = true"
+          MemberAccess to member create
+             Type: bool
+             Source: "partnersInfo[msg.sender].create"
+            IndexAccess
+               Type: struct BMICOAffiliateProgramm.itemPartners storage ref
+               Source: "partnersInfo[msg.sender]"
+              Identifier partnersInfo
+                 Type: mapping(address => struct BMICOAffiliateProgramm.itemPartners storage ref)
+                 Source: "partnersInfo"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+          Literal, token: true value: true
+             Type: bool
+             Source: "true"
+  FunctionDefinition "checkPromo" - public - const
+     Source: "function checkPromo(string promo) constant returns(bool){\r\n        return partnersPromo[promo]!=address(0x0);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(string promo)"
+      VariableDeclaration "promo"
+         Type: string memory
+         Source: "string promo"
+        ElementaryTypeName string
+           Source: "string"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool)"
+      VariableDeclaration ""
+         Type: bool
+         Source: "bool"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n        return partnersPromo[promo]!=address(0x0);\r\n    }"
+      Return
+         Gas costs: [???]
+         Source: "return partnersPromo[promo]!=address(0x0)"
+        BinaryOperation using operator !=
+           Type: bool
+           Source: "partnersPromo[promo]!=address(0x0)"
+          IndexAccess
+             Type: address
+             Source: "partnersPromo[promo]"
+            Identifier partnersPromo
+               Type: mapping(string memory => address)
+               Source: "partnersPromo"
+            Identifier promo
+               Type: string memory
+               Source: "promo"
+          FunctionCall
+             Type: address
+             Source: "address(0x0)"
+            ElementaryTypeNameExpression address
+               Type: type(address)
+               Source: "address"
+            Literal, token: [no token] value: 0x0
+               Type: int_const 0
+               Source: "0x0"
+  FunctionDefinition "checkPartner" - public - const
+     Source: "function checkPartner(address partner_address) constant returns(bool isPartner, string promo){\r\n        isPartner = partnersInfo[partner_address].create;\r\n        promo = '-1';\r\n        if(isPartner){\r\n            promo = partnersInfo[partner_address].promo;\r\n        }\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address partner_address)"
+      VariableDeclaration "partner_address"
+         Type: address
+         Source: "address partner_address"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 6
+       Source: "(bool isPartner, string promo)"
+      VariableDeclaration "isPartner"
+         Type: bool
+         Source: "bool isPartner"
+        ElementaryTypeName bool
+           Source: "bool"
+      VariableDeclaration "promo"
+         Type: string memory
+         Source: "string promo"
+        ElementaryTypeName string
+           Source: "string"
+    Block
+       Source: "{\r\n        isPartner = partnersInfo[partner_address].create;\r\n        promo = '-1';\r\n        if(isPartner){\r\n            promo = partnersInfo[partner_address].promo;\r\n        }\r\n    }"
+      ExpressionStatement
+         Gas costs: 346
+         Source: "isPartner = partnersInfo[partner_address].create"
+        Assignment using operator =
+           Type: bool
+           Source: "isPartner = partnersInfo[partner_address].create"
+          Identifier isPartner
+             Type: bool
+             Source: "isPartner"
+          MemberAccess to member create
+             Type: bool
+             Source: "partnersInfo[partner_address].create"
+            IndexAccess
+               Type: struct BMICOAffiliateProgramm.itemPartners storage ref
+               Source: "partnersInfo[partner_address]"
+              Identifier partnersInfo
+                 Type: mapping(address => struct BMICOAffiliateProgramm.itemPartners storage ref)
+                 Source: "partnersInfo"
+              Identifier partner_address
+                 Type: address
+                 Source: "partner_address"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "promo = '-1'"
+        Assignment using operator =
+           Type: string memory
+           Source: "promo = '-1'"
+          Identifier promo
+             Type: string memory
+             Source: "promo"
+          Literal, token: [no token] value: -1
+             Type: literal_string "-1"
+             Source: "'-1'"
+      IfStatement
+         Source: "if(isPartner){\r\n            promo = partnersInfo[partner_address].promo;\r\n        }"
+        Identifier isPartner
+           Type: bool
+           Gas costs: 3
+           Source: "isPartner"
+        Block
+           Source: "{\r\n            promo = partnersInfo[partner_address].promo;\r\n        }"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "promo = partnersInfo[partner_address].promo"
+            Assignment using operator =
+               Type: string memory
+               Source: "promo = partnersInfo[partner_address].promo"
+              Identifier promo
+                 Type: string memory
+                 Source: "promo"
+              MemberAccess to member promo
+                 Type: string storage ref
+                 Source: "partnersInfo[partner_address].promo"
+                IndexAccess
+                   Type: struct BMICOAffiliateProgramm.itemPartners storage ref
+                   Source: "partnersInfo[partner_address]"
+                  Identifier partnersInfo
+                     Type: mapping(address => struct BMICOAffiliateProgramm.itemPartners storage ref)
+                     Source: "partnersInfo"
+                  Identifier partner_address
+                     Type: address
+                     Source: "partner_address"
+  FunctionDefinition "calc_partnerPercent" - const
+     Source: "function calc_partnerPercent(uint256 ref_amount_invest) constant internal returns(uint16 percent){\r\n        percent = 0;\r\n        if(ref_amount_invest > 0){\r\n            if(ref_amount_invest < 2 ether){\r\n                percent = 100; //1 = 0.01%, 10000 = 100%\r\n            }\r\n            else if(ref_amount_invest >= 2 ether && ref_amount_invest < 3 ether){\r\n                percent = 200;\r\n            }\r\n            else if(ref_amount_invest >= 3 ether && ref_amount_invest < 4 ether){\r\n                percent = 300;\r\n            }\r\n            else if(ref_amount_invest >= 4 ether && ref_amount_invest < 5 ether){\r\n                percent = 400;\r\n            }\r\n            else if(ref_amount_invest >= 5 ether){\r\n                percent = 500;\r\n            }\r\n        }\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 ref_amount_invest)"
+      VariableDeclaration "ref_amount_invest"
+         Type: uint256
+         Source: "uint256 ref_amount_invest"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint16 percent)"
+      VariableDeclaration "percent"
+         Type: uint16
+         Source: "uint16 percent"
+        ElementaryTypeName uint16
+           Source: "uint16"
+    Block
+       Source: "{\r\n        percent = 0;\r\n        if(ref_amount_invest > 0){\r\n            if(ref_amount_invest < 2 ether){\r\n                percent = 100; //1 = 0.01%, 10000 = 100%\r\n            }\r\n            else if(ref_amount_invest >= 2 ether && ref_amount_invest < 3 ether){\r\n                percent = 200;\r\n            }\r\n            else if(ref_amount_invest >= 3 ether && ref_amount_invest < 4 ether){\r\n                percent = 300;\r\n            }\r\n            else if(ref_amount_invest >= 4 ether && ref_amount_invest < 5 ether){\r\n                percent = 400;\r\n            }\r\n            else if(ref_amount_invest >= 5 ether){\r\n                percent = 500;\r\n            }\r\n        }\r\n    }"
+      ExpressionStatement
+         Gas costs: 8
+         Source: "percent = 0"
+        Assignment using operator =
+           Type: uint16
+           Source: "percent = 0"
+          Identifier percent
+             Type: uint16
+             Source: "percent"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+      IfStatement
+         Source: "if(ref_amount_invest > 0){\r\n            if(ref_amount_invest < 2 ether){\r\n                percent = 100; //1 = 0.01%, 10000 = 100%\r\n            }\r\n            else if(ref_amount_invest >= 2 ether && ref_amount_invest < 3 ether){\r\n                percent = 200;\r\n            }\r\n            else if(ref_amount_invest >= 3 ether && ref_amount_invest < 4 ether){\r\n                percent = 300;\r\n            }\r\n            else if(ref_amount_invest >= 4 ether && ref_amount_invest < 5 ether){\r\n                percent = 400;\r\n            }\r\n            else if(ref_amount_invest >= 5 ether){\r\n                percent = 500;\r\n            }\r\n        }"
+        BinaryOperation using operator >
+           Type: bool
+           Gas costs: 9
+           Source: "ref_amount_invest > 0"
+          Identifier ref_amount_invest
+             Type: uint256
+             Source: "ref_amount_invest"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        Block
+           Source: "{\r\n            if(ref_amount_invest < 2 ether){\r\n                percent = 100; //1 = 0.01%, 10000 = 100%\r\n            }\r\n            else if(ref_amount_invest >= 2 ether && ref_amount_invest < 3 ether){\r\n                percent = 200;\r\n            }\r\n            else if(ref_amount_invest >= 3 ether && ref_amount_invest < 4 ether){\r\n                percent = 300;\r\n            }\r\n            else if(ref_amount_invest >= 4 ether && ref_amount_invest < 5 ether){\r\n                percent = 400;\r\n            }\r\n            else if(ref_amount_invest >= 5 ether){\r\n                percent = 500;\r\n            }\r\n        }"
+          IfStatement
+             Source: "if(ref_amount_invest < 2 ether){\r\n                percent = 100; //1 = 0.01%, 10000 = 100%\r\n            }\r\n            else if(ref_amount_invest >= 2 ether && ref_amount_invest < 3 ether){\r\n                percent = 200;\r\n            }\r\n            else if(ref_amount_invest >= 3 ether && ref_amount_invest < 4 ether){\r\n                percent = 300;\r\n            }\r\n            else if(ref_amount_invest >= 4 ether && ref_amount_invest < 5 ether){\r\n                percent = 400;\r\n            }\r\n            else if(ref_amount_invest >= 5 ether){\r\n                percent = 500;\r\n            }"
+            BinaryOperation using operator <
+               Type: bool
+               Gas costs: 9
+               Source: "ref_amount_invest < 2 ether"
+              Identifier ref_amount_invest
+                 Type: uint256
+                 Source: "ref_amount_invest"
+              Literal, token: [no token] value: 2
+                 Type: int_const 2000000000000000000
+                 Source: "2 ether"
+            Block
+               Source: "{\r\n                percent = 100; //1 = 0.01%, 10000 = 100%\r\n            }"
+              ExpressionStatement
+                 Gas costs: 8
+                 Source: "percent = 100"
+                Assignment using operator =
+                   Type: uint16
+                   Source: "percent = 100"
+                  Identifier percent
+                     Type: uint16
+                     Source: "percent"
+                  Literal, token: [no token] value: 100
+                     Type: int_const 100
+                     Source: "100"
+            IfStatement
+               Source: "if(ref_amount_invest >= 2 ether && ref_amount_invest < 3 ether){\r\n                percent = 200;\r\n            }\r\n            else if(ref_amount_invest >= 3 ether && ref_amount_invest < 4 ether){\r\n                percent = 300;\r\n            }\r\n            else if(ref_amount_invest >= 4 ether && ref_amount_invest < 5 ether){\r\n                percent = 400;\r\n            }\r\n            else if(ref_amount_invest >= 5 ether){\r\n                percent = 500;\r\n            }"
+              BinaryOperation using operator &&
+                 Type: bool
+                 Gas costs: 43
+                 Source: "ref_amount_invest >= 2 ether && ref_amount_invest < 3 ether"
+                BinaryOperation using operator >=
+                   Type: bool
+                   Source: "ref_amount_invest >= 2 ether"
+                  Identifier ref_amount_invest
+                     Type: uint256
+                     Source: "ref_amount_invest"
+                  Literal, token: [no token] value: 2
+                     Type: int_const 2000000000000000000
+                     Source: "2 ether"
+                BinaryOperation using operator <
+                   Type: bool
+                   Source: "ref_amount_invest < 3 ether"
+                  Identifier ref_amount_invest
+                     Type: uint256
+                     Source: "ref_amount_invest"
+                  Literal, token: [no token] value: 3
+                     Type: int_const 3000000000000000000
+                     Source: "3 ether"
+              Block
+                 Source: "{\r\n                percent = 200;\r\n            }"
+                ExpressionStatement
+                   Gas costs: 8
+                   Source: "percent = 200"
+                  Assignment using operator =
+                     Type: uint16
+                     Source: "percent = 200"
+                    Identifier percent
+                       Type: uint16
+                       Source: "percent"
+                    Literal, token: [no token] value: 200
+                       Type: int_const 200
+                       Source: "200"
+              IfStatement
+                 Source: "if(ref_amount_invest >= 3 ether && ref_amount_invest < 4 ether){\r\n                percent = 300;\r\n            }\r\n            else if(ref_amount_invest >= 4 ether && ref_amount_invest < 5 ether){\r\n                percent = 400;\r\n            }\r\n            else if(ref_amount_invest >= 5 ether){\r\n                percent = 500;\r\n            }"
+                BinaryOperation using operator &&
+                   Type: bool
+                   Gas costs: 43
+                   Source: "ref_amount_invest >= 3 ether && ref_amount_invest < 4 ether"
+                  BinaryOperation using operator >=
+                     Type: bool
+                     Source: "ref_amount_invest >= 3 ether"
+                    Identifier ref_amount_invest
+                       Type: uint256
+                       Source: "ref_amount_invest"
+                    Literal, token: [no token] value: 3
+                       Type: int_const 3000000000000000000
+                       Source: "3 ether"
+                  BinaryOperation using operator <
+                     Type: bool
+                     Source: "ref_amount_invest < 4 ether"
+                    Identifier ref_amount_invest
+                       Type: uint256
+                       Source: "ref_amount_invest"
+                    Literal, token: [no token] value: 4
+                       Type: int_const 4000000000000000000
+                       Source: "4 ether"
+                Block
+                   Source: "{\r\n                percent = 300;\r\n            }"
+                  ExpressionStatement
+                     Gas costs: 8
+                     Source: "percent = 300"
+                    Assignment using operator =
+                       Type: uint16
+                       Source: "percent = 300"
+                      Identifier percent
+                         Type: uint16
+                         Source: "percent"
+                      Literal, token: [no token] value: 300
+                         Type: int_const 300
+                         Source: "300"
+                IfStatement
+                   Source: "if(ref_amount_invest >= 4 ether && ref_amount_invest < 5 ether){\r\n                percent = 400;\r\n            }\r\n            else if(ref_amount_invest >= 5 ether){\r\n                percent = 500;\r\n            }"
+                  BinaryOperation using operator &&
+                     Type: bool
+                     Gas costs: 43
+                     Source: "ref_amount_invest >= 4 ether && ref_amount_invest < 5 ether"
+                    BinaryOperation using operator >=
+                       Type: bool
+                       Source: "ref_amount_invest >= 4 ether"
+                      Identifier ref_amount_invest
+                         Type: uint256
+                         Source: "ref_amount_invest"
+                      Literal, token: [no token] value: 4
+                         Type: int_const 4000000000000000000
+                         Source: "4 ether"
+                    BinaryOperation using operator <
+                       Type: bool
+                       Source: "ref_amount_invest < 5 ether"
+                      Identifier ref_amount_invest
+                         Type: uint256
+                         Source: "ref_amount_invest"
+                      Literal, token: [no token] value: 5
+                         Type: int_const 5000000000000000000
+                         Source: "5 ether"
+                  Block
+                     Source: "{\r\n                percent = 400;\r\n            }"
+                    ExpressionStatement
+                       Gas costs: 8
+                       Source: "percent = 400"
+                      Assignment using operator =
+                         Type: uint16
+                         Source: "percent = 400"
+                        Identifier percent
+                           Type: uint16
+                           Source: "percent"
+                        Literal, token: [no token] value: 400
+                           Type: int_const 400
+                           Source: "400"
+                  IfStatement
+                     Source: "if(ref_amount_invest >= 5 ether){\r\n                percent = 500;\r\n            }"
+                    BinaryOperation using operator >=
+                       Type: bool
+                       Gas costs: 12
+                       Source: "ref_amount_invest >= 5 ether"
+                      Identifier ref_amount_invest
+                         Type: uint256
+                         Source: "ref_amount_invest"
+                      Literal, token: [no token] value: 5
+                         Type: int_const 5000000000000000000
+                         Source: "5 ether"
+                    Block
+                       Source: "{\r\n                percent = 500;\r\n            }"
+                      ExpressionStatement
+                         Gas costs: 8
+                         Source: "percent = 500"
+                        Assignment using operator =
+                           Type: uint16
+                           Source: "percent = 500"
+                          Identifier percent
+                             Type: uint16
+                             Source: "percent"
+                          Literal, token: [no token] value: 500
+                             Type: int_const 500
+                             Source: "500"
+  FunctionDefinition "partnerInfo" - const
+     Source: "function partnerInfo(address partner_address) constant internal returns(string promo, uint256 balance, uint256[] h_datetime, uint256[] h_invest, address[] h_referrals){\r\n        if(partner_address != address(0x0) && partnersInfo[partner_address].create){\r\n            promo = partnersInfo[partner_address].promo;\r\n            balance = partnersInfo[partner_address].balance;\r\n\r\n            h_datetime = new uint256[](history[partner_address].length);\r\n            h_invest = new uint256[](history[partner_address].length);\r\n            h_referrals = new address[](history[partner_address].length);\r\n\r\n            for(var i=0; i<history[partner_address].length; i++){\r\n                h_datetime[i] = history[partner_address][i].datetime;\r\n                h_invest[i] = history[partner_address][i].amount_invest;\r\n                h_referrals[i] = history[partner_address][i].referral;\r\n            }\r\n        }\r\n        else{\r\n            promo = '-1';\r\n            balance = 0;\r\n            h_datetime = new uint256[](0);\r\n            h_invest = new uint256[](0);\r\n            h_referrals = new address[](0);\r\n        }\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address partner_address)"
+      VariableDeclaration "partner_address"
+         Type: address
+         Source: "address partner_address"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 15
+       Source: "(string promo, uint256 balance, uint256[] h_datetime, uint256[] h_invest, address[] h_referrals)"
+      VariableDeclaration "promo"
+         Type: string memory
+         Source: "string promo"
+        ElementaryTypeName string
+           Source: "string"
+      VariableDeclaration "balance"
+         Type: uint256
+         Source: "uint256 balance"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "h_datetime"
+         Type: uint256[] memory
+         Source: "uint256[] h_datetime"
+        ArrayTypeName
+           Source: "uint256[]"
+          ElementaryTypeName uint256
+             Source: "uint256"
+      VariableDeclaration "h_invest"
+         Type: uint256[] memory
+         Source: "uint256[] h_invest"
+        ArrayTypeName
+           Source: "uint256[]"
+          ElementaryTypeName uint256
+             Source: "uint256"
+      VariableDeclaration "h_referrals"
+         Type: address[] memory
+         Source: "address[] h_referrals"
+        ArrayTypeName
+           Source: "address[]"
+          ElementaryTypeName address
+             Source: "address"
+    Block
+       Source: "{\r\n        if(partner_address != address(0x0) && partnersInfo[partner_address].create){\r\n            promo = partnersInfo[partner_address].promo;\r\n            balance = partnersInfo[partner_address].balance;\r\n\r\n            h_datetime = new uint256[](history[partner_address].length);\r\n            h_invest = new uint256[](history[partner_address].length);\r\n            h_referrals = new address[](history[partner_address].length);\r\n\r\n            for(var i=0; i<history[partner_address].length; i++){\r\n                h_datetime[i] = history[partner_address][i].datetime;\r\n                h_invest[i] = history[partner_address][i].amount_invest;\r\n                h_referrals[i] = history[partner_address][i].referral;\r\n            }\r\n        }\r\n        else{\r\n            promo = '-1';\r\n            balance = 0;\r\n            h_datetime = new uint256[](0);\r\n            h_invest = new uint256[](0);\r\n            h_referrals = new address[](0);\r\n        }\r\n    }"
+      IfStatement
+         Source: "if(partner_address != address(0x0) && partnersInfo[partner_address].create){\r\n            promo = partnersInfo[partner_address].promo;\r\n            balance = partnersInfo[partner_address].balance;\r\n\r\n            h_datetime = new uint256[](history[partner_address].length);\r\n            h_invest = new uint256[](history[partner_address].length);\r\n            h_referrals = new address[](history[partner_address].length);\r\n\r\n            for(var i=0; i<history[partner_address].length; i++){\r\n                h_datetime[i] = history[partner_address][i].datetime;\r\n                h_invest[i] = history[partner_address][i].amount_invest;\r\n                h_referrals[i] = history[partner_address][i].referral;\r\n            }\r\n        }\r\n        else{\r\n            promo = '-1';\r\n            balance = 0;\r\n            h_datetime = new uint256[](0);\r\n            h_invest = new uint256[](0);\r\n            h_referrals = new address[](0);\r\n        }"
+        BinaryOperation using operator &&
+           Type: bool
+           Gas costs: 387
+           Source: "partner_address != address(0x0) && partnersInfo[partner_address].create"
+          BinaryOperation using operator !=
+             Type: bool
+             Source: "partner_address != address(0x0)"
+            Identifier partner_address
+               Type: address
+               Source: "partner_address"
+            FunctionCall
+               Type: address
+               Source: "address(0x0)"
+              ElementaryTypeNameExpression address
+                 Type: type(address)
+                 Source: "address"
+              Literal, token: [no token] value: 0x0
+                 Type: int_const 0
+                 Source: "0x0"
+          MemberAccess to member create
+             Type: bool
+             Source: "partnersInfo[partner_address].create"
+            IndexAccess
+               Type: struct BMICOAffiliateProgramm.itemPartners storage ref
+               Source: "partnersInfo[partner_address]"
+              Identifier partnersInfo
+                 Type: mapping(address => struct BMICOAffiliateProgramm.itemPartners storage ref)
+                 Source: "partnersInfo"
+              Identifier partner_address
+                 Type: address
+                 Source: "partner_address"
+        Block
+           Source: "{\r\n            promo = partnersInfo[partner_address].promo;\r\n            balance = partnersInfo[partner_address].balance;\r\n\r\n            h_datetime = new uint256[](history[partner_address].length);\r\n            h_invest = new uint256[](history[partner_address].length);\r\n            h_referrals = new address[](history[partner_address].length);\r\n\r\n            for(var i=0; i<history[partner_address].length; i++){\r\n                h_datetime[i] = history[partner_address][i].datetime;\r\n                h_invest[i] = history[partner_address][i].amount_invest;\r\n                h_referrals[i] = history[partner_address][i].referral;\r\n            }\r\n        }"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "promo = partnersInfo[partner_address].promo"
+            Assignment using operator =
+               Type: string memory
+               Source: "promo = partnersInfo[partner_address].promo"
+              Identifier promo
+                 Type: string memory
+                 Source: "promo"
+              MemberAccess to member promo
+                 Type: string storage ref
+                 Source: "partnersInfo[partner_address].promo"
+                IndexAccess
+                   Type: struct BMICOAffiliateProgramm.itemPartners storage ref
+                   Source: "partnersInfo[partner_address]"
+                  Identifier partnersInfo
+                     Type: mapping(address => struct BMICOAffiliateProgramm.itemPartners storage ref)
+                     Source: "partnersInfo"
+                  Identifier partner_address
+                     Type: address
+                     Source: "partner_address"
+          ExpressionStatement
+             Gas costs: 310
+             Source: "balance = partnersInfo[partner_address].balance"
+            Assignment using operator =
+               Type: uint256
+               Source: "balance = partnersInfo[partner_address].balance"
+              Identifier balance
+                 Type: uint256
+                 Source: "balance"
+              MemberAccess to member balance
+                 Type: uint256
+                 Source: "partnersInfo[partner_address].balance"
+                IndexAccess
+                   Type: struct BMICOAffiliateProgramm.itemPartners storage ref
+                   Source: "partnersInfo[partner_address]"
+                  Identifier partnersInfo
+                     Type: mapping(address => struct BMICOAffiliateProgramm.itemPartners storage ref)
+                     Source: "partnersInfo"
+                  Identifier partner_address
+                     Type: address
+                     Source: "partner_address"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "h_datetime = new uint256[](history[partner_address].length)"
+            Assignment using operator =
+               Type: uint256[] memory
+               Source: "h_datetime = new uint256[](history[partner_address].length)"
+              Identifier h_datetime
+                 Type: uint256[] memory
+                 Source: "h_datetime"
+              FunctionCall
+                 Type: uint256[] memory
+                 Source: "new uint256[](history[partner_address].length)"
+                NewExpression
+                   Type: function (uint256) pure returns (uint256[] memory)
+                   Source: "new uint256[]"
+                  ArrayTypeName
+                     Source: "uint256[]"
+                    ElementaryTypeName uint256
+                       Source: "uint256"
+                MemberAccess to member length
+                   Type: uint256
+                   Source: "history[partner_address].length"
+                  IndexAccess
+                     Type: struct BMICOAffiliateProgramm.itemHistory storage ref[] storage ref
+                     Source: "history[partner_address]"
+                    Identifier history
+                       Type: mapping(address => struct BMICOAffiliateProgramm.itemHistory storage ref[] storage ref)
+                       Source: "history"
+                    Identifier partner_address
+                       Type: address
+                       Source: "partner_address"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "h_invest = new uint256[](history[partner_address].length)"
+            Assignment using operator =
+               Type: uint256[] memory
+               Source: "h_invest = new uint256[](history[partner_address].length)"
+              Identifier h_invest
+                 Type: uint256[] memory
+                 Source: "h_invest"
+              FunctionCall
+                 Type: uint256[] memory
+                 Source: "new uint256[](history[partner_address].length)"
+                NewExpression
+                   Type: function (uint256) pure returns (uint256[] memory)
+                   Source: "new uint256[]"
+                  ArrayTypeName
+                     Source: "uint256[]"
+                    ElementaryTypeName uint256
+                       Source: "uint256"
+                MemberAccess to member length
+                   Type: uint256
+                   Source: "history[partner_address].length"
+                  IndexAccess
+                     Type: struct BMICOAffiliateProgramm.itemHistory storage ref[] storage ref
+                     Source: "history[partner_address]"
+                    Identifier history
+                       Type: mapping(address => struct BMICOAffiliateProgramm.itemHistory storage ref[] storage ref)
+                       Source: "history"
+                    Identifier partner_address
+                       Type: address
+                       Source: "partner_address"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "h_referrals = new address[](history[partner_address].length)"
+            Assignment using operator =
+               Type: address[] memory
+               Source: "h_referrals = new address[](history[partner_address].length)"
+              Identifier h_referrals
+                 Type: address[] memory
+                 Source: "h_referrals"
+              FunctionCall
+                 Type: address[] memory
+                 Source: "new address[](history[partner_address].length)"
+                NewExpression
+                   Type: function (uint256) pure returns (address[] memory)
+                   Source: "new address[]"
+                  ArrayTypeName
+                     Source: "address[]"
+                    ElementaryTypeName address
+                       Source: "address"
+                MemberAccess to member length
+                   Type: uint256
+                   Source: "history[partner_address].length"
+                  IndexAccess
+                     Type: struct BMICOAffiliateProgramm.itemHistory storage ref[] storage ref
+                     Source: "history[partner_address]"
+                    Identifier history
+                       Type: mapping(address => struct BMICOAffiliateProgramm.itemHistory storage ref[] storage ref)
+                       Source: "history"
+                    Identifier partner_address
+                       Type: address
+                       Source: "partner_address"
+          ForStatement
+             Source: "for(var i=0; i<history[partner_address].length; i++){\r\n                h_datetime[i] = history[partner_address][i].datetime;\r\n                h_invest[i] = history[partner_address][i].amount_invest;\r\n                h_referrals[i] = history[partner_address][i].referral;\r\n            }"
+            VariableDeclarationStatement
+               Gas costs: 11
+               Source: "var i=0"
+              VariableDeclaration "i"
+                 Type: uint8
+                 Source: "var i"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+            BinaryOperation using operator <
+               Type: bool
+               Gas costs: 319
+               Source: "i<history[partner_address].length"
+              Identifier i
+                 Type: uint8
+                 Source: "i"
+              MemberAccess to member length
+                 Type: uint256
+                 Source: "history[partner_address].length"
+                IndexAccess
+                   Type: struct BMICOAffiliateProgramm.itemHistory storage ref[] storage ref
+                   Source: "history[partner_address]"
+                  Identifier history
+                     Type: mapping(address => struct BMICOAffiliateProgramm.itemHistory storage ref[] storage ref)
+                     Source: "history"
+                  Identifier partner_address
+                     Type: address
+                     Source: "partner_address"
+            ExpressionStatement
+               Gas costs: 19
+               Source: "i++"
+              UnaryOperation (postfix) ++
+                 Type: uint8
+                 Source: "i++"
+                Identifier i
+                   Type: uint8
+                   Source: "i"
+            Block
+               Source: "{\r\n                h_datetime[i] = history[partner_address][i].datetime;\r\n                h_invest[i] = history[partner_address][i].amount_invest;\r\n                h_referrals[i] = history[partner_address][i].referral;\r\n            }"
+              ExpressionStatement
+                 Gas costs: [???]
+                 Source: "h_datetime[i] = history[partner_address][i].datetime"
+                Assignment using operator =
+                   Type: uint256
+                   Source: "h_datetime[i] = history[partner_address][i].datetime"
+                  IndexAccess
+                     Type: uint256
+                     Source: "h_datetime[i]"
+                    Identifier h_datetime
+                       Type: uint256[] memory
+                       Source: "h_datetime"
+                    Identifier i
+                       Type: uint8
+                       Source: "i"
+                  MemberAccess to member datetime
+                     Type: uint256
+                     Source: "history[partner_address][i].datetime"
+                    IndexAccess
+                       Type: struct BMICOAffiliateProgramm.itemHistory storage ref
+                       Source: "history[partner_address][i]"
+                      IndexAccess
+                         Type: struct BMICOAffiliateProgramm.itemHistory storage ref[] storage ref
+                         Source: "history[partner_address]"
+                        Identifier history
+                           Type: mapping(address => struct BMICOAffiliateProgramm.itemHistory storage ref[] storage ref)
+                           Source: "history"
+                        Identifier partner_address
+                           Type: address
+                           Source: "partner_address"
+                      Identifier i
+                         Type: uint8
+                         Source: "i"
+              ExpressionStatement
+                 Gas costs: [???]
+                 Source: "h_invest[i] = history[partner_address][i].amount_invest"
+                Assignment using operator =
+                   Type: uint256
+                   Source: "h_invest[i] = history[partner_address][i].amount_invest"
+                  IndexAccess
+                     Type: uint256
+                     Source: "h_invest[i]"
+                    Identifier h_invest
+                       Type: uint256[] memory
+                       Source: "h_invest"
+                    Identifier i
+                       Type: uint8
+                       Source: "i"
+                  MemberAccess to member amount_invest
+                     Type: uint256
+                     Source: "history[partner_address][i].amount_invest"
+                    IndexAccess
+                       Type: struct BMICOAffiliateProgramm.itemHistory storage ref
+                       Source: "history[partner_address][i]"
+                      IndexAccess
+                         Type: struct BMICOAffiliateProgramm.itemHistory storage ref[] storage ref
+                         Source: "history[partner_address]"
+                        Identifier history
+                           Type: mapping(address => struct BMICOAffiliateProgramm.itemHistory storage ref[] storage ref)
+                           Source: "history"
+                        Identifier partner_address
+                           Type: address
+                           Source: "partner_address"
+                      Identifier i
+                         Type: uint8
+                         Source: "i"
+              ExpressionStatement
+                 Gas costs: [???]
+                 Source: "h_referrals[i] = history[partner_address][i].referral"
+                Assignment using operator =
+                   Type: address
+                   Source: "h_referrals[i] = history[partner_address][i].referral"
+                  IndexAccess
+                     Type: address
+                     Source: "h_referrals[i]"
+                    Identifier h_referrals
+                       Type: address[] memory
+                       Source: "h_referrals"
+                    Identifier i
+                       Type: uint8
+                       Source: "i"
+                  MemberAccess to member referral
+                     Type: address
+                     Source: "history[partner_address][i].referral"
+                    IndexAccess
+                       Type: struct BMICOAffiliateProgramm.itemHistory storage ref
+                       Source: "history[partner_address][i]"
+                      IndexAccess
+                         Type: struct BMICOAffiliateProgramm.itemHistory storage ref[] storage ref
+                         Source: "history[partner_address]"
+                        Identifier history
+                           Type: mapping(address => struct BMICOAffiliateProgramm.itemHistory storage ref[] storage ref)
+                           Source: "history"
+                        Identifier partner_address
+                           Type: address
+                           Source: "partner_address"
+                      Identifier i
+                         Type: uint8
+                         Source: "i"
+        Block
+           Source: "{\r\n            promo = '-1';\r\n            balance = 0;\r\n            h_datetime = new uint256[](0);\r\n            h_invest = new uint256[](0);\r\n            h_referrals = new address[](0);\r\n        }"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "promo = '-1'"
+            Assignment using operator =
+               Type: string memory
+               Source: "promo = '-1'"
+              Identifier promo
+                 Type: string memory
+                 Source: "promo"
+              Literal, token: [no token] value: -1
+                 Type: literal_string "-1"
+                 Source: "'-1'"
+          ExpressionStatement
+             Gas costs: 8
+             Source: "balance = 0"
+            Assignment using operator =
+               Type: uint256
+               Source: "balance = 0"
+              Identifier balance
+                 Type: uint256
+                 Source: "balance"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "h_datetime = new uint256[](0)"
+            Assignment using operator =
+               Type: uint256[] memory
+               Source: "h_datetime = new uint256[](0)"
+              Identifier h_datetime
+                 Type: uint256[] memory
+                 Source: "h_datetime"
+              FunctionCall
+                 Type: uint256[] memory
+                 Source: "new uint256[](0)"
+                NewExpression
+                   Type: function (uint256) pure returns (uint256[] memory)
+                   Source: "new uint256[]"
+                  ArrayTypeName
+                     Source: "uint256[]"
+                    ElementaryTypeName uint256
+                       Source: "uint256"
+                Literal, token: [no token] value: 0
+                   Type: int_const 0
+                   Source: "0"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "h_invest = new uint256[](0)"
+            Assignment using operator =
+               Type: uint256[] memory
+               Source: "h_invest = new uint256[](0)"
+              Identifier h_invest
+                 Type: uint256[] memory
+                 Source: "h_invest"
+              FunctionCall
+                 Type: uint256[] memory
+                 Source: "new uint256[](0)"
+                NewExpression
+                   Type: function (uint256) pure returns (uint256[] memory)
+                   Source: "new uint256[]"
+                  ArrayTypeName
+                     Source: "uint256[]"
+                    ElementaryTypeName uint256
+                       Source: "uint256"
+                Literal, token: [no token] value: 0
+                   Type: int_const 0
+                   Source: "0"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "h_referrals = new address[](0)"
+            Assignment using operator =
+               Type: address[] memory
+               Source: "h_referrals = new address[](0)"
+              Identifier h_referrals
+                 Type: address[] memory
+                 Source: "h_referrals"
+              FunctionCall
+                 Type: address[] memory
+                 Source: "new address[](0)"
+                NewExpression
+                   Type: function (uint256) pure returns (address[] memory)
+                   Source: "new address[]"
+                  ArrayTypeName
+                     Source: "address[]"
+                    ElementaryTypeName address
+                       Source: "address"
+                Literal, token: [no token] value: 0
+                   Type: int_const 0
+                   Source: "0"
+  FunctionDefinition "partnerInfo_for_Partner" - public - const
+     Source: "function partnerInfo_for_Partner(bytes32 hash, uint8 v, bytes32 r, bytes32 s) constant returns(string, uint256, uint256[], uint256[], address[]){\r\n        address partner_address = ecrecover(hash, v, r, s);\r\n        return partnerInfo(partner_address);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(bytes32 hash, uint8 v, bytes32 r, bytes32 s)"
+      VariableDeclaration "hash"
+         Type: bytes32
+         Source: "bytes32 hash"
+        ElementaryTypeName bytes32
+           Source: "bytes32"
+      VariableDeclaration "v"
+         Type: uint8
+         Source: "uint8 v"
+        ElementaryTypeName uint8
+           Source: "uint8"
+      VariableDeclaration "r"
+         Type: bytes32
+         Source: "bytes32 r"
+        ElementaryTypeName bytes32
+           Source: "bytes32"
+      VariableDeclaration "s"
+         Type: bytes32
+         Source: "bytes32 s"
+        ElementaryTypeName bytes32
+           Source: "bytes32"
+    ParameterList
+       Gas costs: 15
+       Source: "(string, uint256, uint256[], uint256[], address[])"
+      VariableDeclaration ""
+         Type: string memory
+         Source: "string"
+        ElementaryTypeName string
+           Source: "string"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint256"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration ""
+         Type: uint256[] memory
+         Source: "uint256[]"
+        ArrayTypeName
+           Source: "uint256[]"
+          ElementaryTypeName uint256
+             Source: "uint256"
+      VariableDeclaration ""
+         Type: uint256[] memory
+         Source: "uint256[]"
+        ArrayTypeName
+           Source: "uint256[]"
+          ElementaryTypeName uint256
+             Source: "uint256"
+      VariableDeclaration ""
+         Type: address[] memory
+         Source: "address[]"
+        ArrayTypeName
+           Source: "address[]"
+          ElementaryTypeName address
+             Source: "address"
+    Block
+       Source: "{\r\n        address partner_address = ecrecover(hash, v, r, s);\r\n        return partnerInfo(partner_address);\r\n    }"
+      VariableDeclarationStatement
+         Gas costs: [???]
+         Source: "address partner_address = ecrecover(hash, v, r, s)"
+        VariableDeclaration "partner_address"
+           Type: address
+           Source: "address partner_address"
+          ElementaryTypeName address
+             Source: "address"
+        FunctionCall
+           Type: address
+           Source: "ecrecover(hash, v, r, s)"
+          Identifier ecrecover
+             Type: function (bytes32,uint8,bytes32,bytes32) pure returns (address)
+             Source: "ecrecover"
+          Identifier hash
+             Type: bytes32
+             Source: "hash"
+          Identifier v
+             Type: uint8
+             Source: "v"
+          Identifier r
+             Type: bytes32
+             Source: "r"
+          Identifier s
+             Type: bytes32
+             Source: "s"
+      Return
+         Gas costs: 32
+         Source: "return partnerInfo(partner_address)"
+        FunctionCall
+           Type: tuple(string memory,uint256,uint256[] memory,uint256[] memory,address[] memory)
+           Source: "partnerInfo(partner_address)"
+          Identifier partnerInfo
+             Type: function (address) view returns (string memory,uint256,uint256[] memory,uint256[] memory,address[] memory)
+             Source: "partnerInfo"
+          Identifier partner_address
+             Type: address
+             Source: "partner_address"
+  FunctionDefinition "partnerInfo_for_Owner" - public - const
+     Source: "function partnerInfo_for_Owner (address partner, bytes32 hash, uint8 v, bytes32 r, bytes32 s) constant returns(string, uint256, uint256[], uint256[], address[]){\r\n        if(owner == ecrecover(hash, v, r, s)){\r\n            return partnerInfo(partner);\r\n        }\r\n        else {\r\n            return ('-1', 0, new uint256[](0), new uint256[](0), new address[](0));\r\n        }\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address partner, bytes32 hash, uint8 v, bytes32 r, bytes32 s)"
+      VariableDeclaration "partner"
+         Type: address
+         Source: "address partner"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "hash"
+         Type: bytes32
+         Source: "bytes32 hash"
+        ElementaryTypeName bytes32
+           Source: "bytes32"
+      VariableDeclaration "v"
+         Type: uint8
+         Source: "uint8 v"
+        ElementaryTypeName uint8
+           Source: "uint8"
+      VariableDeclaration "r"
+         Type: bytes32
+         Source: "bytes32 r"
+        ElementaryTypeName bytes32
+           Source: "bytes32"
+      VariableDeclaration "s"
+         Type: bytes32
+         Source: "bytes32 s"
+        ElementaryTypeName bytes32
+           Source: "bytes32"
+    ParameterList
+       Gas costs: 15
+       Source: "(string, uint256, uint256[], uint256[], address[])"
+      VariableDeclaration ""
+         Type: string memory
+         Source: "string"
+        ElementaryTypeName string
+           Source: "string"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint256"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration ""
+         Type: uint256[] memory
+         Source: "uint256[]"
+        ArrayTypeName
+           Source: "uint256[]"
+          ElementaryTypeName uint256
+             Source: "uint256"
+      VariableDeclaration ""
+         Type: uint256[] memory
+         Source: "uint256[]"
+        ArrayTypeName
+           Source: "uint256[]"
+          ElementaryTypeName uint256
+             Source: "uint256"
+      VariableDeclaration ""
+         Type: address[] memory
+         Source: "address[]"
+        ArrayTypeName
+           Source: "address[]"
+          ElementaryTypeName address
+             Source: "address"
+    Block
+       Source: "{\r\n        if(owner == ecrecover(hash, v, r, s)){\r\n            return partnerInfo(partner);\r\n        }\r\n        else {\r\n            return ('-1', 0, new uint256[](0), new uint256[](0), new address[](0));\r\n        }\r\n    }"
+      IfStatement
+         Source: "if(owner == ecrecover(hash, v, r, s)){\r\n            return partnerInfo(partner);\r\n        }\r\n        else {\r\n            return ('-1', 0, new uint256[](0), new uint256[](0), new address[](0));\r\n        }"
+        BinaryOperation using operator ==
+           Type: bool
+           Gas costs: [???]
+           Source: "owner == ecrecover(hash, v, r, s)"
+          Identifier owner
+             Type: address
+             Source: "owner"
+          FunctionCall
+             Type: address
+             Source: "ecrecover(hash, v, r, s)"
+            Identifier ecrecover
+               Type: function (bytes32,uint8,bytes32,bytes32) pure returns (address)
+               Source: "ecrecover"
+            Identifier hash
+               Type: bytes32
+               Source: "hash"
+            Identifier v
+               Type: uint8
+               Source: "v"
+            Identifier r
+               Type: bytes32
+               Source: "r"
+            Identifier s
+               Type: bytes32
+               Source: "s"
+        Block
+           Source: "{\r\n            return partnerInfo(partner);\r\n        }"
+          Return
+             Gas costs: 54
+             Source: "return partnerInfo(partner)"
+            FunctionCall
+               Type: tuple(string memory,uint256,uint256[] memory,uint256[] memory,address[] memory)
+               Source: "partnerInfo(partner)"
+              Identifier partnerInfo
+                 Type: function (address) view returns (string memory,uint256,uint256[] memory,uint256[] memory,address[] memory)
+                 Source: "partnerInfo"
+              Identifier partner
+                 Type: address
+                 Source: "partner"
+        Block
+           Source: "{\r\n            return ('-1', 0, new uint256[](0), new uint256[](0), new address[](0));\r\n        }"
+          Return
+             Gas costs: [???]
+             Source: "return ('-1', 0, new uint256[](0), new uint256[](0), new address[](0))"
+            TupleExpression
+               Type: tuple(literal_string "-1",int_const 0,uint256[] memory,uint256[] memory,address[] memory)
+               Source: "('-1', 0, new uint256[](0), new uint256[](0), new address[](0))"
+              Literal, token: [no token] value: -1
+                 Type: literal_string "-1"
+                 Source: "'-1'"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+              FunctionCall
+                 Type: uint256[] memory
+                 Source: "new uint256[](0)"
+                NewExpression
+                   Type: function (uint256) pure returns (uint256[] memory)
+                   Source: "new uint256[]"
+                  ArrayTypeName
+                     Source: "uint256[]"
+                    ElementaryTypeName uint256
+                       Source: "uint256"
+                Literal, token: [no token] value: 0
+                   Type: int_const 0
+                   Source: "0"
+              FunctionCall
+                 Type: uint256[] memory
+                 Source: "new uint256[](0)"
+                NewExpression
+                   Type: function (uint256) pure returns (uint256[] memory)
+                   Source: "new uint256[]"
+                  ArrayTypeName
+                     Source: "uint256[]"
+                    ElementaryTypeName uint256
+                       Source: "uint256"
+                Literal, token: [no token] value: 0
+                   Type: int_const 0
+                   Source: "0"
+              FunctionCall
+                 Type: address[] memory
+                 Source: "new address[](0)"
+                NewExpression
+                   Type: function (uint256) pure returns (address[] memory)
+                   Source: "new address[]"
+                  ArrayTypeName
+                     Source: "address[]"
+                    ElementaryTypeName address
+                       Source: "address"
+                Literal, token: [no token] value: 0
+                   Type: int_const 0
+                   Source: "0"
+  FunctionDefinition "add_referral" - public
+     Source: "function add_referral(address referral, string promo, uint256 amount) external returns(address partner, uint256 p_partner, uint256 p_referral){\r\n        p_partner = 0;\r\n        p_referral = 0;\r\n        partner = address(0x0);\r\n        if (msg.sender == contractPreICO || msg.sender == contractICO){\r\n            if(partnersPromo[promo] != address(0x0) && partnersPromo[promo] != referral){\r\n                partner = partnersPromo[promo];\r\n                referrals[referral] += amount;\r\n                amount_referral_invest += amount;\r\n                partnersInfo[partner].balance += amount;\r\n                history[partner].push(itemHistory(now, referral, amount));\r\n                p_partner = (amount*uint256(calc_partnerPercent(amount)))/10000;\r\n                p_referral = (amount*ref_percent)/10000;\r\n            }\r\n        }\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address referral, string promo, uint256 amount)"
+      VariableDeclaration "referral"
+         Type: address
+         Source: "address referral"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "promo"
+         Type: string calldata
+         Source: "string promo"
+        ElementaryTypeName string
+           Source: "string"
+      VariableDeclaration "amount"
+         Type: uint256
+         Source: "uint256 amount"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 9
+       Source: "(address partner, uint256 p_partner, uint256 p_referral)"
+      VariableDeclaration "partner"
+         Type: address
+         Source: "address partner"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "p_partner"
+         Type: uint256
+         Source: "uint256 p_partner"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "p_referral"
+         Type: uint256
+         Source: "uint256 p_referral"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{\r\n        p_partner = 0;\r\n        p_referral = 0;\r\n        partner = address(0x0);\r\n        if (msg.sender == contractPreICO || msg.sender == contractICO){\r\n            if(partnersPromo[promo] != address(0x0) && partnersPromo[promo] != referral){\r\n                partner = partnersPromo[promo];\r\n                referrals[referral] += amount;\r\n                amount_referral_invest += amount;\r\n                partnersInfo[partner].balance += amount;\r\n                history[partner].push(itemHistory(now, referral, amount));\r\n                p_partner = (amount*uint256(calc_partnerPercent(amount)))/10000;\r\n                p_referral = (amount*ref_percent)/10000;\r\n            }\r\n        }\r\n    }"
+      ExpressionStatement
+         Gas costs: 8
+         Source: "p_partner = 0"
+        Assignment using operator =
+           Type: uint256
+           Source: "p_partner = 0"
+          Identifier p_partner
+             Type: uint256
+             Source: "p_partner"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+      ExpressionStatement
+         Gas costs: 8
+         Source: "p_referral = 0"
+        Assignment using operator =
+           Type: uint256
+           Source: "p_referral = 0"
+          Identifier p_referral
+             Type: uint256
+             Source: "p_referral"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+      ExpressionStatement
+         Gas costs: 8
+         Source: "partner = address(0x0)"
+        Assignment using operator =
+           Type: address
+           Source: "partner = address(0x0)"
+          Identifier partner
+             Type: address
+             Source: "partner"
+          FunctionCall
+             Type: address
+             Source: "address(0x0)"
+            ElementaryTypeNameExpression address
+               Type: type(address)
+               Source: "address"
+            Literal, token: [no token] value: 0x0
+               Type: int_const 0
+               Source: "0x0"
+      IfStatement
+         Source: "if (msg.sender == contractPreICO || msg.sender == contractICO){\r\n            if(partnersPromo[promo] != address(0x0) && partnersPromo[promo] != referral){\r\n                partner = partnersPromo[promo];\r\n                referrals[referral] += amount;\r\n                amount_referral_invest += amount;\r\n                partnersInfo[partner].balance += amount;\r\n                history[partner].push(itemHistory(now, referral, amount));\r\n                p_partner = (amount*uint256(calc_partnerPercent(amount)))/10000;\r\n                p_referral = (amount*ref_percent)/10000;\r\n            }\r\n        }"
+        BinaryOperation using operator ||
+           Type: bool
+           Gas costs: 531
+           Source: "msg.sender == contractPreICO || msg.sender == contractICO"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "msg.sender == contractPreICO"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Identifier contractPreICO
+               Type: address
+               Source: "contractPreICO"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "msg.sender == contractICO"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Identifier contractICO
+               Type: address
+               Source: "contractICO"
+        Block
+           Source: "{\r\n            if(partnersPromo[promo] != address(0x0) && partnersPromo[promo] != referral){\r\n                partner = partnersPromo[promo];\r\n                referrals[referral] += amount;\r\n                amount_referral_invest += amount;\r\n                partnersInfo[partner].balance += amount;\r\n                history[partner].push(itemHistory(now, referral, amount));\r\n                p_partner = (amount*uint256(calc_partnerPercent(amount)))/10000;\r\n                p_referral = (amount*ref_percent)/10000;\r\n            }\r\n        }"
+          IfStatement
+             Source: "if(partnersPromo[promo] != address(0x0) && partnersPromo[promo] != referral){\r\n                partner = partnersPromo[promo];\r\n                referrals[referral] += amount;\r\n                amount_referral_invest += amount;\r\n                partnersInfo[partner].balance += amount;\r\n                history[partner].push(itemHistory(now, referral, amount));\r\n                p_partner = (amount*uint256(calc_partnerPercent(amount)))/10000;\r\n                p_referral = (amount*ref_percent)/10000;\r\n            }"
+            BinaryOperation using operator &&
+               Type: bool
+               Gas costs: [???]
+               Source: "partnersPromo[promo] != address(0x0) && partnersPromo[promo] != referral"
+              BinaryOperation using operator !=
+                 Type: bool
+                 Source: "partnersPromo[promo] != address(0x0)"
+                IndexAccess
+                   Type: address
+                   Source: "partnersPromo[promo]"
+                  Identifier partnersPromo
+                     Type: mapping(string memory => address)
+                     Source: "partnersPromo"
+                  Identifier promo
+                     Type: string calldata
+                     Source: "promo"
+                FunctionCall
+                   Type: address
+                   Source: "address(0x0)"
+                  ElementaryTypeNameExpression address
+                     Type: type(address)
+                     Source: "address"
+                  Literal, token: [no token] value: 0x0
+                     Type: int_const 0
+                     Source: "0x0"
+              BinaryOperation using operator !=
+                 Type: bool
+                 Source: "partnersPromo[promo] != referral"
+                IndexAccess
+                   Type: address
+                   Source: "partnersPromo[promo]"
+                  Identifier partnersPromo
+                     Type: mapping(string memory => address)
+                     Source: "partnersPromo"
+                  Identifier promo
+                     Type: string calldata
+                     Source: "promo"
+                Identifier referral
+                   Type: address
+                   Source: "referral"
+            Block
+               Source: "{\r\n                partner = partnersPromo[promo];\r\n                referrals[referral] += amount;\r\n                amount_referral_invest += amount;\r\n                partnersInfo[partner].balance += amount;\r\n                history[partner].push(itemHistory(now, referral, amount));\r\n                p_partner = (amount*uint256(calc_partnerPercent(amount)))/10000;\r\n                p_referral = (amount*ref_percent)/10000;\r\n            }"
+              ExpressionStatement
+                 Gas costs: [???]
+                 Source: "partner = partnersPromo[promo]"
+                Assignment using operator =
+                   Type: address
+                   Source: "partner = partnersPromo[promo]"
+                  Identifier partner
+                     Type: address
+                     Source: "partner"
+                  IndexAccess
+                     Type: address
+                     Source: "partnersPromo[promo]"
+                    Identifier partnersPromo
+                       Type: mapping(string memory => address)
+                       Source: "partnersPromo"
+                    Identifier promo
+                       Type: string calldata
+                       Source: "promo"
+              ExpressionStatement
+                 Gas costs: 20323
+                 Source: "referrals[referral] += amount"
+                Assignment using operator +=
+                   Type: uint256
+                   Source: "referrals[referral] += amount"
+                  IndexAccess
+                     Type: uint256
+                     Source: "referrals[referral]"
+                    Identifier referrals
+                       Type: mapping(address => uint256)
+                       Source: "referrals"
+                    Identifier referral
+                       Type: address
+                       Source: "referral"
+                  Identifier amount
+                     Type: uint256
+                     Source: "amount"
+              ExpressionStatement
+                 Gas costs: 20233
+                 Source: "amount_referral_invest += amount"
+                Assignment using operator +=
+                   Type: uint256
+                   Source: "amount_referral_invest += amount"
+                  Identifier amount_referral_invest
+                     Type: uint256
+                     Source: "amount_referral_invest"
+                  Identifier amount
+                     Type: uint256
+                     Source: "amount"
+              ExpressionStatement
+                 Gas costs: 20329
+                 Source: "partnersInfo[partner].balance += amount"
+                Assignment using operator +=
+                   Type: uint256
+                   Source: "partnersInfo[partner].balance += amount"
+                  MemberAccess to member balance
+                     Type: uint256
+                     Source: "partnersInfo[partner].balance"
+                    IndexAccess
+                       Type: struct BMICOAffiliateProgramm.itemPartners storage ref
+                       Source: "partnersInfo[partner]"
+                      Identifier partnersInfo
+                         Type: mapping(address => struct BMICOAffiliateProgramm.itemPartners storage ref)
+                         Source: "partnersInfo"
+                      Identifier partner
+                         Type: address
+                         Source: "partner"
+                  Identifier amount
+                     Type: uint256
+                     Source: "amount"
+              ExpressionStatement
+                 Gas costs: [???]
+                 Source: "history[partner].push(itemHistory(now, referral, amount))"
+                FunctionCall
+                   Type: uint256
+                   Source: "history[partner].push(itemHistory(now, referral, amount))"
+                  MemberAccess to member push
+                     Type: function (struct BMICOAffiliateProgramm.itemHistory storage ref) returns (uint256)
+                     Source: "history[partner].push"
+                    IndexAccess
+                       Type: struct BMICOAffiliateProgramm.itemHistory storage ref[] storage ref
+                       Source: "history[partner]"
+                      Identifier history
+                         Type: mapping(address => struct BMICOAffiliateProgramm.itemHistory storage ref[] storage ref)
+                         Source: "history"
+                      Identifier partner
+                         Type: address
+                         Source: "partner"
+                  FunctionCall
+                     Type: struct BMICOAffiliateProgramm.itemHistory memory
+                     Source: "itemHistory(now, referral, amount)"
+                    Identifier itemHistory
+                       Type: type(struct BMICOAffiliateProgramm.itemHistory storage pointer)
+                       Source: "itemHistory"
+                    Identifier now
+                       Type: uint256
+                       Source: "now"
+                    Identifier referral
+                       Type: address
+                       Source: "referral"
+                    Identifier amount
+                       Type: uint256
+                       Source: "amount"
+              ExpressionStatement
+                 Gas costs: 57
+                 Source: "p_partner = (amount*uint256(calc_partnerPercent(amount)))/10000"
+                Assignment using operator =
+                   Type: uint256
+                   Source: "p_partner = (amount*uint256(calc_partnerPercent(amount)))/10000"
+                  Identifier p_partner
+                     Type: uint256
+                     Source: "p_partner"
+                  BinaryOperation using operator /
+                     Type: uint256
+                     Source: "(amount*uint256(calc_partnerPercent(amount)))/10000"
+                    TupleExpression
+                       Type: uint256
+                       Source: "(amount*uint256(calc_partnerPercent(amount)))"
+                      BinaryOperation using operator *
+                         Type: uint256
+                         Source: "amount*uint256(calc_partnerPercent(amount))"
+                        Identifier amount
+                           Type: uint256
+                           Source: "amount"
+                        FunctionCall
+                           Type: uint256
+                           Source: "uint256(calc_partnerPercent(amount))"
+                          ElementaryTypeNameExpression uint256
+                             Type: type(uint256)
+                             Source: "uint256"
+                          FunctionCall
+                             Type: uint16
+                             Source: "calc_partnerPercent(amount)"
+                            Identifier calc_partnerPercent
+                               Type: function (uint256) view returns (uint16)
+                               Source: "calc_partnerPercent"
+                            Identifier amount
+                               Type: uint256
+                               Source: "amount"
+                    Literal, token: [no token] value: 10000
+                       Type: int_const 10000
+                       Source: "10000"
+              ExpressionStatement
+                 Gas costs: 247
+                 Source: "p_referral = (amount*ref_percent)/10000"
+                Assignment using operator =
+                   Type: uint256
+                   Source: "p_referral = (amount*ref_percent)/10000"
+                  Identifier p_referral
+                     Type: uint256
+                     Source: "p_referral"
+                  BinaryOperation using operator /
+                     Type: uint256
+                     Source: "(amount*ref_percent)/10000"
+                    TupleExpression
+                       Type: uint256
+                       Source: "(amount*ref_percent)"
+                      BinaryOperation using operator *
+                         Type: uint256
+                         Source: "amount*ref_percent"
+                        Identifier amount
+                           Type: uint256
+                           Source: "amount"
+                        Identifier ref_percent
+                           Type: uint256
+                           Source: "ref_percent"
+                    Literal, token: [no token] value: 10000
+                       Type: int_const 10000
+                       Source: "10000"

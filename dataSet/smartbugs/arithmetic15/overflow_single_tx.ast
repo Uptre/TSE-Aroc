@@ -1,0 +1,195 @@
+Syntax trees:
+
+
+======= /home/fabric/ArocRevision/Aroc/dataSet/smartbugs-21-7-13/arithmetic15/overflow_single_tx.sol =======
+PragmaDirective
+   Gas costs: 0
+   Source: "pragma solidity ^0.4.23;"
+ContractDefinition "IntegerOverflowSingleTransaction"
+   Source: "contract IntegerOverflowSingleTransaction {\n    uint public count = 1;\n\n    // ADD overflow with result stored in state variable.\n    function overflowaddtostate(uint256 input) public {\n        // <yes> <report> ARITHMETIC\n        count += input;\n    }\n\n    // MUL overflow with result stored in state variable.\n    function overflowmultostate(uint256 input) public {\n        // <yes> <report> ARITHMETIC\n        count *= input;\n    }\n\n    // Underflow with result stored in state variable.\n    function underflowtostate(uint256 input) public {\n        // <yes> <report> ARITHMETIC\n        count -= input;\n    }\n\n    // ADD Overflow, no effect on state.\n    function overflowlocalonly(uint256 input) public {\n        // <yes> <report> ARITHMETIC\n        uint res = count + input;\n    }\n\n    // MUL Overflow, no effect on state.\n    function overflowmulocalonly(uint256 input) public {\n        // <yes> <report> ARITHMETIC\n        uint res = count * input;\n    }\n\n    // Underflow, no effect on state.\n    function underflowlocalonly(uint256 input) public {\n        // <yes> <report> ARITHMETIC\n       \tuint res = count - input;\n    }\n\n}"
+  VariableDeclaration "count"
+     Type: uint256
+     Gas costs: 287
+     Source: "uint public count = 1"
+    ElementaryTypeName uint
+       Source: "uint"
+    Literal, token: [no token] value: 1
+       Type: int_const 1
+       Source: "1"
+  FunctionDefinition "overflowaddtostate" - public
+     Source: "function overflowaddtostate(uint256 input) public {\n        // <yes> <report> ARITHMETIC\n        count += input;\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 input)"
+      VariableDeclaration "input"
+         Type: uint256
+         Source: "uint256 input"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\n        // <yes> <report> ARITHMETIC\n        count += input;\n    }"
+      ExpressionStatement
+         Gas costs: 20233
+         Source: "count += input"
+        Assignment using operator +=
+           Type: uint256
+           Source: "count += input"
+          Identifier count
+             Type: uint256
+             Source: "count"
+          Identifier input
+             Type: uint256
+             Source: "input"
+  FunctionDefinition "overflowmultostate" - public
+     Source: "function overflowmultostate(uint256 input) public {\n        // <yes> <report> ARITHMETIC\n        count *= input;\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 input)"
+      VariableDeclaration "input"
+         Type: uint256
+         Source: "uint256 input"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\n        // <yes> <report> ARITHMETIC\n        count *= input;\n    }"
+      ExpressionStatement
+         Gas costs: 20235
+         Source: "count *= input"
+        Assignment using operator *=
+           Type: uint256
+           Source: "count *= input"
+          Identifier count
+             Type: uint256
+             Source: "count"
+          Identifier input
+             Type: uint256
+             Source: "input"
+  FunctionDefinition "underflowtostate" - public
+     Source: "function underflowtostate(uint256 input) public {\n        // <yes> <report> ARITHMETIC\n        count -= input;\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 input)"
+      VariableDeclaration "input"
+         Type: uint256
+         Source: "uint256 input"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\n        // <yes> <report> ARITHMETIC\n        count -= input;\n    }"
+      ExpressionStatement
+         Gas costs: 20233
+         Source: "count -= input"
+        Assignment using operator -=
+           Type: uint256
+           Source: "count -= input"
+          Identifier count
+             Type: uint256
+             Source: "count"
+          Identifier input
+             Type: uint256
+             Source: "input"
+  FunctionDefinition "overflowlocalonly" - public
+     Source: "function overflowlocalonly(uint256 input) public {\n        // <yes> <report> ARITHMETIC\n        uint res = count + input;\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 input)"
+      VariableDeclaration "input"
+         Type: uint256
+         Source: "uint256 input"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\n        // <yes> <report> ARITHMETIC\n        uint res = count + input;\n    }"
+      VariableDeclarationStatement
+         Gas costs: 217
+         Source: "uint res = count + input"
+        VariableDeclaration "res"
+           Type: uint256
+           Source: "uint res"
+          ElementaryTypeName uint
+             Source: "uint"
+        BinaryOperation using operator +
+           Type: uint256
+           Source: "count + input"
+          Identifier count
+             Type: uint256
+             Source: "count"
+          Identifier input
+             Type: uint256
+             Source: "input"
+  FunctionDefinition "overflowmulocalonly" - public
+     Source: "function overflowmulocalonly(uint256 input) public {\n        // <yes> <report> ARITHMETIC\n        uint res = count * input;\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 input)"
+      VariableDeclaration "input"
+         Type: uint256
+         Source: "uint256 input"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\n        // <yes> <report> ARITHMETIC\n        uint res = count * input;\n    }"
+      VariableDeclarationStatement
+         Gas costs: 219
+         Source: "uint res = count * input"
+        VariableDeclaration "res"
+           Type: uint256
+           Source: "uint res"
+          ElementaryTypeName uint
+             Source: "uint"
+        BinaryOperation using operator *
+           Type: uint256
+           Source: "count * input"
+          Identifier count
+             Type: uint256
+             Source: "count"
+          Identifier input
+             Type: uint256
+             Source: "input"
+  FunctionDefinition "underflowlocalonly" - public
+     Source: "function underflowlocalonly(uint256 input) public {\n        // <yes> <report> ARITHMETIC\n       \tuint res = count - input;\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 input)"
+      VariableDeclaration "input"
+         Type: uint256
+         Source: "uint256 input"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\n        // <yes> <report> ARITHMETIC\n       \tuint res = count - input;\n    }"
+      VariableDeclarationStatement
+         Gas costs: 217
+         Source: "uint res = count - input"
+        VariableDeclaration "res"
+           Type: uint256
+           Source: "uint res"
+          ElementaryTypeName uint
+             Source: "uint"
+        BinaryOperation using operator -
+           Type: uint256
+           Source: "count - input"
+          Identifier count
+             Type: uint256
+             Source: "count"
+          Identifier input
+             Type: uint256
+             Source: "input"

@@ -1,0 +1,2771 @@
+Syntax trees:
+
+
+======= /home/fabric/ArocRevision/Aroc/osirisData/contractSrc/0xf4cae4aec9b4d7682f8cee4d9a273ba063e71366.sol =======
+ContractDefinition "EtherTopDog"
+   Source: "contract EtherTopDog {\r\n\r\n\t// fund for bailing out underdogs when they are pushed out\r\n\tuint private bailoutBalance = 0;\r\n\r\n\r\n\t// === Underdog Payin Distribution: ===\r\n\t\r\n\t// percent of underdog deposit amount to go in bailout fund\r\n\tuint constant private bailoutFundPercent = 70;\r\n\r\n\t// percent of underdog deposit that goes to the top dog's dividend\r\n\tuint constant private topDogDividend = 15;\r\n\r\n\t// percent of underdog deposit sent chip away top dog's strength\r\n\tuint constant private topDogDecayPercent = 10;\r\n\r\n\t// percent of underdog deposiot that goes to lucky dog's dividend\r\n\tuint constant private luckyDogDividend = 3;\r\n\r\n\t// vision dog takes a small fee from each underdog deposit\r\n\tuint constant private visionDogFeePercent = 2;\r\n\r\n\t// === === === === === === === === ===\r\n\r\n\t\r\n\t// percentage markup from payin for calculating new mininum TopDog price threshold\r\n\tuint constant private topDogMinMarkup = 125;\r\n\r\n\t// minimum required deposit to become the next Top Dog\r\n\t// (aka Top Dog strength / lowest possible takeover threshold)\r\n\t// starts at 125% of Top Dog's deposit, slowly declines as underdogs join\r\n\tuint private topDogMinPrice = 1;\r\n\r\n\t// range above the topdog strength (aka topDogMinPrice) within which\r\n\t// the randomly generated required takeover threhold is set\r\n\tuint constant private topDogBuyoutRange = 150;\r\n\r\n\t// percentage of topdog buyout fee gets paid to creator\r\n\tuint constant private visionDogBuyPercent = 5;\r\n\r\n\r\n\r\n\t// underdog payout markup, as a percentage of their deposits\r\n\t// gets reset to 150% after each round when the top dog gets replaced\r\n\t// gradually decays to mininum of 120% as underdogs chip away at top dog's strength\r\n\tuint private underDogMarkup = 150;\r\n\r\n\t// as top dog price declines, these keep track of the range\r\n\t// so underDopMarkup can slowly go from 150% to 120% return\r\n\t// as the Top Dog mininum price starts at the price ceiling,\r\n\t// and declines until it reaches the floor (or lower)\r\n\tuint private topDogPriceCeiling = 0;\r\n\tuint private topDogPriceFloor = 0;\r\n\r\n\t// total collected fees from underdogs, paid out whenever Top Dog is bought out\r\n\tuint private visionFees = 0;\r\n\r\n\t// current top dog\r\n\taddress private topDog = 0x0;\r\n\r\n\t// underdog entries\r\n\tstruct Underdog {\r\n\t\taddress addr;\r\n\t\tuint deposit;\r\n\t\tuint payout;\r\n\t\tuint bailouts;\r\n\t}\r\n\tUnderdog[] private Underdogs;\r\n\r\n\t// player names for fun\r\n\tmapping (address => string) dogNames;\r\n\r\n\t// current lucky dog (if exists) will receive 3% of underdog payins\r\n\t// specified as index in Underdogs array\r\n\t// 0 = nobody (the very first underdog to join the game is precluded from becoming the Lucky Dog)\r\n\tuint private luckyDog = 0;\r\n\r\n\t// index of next underdog to be paid \r\n\tuint private payoutIndex = 0;\r\n\r\n\t// count payouts made by underdogs currently in the game\r\n\t// so we can have a baseline for dividing the scraps\r\n\tuint private payoutCount = 0;\r\n\r\n\t// address of the creator\r\n\taddress private visionDog;\r\n\r\n\tfunction EtherTopDog() {\r\n\t\tvisionDog = msg.sender;\r\n\t}\r\n\r\n\r\n\t// ==== Game Info Display ABI functions: ====\r\n\tfunction underdogPayoutFund() public constant returns (uint balance) {\r\n\t\tbalance = bailoutBalance;\r\n\t}\r\n\r\n\tfunction nextUnderdogPayout() public constant returns (uint) {\r\n\t\tif (Underdogs.length - payoutIndex >= 1) {\r\n\t\t\treturn Underdogs[payoutIndex].payout;\r\n\t\t}\r\n\t}\r\n\t\r\n\r\n\tfunction underdogPayoutMarkup() public constant returns (uint) {\r\n\t\treturn underDogMarkup;\r\n\t}\r\n\r\n\tfunction topDogInfo() public constant returns (string name, uint strength) {\r\n\t\tif (topDog != address(0x0)) {\r\n\t\t\tname = getDogName(topDog);\r\n\t\t} else {\r\n\t\t\tname = \"[not set]\";\r\n\t\t}\r\n\t\tstrength = topDogMinPrice;\r\n\t}\r\n\tfunction luckyDogInfo() public constant returns (string name) {\r\n\t\tif (luckyDog > 0) {\r\n\t\t\tname = getDogName(Underdogs[luckyDog].addr);\r\n\t\t} else {\r\n\t\t\tname = \"[nobody]\";\r\n\t\t}\r\n\t}\r\n\r\n\tfunction underdogCount() constant returns (uint) {\r\n\t\treturn Underdogs.length - payoutIndex;\r\n\t} \r\n\r\n\tfunction underdogInfo(uint linePosition) constant returns (string name, address dogAddress, uint deposit, uint payout, uint scrapBonus) {\r\n\t\tif (linePosition > 0 && linePosition <= Underdogs.length - payoutIndex) {\r\n\r\n\t\t\tUnderdog thedog = Underdogs[payoutIndex + (linePosition - 1)];\r\n\t\t\tname = getDogName(thedog.addr);\r\n\t\t\tdogAddress = thedog.addr;\r\n\t\t\tdeposit = thedog.deposit;\r\n\t\t\tpayout= thedog.payout;\r\n\t\t\tscrapBonus = thedog.bailouts;\r\n\t\t}\r\n\t}\r\n\r\n\t// ==== End ABI Functions ====\r\n\r\n\r\n\r\n\t// ==== Public transaction functions: ====\r\n\r\n\t// default fallback : play a round\r\n\tfunction() {\r\n\t\tdogFight();\r\n\t}\r\n\t\r\n\t// sets name, optionally plays a round if Ether was sent\r\n\tfunction setName(string DogName) {\r\n\t\tif (bytes(DogName).length >= 2 && bytes(DogName).length <= 16)\r\n\t\t\tdogNames[msg.sender] = DogName;\r\n\r\n\t\t// if a deposit was sent, play it!\r\n\t\tif (msg.value > 0) {\r\n\t\t\tdogFight();\r\n\t\t}\r\n\t\t\r\n\t}\r\n\r\n\tfunction dogFight() public {\r\n\t\t// minimum 1 ETH required to play\r\n\t\tif (msg.value < 1 ether) {\r\n\t\t\tmsg.sender.send(msg.value);\r\n\t\t\treturn;\r\n\t\t}\r\n\r\n\t\t// does a topdog exist ?\r\n\t\tif (topDog != address(0x0)) {\r\n\r\n\t\t\t// the actual amount required to knock out the top dig is random within the buyout range\r\n\t\t\tuint topDogPrice = topDogMinPrice + randInt( (topDogMinPrice * topDogBuyoutRange / 100) - topDogMinPrice, 4321);\r\n\r\n\t\t\t// Calculate the top dog price\r\n\t\t\tif (msg.value >= topDogPrice) {\r\n\t\t\t\t// They bought out the top dog!\r\n\t\t\t\tbuyTopDog(topDogPrice, msg.value - topDogPrice);\r\n\t\t\t} else {\r\n\t\t\t\t// didn't buy the top dog, this participant becomes an underdog!\r\n\t\t\t\taddUnderDog(msg.value);\r\n\t\t\t}\r\n\t\t} else {\r\n\t\t\t// no top dog exists yet, the game must be just getting started\r\n\t\t\t// put the first deposit in the bailout fund, initialize the game\r\n\r\n\t\t\t// set first topDog \r\n\t\t\ttopDog = msg.sender;\r\n\r\n\t\t\ttopDogPriceFloor = topDogMinPrice;\r\n\r\n\t\t\tbailoutBalance += msg.value;\r\n\t\t\ttopDogMinPrice = msg.value * topDogMinMarkup / 100;\r\n\r\n\t\t\ttopDogPriceCeiling = topDogMinPrice;\r\n\r\n\t\t}\r\n\t}\r\n\r\n\t// ==== End Public Functions ====\r\n\r\n\r\n\r\n\t// ==== Private Functions: ====\r\n\tfunction addUnderDog(uint buyin) private {\r\n\r\n\t\tuint bailcount = 0;\r\n\r\n\t\t// amount this depositor will be paid when the fund allows\r\n\t\tuint payoutval = buyin * underDogMarkup / 100;\r\n\r\n\t\t// add portion of deposit to bailout fund \r\n\t\tbailoutBalance += buyin * bailoutFundPercent / 100;\r\n\r\n\t\t// top dog / lucky dog dividends\r\n\t\tuint topdividend = buyin * topDogDividend / 100;\r\n\t\tuint luckydividend = buyin * luckyDogDividend / 100;\r\n\r\n\t\t// is there a lucky dog?\r\n\t\tif (luckyDog != 0 && luckyDog >= payoutIndex) {\r\n\t\t\t// pay lucky dog dividends\r\n\t\t\tUnderdogs[luckyDog].addr.send(luckydividend);\r\n\t\t} else {\r\n\t\t\t// no lucky dog exists, all dividends go to top dog\r\n\t\t\ttopdividend += luckydividend;\r\n\t\t}\r\n\r\n\t\t// pay top dog dividends\r\n\t\ttopDog.send(topdividend);\r\n\r\n\r\n\t\t// chip away at the top dog's strength\r\n\t\tuint topdecay = (buyin * topDogDecayPercent / 100);\r\n\t\ttopDogMinPrice -= topdecay;\r\n\r\n\t\t// update underdog markup % for next round\r\n\r\n\t\t// specified as n/100000 to avoid floating point math\r\n\t\tuint decayfactor = 0;\r\n\r\n\t\t// calculate the payout markup for next underdog\r\n\t\tif (topDogMinPrice > topDogPriceFloor) {\r\n\t\t\tuint decayrange = (topDogPriceCeiling - topDogPriceFloor);\r\n\t\t\tdecayfactor = 100000 * (topDogPriceCeiling - topDogMinPrice) / decayrange;\r\n\t\t} else {\r\n\t\t\tdecayfactor = 100000;\r\n\t\t}\r\n\t\t// markup will be between 120-150% corresponding to current top dog price decline (150% - 30% = 120%)\r\n\t\tunderDogMarkup = 150 - (decayfactor * 30 / 100000);\r\n\r\n\r\n\r\n\t\t// creator takes a slice\r\n\t\tvisionFees += (buyin * visionDogFeePercent / 100);\r\n\t\t\r\n\r\n\t\t// payout as many previous underdogs as the fund can afford\r\n\t\twhile (payoutIndex < Underdogs.length && bailoutBalance >= Underdogs[payoutIndex].payout ) {\r\n\t\t\tpayoutCount -= Underdogs[payoutIndex].bailouts;\r\n\t\t\tbailoutBalance -= Underdogs[payoutIndex].payout;\r\n\t\t\tUnderdogs[payoutIndex].addr.send(Underdogs[payoutIndex].payout);\r\n\r\n\r\n\t\t\t// if the lucky dog was bailed out, the user who did it now becomes the lucky dog\r\n\t\t\tif (payoutIndex == luckyDog && luckyDog != 0)\r\n\t\t\t\tluckyDog = Underdogs.length;\r\n\r\n\t\t\tpayoutIndex++;\r\n\t\t\tbailcount++;\r\n\t\t\tpayoutCount++;\r\n\t\t}\r\n\r\n\t\t\r\n\t\t// add the new underdog to the queue\r\n\t\tUnderdogs.push(Underdog(msg.sender, buyin, payoutval, bailcount));\r\n\r\n\t}\r\n\r\n\tfunction buyTopDog(uint buyprice, uint surplus) private {\r\n\r\n\t\t// take out vizionDog fee\r\n\t\tuint vfee = buyprice * visionDogBuyPercent / 100;\r\n\r\n\t\tuint dogpayoff = (buyprice - vfee);\r\n\r\n\t\t// payout previous top dog\r\n\t\ttopDog.send(dogpayoff);\r\n\r\n\t\tvisionFees += vfee;\r\n\r\n\t\t// send buy fee (plus previous collected underdog fees) to visionDog\r\n\t\tvisionDog.send(visionFees);\r\n\t\tvisionFees = 0;\r\n\r\n\t\t// record a price floor for underdog markup decay calculation during the next round:\r\n\t\t// the mininum purchase price before buyout\r\n\t\ttopDogPriceFloor = topDogMinPrice;\r\n\r\n\t\t// set the initial minimum buy price for the next top dog\r\n\t\ttopDogMinPrice = msg.value * topDogMinMarkup / 100;\r\n\r\n\t\t// the price ceiling for calculating the underdog markup decay is the new minimum price\r\n\t\ttopDogPriceCeiling = topDogMinPrice;\r\n\r\n\r\n\t\t// check for eligible lucky dog...\r\n//\t\tif (Underdogs.length - payoutIndex > 0) {\r\n\t\t\t// lucky dog is most recent underdog to make an entry\r\n//\t\t\tluckyDog = Underdogs.length - 1;\r\n//\t\t} else {\r\n\t\t\t// no dogs waiting in line?  all dividends will go to top dog this round\r\n//\t\t\tluckyDog = 0;\r\n//\t\t}\r\n\t\t\r\n\r\n\t\t// reset underdog markup for next round\r\n\t\tunderDogMarkup = 150;\r\n\r\n\t\t// how many dogs are waiting?\r\n\t\tuint linelength = Underdogs.length - payoutIndex;\r\n\r\n\t\t// surplus goes to pay scraps to random underdogs\r\n\t\t// calculate and pay scraps\r\n\r\n\r\n\t\t// are there underdogs around to receive the scraps?\r\n\t\tif (surplus > 0 && linelength > 0 ) {\r\n\t\t\tthrowScraps(surplus);\r\n\t\t}\r\n\r\n\r\n\t\t// if there are any underdogs in line, the lucky dog will be picked from among them\t\r\n\t\tif (linelength > 0) {\r\n\r\n\t\t\t// randomly pick a new lucky dog, with luck weighted toward more recent entries\r\n\r\n\t\t\t// weighting works like this:\r\n\t\t\t// \tFor example, if the line length is 6, the most recent entry will\r\n\t\t\t//\tbe 6 times more likely than the oldest (6/21 odds),\r\n\t\t\t//\tthe second most recent will be 5 times more likely than the oldest (5/21 odds)\r\n\t\t\t//\tthe third most recent will be 4 times as likely as the oldest (4/21 odds),\r\n\t\t\t//\tetc...\r\n\r\n\t\t\t//\tof course, the player that has been in line longest is\r\n\t\t\t//\tleast likely to be lucky (1/21 odds in this example)\r\n\t\t\t//\tand will be getting sent out of the game soonest anyway\r\n\r\n\t\t\tuint luckypickline = (linelength % 2 == 1) ?\r\n\t\t\t\t( linelength / 2 + 1 ) + (linelength + 1) * (linelength / 2) :  // odd\r\n\t\t\t\t( (linelength + 1) * (linelength / 2)  ); // even\r\n\r\n\t\t\tuint luckypick = randInt(luckypickline, 69);\r\n\t\r\n\t\t\tuint pickpos = luckypickline - linelength;\r\n\t\t\tuint linepos = 1;\r\n\r\n\t\t\twhile (pickpos >= luckypick && linepos < linelength) {\r\n\t\t\t\tpickpos -= (linelength - linepos);\r\n\t\t\t\tlinepos++;\r\n\t\t\t}\r\n\r\n\t\t\tluckyDog = Underdogs.length - linepos;\r\n\t\t} else {\r\n\t\t\t// no underdogs in line?  no lucky dog this round.\r\n\t\t\t// (should only possibly happen when game starts)\r\n\t\t\tluckyDog = 0;\r\n\t\t}\r\n\t\t\r\n\r\n\t\t// the new top dog is crowned!\r\n\t\ttopDog = msg.sender;\r\n\t}\r\n\r\n\tfunction throwScraps(uint totalscrapvalue) private {\r\n\r\n\t\t// how many dogs are waiting?\r\n\t\tuint linelength = Underdogs.length - payoutIndex;\r\n\r\n\t\t// to keep from having too many transactions, make sure we never have more than 7 scraps.\r\n\t\t// the more dogs in line, the more we jump over when scraps get scattered\r\n\t\tuint skipstep = (linelength / 7) + 1;\r\n\r\n\t\t// how many pieces to divide (roughly, randomization might make it more or less)\r\n\t\tuint pieces = linelength / skipstep;\r\n\r\n\t\t// how far from the end of the queue to start throwing the first scrap (semi-random)\r\n\t\tuint startoffset = randInt(skipstep, 42) - 1;\r\n\r\n\t\t// base size for scraps...  \r\n\t\tuint scrapbasesize = totalscrapvalue / (pieces + payoutCount);\r\n\r\n\t\t// minimum base scrap size of 0.5 eth\r\n\t\tif (scrapbasesize < 500 finney) {\r\n\t\t\tscrapbasesize = 500 finney;\r\n\t\t}\r\n\r\n\t\tuint scrapsize;\r\n\t\tuint sptr = Underdogs.length - 1 - startoffset;\r\n\r\n\t\tuint scrapvalueleft = totalscrapvalue;\r\n\r\n\t\twhile (pieces > 0 && scrapvalueleft > 0 && sptr >= payoutIndex) {\r\n\t\t\t// those who bailed out other dogs get bigger scraps\r\n\t\t\t// size of the scrap is multiplied by # of other dogs the user bailed out\r\n\t\t\tscrapsize = scrapbasesize * (Underdogs[sptr].bailouts + 1);\r\n\r\n\r\n\t\t\t// scraps can never be more than what's in the pile\r\n\t\t\tif (scrapsize < scrapvalueleft) {\r\n\t\t\t\tscrapvalueleft -= scrapsize;\r\n\t\t\t} else {\r\n\t\t\t\tscrapsize = scrapvalueleft;\r\n\t\t\t\tscrapvalueleft = 0;\r\n\t\t\t}\r\n\r\n\t\t\t// pay it\r\n\t\t\tUnderdogs[sptr].addr.send(scrapsize);\r\n\t\t\tpieces--;\r\n\t\t\tsptr -= skipstep;\r\n\t\t}\r\n\r\n\t\t// any scraps left uncaught? put them in the bailout fund for the underdogs\r\n\t\tif (scrapvalueleft > 0) {\r\n\t\t\tbailoutBalance += scrapvalueleft;\r\n\t\t}\r\n\t}\r\n\r\n\tfunction getDogName(address adr) private constant returns (string thename) {\r\n\t\tif (bytes(dogNames[adr]).length > 0)\r\n\t\t\tthename = dogNames[adr];\r\n\t\telse\r\n\t\t\tthename = 'Unnamed Mutt';\r\n\t}\r\n\t\r\n\t// Generate pseudo semi-random number between 1 - max \r\n\tfunction randInt(uint max, uint seedswitch) private constant returns (uint randomNumber) {\r\n\t\treturn( uint(sha3(block.blockhash(block.number-1), block.timestamp + seedswitch) ) % max + 1 );\r\n\t}\r\n}"
+  VariableDeclaration "bailoutBalance"
+     Type: uint256
+     Gas costs: 0
+     Source: "uint private bailoutBalance = 0"
+    ElementaryTypeName uint
+       Source: "uint"
+    Literal, token: [no token] value: 0
+       Type: int_const 0
+       Source: "0"
+  VariableDeclaration "bailoutFundPercent"
+     Type: uint256
+     Gas costs: 3
+     Source: "uint constant private bailoutFundPercent = 70"
+    ElementaryTypeName uint
+       Source: "uint"
+    Literal, token: [no token] value: 70
+       Type: int_const 70
+       Source: "70"
+  VariableDeclaration "topDogDividend"
+     Type: uint256
+     Gas costs: 3
+     Source: "uint constant private topDogDividend = 15"
+    ElementaryTypeName uint
+       Source: "uint"
+    Literal, token: [no token] value: 15
+       Type: int_const 15
+       Source: "15"
+  VariableDeclaration "topDogDecayPercent"
+     Type: uint256
+     Gas costs: 3
+     Source: "uint constant private topDogDecayPercent = 10"
+    ElementaryTypeName uint
+       Source: "uint"
+    Literal, token: [no token] value: 10
+       Type: int_const 10
+       Source: "10"
+  VariableDeclaration "luckyDogDividend"
+     Type: uint256
+     Gas costs: 3
+     Source: "uint constant private luckyDogDividend = 3"
+    ElementaryTypeName uint
+       Source: "uint"
+    Literal, token: [no token] value: 3
+       Type: int_const 3
+       Source: "3"
+  VariableDeclaration "visionDogFeePercent"
+     Type: uint256
+     Gas costs: 3
+     Source: "uint constant private visionDogFeePercent = 2"
+    ElementaryTypeName uint
+       Source: "uint"
+    Literal, token: [no token] value: 2
+       Type: int_const 2
+       Source: "2"
+  VariableDeclaration "topDogMinMarkup"
+     Type: uint256
+     Gas costs: 6
+     Source: "uint constant private topDogMinMarkup = 125"
+    ElementaryTypeName uint
+       Source: "uint"
+    Literal, token: [no token] value: 125
+       Type: int_const 125
+       Source: "125"
+  VariableDeclaration "topDogMinPrice"
+     Type: uint256
+     Gas costs: 0
+     Source: "uint private topDogMinPrice = 1"
+    ElementaryTypeName uint
+       Source: "uint"
+    Literal, token: [no token] value: 1
+       Type: int_const 1
+       Source: "1"
+  VariableDeclaration "topDogBuyoutRange"
+     Type: uint256
+     Gas costs: 3
+     Source: "uint constant private topDogBuyoutRange = 150"
+    ElementaryTypeName uint
+       Source: "uint"
+    Literal, token: [no token] value: 150
+       Type: int_const 150
+       Source: "150"
+  VariableDeclaration "visionDogBuyPercent"
+     Type: uint256
+     Gas costs: 3
+     Source: "uint constant private visionDogBuyPercent = 5"
+    ElementaryTypeName uint
+       Source: "uint"
+    Literal, token: [no token] value: 5
+       Type: int_const 5
+       Source: "5"
+  VariableDeclaration "underDogMarkup"
+     Type: uint256
+     Gas costs: 0
+     Source: "uint private underDogMarkup = 150"
+    ElementaryTypeName uint
+       Source: "uint"
+    Literal, token: [no token] value: 150
+       Type: int_const 150
+       Source: "150"
+  VariableDeclaration "topDogPriceCeiling"
+     Type: uint256
+     Gas costs: 0
+     Source: "uint private topDogPriceCeiling = 0"
+    ElementaryTypeName uint
+       Source: "uint"
+    Literal, token: [no token] value: 0
+       Type: int_const 0
+       Source: "0"
+  VariableDeclaration "topDogPriceFloor"
+     Type: uint256
+     Gas costs: 0
+     Source: "uint private topDogPriceFloor = 0"
+    ElementaryTypeName uint
+       Source: "uint"
+    Literal, token: [no token] value: 0
+       Type: int_const 0
+       Source: "0"
+  VariableDeclaration "visionFees"
+     Type: uint256
+     Gas costs: 0
+     Source: "uint private visionFees = 0"
+    ElementaryTypeName uint
+       Source: "uint"
+    Literal, token: [no token] value: 0
+       Type: int_const 0
+       Source: "0"
+  VariableDeclaration "topDog"
+     Type: address
+     Gas costs: 0
+     Source: "address private topDog = 0x0"
+    ElementaryTypeName address
+       Source: "address"
+    Literal, token: [no token] value: 0x0
+       Type: int_const 0
+       Source: "0x0"
+  StructDefinition "Underdog"
+     Gas costs: 0
+     Source: "struct Underdog {\r\n\t\taddress addr;\r\n\t\tuint deposit;\r\n\t\tuint payout;\r\n\t\tuint bailouts;\r\n\t}"
+    VariableDeclaration "addr"
+       Type: address
+       Source: "address addr"
+      ElementaryTypeName address
+         Source: "address"
+    VariableDeclaration "deposit"
+       Type: uint256
+       Source: "uint deposit"
+      ElementaryTypeName uint
+         Source: "uint"
+    VariableDeclaration "payout"
+       Type: uint256
+       Source: "uint payout"
+      ElementaryTypeName uint
+         Source: "uint"
+    VariableDeclaration "bailouts"
+       Type: uint256
+       Source: "uint bailouts"
+      ElementaryTypeName uint
+         Source: "uint"
+  VariableDeclaration "Underdogs"
+     Type: struct EtherTopDog.Underdog storage ref[] storage ref
+     Gas costs: 0
+     Source: "Underdog[] private Underdogs"
+    ArrayTypeName
+       Source: "Underdog[]"
+      UserDefinedTypeName "Underdog"
+         Source: "Underdog"
+  VariableDeclaration "dogNames"
+     Type: mapping(address => string storage ref)
+     Gas costs: 0
+     Source: "mapping (address => string) dogNames"
+    Mapping
+       Source: "mapping (address => string)"
+      ElementaryTypeName address
+         Source: "address"
+      ElementaryTypeName string
+         Source: "string"
+  VariableDeclaration "luckyDog"
+     Type: uint256
+     Gas costs: 0
+     Source: "uint private luckyDog = 0"
+    ElementaryTypeName uint
+       Source: "uint"
+    Literal, token: [no token] value: 0
+       Type: int_const 0
+       Source: "0"
+  VariableDeclaration "payoutIndex"
+     Type: uint256
+     Gas costs: 0
+     Source: "uint private payoutIndex = 0"
+    ElementaryTypeName uint
+       Source: "uint"
+    Literal, token: [no token] value: 0
+       Type: int_const 0
+       Source: "0"
+  VariableDeclaration "payoutCount"
+     Type: uint256
+     Gas costs: 0
+     Source: "uint private payoutCount = 0"
+    ElementaryTypeName uint
+       Source: "uint"
+    Literal, token: [no token] value: 0
+       Type: int_const 0
+       Source: "0"
+  VariableDeclaration "visionDog"
+     Type: address
+     Gas costs: 0
+     Source: "address private visionDog"
+    ElementaryTypeName address
+       Source: "address"
+  FunctionDefinition "EtherTopDog" - public
+     Source: "function EtherTopDog() {\r\n\t\tvisionDog = msg.sender;\r\n\t}"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n\t\tvisionDog = msg.sender;\r\n\t}"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "visionDog = msg.sender"
+        Assignment using operator =
+           Type: address
+           Source: "visionDog = msg.sender"
+          Identifier visionDog
+             Type: address
+             Source: "visionDog"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+  FunctionDefinition "underdogPayoutFund" - public - const
+     Source: "function underdogPayoutFund() public constant returns (uint balance) {\r\n\t\tbalance = bailoutBalance;\r\n\t}"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint balance)"
+      VariableDeclaration "balance"
+         Type: uint256
+         Source: "uint balance"
+        ElementaryTypeName uint
+           Source: "uint"
+    Block
+       Source: "{\r\n\t\tbalance = bailoutBalance;\r\n\t}"
+      ExpressionStatement
+         Gas costs: 208
+         Source: "balance = bailoutBalance"
+        Assignment using operator =
+           Type: uint256
+           Source: "balance = bailoutBalance"
+          Identifier balance
+             Type: uint256
+             Source: "balance"
+          Identifier bailoutBalance
+             Type: uint256
+             Source: "bailoutBalance"
+  FunctionDefinition "nextUnderdogPayout" - public - const
+     Source: "function nextUnderdogPayout() public constant returns (uint) {\r\n\t\tif (Underdogs.length - payoutIndex >= 1) {\r\n\t\t\treturn Underdogs[payoutIndex].payout;\r\n\t\t}\r\n\t}"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint"
+        ElementaryTypeName uint
+           Source: "uint"
+    Block
+       Source: "{\r\n\t\tif (Underdogs.length - payoutIndex >= 1) {\r\n\t\t\treturn Underdogs[payoutIndex].payout;\r\n\t\t}\r\n\t}"
+      IfStatement
+         Source: "if (Underdogs.length - payoutIndex >= 1) {\r\n\t\t\treturn Underdogs[payoutIndex].payout;\r\n\t\t}"
+        BinaryOperation using operator >=
+           Type: bool
+           Gas costs: 426
+           Source: "Underdogs.length - payoutIndex >= 1"
+          BinaryOperation using operator -
+             Type: uint256
+             Source: "Underdogs.length - payoutIndex"
+            MemberAccess to member length
+               Type: uint256
+               Source: "Underdogs.length"
+              Identifier Underdogs
+                 Type: struct EtherTopDog.Underdog storage ref[] storage ref
+                 Source: "Underdogs"
+            Identifier payoutIndex
+               Type: uint256
+               Source: "payoutIndex"
+          Literal, token: [no token] value: 1
+             Type: int_const 1
+             Source: "1"
+        Block
+           Source: "{\r\n\t\t\treturn Underdogs[payoutIndex].payout;\r\n\t\t}"
+          Return
+             Gas costs: 725
+             Source: "return Underdogs[payoutIndex].payout"
+            MemberAccess to member payout
+               Type: uint256
+               Source: "Underdogs[payoutIndex].payout"
+              IndexAccess
+                 Type: struct EtherTopDog.Underdog storage ref
+                 Source: "Underdogs[payoutIndex]"
+                Identifier Underdogs
+                   Type: struct EtherTopDog.Underdog storage ref[] storage ref
+                   Source: "Underdogs"
+                Identifier payoutIndex
+                   Type: uint256
+                   Source: "payoutIndex"
+  FunctionDefinition "underdogPayoutMarkup" - public - const
+     Source: "function underdogPayoutMarkup() public constant returns (uint) {\r\n\t\treturn underDogMarkup;\r\n\t}"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint"
+        ElementaryTypeName uint
+           Source: "uint"
+    Block
+       Source: "{\r\n\t\treturn underDogMarkup;\r\n\t}"
+      Return
+         Gas costs: 208
+         Source: "return underDogMarkup"
+        Identifier underDogMarkup
+           Type: uint256
+           Source: "underDogMarkup"
+  FunctionDefinition "topDogInfo" - public - const
+     Source: "function topDogInfo() public constant returns (string name, uint strength) {\r\n\t\tif (topDog != address(0x0)) {\r\n\t\t\tname = getDogName(topDog);\r\n\t\t} else {\r\n\t\t\tname = \"[not set]\";\r\n\t\t}\r\n\t\tstrength = topDogMinPrice;\r\n\t}"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 6
+       Source: "(string name, uint strength)"
+      VariableDeclaration "name"
+         Type: string memory
+         Source: "string name"
+        ElementaryTypeName string
+           Source: "string"
+      VariableDeclaration "strength"
+         Type: uint256
+         Source: "uint strength"
+        ElementaryTypeName uint
+           Source: "uint"
+    Block
+       Source: "{\r\n\t\tif (topDog != address(0x0)) {\r\n\t\t\tname = getDogName(topDog);\r\n\t\t} else {\r\n\t\t\tname = \"[not set]\";\r\n\t\t}\r\n\t\tstrength = topDogMinPrice;\r\n\t}"
+      IfStatement
+         Source: "if (topDog != address(0x0)) {\r\n\t\t\tname = getDogName(topDog);\r\n\t\t} else {\r\n\t\t\tname = \"[not set]\";\r\n\t\t}"
+        BinaryOperation using operator !=
+           Type: bool
+           Gas costs: 260
+           Source: "topDog != address(0x0)"
+          Identifier topDog
+             Type: address
+             Source: "topDog"
+          FunctionCall
+             Type: address
+             Source: "address(0x0)"
+            ElementaryTypeNameExpression address
+               Type: type(address)
+               Source: "address"
+            Literal, token: [no token] value: 0x0
+               Type: int_const 0
+               Source: "0x0"
+        Block
+           Source: "{\r\n\t\t\tname = getDogName(topDog);\r\n\t\t}"
+          ExpressionStatement
+             Gas costs: 259
+             Source: "name = getDogName(topDog)"
+            Assignment using operator =
+               Type: string memory
+               Source: "name = getDogName(topDog)"
+              Identifier name
+                 Type: string memory
+                 Source: "name"
+              FunctionCall
+                 Type: string memory
+                 Source: "getDogName(topDog)"
+                Identifier getDogName
+                   Type: function (address) view returns (string memory)
+                   Source: "getDogName"
+                Identifier topDog
+                   Type: address
+                   Source: "topDog"
+        Block
+           Source: "{\r\n\t\t\tname = \"[not set]\";\r\n\t\t}"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "name = \"[not set]\""
+            Assignment using operator =
+               Type: string memory
+               Source: "name = \"[not set]\""
+              Identifier name
+                 Type: string memory
+                 Source: "name"
+              Literal, token: [no token] value: [not set]
+                 Type: literal_string "[not set]"
+                 Source: "\"[not set]\""
+      ExpressionStatement
+         Gas costs: 208
+         Source: "strength = topDogMinPrice"
+        Assignment using operator =
+           Type: uint256
+           Source: "strength = topDogMinPrice"
+          Identifier strength
+             Type: uint256
+             Source: "strength"
+          Identifier topDogMinPrice
+             Type: uint256
+             Source: "topDogMinPrice"
+  FunctionDefinition "luckyDogInfo" - public - const
+     Source: "function luckyDogInfo() public constant returns (string name) {\r\n\t\tif (luckyDog > 0) {\r\n\t\t\tname = getDogName(Underdogs[luckyDog].addr);\r\n\t\t} else {\r\n\t\t\tname = \"[nobody]\";\r\n\t\t}\r\n\t}"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(string name)"
+      VariableDeclaration "name"
+         Type: string memory
+         Source: "string name"
+        ElementaryTypeName string
+           Source: "string"
+    Block
+       Source: "{\r\n\t\tif (luckyDog > 0) {\r\n\t\t\tname = getDogName(Underdogs[luckyDog].addr);\r\n\t\t} else {\r\n\t\t\tname = \"[nobody]\";\r\n\t\t}\r\n\t}"
+      IfStatement
+         Source: "if (luckyDog > 0) {\r\n\t\t\tname = getDogName(Underdogs[luckyDog].addr);\r\n\t\t} else {\r\n\t\t\tname = \"[nobody]\";\r\n\t\t}"
+        BinaryOperation using operator >
+           Type: bool
+           Gas costs: 209
+           Source: "luckyDog > 0"
+          Identifier luckyDog
+             Type: uint256
+             Source: "luckyDog"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        Block
+           Source: "{\r\n\t\t\tname = getDogName(Underdogs[luckyDog].addr);\r\n\t\t}"
+          ExpressionStatement
+             Gas costs: 754
+             Source: "name = getDogName(Underdogs[luckyDog].addr)"
+            Assignment using operator =
+               Type: string memory
+               Source: "name = getDogName(Underdogs[luckyDog].addr)"
+              Identifier name
+                 Type: string memory
+                 Source: "name"
+              FunctionCall
+                 Type: string memory
+                 Source: "getDogName(Underdogs[luckyDog].addr)"
+                Identifier getDogName
+                   Type: function (address) view returns (string memory)
+                   Source: "getDogName"
+                MemberAccess to member addr
+                   Type: address
+                   Source: "Underdogs[luckyDog].addr"
+                  IndexAccess
+                     Type: struct EtherTopDog.Underdog storage ref
+                     Source: "Underdogs[luckyDog]"
+                    Identifier Underdogs
+                       Type: struct EtherTopDog.Underdog storage ref[] storage ref
+                       Source: "Underdogs"
+                    Identifier luckyDog
+                       Type: uint256
+                       Source: "luckyDog"
+        Block
+           Source: "{\r\n\t\t\tname = \"[nobody]\";\r\n\t\t}"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "name = \"[nobody]\""
+            Assignment using operator =
+               Type: string memory
+               Source: "name = \"[nobody]\""
+              Identifier name
+                 Type: string memory
+                 Source: "name"
+              Literal, token: [no token] value: [nobody]
+                 Type: literal_string "[nobody]"
+                 Source: "\"[nobody]\""
+  FunctionDefinition "underdogCount" - public - const
+     Source: "function underdogCount() constant returns (uint) {\r\n\t\treturn Underdogs.length - payoutIndex;\r\n\t}"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint"
+        ElementaryTypeName uint
+           Source: "uint"
+    Block
+       Source: "{\r\n\t\treturn Underdogs.length - payoutIndex;\r\n\t}"
+      Return
+         Gas costs: 422
+         Source: "return Underdogs.length - payoutIndex"
+        BinaryOperation using operator -
+           Type: uint256
+           Source: "Underdogs.length - payoutIndex"
+          MemberAccess to member length
+             Type: uint256
+             Source: "Underdogs.length"
+            Identifier Underdogs
+               Type: struct EtherTopDog.Underdog storage ref[] storage ref
+               Source: "Underdogs"
+          Identifier payoutIndex
+             Type: uint256
+             Source: "payoutIndex"
+  FunctionDefinition "underdogInfo" - public - const
+     Source: "function underdogInfo(uint linePosition) constant returns (string name, address dogAddress, uint deposit, uint payout, uint scrapBonus) {\r\n\t\tif (linePosition > 0 && linePosition <= Underdogs.length - payoutIndex) {\r\n\r\n\t\t\tUnderdog thedog = Underdogs[payoutIndex + (linePosition - 1)];\r\n\t\t\tname = getDogName(thedog.addr);\r\n\t\t\tdogAddress = thedog.addr;\r\n\t\t\tdeposit = thedog.deposit;\r\n\t\t\tpayout= thedog.payout;\r\n\t\t\tscrapBonus = thedog.bailouts;\r\n\t\t}\r\n\t}"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint linePosition)"
+      VariableDeclaration "linePosition"
+         Type: uint256
+         Source: "uint linePosition"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 15
+       Source: "(string name, address dogAddress, uint deposit, uint payout, uint scrapBonus)"
+      VariableDeclaration "name"
+         Type: string memory
+         Source: "string name"
+        ElementaryTypeName string
+           Source: "string"
+      VariableDeclaration "dogAddress"
+         Type: address
+         Source: "address dogAddress"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "deposit"
+         Type: uint256
+         Source: "uint deposit"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "payout"
+         Type: uint256
+         Source: "uint payout"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "scrapBonus"
+         Type: uint256
+         Source: "uint scrapBonus"
+        ElementaryTypeName uint
+           Source: "uint"
+    Block
+       Source: "{\r\n\t\tif (linePosition > 0 && linePosition <= Underdogs.length - payoutIndex) {\r\n\r\n\t\t\tUnderdog thedog = Underdogs[payoutIndex + (linePosition - 1)];\r\n\t\t\tname = getDogName(thedog.addr);\r\n\t\t\tdogAddress = thedog.addr;\r\n\t\t\tdeposit = thedog.deposit;\r\n\t\t\tpayout= thedog.payout;\r\n\t\t\tscrapBonus = thedog.bailouts;\r\n\t\t}\r\n\t}"
+      IfStatement
+         Source: "if (linePosition > 0 && linePosition <= Underdogs.length - payoutIndex) {\r\n\r\n\t\t\tUnderdog thedog = Underdogs[payoutIndex + (linePosition - 1)];\r\n\t\t\tname = getDogName(thedog.addr);\r\n\t\t\tdogAddress = thedog.addr;\r\n\t\t\tdeposit = thedog.deposit;\r\n\t\t\tpayout= thedog.payout;\r\n\t\t\tscrapBonus = thedog.bailouts;\r\n\t\t}"
+        BinaryOperation using operator &&
+           Type: bool
+           Gas costs: 457
+           Source: "linePosition > 0 && linePosition <= Underdogs.length - payoutIndex"
+          BinaryOperation using operator >
+             Type: bool
+             Source: "linePosition > 0"
+            Identifier linePosition
+               Type: uint256
+               Source: "linePosition"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+          BinaryOperation using operator <=
+             Type: bool
+             Source: "linePosition <= Underdogs.length - payoutIndex"
+            Identifier linePosition
+               Type: uint256
+               Source: "linePosition"
+            BinaryOperation using operator -
+               Type: uint256
+               Source: "Underdogs.length - payoutIndex"
+              MemberAccess to member length
+                 Type: uint256
+                 Source: "Underdogs.length"
+                Identifier Underdogs
+                   Type: struct EtherTopDog.Underdog storage ref[] storage ref
+                   Source: "Underdogs"
+              Identifier payoutIndex
+                 Type: uint256
+                 Source: "payoutIndex"
+        Block
+           Source: "{\r\n\r\n\t\t\tUnderdog thedog = Underdogs[payoutIndex + (linePosition - 1)];\r\n\t\t\tname = getDogName(thedog.addr);\r\n\t\t\tdogAddress = thedog.addr;\r\n\t\t\tdeposit = thedog.deposit;\r\n\t\t\tpayout= thedog.payout;\r\n\t\t\tscrapBonus = thedog.bailouts;\r\n\t\t}"
+          VariableDeclarationStatement
+             Gas costs: 523
+             Source: "Underdog thedog = Underdogs[payoutIndex + (linePosition - 1)]"
+            VariableDeclaration "thedog"
+               Type: struct EtherTopDog.Underdog storage pointer
+               Source: "Underdog thedog"
+              UserDefinedTypeName "Underdog"
+                 Source: "Underdog"
+            IndexAccess
+               Type: struct EtherTopDog.Underdog storage ref
+               Source: "Underdogs[payoutIndex + (linePosition - 1)]"
+              Identifier Underdogs
+                 Type: struct EtherTopDog.Underdog storage ref[] storage ref
+                 Source: "Underdogs"
+              BinaryOperation using operator +
+                 Type: uint256
+                 Source: "payoutIndex + (linePosition - 1)"
+                Identifier payoutIndex
+                   Type: uint256
+                   Source: "payoutIndex"
+                TupleExpression
+                   Type: uint256
+                   Source: "(linePosition - 1)"
+                  BinaryOperation using operator -
+                     Type: uint256
+                     Source: "linePosition - 1"
+                    Identifier linePosition
+                       Type: uint256
+                       Source: "linePosition"
+                    Literal, token: [no token] value: 1
+                       Type: int_const 1
+                       Source: "1"
+          ExpressionStatement
+             Gas costs: 265
+             Source: "name = getDogName(thedog.addr)"
+            Assignment using operator =
+               Type: string memory
+               Source: "name = getDogName(thedog.addr)"
+              Identifier name
+                 Type: string memory
+                 Source: "name"
+              FunctionCall
+                 Type: string memory
+                 Source: "getDogName(thedog.addr)"
+                Identifier getDogName
+                   Type: function (address) view returns (string memory)
+                   Source: "getDogName"
+                MemberAccess to member addr
+                   Type: address
+                   Source: "thedog.addr"
+                  Identifier thedog
+                     Type: struct EtherTopDog.Underdog storage pointer
+                     Source: "thedog"
+          ExpressionStatement
+             Gas costs: 250
+             Source: "dogAddress = thedog.addr"
+            Assignment using operator =
+               Type: address
+               Source: "dogAddress = thedog.addr"
+              Identifier dogAddress
+                 Type: address
+                 Source: "dogAddress"
+              MemberAccess to member addr
+                 Type: address
+                 Source: "thedog.addr"
+                Identifier thedog
+                   Type: struct EtherTopDog.Underdog storage pointer
+                   Source: "thedog"
+          ExpressionStatement
+             Gas costs: 214
+             Source: "deposit = thedog.deposit"
+            Assignment using operator =
+               Type: uint256
+               Source: "deposit = thedog.deposit"
+              Identifier deposit
+                 Type: uint256
+                 Source: "deposit"
+              MemberAccess to member deposit
+                 Type: uint256
+                 Source: "thedog.deposit"
+                Identifier thedog
+                   Type: struct EtherTopDog.Underdog storage pointer
+                   Source: "thedog"
+          ExpressionStatement
+             Gas costs: 214
+             Source: "payout= thedog.payout"
+            Assignment using operator =
+               Type: uint256
+               Source: "payout= thedog.payout"
+              Identifier payout
+                 Type: uint256
+                 Source: "payout"
+              MemberAccess to member payout
+                 Type: uint256
+                 Source: "thedog.payout"
+                Identifier thedog
+                   Type: struct EtherTopDog.Underdog storage pointer
+                   Source: "thedog"
+          ExpressionStatement
+             Gas costs: 214
+             Source: "scrapBonus = thedog.bailouts"
+            Assignment using operator =
+               Type: uint256
+               Source: "scrapBonus = thedog.bailouts"
+              Identifier scrapBonus
+                 Type: uint256
+                 Source: "scrapBonus"
+              MemberAccess to member bailouts
+                 Type: uint256
+                 Source: "thedog.bailouts"
+                Identifier thedog
+                   Type: struct EtherTopDog.Underdog storage pointer
+                   Source: "thedog"
+  FunctionDefinition "" - public
+     Source: "function() {\r\n\t\tdogFight();\r\n\t}"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n\t\tdogFight();\r\n\t}"
+      ExpressionStatement
+         Gas costs: 4
+         Source: "dogFight()"
+        FunctionCall
+           Type: tuple()
+           Source: "dogFight()"
+          Identifier dogFight
+             Type: function ()
+             Source: "dogFight"
+  FunctionDefinition "setName" - public
+     Source: "function setName(string DogName) {\r\n\t\tif (bytes(DogName).length >= 2 && bytes(DogName).length <= 16)\r\n\t\t\tdogNames[msg.sender] = DogName;\r\n\r\n\t\t// if a deposit was sent, play it!\r\n\t\tif (msg.value > 0) {\r\n\t\t\tdogFight();\r\n\t\t}\r\n\t\t\r\n\t}"
+    ParameterList
+       Gas costs: 0
+       Source: "(string DogName)"
+      VariableDeclaration "DogName"
+         Type: string memory
+         Source: "string DogName"
+        ElementaryTypeName string
+           Source: "string"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n\t\tif (bytes(DogName).length >= 2 && bytes(DogName).length <= 16)\r\n\t\t\tdogNames[msg.sender] = DogName;\r\n\r\n\t\t// if a deposit was sent, play it!\r\n\t\tif (msg.value > 0) {\r\n\t\t\tdogFight();\r\n\t\t}\r\n\t\t\r\n\t}"
+      IfStatement
+         Source: "if (bytes(DogName).length >= 2 && bytes(DogName).length <= 16)\r\n\t\t\tdogNames[msg.sender] = DogName"
+        BinaryOperation using operator &&
+           Type: bool
+           Gas costs: [???]
+           Source: "bytes(DogName).length >= 2 && bytes(DogName).length <= 16"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "bytes(DogName).length >= 2"
+            MemberAccess to member length
+               Type: uint256
+               Source: "bytes(DogName).length"
+              FunctionCall
+                 Type: bytes memory
+                 Source: "bytes(DogName)"
+                ElementaryTypeNameExpression bytes
+                   Type: type(bytes storage pointer)
+                   Source: "bytes"
+                Identifier DogName
+                   Type: string memory
+                   Source: "DogName"
+            Literal, token: [no token] value: 2
+               Type: int_const 2
+               Source: "2"
+          BinaryOperation using operator <=
+             Type: bool
+             Source: "bytes(DogName).length <= 16"
+            MemberAccess to member length
+               Type: uint256
+               Source: "bytes(DogName).length"
+              FunctionCall
+                 Type: bytes memory
+                 Source: "bytes(DogName)"
+                ElementaryTypeNameExpression bytes
+                   Type: type(bytes storage pointer)
+                   Source: "bytes"
+                Identifier DogName
+                   Type: string memory
+                   Source: "DogName"
+            Literal, token: [no token] value: 16
+               Type: int_const 16
+               Source: "16"
+        ExpressionStatement
+           Gas costs: [???]
+           Source: "dogNames[msg.sender] = DogName"
+          Assignment using operator =
+             Type: string storage ref
+             Source: "dogNames[msg.sender] = DogName"
+            IndexAccess
+               Type: string storage ref
+               Source: "dogNames[msg.sender]"
+              Identifier dogNames
+                 Type: mapping(address => string storage ref)
+                 Source: "dogNames"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+            Identifier DogName
+               Type: string memory
+               Source: "DogName"
+      IfStatement
+         Source: "if (msg.value > 0) {\r\n\t\t\tdogFight();\r\n\t\t}"
+        BinaryOperation using operator >
+           Type: bool
+           Gas costs: 8
+           Source: "msg.value > 0"
+          MemberAccess to member value
+             Type: uint256
+             Source: "msg.value"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        Block
+           Source: "{\r\n\t\t\tdogFight();\r\n\t\t}"
+          ExpressionStatement
+             Gas costs: 15
+             Source: "dogFight()"
+            FunctionCall
+               Type: tuple()
+               Source: "dogFight()"
+              Identifier dogFight
+                 Type: function ()
+                 Source: "dogFight"
+  FunctionDefinition "dogFight" - public
+     Source: "function dogFight() public {\r\n\t\t// minimum 1 ETH required to play\r\n\t\tif (msg.value < 1 ether) {\r\n\t\t\tmsg.sender.send(msg.value);\r\n\t\t\treturn;\r\n\t\t}\r\n\r\n\t\t// does a topdog exist ?\r\n\t\tif (topDog != address(0x0)) {\r\n\r\n\t\t\t// the actual amount required to knock out the top dig is random within the buyout range\r\n\t\t\tuint topDogPrice = topDogMinPrice + randInt( (topDogMinPrice * topDogBuyoutRange / 100) - topDogMinPrice, 4321);\r\n\r\n\t\t\t// Calculate the top dog price\r\n\t\t\tif (msg.value >= topDogPrice) {\r\n\t\t\t\t// They bought out the top dog!\r\n\t\t\t\tbuyTopDog(topDogPrice, msg.value - topDogPrice);\r\n\t\t\t} else {\r\n\t\t\t\t// didn't buy the top dog, this participant becomes an underdog!\r\n\t\t\t\taddUnderDog(msg.value);\r\n\t\t\t}\r\n\t\t} else {\r\n\t\t\t// no top dog exists yet, the game must be just getting started\r\n\t\t\t// put the first deposit in the bailout fund, initialize the game\r\n\r\n\t\t\t// set first topDog \r\n\t\t\ttopDog = msg.sender;\r\n\r\n\t\t\ttopDogPriceFloor = topDogMinPrice;\r\n\r\n\t\t\tbailoutBalance += msg.value;\r\n\t\t\ttopDogMinPrice = msg.value * topDogMinMarkup / 100;\r\n\r\n\t\t\ttopDogPriceCeiling = topDogMinPrice;\r\n\r\n\t\t}\r\n\t}"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n\t\t// minimum 1 ETH required to play\r\n\t\tif (msg.value < 1 ether) {\r\n\t\t\tmsg.sender.send(msg.value);\r\n\t\t\treturn;\r\n\t\t}\r\n\r\n\t\t// does a topdog exist ?\r\n\t\tif (topDog != address(0x0)) {\r\n\r\n\t\t\t// the actual amount required to knock out the top dig is random within the buyout range\r\n\t\t\tuint topDogPrice = topDogMinPrice + randInt( (topDogMinPrice * topDogBuyoutRange / 100) - topDogMinPrice, 4321);\r\n\r\n\t\t\t// Calculate the top dog price\r\n\t\t\tif (msg.value >= topDogPrice) {\r\n\t\t\t\t// They bought out the top dog!\r\n\t\t\t\tbuyTopDog(topDogPrice, msg.value - topDogPrice);\r\n\t\t\t} else {\r\n\t\t\t\t// didn't buy the top dog, this participant becomes an underdog!\r\n\t\t\t\taddUnderDog(msg.value);\r\n\t\t\t}\r\n\t\t} else {\r\n\t\t\t// no top dog exists yet, the game must be just getting started\r\n\t\t\t// put the first deposit in the bailout fund, initialize the game\r\n\r\n\t\t\t// set first topDog \r\n\t\t\ttopDog = msg.sender;\r\n\r\n\t\t\ttopDogPriceFloor = topDogMinPrice;\r\n\r\n\t\t\tbailoutBalance += msg.value;\r\n\t\t\ttopDogMinPrice = msg.value * topDogMinMarkup / 100;\r\n\r\n\t\t\ttopDogPriceCeiling = topDogMinPrice;\r\n\r\n\t\t}\r\n\t}"
+      IfStatement
+         Source: "if (msg.value < 1 ether) {\r\n\t\t\tmsg.sender.send(msg.value);\r\n\t\t\treturn;\r\n\t\t}"
+        BinaryOperation using operator <
+           Type: bool
+           Gas costs: 8
+           Source: "msg.value < 1 ether"
+          MemberAccess to member value
+             Type: uint256
+             Source: "msg.value"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Literal, token: [no token] value: 1
+             Type: int_const 1000000000000000000
+             Source: "1 ether"
+        Block
+           Source: "{\r\n\t\t\tmsg.sender.send(msg.value);\r\n\t\t\treturn;\r\n\t\t}"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "msg.sender.send(msg.value)"
+            FunctionCall
+               Type: bool
+               Source: "msg.sender.send(msg.value)"
+              MemberAccess to member send
+                 Type: function (uint256) returns (bool)
+                 Source: "msg.sender.send"
+                MemberAccess to member sender
+                   Type: address
+                   Source: "msg.sender"
+                  Identifier msg
+                     Type: msg
+                     Source: "msg"
+              MemberAccess to member value
+                 Type: uint256
+                 Source: "msg.value"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+          Return
+             Gas costs: 11
+             Source: "return;"
+      IfStatement
+         Source: "if (topDog != address(0x0)) {\r\n\r\n\t\t\t// the actual amount required to knock out the top dig is random within the buyout range\r\n\t\t\tuint topDogPrice = topDogMinPrice + randInt( (topDogMinPrice * topDogBuyoutRange / 100) - topDogMinPrice, 4321);\r\n\r\n\t\t\t// Calculate the top dog price\r\n\t\t\tif (msg.value >= topDogPrice) {\r\n\t\t\t\t// They bought out the top dog!\r\n\t\t\t\tbuyTopDog(topDogPrice, msg.value - topDogPrice);\r\n\t\t\t} else {\r\n\t\t\t\t// didn't buy the top dog, this participant becomes an underdog!\r\n\t\t\t\taddUnderDog(msg.value);\r\n\t\t\t}\r\n\t\t} else {\r\n\t\t\t// no top dog exists yet, the game must be just getting started\r\n\t\t\t// put the first deposit in the bailout fund, initialize the game\r\n\r\n\t\t\t// set first topDog \r\n\t\t\ttopDog = msg.sender;\r\n\r\n\t\t\ttopDogPriceFloor = topDogMinPrice;\r\n\r\n\t\t\tbailoutBalance += msg.value;\r\n\t\t\ttopDogMinPrice = msg.value * topDogMinMarkup / 100;\r\n\r\n\t\t\ttopDogPriceCeiling = topDogMinPrice;\r\n\r\n\t\t}"
+        BinaryOperation using operator !=
+           Type: bool
+           Gas costs: 260
+           Source: "topDog != address(0x0)"
+          Identifier topDog
+             Type: address
+             Source: "topDog"
+          FunctionCall
+             Type: address
+             Source: "address(0x0)"
+            ElementaryTypeNameExpression address
+               Type: type(address)
+               Source: "address"
+            Literal, token: [no token] value: 0x0
+               Type: int_const 0
+               Source: "0x0"
+        Block
+           Source: "{\r\n\r\n\t\t\t// the actual amount required to knock out the top dig is random within the buyout range\r\n\t\t\tuint topDogPrice = topDogMinPrice + randInt( (topDogMinPrice * topDogBuyoutRange / 100) - topDogMinPrice, 4321);\r\n\r\n\t\t\t// Calculate the top dog price\r\n\t\t\tif (msg.value >= topDogPrice) {\r\n\t\t\t\t// They bought out the top dog!\r\n\t\t\t\tbuyTopDog(topDogPrice, msg.value - topDogPrice);\r\n\t\t\t} else {\r\n\t\t\t\t// didn't buy the top dog, this participant becomes an underdog!\r\n\t\t\t\taddUnderDog(msg.value);\r\n\t\t\t}\r\n\t\t}"
+          VariableDeclarationStatement
+             Gas costs: 666
+             Source: "uint topDogPrice = topDogMinPrice + randInt( (topDogMinPrice * topDogBuyoutRange / 100) - topDogMinPrice, 4321)"
+            VariableDeclaration "topDogPrice"
+               Type: uint256
+               Source: "uint topDogPrice"
+              ElementaryTypeName uint
+                 Source: "uint"
+            BinaryOperation using operator +
+               Type: uint256
+               Source: "topDogMinPrice + randInt( (topDogMinPrice * topDogBuyoutRange / 100) - topDogMinPrice, 4321)"
+              Identifier topDogMinPrice
+                 Type: uint256
+                 Source: "topDogMinPrice"
+              FunctionCall
+                 Type: uint256
+                 Source: "randInt( (topDogMinPrice * topDogBuyoutRange / 100) - topDogMinPrice, 4321)"
+                Identifier randInt
+                   Type: function (uint256,uint256) view returns (uint256)
+                   Source: "randInt"
+                BinaryOperation using operator -
+                   Type: uint256
+                   Source: "(topDogMinPrice * topDogBuyoutRange / 100) - topDogMinPrice"
+                  TupleExpression
+                     Type: uint256
+                     Source: "(topDogMinPrice * topDogBuyoutRange / 100)"
+                    BinaryOperation using operator /
+                       Type: uint256
+                       Source: "topDogMinPrice * topDogBuyoutRange / 100"
+                      BinaryOperation using operator *
+                         Type: uint256
+                         Source: "topDogMinPrice * topDogBuyoutRange"
+                        Identifier topDogMinPrice
+                           Type: uint256
+                           Source: "topDogMinPrice"
+                        Identifier topDogBuyoutRange
+                           Type: uint256
+                           Source: "topDogBuyoutRange"
+                      Literal, token: [no token] value: 100
+                         Type: int_const 100
+                         Source: "100"
+                  Identifier topDogMinPrice
+                     Type: uint256
+                     Source: "topDogMinPrice"
+                Literal, token: [no token] value: 4321
+                   Type: int_const 4321
+                   Source: "4321"
+          IfStatement
+             Source: "if (msg.value >= topDogPrice) {\r\n\t\t\t\t// They bought out the top dog!\r\n\t\t\t\tbuyTopDog(topDogPrice, msg.value - topDogPrice);\r\n\t\t\t} else {\r\n\t\t\t\t// didn't buy the top dog, this participant becomes an underdog!\r\n\t\t\t\taddUnderDog(msg.value);\r\n\t\t\t}"
+            BinaryOperation using operator >=
+               Type: bool
+               Gas costs: 11
+               Source: "msg.value >= topDogPrice"
+              MemberAccess to member value
+                 Type: uint256
+                 Source: "msg.value"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+              Identifier topDogPrice
+                 Type: uint256
+                 Source: "topDogPrice"
+            Block
+               Source: "{\r\n\t\t\t\t// They bought out the top dog!\r\n\t\t\t\tbuyTopDog(topDogPrice, msg.value - topDogPrice);\r\n\t\t\t}"
+              ExpressionStatement
+                 Gas costs: 15
+                 Source: "buyTopDog(topDogPrice, msg.value - topDogPrice)"
+                FunctionCall
+                   Type: tuple()
+                   Source: "buyTopDog(topDogPrice, msg.value - topDogPrice)"
+                  Identifier buyTopDog
+                     Type: function (uint256,uint256)
+                     Source: "buyTopDog"
+                  Identifier topDogPrice
+                     Type: uint256
+                     Source: "topDogPrice"
+                  BinaryOperation using operator -
+                     Type: uint256
+                     Source: "msg.value - topDogPrice"
+                    MemberAccess to member value
+                       Type: uint256
+                       Source: "msg.value"
+                      Identifier msg
+                         Type: msg
+                         Source: "msg"
+                    Identifier topDogPrice
+                       Type: uint256
+                       Source: "topDogPrice"
+            Block
+               Source: "{\r\n\t\t\t\t// didn't buy the top dog, this participant becomes an underdog!\r\n\t\t\t\taddUnderDog(msg.value);\r\n\t\t\t}"
+              ExpressionStatement
+                 Gas costs: 6
+                 Source: "addUnderDog(msg.value)"
+                FunctionCall
+                   Type: tuple()
+                   Source: "addUnderDog(msg.value)"
+                  Identifier addUnderDog
+                     Type: function (uint256)
+                     Source: "addUnderDog"
+                  MemberAccess to member value
+                     Type: uint256
+                     Source: "msg.value"
+                    Identifier msg
+                       Type: msg
+                       Source: "msg"
+        Block
+           Source: "{\r\n\t\t\t// no top dog exists yet, the game must be just getting started\r\n\t\t\t// put the first deposit in the bailout fund, initialize the game\r\n\r\n\t\t\t// set first topDog \r\n\t\t\ttopDog = msg.sender;\r\n\r\n\t\t\ttopDogPriceFloor = topDogMinPrice;\r\n\r\n\t\t\tbailoutBalance += msg.value;\r\n\t\t\ttopDogMinPrice = msg.value * topDogMinMarkup / 100;\r\n\r\n\t\t\ttopDogPriceCeiling = topDogMinPrice;\r\n\r\n\t\t}"
+          ExpressionStatement
+             Gas costs: 20266
+             Source: "topDog = msg.sender"
+            Assignment using operator =
+               Type: address
+               Source: "topDog = msg.sender"
+              Identifier topDog
+                 Type: address
+                 Source: "topDog"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+          ExpressionStatement
+             Gas costs: 20214
+             Source: "topDogPriceFloor = topDogMinPrice"
+            Assignment using operator =
+               Type: uint256
+               Source: "topDogPriceFloor = topDogMinPrice"
+              Identifier topDogPriceFloor
+                 Type: uint256
+                 Source: "topDogPriceFloor"
+              Identifier topDogMinPrice
+                 Type: uint256
+                 Source: "topDogMinPrice"
+          ExpressionStatement
+             Gas costs: 20232
+             Source: "bailoutBalance += msg.value"
+            Assignment using operator +=
+               Type: uint256
+               Source: "bailoutBalance += msg.value"
+              Identifier bailoutBalance
+                 Type: uint256
+                 Source: "bailoutBalance"
+              MemberAccess to member value
+                 Type: uint256
+                 Source: "msg.value"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+          ExpressionStatement
+             Gas costs: 20049
+             Source: "topDogMinPrice = msg.value * topDogMinMarkup / 100"
+            Assignment using operator =
+               Type: uint256
+               Source: "topDogMinPrice = msg.value * topDogMinMarkup / 100"
+              Identifier topDogMinPrice
+                 Type: uint256
+                 Source: "topDogMinPrice"
+              BinaryOperation using operator /
+                 Type: uint256
+                 Source: "msg.value * topDogMinMarkup / 100"
+                BinaryOperation using operator *
+                   Type: uint256
+                   Source: "msg.value * topDogMinMarkup"
+                  MemberAccess to member value
+                     Type: uint256
+                     Source: "msg.value"
+                    Identifier msg
+                       Type: msg
+                       Source: "msg"
+                  Identifier topDogMinMarkup
+                     Type: uint256
+                     Source: "topDogMinMarkup"
+                Literal, token: [no token] value: 100
+                   Type: int_const 100
+                   Source: "100"
+          ExpressionStatement
+             Gas costs: 20214
+             Source: "topDogPriceCeiling = topDogMinPrice"
+            Assignment using operator =
+               Type: uint256
+               Source: "topDogPriceCeiling = topDogMinPrice"
+              Identifier topDogPriceCeiling
+                 Type: uint256
+                 Source: "topDogPriceCeiling"
+              Identifier topDogMinPrice
+                 Type: uint256
+                 Source: "topDogMinPrice"
+  FunctionDefinition "addUnderDog"
+     Source: "function addUnderDog(uint buyin) private {\r\n\r\n\t\tuint bailcount = 0;\r\n\r\n\t\t// amount this depositor will be paid when the fund allows\r\n\t\tuint payoutval = buyin * underDogMarkup / 100;\r\n\r\n\t\t// add portion of deposit to bailout fund \r\n\t\tbailoutBalance += buyin * bailoutFundPercent / 100;\r\n\r\n\t\t// top dog / lucky dog dividends\r\n\t\tuint topdividend = buyin * topDogDividend / 100;\r\n\t\tuint luckydividend = buyin * luckyDogDividend / 100;\r\n\r\n\t\t// is there a lucky dog?\r\n\t\tif (luckyDog != 0 && luckyDog >= payoutIndex) {\r\n\t\t\t// pay lucky dog dividends\r\n\t\t\tUnderdogs[luckyDog].addr.send(luckydividend);\r\n\t\t} else {\r\n\t\t\t// no lucky dog exists, all dividends go to top dog\r\n\t\t\ttopdividend += luckydividend;\r\n\t\t}\r\n\r\n\t\t// pay top dog dividends\r\n\t\ttopDog.send(topdividend);\r\n\r\n\r\n\t\t// chip away at the top dog's strength\r\n\t\tuint topdecay = (buyin * topDogDecayPercent / 100);\r\n\t\ttopDogMinPrice -= topdecay;\r\n\r\n\t\t// update underdog markup % for next round\r\n\r\n\t\t// specified as n/100000 to avoid floating point math\r\n\t\tuint decayfactor = 0;\r\n\r\n\t\t// calculate the payout markup for next underdog\r\n\t\tif (topDogMinPrice > topDogPriceFloor) {\r\n\t\t\tuint decayrange = (topDogPriceCeiling - topDogPriceFloor);\r\n\t\t\tdecayfactor = 100000 * (topDogPriceCeiling - topDogMinPrice) / decayrange;\r\n\t\t} else {\r\n\t\t\tdecayfactor = 100000;\r\n\t\t}\r\n\t\t// markup will be between 120-150% corresponding to current top dog price decline (150% - 30% = 120%)\r\n\t\tunderDogMarkup = 150 - (decayfactor * 30 / 100000);\r\n\r\n\r\n\r\n\t\t// creator takes a slice\r\n\t\tvisionFees += (buyin * visionDogFeePercent / 100);\r\n\t\t\r\n\r\n\t\t// payout as many previous underdogs as the fund can afford\r\n\t\twhile (payoutIndex < Underdogs.length && bailoutBalance >= Underdogs[payoutIndex].payout ) {\r\n\t\t\tpayoutCount -= Underdogs[payoutIndex].bailouts;\r\n\t\t\tbailoutBalance -= Underdogs[payoutIndex].payout;\r\n\t\t\tUnderdogs[payoutIndex].addr.send(Underdogs[payoutIndex].payout);\r\n\r\n\r\n\t\t\t// if the lucky dog was bailed out, the user who did it now becomes the lucky dog\r\n\t\t\tif (payoutIndex == luckyDog && luckyDog != 0)\r\n\t\t\t\tluckyDog = Underdogs.length;\r\n\r\n\t\t\tpayoutIndex++;\r\n\t\t\tbailcount++;\r\n\t\t\tpayoutCount++;\r\n\t\t}\r\n\r\n\t\t\r\n\t\t// add the new underdog to the queue\r\n\t\tUnderdogs.push(Underdog(msg.sender, buyin, payoutval, bailcount));\r\n\r\n\t}"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint buyin)"
+      VariableDeclaration "buyin"
+         Type: uint256
+         Source: "uint buyin"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n\r\n\t\tuint bailcount = 0;\r\n\r\n\t\t// amount this depositor will be paid when the fund allows\r\n\t\tuint payoutval = buyin * underDogMarkup / 100;\r\n\r\n\t\t// add portion of deposit to bailout fund \r\n\t\tbailoutBalance += buyin * bailoutFundPercent / 100;\r\n\r\n\t\t// top dog / lucky dog dividends\r\n\t\tuint topdividend = buyin * topDogDividend / 100;\r\n\t\tuint luckydividend = buyin * luckyDogDividend / 100;\r\n\r\n\t\t// is there a lucky dog?\r\n\t\tif (luckyDog != 0 && luckyDog >= payoutIndex) {\r\n\t\t\t// pay lucky dog dividends\r\n\t\t\tUnderdogs[luckyDog].addr.send(luckydividend);\r\n\t\t} else {\r\n\t\t\t// no lucky dog exists, all dividends go to top dog\r\n\t\t\ttopdividend += luckydividend;\r\n\t\t}\r\n\r\n\t\t// pay top dog dividends\r\n\t\ttopDog.send(topdividend);\r\n\r\n\r\n\t\t// chip away at the top dog's strength\r\n\t\tuint topdecay = (buyin * topDogDecayPercent / 100);\r\n\t\ttopDogMinPrice -= topdecay;\r\n\r\n\t\t// update underdog markup % for next round\r\n\r\n\t\t// specified as n/100000 to avoid floating point math\r\n\t\tuint decayfactor = 0;\r\n\r\n\t\t// calculate the payout markup for next underdog\r\n\t\tif (topDogMinPrice > topDogPriceFloor) {\r\n\t\t\tuint decayrange = (topDogPriceCeiling - topDogPriceFloor);\r\n\t\t\tdecayfactor = 100000 * (topDogPriceCeiling - topDogMinPrice) / decayrange;\r\n\t\t} else {\r\n\t\t\tdecayfactor = 100000;\r\n\t\t}\r\n\t\t// markup will be between 120-150% corresponding to current top dog price decline (150% - 30% = 120%)\r\n\t\tunderDogMarkup = 150 - (decayfactor * 30 / 100000);\r\n\r\n\r\n\r\n\t\t// creator takes a slice\r\n\t\tvisionFees += (buyin * visionDogFeePercent / 100);\r\n\t\t\r\n\r\n\t\t// payout as many previous underdogs as the fund can afford\r\n\t\twhile (payoutIndex < Underdogs.length && bailoutBalance >= Underdogs[payoutIndex].payout ) {\r\n\t\t\tpayoutCount -= Underdogs[payoutIndex].bailouts;\r\n\t\t\tbailoutBalance -= Underdogs[payoutIndex].payout;\r\n\t\t\tUnderdogs[payoutIndex].addr.send(Underdogs[payoutIndex].payout);\r\n\r\n\r\n\t\t\t// if the lucky dog was bailed out, the user who did it now becomes the lucky dog\r\n\t\t\tif (payoutIndex == luckyDog && luckyDog != 0)\r\n\t\t\t\tluckyDog = Underdogs.length;\r\n\r\n\t\t\tpayoutIndex++;\r\n\t\t\tbailcount++;\r\n\t\t\tpayoutCount++;\r\n\t\t}\r\n\r\n\t\t\r\n\t\t// add the new underdog to the queue\r\n\t\tUnderdogs.push(Underdog(msg.sender, buyin, payoutval, bailcount));\r\n\r\n\t}"
+      VariableDeclarationStatement
+         Gas costs: 11
+         Source: "uint bailcount = 0"
+        VariableDeclaration "bailcount"
+           Type: uint256
+           Source: "uint bailcount"
+          ElementaryTypeName uint
+             Source: "uint"
+        Literal, token: [no token] value: 0
+           Type: int_const 0
+           Source: "0"
+      VariableDeclarationStatement
+         Gas costs: 250
+         Source: "uint payoutval = buyin * underDogMarkup / 100"
+        VariableDeclaration "payoutval"
+           Type: uint256
+           Source: "uint payoutval"
+          ElementaryTypeName uint
+             Source: "uint"
+        BinaryOperation using operator /
+           Type: uint256
+           Source: "buyin * underDogMarkup / 100"
+          BinaryOperation using operator *
+             Type: uint256
+             Source: "buyin * underDogMarkup"
+            Identifier buyin
+               Type: uint256
+               Source: "buyin"
+            Identifier underDogMarkup
+               Type: uint256
+               Source: "underDogMarkup"
+          Literal, token: [no token] value: 100
+             Type: int_const 100
+             Source: "100"
+      ExpressionStatement
+         Gas costs: 20269
+         Source: "bailoutBalance += buyin * bailoutFundPercent / 100"
+        Assignment using operator +=
+           Type: uint256
+           Source: "bailoutBalance += buyin * bailoutFundPercent / 100"
+          Identifier bailoutBalance
+             Type: uint256
+             Source: "bailoutBalance"
+          BinaryOperation using operator /
+             Type: uint256
+             Source: "buyin * bailoutFundPercent / 100"
+            BinaryOperation using operator *
+               Type: uint256
+               Source: "buyin * bailoutFundPercent"
+              Identifier buyin
+                 Type: uint256
+                 Source: "buyin"
+              Identifier bailoutFundPercent
+                 Type: uint256
+                 Source: "bailoutFundPercent"
+            Literal, token: [no token] value: 100
+               Type: int_const 100
+               Source: "100"
+      VariableDeclarationStatement
+         Gas costs: 47
+         Source: "uint topdividend = buyin * topDogDividend / 100"
+        VariableDeclaration "topdividend"
+           Type: uint256
+           Source: "uint topdividend"
+          ElementaryTypeName uint
+             Source: "uint"
+        BinaryOperation using operator /
+           Type: uint256
+           Source: "buyin * topDogDividend / 100"
+          BinaryOperation using operator *
+             Type: uint256
+             Source: "buyin * topDogDividend"
+            Identifier buyin
+               Type: uint256
+               Source: "buyin"
+            Identifier topDogDividend
+               Type: uint256
+               Source: "topDogDividend"
+          Literal, token: [no token] value: 100
+             Type: int_const 100
+             Source: "100"
+      VariableDeclarationStatement
+         Gas costs: 47
+         Source: "uint luckydividend = buyin * luckyDogDividend / 100"
+        VariableDeclaration "luckydividend"
+           Type: uint256
+           Source: "uint luckydividend"
+          ElementaryTypeName uint
+             Source: "uint"
+        BinaryOperation using operator /
+           Type: uint256
+           Source: "buyin * luckyDogDividend / 100"
+          BinaryOperation using operator *
+             Type: uint256
+             Source: "buyin * luckyDogDividend"
+            Identifier buyin
+               Type: uint256
+               Source: "buyin"
+            Identifier luckyDogDividend
+               Type: uint256
+               Source: "luckyDogDividend"
+          Literal, token: [no token] value: 100
+             Type: int_const 100
+             Source: "100"
+      IfStatement
+         Source: "if (luckyDog != 0 && luckyDog >= payoutIndex) {\r\n\t\t\t// pay lucky dog dividends\r\n\t\t\tUnderdogs[luckyDog].addr.send(luckydividend);\r\n\t\t} else {\r\n\t\t\t// no lucky dog exists, all dividends go to top dog\r\n\t\t\ttopdividend += luckydividend;\r\n\t\t}"
+        BinaryOperation using operator &&
+           Type: bool
+           Gas costs: 646
+           Source: "luckyDog != 0 && luckyDog >= payoutIndex"
+          BinaryOperation using operator !=
+             Type: bool
+             Source: "luckyDog != 0"
+            Identifier luckyDog
+               Type: uint256
+               Source: "luckyDog"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "luckyDog >= payoutIndex"
+            Identifier luckyDog
+               Type: uint256
+               Source: "luckyDog"
+            Identifier payoutIndex
+               Type: uint256
+               Source: "payoutIndex"
+        Block
+           Source: "{\r\n\t\t\t// pay lucky dog dividends\r\n\t\t\tUnderdogs[luckyDog].addr.send(luckydividend);\r\n\t\t}"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "Underdogs[luckyDog].addr.send(luckydividend)"
+            FunctionCall
+               Type: bool
+               Source: "Underdogs[luckyDog].addr.send(luckydividend)"
+              MemberAccess to member send
+                 Type: function (uint256) returns (bool)
+                 Source: "Underdogs[luckyDog].addr.send"
+                MemberAccess to member addr
+                   Type: address
+                   Source: "Underdogs[luckyDog].addr"
+                  IndexAccess
+                     Type: struct EtherTopDog.Underdog storage ref
+                     Source: "Underdogs[luckyDog]"
+                    Identifier Underdogs
+                       Type: struct EtherTopDog.Underdog storage ref[] storage ref
+                       Source: "Underdogs"
+                    Identifier luckyDog
+                       Type: uint256
+                       Source: "luckyDog"
+              Identifier luckydividend
+                 Type: uint256
+                 Source: "luckydividend"
+        Block
+           Source: "{\r\n\t\t\t// no lucky dog exists, all dividends go to top dog\r\n\t\t\ttopdividend += luckydividend;\r\n\t\t}"
+          ExpressionStatement
+             Gas costs: 14
+             Source: "topdividend += luckydividend"
+            Assignment using operator +=
+               Type: uint256
+               Source: "topdividend += luckydividend"
+              Identifier topdividend
+                 Type: uint256
+                 Source: "topdividend"
+              Identifier luckydividend
+                 Type: uint256
+                 Source: "luckydividend"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "topDog.send(topdividend)"
+        FunctionCall
+           Type: bool
+           Source: "topDog.send(topdividend)"
+          MemberAccess to member send
+             Type: function (uint256) returns (bool)
+             Source: "topDog.send"
+            Identifier topDog
+               Type: address
+               Source: "topDog"
+          Identifier topdividend
+             Type: uint256
+             Source: "topdividend"
+      VariableDeclarationStatement
+         Gas costs: 47
+         Source: "uint topdecay = (buyin * topDogDecayPercent / 100)"
+        VariableDeclaration "topdecay"
+           Type: uint256
+           Source: "uint topdecay"
+          ElementaryTypeName uint
+             Source: "uint"
+        TupleExpression
+           Type: uint256
+           Source: "(buyin * topDogDecayPercent / 100)"
+          BinaryOperation using operator /
+             Type: uint256
+             Source: "buyin * topDogDecayPercent / 100"
+            BinaryOperation using operator *
+               Type: uint256
+               Source: "buyin * topDogDecayPercent"
+              Identifier buyin
+                 Type: uint256
+                 Source: "buyin"
+              Identifier topDogDecayPercent
+                 Type: uint256
+                 Source: "topDogDecayPercent"
+            Literal, token: [no token] value: 100
+               Type: int_const 100
+               Source: "100"
+      ExpressionStatement
+         Gas costs: 20233
+         Source: "topDogMinPrice -= topdecay"
+        Assignment using operator -=
+           Type: uint256
+           Source: "topDogMinPrice -= topdecay"
+          Identifier topDogMinPrice
+             Type: uint256
+             Source: "topDogMinPrice"
+          Identifier topdecay
+             Type: uint256
+             Source: "topdecay"
+      VariableDeclarationStatement
+         Gas costs: 11
+         Source: "uint decayfactor = 0"
+        VariableDeclaration "decayfactor"
+           Type: uint256
+           Source: "uint decayfactor"
+          ElementaryTypeName uint
+             Source: "uint"
+        Literal, token: [no token] value: 0
+           Type: int_const 0
+           Source: "0"
+      IfStatement
+         Source: "if (topDogMinPrice > topDogPriceFloor) {\r\n\t\t\tuint decayrange = (topDogPriceCeiling - topDogPriceFloor);\r\n\t\t\tdecayfactor = 100000 * (topDogPriceCeiling - topDogMinPrice) / decayrange;\r\n\t\t} else {\r\n\t\t\tdecayfactor = 100000;\r\n\t\t}"
+        BinaryOperation using operator >
+           Type: bool
+           Gas costs: 409
+           Source: "topDogMinPrice > topDogPriceFloor"
+          Identifier topDogMinPrice
+             Type: uint256
+             Source: "topDogMinPrice"
+          Identifier topDogPriceFloor
+             Type: uint256
+             Source: "topDogPriceFloor"
+        Block
+           Source: "{\r\n\t\t\tuint decayrange = (topDogPriceCeiling - topDogPriceFloor);\r\n\t\t\tdecayfactor = 100000 * (topDogPriceCeiling - topDogMinPrice) / decayrange;\r\n\t\t}"
+          VariableDeclarationStatement
+             Gas costs: 417
+             Source: "uint decayrange = (topDogPriceCeiling - topDogPriceFloor)"
+            VariableDeclaration "decayrange"
+               Type: uint256
+               Source: "uint decayrange"
+              ElementaryTypeName uint
+                 Source: "uint"
+            TupleExpression
+               Type: uint256
+               Source: "(topDogPriceCeiling - topDogPriceFloor)"
+              BinaryOperation using operator -
+                 Type: uint256
+                 Source: "topDogPriceCeiling - topDogPriceFloor"
+                Identifier topDogPriceCeiling
+                   Type: uint256
+                   Source: "topDogPriceCeiling"
+                Identifier topDogPriceFloor
+                   Type: uint256
+                   Source: "topDogPriceFloor"
+          ExpressionStatement
+             Gas costs: 453
+             Source: "decayfactor = 100000 * (topDogPriceCeiling - topDogMinPrice) / decayrange"
+            Assignment using operator =
+               Type: uint256
+               Source: "decayfactor = 100000 * (topDogPriceCeiling - topDogMinPrice) / decayrange"
+              Identifier decayfactor
+                 Type: uint256
+                 Source: "decayfactor"
+              BinaryOperation using operator /
+                 Type: uint256
+                 Source: "100000 * (topDogPriceCeiling - topDogMinPrice) / decayrange"
+                BinaryOperation using operator *
+                   Type: uint256
+                   Source: "100000 * (topDogPriceCeiling - topDogMinPrice)"
+                  Literal, token: [no token] value: 100000
+                     Type: int_const 100000
+                     Source: "100000"
+                  TupleExpression
+                     Type: uint256
+                     Source: "(topDogPriceCeiling - topDogMinPrice)"
+                    BinaryOperation using operator -
+                       Type: uint256
+                       Source: "topDogPriceCeiling - topDogMinPrice"
+                      Identifier topDogPriceCeiling
+                         Type: uint256
+                         Source: "topDogPriceCeiling"
+                      Identifier topDogMinPrice
+                         Type: uint256
+                         Source: "topDogMinPrice"
+                Identifier decayrange
+                   Type: uint256
+                   Source: "decayrange"
+        Block
+           Source: "{\r\n\t\t\tdecayfactor = 100000;\r\n\t\t}"
+          ExpressionStatement
+             Gas costs: 8
+             Source: "decayfactor = 100000"
+            Assignment using operator =
+               Type: uint256
+               Source: "decayfactor = 100000"
+              Identifier decayfactor
+                 Type: uint256
+                 Source: "decayfactor"
+              Literal, token: [no token] value: 100000
+                 Type: int_const 100000
+                 Source: "100000"
+      ExpressionStatement
+         Gas costs: 20059
+         Source: "underDogMarkup = 150 - (decayfactor * 30 / 100000)"
+        Assignment using operator =
+           Type: uint256
+           Source: "underDogMarkup = 150 - (decayfactor * 30 / 100000)"
+          Identifier underDogMarkup
+             Type: uint256
+             Source: "underDogMarkup"
+          BinaryOperation using operator -
+             Type: uint256
+             Source: "150 - (decayfactor * 30 / 100000)"
+            Literal, token: [no token] value: 150
+               Type: int_const 150
+               Source: "150"
+            TupleExpression
+               Type: uint256
+               Source: "(decayfactor * 30 / 100000)"
+              BinaryOperation using operator /
+                 Type: uint256
+                 Source: "decayfactor * 30 / 100000"
+                BinaryOperation using operator *
+                   Type: uint256
+                   Source: "decayfactor * 30"
+                  Identifier decayfactor
+                     Type: uint256
+                     Source: "decayfactor"
+                  Literal, token: [no token] value: 30
+                     Type: int_const 30
+                     Source: "30"
+                Literal, token: [no token] value: 100000
+                   Type: int_const 100000
+                   Source: "100000"
+      ExpressionStatement
+         Gas costs: 20269
+         Source: "visionFees += (buyin * visionDogFeePercent / 100)"
+        Assignment using operator +=
+           Type: uint256
+           Source: "visionFees += (buyin * visionDogFeePercent / 100)"
+          Identifier visionFees
+             Type: uint256
+             Source: "visionFees"
+          TupleExpression
+             Type: uint256
+             Source: "(buyin * visionDogFeePercent / 100)"
+            BinaryOperation using operator /
+               Type: uint256
+               Source: "buyin * visionDogFeePercent / 100"
+              BinaryOperation using operator *
+                 Type: uint256
+                 Source: "buyin * visionDogFeePercent"
+                Identifier buyin
+                   Type: uint256
+                   Source: "buyin"
+                Identifier visionDogFeePercent
+                   Type: uint256
+                   Source: "visionDogFeePercent"
+              Literal, token: [no token] value: 100
+                 Type: int_const 100
+                 Source: "100"
+      WhileStatement
+         Source: "while (payoutIndex < Underdogs.length && bailoutBalance >= Underdogs[payoutIndex].payout ) {\r\n\t\t\tpayoutCount -= Underdogs[payoutIndex].bailouts;\r\n\t\t\tbailoutBalance -= Underdogs[payoutIndex].payout;\r\n\t\t\tUnderdogs[payoutIndex].addr.send(Underdogs[payoutIndex].payout);\r\n\r\n\r\n\t\t\t// if the lucky dog was bailed out, the user who did it now becomes the lucky dog\r\n\t\t\tif (payoutIndex == luckyDog && luckyDog != 0)\r\n\t\t\t\tluckyDog = Underdogs.length;\r\n\r\n\t\t\tpayoutIndex++;\r\n\t\t\tbailcount++;\r\n\t\t\tpayoutCount++;\r\n\t\t}"
+        BinaryOperation using operator &&
+           Type: bool
+           Gas costs: 1357
+           Source: "payoutIndex < Underdogs.length && bailoutBalance >= Underdogs[payoutIndex].payout"
+          BinaryOperation using operator <
+             Type: bool
+             Source: "payoutIndex < Underdogs.length"
+            Identifier payoutIndex
+               Type: uint256
+               Source: "payoutIndex"
+            MemberAccess to member length
+               Type: uint256
+               Source: "Underdogs.length"
+              Identifier Underdogs
+                 Type: struct EtherTopDog.Underdog storage ref[] storage ref
+                 Source: "Underdogs"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "bailoutBalance >= Underdogs[payoutIndex].payout"
+            Identifier bailoutBalance
+               Type: uint256
+               Source: "bailoutBalance"
+            MemberAccess to member payout
+               Type: uint256
+               Source: "Underdogs[payoutIndex].payout"
+              IndexAccess
+                 Type: struct EtherTopDog.Underdog storage ref
+                 Source: "Underdogs[payoutIndex]"
+                Identifier Underdogs
+                   Type: struct EtherTopDog.Underdog storage ref[] storage ref
+                   Source: "Underdogs"
+                Identifier payoutIndex
+                   Type: uint256
+                   Source: "payoutIndex"
+        Block
+           Source: "{\r\n\t\t\tpayoutCount -= Underdogs[payoutIndex].bailouts;\r\n\t\t\tbailoutBalance -= Underdogs[payoutIndex].payout;\r\n\t\t\tUnderdogs[payoutIndex].addr.send(Underdogs[payoutIndex].payout);\r\n\r\n\r\n\t\t\t// if the lucky dog was bailed out, the user who did it now becomes the lucky dog\r\n\t\t\tif (payoutIndex == luckyDog && luckyDog != 0)\r\n\t\t\t\tluckyDog = Underdogs.length;\r\n\r\n\t\t\tpayoutIndex++;\r\n\t\t\tbailcount++;\r\n\t\t\tpayoutCount++;\r\n\t\t}"
+          ExpressionStatement
+             Gas costs: 20939
+             Source: "payoutCount -= Underdogs[payoutIndex].bailouts"
+            Assignment using operator -=
+               Type: uint256
+               Source: "payoutCount -= Underdogs[payoutIndex].bailouts"
+              Identifier payoutCount
+                 Type: uint256
+                 Source: "payoutCount"
+              MemberAccess to member bailouts
+                 Type: uint256
+                 Source: "Underdogs[payoutIndex].bailouts"
+                IndexAccess
+                   Type: struct EtherTopDog.Underdog storage ref
+                   Source: "Underdogs[payoutIndex]"
+                  Identifier Underdogs
+                     Type: struct EtherTopDog.Underdog storage ref[] storage ref
+                     Source: "Underdogs"
+                  Identifier payoutIndex
+                     Type: uint256
+                     Source: "payoutIndex"
+          ExpressionStatement
+             Gas costs: 20939
+             Source: "bailoutBalance -= Underdogs[payoutIndex].payout"
+            Assignment using operator -=
+               Type: uint256
+               Source: "bailoutBalance -= Underdogs[payoutIndex].payout"
+              Identifier bailoutBalance
+                 Type: uint256
+                 Source: "bailoutBalance"
+              MemberAccess to member payout
+                 Type: uint256
+                 Source: "Underdogs[payoutIndex].payout"
+                IndexAccess
+                   Type: struct EtherTopDog.Underdog storage ref
+                   Source: "Underdogs[payoutIndex]"
+                  Identifier Underdogs
+                     Type: struct EtherTopDog.Underdog storage ref[] storage ref
+                     Source: "Underdogs"
+                  Identifier payoutIndex
+                     Type: uint256
+                     Source: "payoutIndex"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "Underdogs[payoutIndex].addr.send(Underdogs[payoutIndex].payout)"
+            FunctionCall
+               Type: bool
+               Source: "Underdogs[payoutIndex].addr.send(Underdogs[payoutIndex].payout)"
+              MemberAccess to member send
+                 Type: function (uint256) returns (bool)
+                 Source: "Underdogs[payoutIndex].addr.send"
+                MemberAccess to member addr
+                   Type: address
+                   Source: "Underdogs[payoutIndex].addr"
+                  IndexAccess
+                     Type: struct EtherTopDog.Underdog storage ref
+                     Source: "Underdogs[payoutIndex]"
+                    Identifier Underdogs
+                       Type: struct EtherTopDog.Underdog storage ref[] storage ref
+                       Source: "Underdogs"
+                    Identifier payoutIndex
+                       Type: uint256
+                       Source: "payoutIndex"
+              MemberAccess to member payout
+                 Type: uint256
+                 Source: "Underdogs[payoutIndex].payout"
+                IndexAccess
+                   Type: struct EtherTopDog.Underdog storage ref
+                   Source: "Underdogs[payoutIndex]"
+                  Identifier Underdogs
+                     Type: struct EtherTopDog.Underdog storage ref[] storage ref
+                     Source: "Underdogs"
+                  Identifier payoutIndex
+                     Type: uint256
+                     Source: "payoutIndex"
+          IfStatement
+             Source: "if (payoutIndex == luckyDog && luckyDog != 0)\r\n\t\t\t\tluckyDog = Underdogs.length"
+            BinaryOperation using operator &&
+               Type: bool
+               Gas costs: 643
+               Source: "payoutIndex == luckyDog && luckyDog != 0"
+              BinaryOperation using operator ==
+                 Type: bool
+                 Source: "payoutIndex == luckyDog"
+                Identifier payoutIndex
+                   Type: uint256
+                   Source: "payoutIndex"
+                Identifier luckyDog
+                   Type: uint256
+                   Source: "luckyDog"
+              BinaryOperation using operator !=
+                 Type: bool
+                 Source: "luckyDog != 0"
+                Identifier luckyDog
+                   Type: uint256
+                   Source: "luckyDog"
+                Literal, token: [no token] value: 0
+                   Type: int_const 0
+                   Source: "0"
+            ExpressionStatement
+               Gas costs: 20222
+               Source: "luckyDog = Underdogs.length"
+              Assignment using operator =
+                 Type: uint256
+                 Source: "luckyDog = Underdogs.length"
+                Identifier luckyDog
+                   Type: uint256
+                   Source: "luckyDog"
+                MemberAccess to member length
+                   Type: uint256
+                   Source: "Underdogs.length"
+                  Identifier Underdogs
+                     Type: struct EtherTopDog.Underdog storage ref[] storage ref
+                     Source: "Underdogs"
+          ExpressionStatement
+             Gas costs: 20237
+             Source: "payoutIndex++"
+            UnaryOperation (postfix) ++
+               Type: uint256
+               Source: "payoutIndex++"
+              Identifier payoutIndex
+                 Type: uint256
+                 Source: "payoutIndex"
+          ExpressionStatement
+             Gas costs: 19
+             Source: "bailcount++"
+            UnaryOperation (postfix) ++
+               Type: uint256
+               Source: "bailcount++"
+              Identifier bailcount
+                 Type: uint256
+                 Source: "bailcount"
+          ExpressionStatement
+             Gas costs: 20237
+             Source: "payoutCount++"
+            UnaryOperation (postfix) ++
+               Type: uint256
+               Source: "payoutCount++"
+              Identifier payoutCount
+                 Type: uint256
+                 Source: "payoutCount"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "Underdogs.push(Underdog(msg.sender, buyin, payoutval, bailcount))"
+        FunctionCall
+           Type: uint256
+           Source: "Underdogs.push(Underdog(msg.sender, buyin, payoutval, bailcount))"
+          MemberAccess to member push
+             Type: function (struct EtherTopDog.Underdog storage ref) returns (uint256)
+             Source: "Underdogs.push"
+            Identifier Underdogs
+               Type: struct EtherTopDog.Underdog storage ref[] storage ref
+               Source: "Underdogs"
+          FunctionCall
+             Type: struct EtherTopDog.Underdog memory
+             Source: "Underdog(msg.sender, buyin, payoutval, bailcount)"
+            Identifier Underdog
+               Type: type(struct EtherTopDog.Underdog storage pointer)
+               Source: "Underdog"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Identifier buyin
+               Type: uint256
+               Source: "buyin"
+            Identifier payoutval
+               Type: uint256
+               Source: "payoutval"
+            Identifier bailcount
+               Type: uint256
+               Source: "bailcount"
+  FunctionDefinition "buyTopDog"
+     Source: "function buyTopDog(uint buyprice, uint surplus) private {\r\n\r\n\t\t// take out vizionDog fee\r\n\t\tuint vfee = buyprice * visionDogBuyPercent / 100;\r\n\r\n\t\tuint dogpayoff = (buyprice - vfee);\r\n\r\n\t\t// payout previous top dog\r\n\t\ttopDog.send(dogpayoff);\r\n\r\n\t\tvisionFees += vfee;\r\n\r\n\t\t// send buy fee (plus previous collected underdog fees) to visionDog\r\n\t\tvisionDog.send(visionFees);\r\n\t\tvisionFees = 0;\r\n\r\n\t\t// record a price floor for underdog markup decay calculation during the next round:\r\n\t\t// the mininum purchase price before buyout\r\n\t\ttopDogPriceFloor = topDogMinPrice;\r\n\r\n\t\t// set the initial minimum buy price for the next top dog\r\n\t\ttopDogMinPrice = msg.value * topDogMinMarkup / 100;\r\n\r\n\t\t// the price ceiling for calculating the underdog markup decay is the new minimum price\r\n\t\ttopDogPriceCeiling = topDogMinPrice;\r\n\r\n\r\n\t\t// check for eligible lucky dog...\r\n//\t\tif (Underdogs.length - payoutIndex > 0) {\r\n\t\t\t// lucky dog is most recent underdog to make an entry\r\n//\t\t\tluckyDog = Underdogs.length - 1;\r\n//\t\t} else {\r\n\t\t\t// no dogs waiting in line?  all dividends will go to top dog this round\r\n//\t\t\tluckyDog = 0;\r\n//\t\t}\r\n\t\t\r\n\r\n\t\t// reset underdog markup for next round\r\n\t\tunderDogMarkup = 150;\r\n\r\n\t\t// how many dogs are waiting?\r\n\t\tuint linelength = Underdogs.length - payoutIndex;\r\n\r\n\t\t// surplus goes to pay scraps to random underdogs\r\n\t\t// calculate and pay scraps\r\n\r\n\r\n\t\t// are there underdogs around to receive the scraps?\r\n\t\tif (surplus > 0 && linelength > 0 ) {\r\n\t\t\tthrowScraps(surplus);\r\n\t\t}\r\n\r\n\r\n\t\t// if there are any underdogs in line, the lucky dog will be picked from among them\t\r\n\t\tif (linelength > 0) {\r\n\r\n\t\t\t// randomly pick a new lucky dog, with luck weighted toward more recent entries\r\n\r\n\t\t\t// weighting works like this:\r\n\t\t\t// \tFor example, if the line length is 6, the most recent entry will\r\n\t\t\t//\tbe 6 times more likely than the oldest (6/21 odds),\r\n\t\t\t//\tthe second most recent will be 5 times more likely than the oldest (5/21 odds)\r\n\t\t\t//\tthe third most recent will be 4 times as likely as the oldest (4/21 odds),\r\n\t\t\t//\tetc...\r\n\r\n\t\t\t//\tof course, the player that has been in line longest is\r\n\t\t\t//\tleast likely to be lucky (1/21 odds in this example)\r\n\t\t\t//\tand will be getting sent out of the game soonest anyway\r\n\r\n\t\t\tuint luckypickline = (linelength % 2 == 1) ?\r\n\t\t\t\t( linelength / 2 + 1 ) + (linelength + 1) * (linelength / 2) :  // odd\r\n\t\t\t\t( (linelength + 1) * (linelength / 2)  ); // even\r\n\r\n\t\t\tuint luckypick = randInt(luckypickline, 69);\r\n\t\r\n\t\t\tuint pickpos = luckypickline - linelength;\r\n\t\t\tuint linepos = 1;\r\n\r\n\t\t\twhile (pickpos >= luckypick && linepos < linelength) {\r\n\t\t\t\tpickpos -= (linelength - linepos);\r\n\t\t\t\tlinepos++;\r\n\t\t\t}\r\n\r\n\t\t\tluckyDog = Underdogs.length - linepos;\r\n\t\t} else {\r\n\t\t\t// no underdogs in line?  no lucky dog this round.\r\n\t\t\t// (should only possibly happen when game starts)\r\n\t\t\tluckyDog = 0;\r\n\t\t}\r\n\t\t\r\n\r\n\t\t// the new top dog is crowned!\r\n\t\ttopDog = msg.sender;\r\n\t}"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint buyprice, uint surplus)"
+      VariableDeclaration "buyprice"
+         Type: uint256
+         Source: "uint buyprice"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "surplus"
+         Type: uint256
+         Source: "uint surplus"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n\r\n\t\t// take out vizionDog fee\r\n\t\tuint vfee = buyprice * visionDogBuyPercent / 100;\r\n\r\n\t\tuint dogpayoff = (buyprice - vfee);\r\n\r\n\t\t// payout previous top dog\r\n\t\ttopDog.send(dogpayoff);\r\n\r\n\t\tvisionFees += vfee;\r\n\r\n\t\t// send buy fee (plus previous collected underdog fees) to visionDog\r\n\t\tvisionDog.send(visionFees);\r\n\t\tvisionFees = 0;\r\n\r\n\t\t// record a price floor for underdog markup decay calculation during the next round:\r\n\t\t// the mininum purchase price before buyout\r\n\t\ttopDogPriceFloor = topDogMinPrice;\r\n\r\n\t\t// set the initial minimum buy price for the next top dog\r\n\t\ttopDogMinPrice = msg.value * topDogMinMarkup / 100;\r\n\r\n\t\t// the price ceiling for calculating the underdog markup decay is the new minimum price\r\n\t\ttopDogPriceCeiling = topDogMinPrice;\r\n\r\n\r\n\t\t// check for eligible lucky dog...\r\n//\t\tif (Underdogs.length - payoutIndex > 0) {\r\n\t\t\t// lucky dog is most recent underdog to make an entry\r\n//\t\t\tluckyDog = Underdogs.length - 1;\r\n//\t\t} else {\r\n\t\t\t// no dogs waiting in line?  all dividends will go to top dog this round\r\n//\t\t\tluckyDog = 0;\r\n//\t\t}\r\n\t\t\r\n\r\n\t\t// reset underdog markup for next round\r\n\t\tunderDogMarkup = 150;\r\n\r\n\t\t// how many dogs are waiting?\r\n\t\tuint linelength = Underdogs.length - payoutIndex;\r\n\r\n\t\t// surplus goes to pay scraps to random underdogs\r\n\t\t// calculate and pay scraps\r\n\r\n\r\n\t\t// are there underdogs around to receive the scraps?\r\n\t\tif (surplus > 0 && linelength > 0 ) {\r\n\t\t\tthrowScraps(surplus);\r\n\t\t}\r\n\r\n\r\n\t\t// if there are any underdogs in line, the lucky dog will be picked from among them\t\r\n\t\tif (linelength > 0) {\r\n\r\n\t\t\t// randomly pick a new lucky dog, with luck weighted toward more recent entries\r\n\r\n\t\t\t// weighting works like this:\r\n\t\t\t// \tFor example, if the line length is 6, the most recent entry will\r\n\t\t\t//\tbe 6 times more likely than the oldest (6/21 odds),\r\n\t\t\t//\tthe second most recent will be 5 times more likely than the oldest (5/21 odds)\r\n\t\t\t//\tthe third most recent will be 4 times as likely as the oldest (4/21 odds),\r\n\t\t\t//\tetc...\r\n\r\n\t\t\t//\tof course, the player that has been in line longest is\r\n\t\t\t//\tleast likely to be lucky (1/21 odds in this example)\r\n\t\t\t//\tand will be getting sent out of the game soonest anyway\r\n\r\n\t\t\tuint luckypickline = (linelength % 2 == 1) ?\r\n\t\t\t\t( linelength / 2 + 1 ) + (linelength + 1) * (linelength / 2) :  // odd\r\n\t\t\t\t( (linelength + 1) * (linelength / 2)  ); // even\r\n\r\n\t\t\tuint luckypick = randInt(luckypickline, 69);\r\n\t\r\n\t\t\tuint pickpos = luckypickline - linelength;\r\n\t\t\tuint linepos = 1;\r\n\r\n\t\t\twhile (pickpos >= luckypick && linepos < linelength) {\r\n\t\t\t\tpickpos -= (linelength - linepos);\r\n\t\t\t\tlinepos++;\r\n\t\t\t}\r\n\r\n\t\t\tluckyDog = Underdogs.length - linepos;\r\n\t\t} else {\r\n\t\t\t// no underdogs in line?  no lucky dog this round.\r\n\t\t\t// (should only possibly happen when game starts)\r\n\t\t\tluckyDog = 0;\r\n\t\t}\r\n\t\t\r\n\r\n\t\t// the new top dog is crowned!\r\n\t\ttopDog = msg.sender;\r\n\t}"
+      VariableDeclarationStatement
+         Gas costs: 47
+         Source: "uint vfee = buyprice * visionDogBuyPercent / 100"
+        VariableDeclaration "vfee"
+           Type: uint256
+           Source: "uint vfee"
+          ElementaryTypeName uint
+             Source: "uint"
+        BinaryOperation using operator /
+           Type: uint256
+           Source: "buyprice * visionDogBuyPercent / 100"
+          BinaryOperation using operator *
+             Type: uint256
+             Source: "buyprice * visionDogBuyPercent"
+            Identifier buyprice
+               Type: uint256
+               Source: "buyprice"
+            Identifier visionDogBuyPercent
+               Type: uint256
+               Source: "visionDogBuyPercent"
+          Literal, token: [no token] value: 100
+             Type: int_const 100
+             Source: "100"
+      VariableDeclarationStatement
+         Gas costs: 17
+         Source: "uint dogpayoff = (buyprice - vfee)"
+        VariableDeclaration "dogpayoff"
+           Type: uint256
+           Source: "uint dogpayoff"
+          ElementaryTypeName uint
+             Source: "uint"
+        TupleExpression
+           Type: uint256
+           Source: "(buyprice - vfee)"
+          BinaryOperation using operator -
+             Type: uint256
+             Source: "buyprice - vfee"
+            Identifier buyprice
+               Type: uint256
+               Source: "buyprice"
+            Identifier vfee
+               Type: uint256
+               Source: "vfee"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "topDog.send(dogpayoff)"
+        FunctionCall
+           Type: bool
+           Source: "topDog.send(dogpayoff)"
+          MemberAccess to member send
+             Type: function (uint256) returns (bool)
+             Source: "topDog.send"
+            Identifier topDog
+               Type: address
+               Source: "topDog"
+          Identifier dogpayoff
+             Type: uint256
+             Source: "dogpayoff"
+      ExpressionStatement
+         Gas costs: 20233
+         Source: "visionFees += vfee"
+        Assignment using operator +=
+           Type: uint256
+           Source: "visionFees += vfee"
+          Identifier visionFees
+             Type: uint256
+             Source: "visionFees"
+          Identifier vfee
+             Type: uint256
+             Source: "vfee"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "visionDog.send(visionFees)"
+        FunctionCall
+           Type: bool
+           Source: "visionDog.send(visionFees)"
+          MemberAccess to member send
+             Type: function (uint256) returns (bool)
+             Source: "visionDog.send"
+            Identifier visionDog
+               Type: address
+               Source: "visionDog"
+          Identifier visionFees
+             Type: uint256
+             Source: "visionFees"
+      ExpressionStatement
+         Gas costs: 5014
+         Source: "visionFees = 0"
+        Assignment using operator =
+           Type: uint256
+           Source: "visionFees = 0"
+          Identifier visionFees
+             Type: uint256
+             Source: "visionFees"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+      ExpressionStatement
+         Gas costs: 20214
+         Source: "topDogPriceFloor = topDogMinPrice"
+        Assignment using operator =
+           Type: uint256
+           Source: "topDogPriceFloor = topDogMinPrice"
+          Identifier topDogPriceFloor
+             Type: uint256
+             Source: "topDogPriceFloor"
+          Identifier topDogMinPrice
+             Type: uint256
+             Source: "topDogMinPrice"
+      ExpressionStatement
+         Gas costs: 20049
+         Source: "topDogMinPrice = msg.value * topDogMinMarkup / 100"
+        Assignment using operator =
+           Type: uint256
+           Source: "topDogMinPrice = msg.value * topDogMinMarkup / 100"
+          Identifier topDogMinPrice
+             Type: uint256
+             Source: "topDogMinPrice"
+          BinaryOperation using operator /
+             Type: uint256
+             Source: "msg.value * topDogMinMarkup / 100"
+            BinaryOperation using operator *
+               Type: uint256
+               Source: "msg.value * topDogMinMarkup"
+              MemberAccess to member value
+                 Type: uint256
+                 Source: "msg.value"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+              Identifier topDogMinMarkup
+                 Type: uint256
+                 Source: "topDogMinMarkup"
+            Literal, token: [no token] value: 100
+               Type: int_const 100
+               Source: "100"
+      ExpressionStatement
+         Gas costs: 20214
+         Source: "topDogPriceCeiling = topDogMinPrice"
+        Assignment using operator =
+           Type: uint256
+           Source: "topDogPriceCeiling = topDogMinPrice"
+          Identifier topDogPriceCeiling
+             Type: uint256
+             Source: "topDogPriceCeiling"
+          Identifier topDogMinPrice
+             Type: uint256
+             Source: "topDogMinPrice"
+      ExpressionStatement
+         Gas costs: 20014
+         Source: "underDogMarkup = 150"
+        Assignment using operator =
+           Type: uint256
+           Source: "underDogMarkup = 150"
+          Identifier underDogMarkup
+             Type: uint256
+             Source: "underDogMarkup"
+          Literal, token: [no token] value: 150
+             Type: int_const 150
+             Source: "150"
+      VariableDeclarationStatement
+         Gas costs: 425
+         Source: "uint linelength = Underdogs.length - payoutIndex"
+        VariableDeclaration "linelength"
+           Type: uint256
+           Source: "uint linelength"
+          ElementaryTypeName uint
+             Source: "uint"
+        BinaryOperation using operator -
+           Type: uint256
+           Source: "Underdogs.length - payoutIndex"
+          MemberAccess to member length
+             Type: uint256
+             Source: "Underdogs.length"
+            Identifier Underdogs
+               Type: struct EtherTopDog.Underdog storage ref[] storage ref
+               Source: "Underdogs"
+          Identifier payoutIndex
+             Type: uint256
+             Source: "payoutIndex"
+      IfStatement
+         Source: "if (surplus > 0 && linelength > 0 ) {\r\n\t\t\tthrowScraps(surplus);\r\n\t\t}"
+        BinaryOperation using operator &&
+           Type: bool
+           Gas costs: 40
+           Source: "surplus > 0 && linelength > 0"
+          BinaryOperation using operator >
+             Type: bool
+             Source: "surplus > 0"
+            Identifier surplus
+               Type: uint256
+               Source: "surplus"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+          BinaryOperation using operator >
+             Type: bool
+             Source: "linelength > 0"
+            Identifier linelength
+               Type: uint256
+               Source: "linelength"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+        Block
+           Source: "{\r\n\t\t\tthrowScraps(surplus);\r\n\t\t}"
+          ExpressionStatement
+             Gas costs: 7
+             Source: "throwScraps(surplus)"
+            FunctionCall
+               Type: tuple()
+               Source: "throwScraps(surplus)"
+              Identifier throwScraps
+                 Type: function (uint256)
+                 Source: "throwScraps"
+              Identifier surplus
+                 Type: uint256
+                 Source: "surplus"
+      IfStatement
+         Source: "if (linelength > 0) {\r\n\r\n\t\t\t// randomly pick a new lucky dog, with luck weighted toward more recent entries\r\n\r\n\t\t\t// weighting works like this:\r\n\t\t\t// \tFor example, if the line length is 6, the most recent entry will\r\n\t\t\t//\tbe 6 times more likely than the oldest (6/21 odds),\r\n\t\t\t//\tthe second most recent will be 5 times more likely than the oldest (5/21 odds)\r\n\t\t\t//\tthe third most recent will be 4 times as likely as the oldest (4/21 odds),\r\n\t\t\t//\tetc...\r\n\r\n\t\t\t//\tof course, the player that has been in line longest is\r\n\t\t\t//\tleast likely to be lucky (1/21 odds in this example)\r\n\t\t\t//\tand will be getting sent out of the game soonest anyway\r\n\r\n\t\t\tuint luckypickline = (linelength % 2 == 1) ?\r\n\t\t\t\t( linelength / 2 + 1 ) + (linelength + 1) * (linelength / 2) :  // odd\r\n\t\t\t\t( (linelength + 1) * (linelength / 2)  ); // even\r\n\r\n\t\t\tuint luckypick = randInt(luckypickline, 69);\r\n\t\r\n\t\t\tuint pickpos = luckypickline - linelength;\r\n\t\t\tuint linepos = 1;\r\n\r\n\t\t\twhile (pickpos >= luckypick && linepos < linelength) {\r\n\t\t\t\tpickpos -= (linelength - linepos);\r\n\t\t\t\tlinepos++;\r\n\t\t\t}\r\n\r\n\t\t\tluckyDog = Underdogs.length - linepos;\r\n\t\t} else {\r\n\t\t\t// no underdogs in line?  no lucky dog this round.\r\n\t\t\t// (should only possibly happen when game starts)\r\n\t\t\tluckyDog = 0;\r\n\t\t}"
+        BinaryOperation using operator >
+           Type: bool
+           Gas costs: 9
+           Source: "linelength > 0"
+          Identifier linelength
+             Type: uint256
+             Source: "linelength"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        Block
+           Source: "{\r\n\r\n\t\t\t// randomly pick a new lucky dog, with luck weighted toward more recent entries\r\n\r\n\t\t\t// weighting works like this:\r\n\t\t\t// \tFor example, if the line length is 6, the most recent entry will\r\n\t\t\t//\tbe 6 times more likely than the oldest (6/21 odds),\r\n\t\t\t//\tthe second most recent will be 5 times more likely than the oldest (5/21 odds)\r\n\t\t\t//\tthe third most recent will be 4 times as likely as the oldest (4/21 odds),\r\n\t\t\t//\tetc...\r\n\r\n\t\t\t//\tof course, the player that has been in line longest is\r\n\t\t\t//\tleast likely to be lucky (1/21 odds in this example)\r\n\t\t\t//\tand will be getting sent out of the game soonest anyway\r\n\r\n\t\t\tuint luckypickline = (linelength % 2 == 1) ?\r\n\t\t\t\t( linelength / 2 + 1 ) + (linelength + 1) * (linelength / 2) :  // odd\r\n\t\t\t\t( (linelength + 1) * (linelength / 2)  ); // even\r\n\r\n\t\t\tuint luckypick = randInt(luckypickline, 69);\r\n\t\r\n\t\t\tuint pickpos = luckypickline - linelength;\r\n\t\t\tuint linepos = 1;\r\n\r\n\t\t\twhile (pickpos >= luckypick && linepos < linelength) {\r\n\t\t\t\tpickpos -= (linelength - linepos);\r\n\t\t\t\tlinepos++;\r\n\t\t\t}\r\n\r\n\t\t\tluckyDog = Underdogs.length - linepos;\r\n\t\t}"
+          VariableDeclarationStatement
+             Gas costs: 213
+             Source: "uint luckypickline = (linelength % 2 == 1) ?\r\n\t\t\t\t( linelength / 2 + 1 ) + (linelength + 1) * (linelength / 2) :  // odd\r\n\t\t\t\t( (linelength + 1) * (linelength / 2)  )"
+            VariableDeclaration "luckypickline"
+               Type: uint256
+               Source: "uint luckypickline"
+              ElementaryTypeName uint
+                 Source: "uint"
+            Conditional
+               Type: uint256
+               Source: "(linelength % 2 == 1) ?\r\n\t\t\t\t( linelength / 2 + 1 ) + (linelength + 1) * (linelength / 2) :  // odd\r\n\t\t\t\t( (linelength + 1) * (linelength / 2)  )"
+              TupleExpression
+                 Type: bool
+                 Source: "(linelength % 2 == 1)"
+                BinaryOperation using operator ==
+                   Type: bool
+                   Source: "linelength % 2 == 1"
+                  BinaryOperation using operator %
+                     Type: uint256
+                     Source: "linelength % 2"
+                    Identifier linelength
+                       Type: uint256
+                       Source: "linelength"
+                    Literal, token: [no token] value: 2
+                       Type: int_const 2
+                       Source: "2"
+                  Literal, token: [no token] value: 1
+                     Type: int_const 1
+                     Source: "1"
+              BinaryOperation using operator +
+                 Type: uint256
+                 Source: "( linelength / 2 + 1 ) + (linelength + 1) * (linelength / 2)"
+                TupleExpression
+                   Type: uint256
+                   Source: "( linelength / 2 + 1 )"
+                  BinaryOperation using operator +
+                     Type: uint256
+                     Source: "linelength / 2 + 1"
+                    BinaryOperation using operator /
+                       Type: uint256
+                       Source: "linelength / 2"
+                      Identifier linelength
+                         Type: uint256
+                         Source: "linelength"
+                      Literal, token: [no token] value: 2
+                         Type: int_const 2
+                         Source: "2"
+                    Literal, token: [no token] value: 1
+                       Type: int_const 1
+                       Source: "1"
+                BinaryOperation using operator *
+                   Type: uint256
+                   Source: "(linelength + 1) * (linelength / 2)"
+                  TupleExpression
+                     Type: uint256
+                     Source: "(linelength + 1)"
+                    BinaryOperation using operator +
+                       Type: uint256
+                       Source: "linelength + 1"
+                      Identifier linelength
+                         Type: uint256
+                         Source: "linelength"
+                      Literal, token: [no token] value: 1
+                         Type: int_const 1
+                         Source: "1"
+                  TupleExpression
+                     Type: uint256
+                     Source: "(linelength / 2)"
+                    BinaryOperation using operator /
+                       Type: uint256
+                       Source: "linelength / 2"
+                      Identifier linelength
+                         Type: uint256
+                         Source: "linelength"
+                      Literal, token: [no token] value: 2
+                         Type: int_const 2
+                         Source: "2"
+              TupleExpression
+                 Type: uint256
+                 Source: "( (linelength + 1) * (linelength / 2)  )"
+                BinaryOperation using operator *
+                   Type: uint256
+                   Source: "(linelength + 1) * (linelength / 2)"
+                  TupleExpression
+                     Type: uint256
+                     Source: "(linelength + 1)"
+                    BinaryOperation using operator +
+                       Type: uint256
+                       Source: "linelength + 1"
+                      Identifier linelength
+                         Type: uint256
+                         Source: "linelength"
+                      Literal, token: [no token] value: 1
+                         Type: int_const 1
+                         Source: "1"
+                  TupleExpression
+                     Type: uint256
+                     Source: "(linelength / 2)"
+                    BinaryOperation using operator /
+                       Type: uint256
+                       Source: "linelength / 2"
+                      Identifier linelength
+                         Type: uint256
+                         Source: "linelength"
+                      Literal, token: [no token] value: 2
+                         Type: int_const 2
+                         Source: "2"
+          VariableDeclarationStatement
+             Gas costs: 29
+             Source: "uint luckypick = randInt(luckypickline, 69)"
+            VariableDeclaration "luckypick"
+               Type: uint256
+               Source: "uint luckypick"
+              ElementaryTypeName uint
+                 Source: "uint"
+            FunctionCall
+               Type: uint256
+               Source: "randInt(luckypickline, 69)"
+              Identifier randInt
+                 Type: function (uint256,uint256) view returns (uint256)
+                 Source: "randInt"
+              Identifier luckypickline
+                 Type: uint256
+                 Source: "luckypickline"
+              Literal, token: [no token] value: 69
+                 Type: int_const 69
+                 Source: "69"
+          VariableDeclarationStatement
+             Gas costs: 17
+             Source: "uint pickpos = luckypickline - linelength"
+            VariableDeclaration "pickpos"
+               Type: uint256
+               Source: "uint pickpos"
+              ElementaryTypeName uint
+                 Source: "uint"
+            BinaryOperation using operator -
+               Type: uint256
+               Source: "luckypickline - linelength"
+              Identifier luckypickline
+                 Type: uint256
+                 Source: "luckypickline"
+              Identifier linelength
+                 Type: uint256
+                 Source: "linelength"
+          VariableDeclarationStatement
+             Gas costs: 11
+             Source: "uint linepos = 1"
+            VariableDeclaration "linepos"
+               Type: uint256
+               Source: "uint linepos"
+              ElementaryTypeName uint
+                 Source: "uint"
+            Literal, token: [no token] value: 1
+               Type: int_const 1
+               Source: "1"
+          WhileStatement
+             Source: "while (pickpos >= luckypick && linepos < linelength) {\r\n\t\t\t\tpickpos -= (linelength - linepos);\r\n\t\t\t\tlinepos++;\r\n\t\t\t}"
+            BinaryOperation using operator &&
+               Type: bool
+               Gas costs: 43
+               Source: "pickpos >= luckypick && linepos < linelength"
+              BinaryOperation using operator >=
+                 Type: bool
+                 Source: "pickpos >= luckypick"
+                Identifier pickpos
+                   Type: uint256
+                   Source: "pickpos"
+                Identifier luckypick
+                   Type: uint256
+                   Source: "luckypick"
+              BinaryOperation using operator <
+                 Type: bool
+                 Source: "linepos < linelength"
+                Identifier linepos
+                   Type: uint256
+                   Source: "linepos"
+                Identifier linelength
+                   Type: uint256
+                   Source: "linelength"
+            Block
+               Source: "{\r\n\t\t\t\tpickpos -= (linelength - linepos);\r\n\t\t\t\tlinepos++;\r\n\t\t\t}"
+              ExpressionStatement
+                 Gas costs: 20
+                 Source: "pickpos -= (linelength - linepos)"
+                Assignment using operator -=
+                   Type: uint256
+                   Source: "pickpos -= (linelength - linepos)"
+                  Identifier pickpos
+                     Type: uint256
+                     Source: "pickpos"
+                  TupleExpression
+                     Type: uint256
+                     Source: "(linelength - linepos)"
+                    BinaryOperation using operator -
+                       Type: uint256
+                       Source: "linelength - linepos"
+                      Identifier linelength
+                         Type: uint256
+                         Source: "linelength"
+                      Identifier linepos
+                         Type: uint256
+                         Source: "linepos"
+              ExpressionStatement
+                 Gas costs: 19
+                 Source: "linepos++"
+                UnaryOperation (postfix) ++
+                   Type: uint256
+                   Source: "linepos++"
+                  Identifier linepos
+                     Type: uint256
+                     Source: "linepos"
+          ExpressionStatement
+             Gas costs: 20228
+             Source: "luckyDog = Underdogs.length - linepos"
+            Assignment using operator =
+               Type: uint256
+               Source: "luckyDog = Underdogs.length - linepos"
+              Identifier luckyDog
+                 Type: uint256
+                 Source: "luckyDog"
+              BinaryOperation using operator -
+                 Type: uint256
+                 Source: "Underdogs.length - linepos"
+                MemberAccess to member length
+                   Type: uint256
+                   Source: "Underdogs.length"
+                  Identifier Underdogs
+                     Type: struct EtherTopDog.Underdog storage ref[] storage ref
+                     Source: "Underdogs"
+                Identifier linepos
+                   Type: uint256
+                   Source: "linepos"
+        Block
+           Source: "{\r\n\t\t\t// no underdogs in line?  no lucky dog this round.\r\n\t\t\t// (should only possibly happen when game starts)\r\n\t\t\tluckyDog = 0;\r\n\t\t}"
+          ExpressionStatement
+             Gas costs: 5014
+             Source: "luckyDog = 0"
+            Assignment using operator =
+               Type: uint256
+               Source: "luckyDog = 0"
+              Identifier luckyDog
+                 Type: uint256
+                 Source: "luckyDog"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+      ExpressionStatement
+         Gas costs: 20266
+         Source: "topDog = msg.sender"
+        Assignment using operator =
+           Type: address
+           Source: "topDog = msg.sender"
+          Identifier topDog
+             Type: address
+             Source: "topDog"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+  FunctionDefinition "throwScraps"
+     Source: "function throwScraps(uint totalscrapvalue) private {\r\n\r\n\t\t// how many dogs are waiting?\r\n\t\tuint linelength = Underdogs.length - payoutIndex;\r\n\r\n\t\t// to keep from having too many transactions, make sure we never have more than 7 scraps.\r\n\t\t// the more dogs in line, the more we jump over when scraps get scattered\r\n\t\tuint skipstep = (linelength / 7) + 1;\r\n\r\n\t\t// how many pieces to divide (roughly, randomization might make it more or less)\r\n\t\tuint pieces = linelength / skipstep;\r\n\r\n\t\t// how far from the end of the queue to start throwing the first scrap (semi-random)\r\n\t\tuint startoffset = randInt(skipstep, 42) - 1;\r\n\r\n\t\t// base size for scraps...  \r\n\t\tuint scrapbasesize = totalscrapvalue / (pieces + payoutCount);\r\n\r\n\t\t// minimum base scrap size of 0.5 eth\r\n\t\tif (scrapbasesize < 500 finney) {\r\n\t\t\tscrapbasesize = 500 finney;\r\n\t\t}\r\n\r\n\t\tuint scrapsize;\r\n\t\tuint sptr = Underdogs.length - 1 - startoffset;\r\n\r\n\t\tuint scrapvalueleft = totalscrapvalue;\r\n\r\n\t\twhile (pieces > 0 && scrapvalueleft > 0 && sptr >= payoutIndex) {\r\n\t\t\t// those who bailed out other dogs get bigger scraps\r\n\t\t\t// size of the scrap is multiplied by # of other dogs the user bailed out\r\n\t\t\tscrapsize = scrapbasesize * (Underdogs[sptr].bailouts + 1);\r\n\r\n\r\n\t\t\t// scraps can never be more than what's in the pile\r\n\t\t\tif (scrapsize < scrapvalueleft) {\r\n\t\t\t\tscrapvalueleft -= scrapsize;\r\n\t\t\t} else {\r\n\t\t\t\tscrapsize = scrapvalueleft;\r\n\t\t\t\tscrapvalueleft = 0;\r\n\t\t\t}\r\n\r\n\t\t\t// pay it\r\n\t\t\tUnderdogs[sptr].addr.send(scrapsize);\r\n\t\t\tpieces--;\r\n\t\t\tsptr -= skipstep;\r\n\t\t}\r\n\r\n\t\t// any scraps left uncaught? put them in the bailout fund for the underdogs\r\n\t\tif (scrapvalueleft > 0) {\r\n\t\t\tbailoutBalance += scrapvalueleft;\r\n\t\t}\r\n\t}"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint totalscrapvalue)"
+      VariableDeclaration "totalscrapvalue"
+         Type: uint256
+         Source: "uint totalscrapvalue"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n\r\n\t\t// how many dogs are waiting?\r\n\t\tuint linelength = Underdogs.length - payoutIndex;\r\n\r\n\t\t// to keep from having too many transactions, make sure we never have more than 7 scraps.\r\n\t\t// the more dogs in line, the more we jump over when scraps get scattered\r\n\t\tuint skipstep = (linelength / 7) + 1;\r\n\r\n\t\t// how many pieces to divide (roughly, randomization might make it more or less)\r\n\t\tuint pieces = linelength / skipstep;\r\n\r\n\t\t// how far from the end of the queue to start throwing the first scrap (semi-random)\r\n\t\tuint startoffset = randInt(skipstep, 42) - 1;\r\n\r\n\t\t// base size for scraps...  \r\n\t\tuint scrapbasesize = totalscrapvalue / (pieces + payoutCount);\r\n\r\n\t\t// minimum base scrap size of 0.5 eth\r\n\t\tif (scrapbasesize < 500 finney) {\r\n\t\t\tscrapbasesize = 500 finney;\r\n\t\t}\r\n\r\n\t\tuint scrapsize;\r\n\t\tuint sptr = Underdogs.length - 1 - startoffset;\r\n\r\n\t\tuint scrapvalueleft = totalscrapvalue;\r\n\r\n\t\twhile (pieces > 0 && scrapvalueleft > 0 && sptr >= payoutIndex) {\r\n\t\t\t// those who bailed out other dogs get bigger scraps\r\n\t\t\t// size of the scrap is multiplied by # of other dogs the user bailed out\r\n\t\t\tscrapsize = scrapbasesize * (Underdogs[sptr].bailouts + 1);\r\n\r\n\r\n\t\t\t// scraps can never be more than what's in the pile\r\n\t\t\tif (scrapsize < scrapvalueleft) {\r\n\t\t\t\tscrapvalueleft -= scrapsize;\r\n\t\t\t} else {\r\n\t\t\t\tscrapsize = scrapvalueleft;\r\n\t\t\t\tscrapvalueleft = 0;\r\n\t\t\t}\r\n\r\n\t\t\t// pay it\r\n\t\t\tUnderdogs[sptr].addr.send(scrapsize);\r\n\t\t\tpieces--;\r\n\t\t\tsptr -= skipstep;\r\n\t\t}\r\n\r\n\t\t// any scraps left uncaught? put them in the bailout fund for the underdogs\r\n\t\tif (scrapvalueleft > 0) {\r\n\t\t\tbailoutBalance += scrapvalueleft;\r\n\t\t}\r\n\t}"
+      VariableDeclarationStatement
+         Gas costs: 425
+         Source: "uint linelength = Underdogs.length - payoutIndex"
+        VariableDeclaration "linelength"
+           Type: uint256
+           Source: "uint linelength"
+          ElementaryTypeName uint
+             Source: "uint"
+        BinaryOperation using operator -
+           Type: uint256
+           Source: "Underdogs.length - payoutIndex"
+          MemberAccess to member length
+             Type: uint256
+             Source: "Underdogs.length"
+            Identifier Underdogs
+               Type: struct EtherTopDog.Underdog storage ref[] storage ref
+               Source: "Underdogs"
+          Identifier payoutIndex
+             Type: uint256
+             Source: "payoutIndex"
+      VariableDeclarationStatement
+         Gas costs: 48
+         Source: "uint skipstep = (linelength / 7) + 1"
+        VariableDeclaration "skipstep"
+           Type: uint256
+           Source: "uint skipstep"
+          ElementaryTypeName uint
+             Source: "uint"
+        BinaryOperation using operator +
+           Type: uint256
+           Source: "(linelength / 7) + 1"
+          TupleExpression
+             Type: uint256
+             Source: "(linelength / 7)"
+            BinaryOperation using operator /
+               Type: uint256
+               Source: "linelength / 7"
+              Identifier linelength
+                 Type: uint256
+                 Source: "linelength"
+              Literal, token: [no token] value: 7
+                 Type: int_const 7
+                 Source: "7"
+          Literal, token: [no token] value: 1
+             Type: int_const 1
+             Source: "1"
+      VariableDeclarationStatement
+         Gas costs: 42
+         Source: "uint pieces = linelength / skipstep"
+        VariableDeclaration "pieces"
+           Type: uint256
+           Source: "uint pieces"
+          ElementaryTypeName uint
+             Source: "uint"
+        BinaryOperation using operator /
+           Type: uint256
+           Source: "linelength / skipstep"
+          Identifier linelength
+             Type: uint256
+             Source: "linelength"
+          Identifier skipstep
+             Type: uint256
+             Source: "skipstep"
+      VariableDeclarationStatement
+         Gas costs: 35
+         Source: "uint startoffset = randInt(skipstep, 42) - 1"
+        VariableDeclaration "startoffset"
+           Type: uint256
+           Source: "uint startoffset"
+          ElementaryTypeName uint
+             Source: "uint"
+        BinaryOperation using operator -
+           Type: uint256
+           Source: "randInt(skipstep, 42) - 1"
+          FunctionCall
+             Type: uint256
+             Source: "randInt(skipstep, 42)"
+            Identifier randInt
+               Type: function (uint256,uint256) view returns (uint256)
+               Source: "randInt"
+            Identifier skipstep
+               Type: uint256
+               Source: "skipstep"
+            Literal, token: [no token] value: 42
+               Type: int_const 42
+               Source: "42"
+          Literal, token: [no token] value: 1
+             Type: int_const 1
+             Source: "1"
+      VariableDeclarationStatement
+         Gas costs: 248
+         Source: "uint scrapbasesize = totalscrapvalue / (pieces + payoutCount)"
+        VariableDeclaration "scrapbasesize"
+           Type: uint256
+           Source: "uint scrapbasesize"
+          ElementaryTypeName uint
+             Source: "uint"
+        BinaryOperation using operator /
+           Type: uint256
+           Source: "totalscrapvalue / (pieces + payoutCount)"
+          Identifier totalscrapvalue
+             Type: uint256
+             Source: "totalscrapvalue"
+          TupleExpression
+             Type: uint256
+             Source: "(pieces + payoutCount)"
+            BinaryOperation using operator +
+               Type: uint256
+               Source: "pieces + payoutCount"
+              Identifier pieces
+                 Type: uint256
+                 Source: "pieces"
+              Identifier payoutCount
+                 Type: uint256
+                 Source: "payoutCount"
+      IfStatement
+         Source: "if (scrapbasesize < 500 finney) {\r\n\t\t\tscrapbasesize = 500 finney;\r\n\t\t}"
+        BinaryOperation using operator <
+           Type: bool
+           Gas costs: 9
+           Source: "scrapbasesize < 500 finney"
+          Identifier scrapbasesize
+             Type: uint256
+             Source: "scrapbasesize"
+          Literal, token: [no token] value: 500
+             Type: int_const 500000000000000000
+             Source: "500 finney"
+        Block
+           Source: "{\r\n\t\t\tscrapbasesize = 500 finney;\r\n\t\t}"
+          ExpressionStatement
+             Gas costs: 8
+             Source: "scrapbasesize = 500 finney"
+            Assignment using operator =
+               Type: uint256
+               Source: "scrapbasesize = 500 finney"
+              Identifier scrapbasesize
+                 Type: uint256
+                 Source: "scrapbasesize"
+              Literal, token: [no token] value: 500
+                 Type: int_const 500000000000000000
+                 Source: "500 finney"
+      VariableDeclarationStatement
+         Gas costs: 3
+         Source: "uint scrapsize"
+        VariableDeclaration "scrapsize"
+           Type: uint256
+           Source: "uint scrapsize"
+          ElementaryTypeName uint
+             Source: "uint"
+      VariableDeclarationStatement
+         Gas costs: 231
+         Source: "uint sptr = Underdogs.length - 1 - startoffset"
+        VariableDeclaration "sptr"
+           Type: uint256
+           Source: "uint sptr"
+          ElementaryTypeName uint
+             Source: "uint"
+        BinaryOperation using operator -
+           Type: uint256
+           Source: "Underdogs.length - 1 - startoffset"
+          BinaryOperation using operator -
+             Type: uint256
+             Source: "Underdogs.length - 1"
+            MemberAccess to member length
+               Type: uint256
+               Source: "Underdogs.length"
+              Identifier Underdogs
+                 Type: struct EtherTopDog.Underdog storage ref[] storage ref
+                 Source: "Underdogs"
+            Literal, token: [no token] value: 1
+               Type: int_const 1
+               Source: "1"
+          Identifier startoffset
+             Type: uint256
+             Source: "startoffset"
+      VariableDeclarationStatement
+         Gas costs: 11
+         Source: "uint scrapvalueleft = totalscrapvalue"
+        VariableDeclaration "scrapvalueleft"
+           Type: uint256
+           Source: "uint scrapvalueleft"
+          ElementaryTypeName uint
+             Source: "uint"
+        Identifier totalscrapvalue
+           Type: uint256
+           Source: "totalscrapvalue"
+      WhileStatement
+         Source: "while (pieces > 0 && scrapvalueleft > 0 && sptr >= payoutIndex) {\r\n\t\t\t// those who bailed out other dogs get bigger scraps\r\n\t\t\t// size of the scrap is multiplied by # of other dogs the user bailed out\r\n\t\t\tscrapsize = scrapbasesize * (Underdogs[sptr].bailouts + 1);\r\n\r\n\r\n\t\t\t// scraps can never be more than what's in the pile\r\n\t\t\tif (scrapsize < scrapvalueleft) {\r\n\t\t\t\tscrapvalueleft -= scrapsize;\r\n\t\t\t} else {\r\n\t\t\t\tscrapsize = scrapvalueleft;\r\n\t\t\t\tscrapvalueleft = 0;\r\n\t\t\t}\r\n\r\n\t\t\t// pay it\r\n\t\t\tUnderdogs[sptr].addr.send(scrapsize);\r\n\t\t\tpieces--;\r\n\t\t\tsptr -= skipstep;\r\n\t\t}"
+        BinaryOperation using operator &&
+           Type: bool
+           Gas costs: 274
+           Source: "pieces > 0 && scrapvalueleft > 0 && sptr >= payoutIndex"
+          BinaryOperation using operator &&
+             Type: bool
+             Source: "pieces > 0 && scrapvalueleft > 0"
+            BinaryOperation using operator >
+               Type: bool
+               Source: "pieces > 0"
+              Identifier pieces
+                 Type: uint256
+                 Source: "pieces"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+            BinaryOperation using operator >
+               Type: bool
+               Source: "scrapvalueleft > 0"
+              Identifier scrapvalueleft
+                 Type: uint256
+                 Source: "scrapvalueleft"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "sptr >= payoutIndex"
+            Identifier sptr
+               Type: uint256
+               Source: "sptr"
+            Identifier payoutIndex
+               Type: uint256
+               Source: "payoutIndex"
+        Block
+           Source: "{\r\n\t\t\t// those who bailed out other dogs get bigger scraps\r\n\t\t\t// size of the scrap is multiplied by # of other dogs the user bailed out\r\n\t\t\tscrapsize = scrapbasesize * (Underdogs[sptr].bailouts + 1);\r\n\r\n\r\n\t\t\t// scraps can never be more than what's in the pile\r\n\t\t\tif (scrapsize < scrapvalueleft) {\r\n\t\t\t\tscrapvalueleft -= scrapsize;\r\n\t\t\t} else {\r\n\t\t\t\tscrapsize = scrapvalueleft;\r\n\t\t\t\tscrapvalueleft = 0;\r\n\t\t\t}\r\n\r\n\t\t\t// pay it\r\n\t\t\tUnderdogs[sptr].addr.send(scrapsize);\r\n\t\t\tpieces--;\r\n\t\t\tsptr -= skipstep;\r\n\t\t}"
+          ExpressionStatement
+             Gas costs: 528
+             Source: "scrapsize = scrapbasesize * (Underdogs[sptr].bailouts + 1)"
+            Assignment using operator =
+               Type: uint256
+               Source: "scrapsize = scrapbasesize * (Underdogs[sptr].bailouts + 1)"
+              Identifier scrapsize
+                 Type: uint256
+                 Source: "scrapsize"
+              BinaryOperation using operator *
+                 Type: uint256
+                 Source: "scrapbasesize * (Underdogs[sptr].bailouts + 1)"
+                Identifier scrapbasesize
+                   Type: uint256
+                   Source: "scrapbasesize"
+                TupleExpression
+                   Type: uint256
+                   Source: "(Underdogs[sptr].bailouts + 1)"
+                  BinaryOperation using operator +
+                     Type: uint256
+                     Source: "Underdogs[sptr].bailouts + 1"
+                    MemberAccess to member bailouts
+                       Type: uint256
+                       Source: "Underdogs[sptr].bailouts"
+                      IndexAccess
+                         Type: struct EtherTopDog.Underdog storage ref
+                         Source: "Underdogs[sptr]"
+                        Identifier Underdogs
+                           Type: struct EtherTopDog.Underdog storage ref[] storage ref
+                           Source: "Underdogs"
+                        Identifier sptr
+                           Type: uint256
+                           Source: "sptr"
+                    Literal, token: [no token] value: 1
+                       Type: int_const 1
+                       Source: "1"
+          IfStatement
+             Source: "if (scrapsize < scrapvalueleft) {\r\n\t\t\t\tscrapvalueleft -= scrapsize;\r\n\t\t\t} else {\r\n\t\t\t\tscrapsize = scrapvalueleft;\r\n\t\t\t\tscrapvalueleft = 0;\r\n\t\t\t}"
+            BinaryOperation using operator <
+               Type: bool
+               Gas costs: 9
+               Source: "scrapsize < scrapvalueleft"
+              Identifier scrapsize
+                 Type: uint256
+                 Source: "scrapsize"
+              Identifier scrapvalueleft
+                 Type: uint256
+                 Source: "scrapvalueleft"
+            Block
+               Source: "{\r\n\t\t\t\tscrapvalueleft -= scrapsize;\r\n\t\t\t}"
+              ExpressionStatement
+                 Gas costs: 14
+                 Source: "scrapvalueleft -= scrapsize"
+                Assignment using operator -=
+                   Type: uint256
+                   Source: "scrapvalueleft -= scrapsize"
+                  Identifier scrapvalueleft
+                     Type: uint256
+                     Source: "scrapvalueleft"
+                  Identifier scrapsize
+                     Type: uint256
+                     Source: "scrapsize"
+            Block
+               Source: "{\r\n\t\t\t\tscrapsize = scrapvalueleft;\r\n\t\t\t\tscrapvalueleft = 0;\r\n\t\t\t}"
+              ExpressionStatement
+                 Gas costs: 8
+                 Source: "scrapsize = scrapvalueleft"
+                Assignment using operator =
+                   Type: uint256
+                   Source: "scrapsize = scrapvalueleft"
+                  Identifier scrapsize
+                     Type: uint256
+                     Source: "scrapsize"
+                  Identifier scrapvalueleft
+                     Type: uint256
+                     Source: "scrapvalueleft"
+              ExpressionStatement
+                 Gas costs: 8
+                 Source: "scrapvalueleft = 0"
+                Assignment using operator =
+                   Type: uint256
+                   Source: "scrapvalueleft = 0"
+                  Identifier scrapvalueleft
+                     Type: uint256
+                     Source: "scrapvalueleft"
+                  Literal, token: [no token] value: 0
+                     Type: int_const 0
+                     Source: "0"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "Underdogs[sptr].addr.send(scrapsize)"
+            FunctionCall
+               Type: bool
+               Source: "Underdogs[sptr].addr.send(scrapsize)"
+              MemberAccess to member send
+                 Type: function (uint256) returns (bool)
+                 Source: "Underdogs[sptr].addr.send"
+                MemberAccess to member addr
+                   Type: address
+                   Source: "Underdogs[sptr].addr"
+                  IndexAccess
+                     Type: struct EtherTopDog.Underdog storage ref
+                     Source: "Underdogs[sptr]"
+                    Identifier Underdogs
+                       Type: struct EtherTopDog.Underdog storage ref[] storage ref
+                       Source: "Underdogs"
+                    Identifier sptr
+                       Type: uint256
+                       Source: "sptr"
+              Identifier scrapsize
+                 Type: uint256
+                 Source: "scrapsize"
+          ExpressionStatement
+             Gas costs: 22
+             Source: "pieces--"
+            UnaryOperation (postfix) --
+               Type: uint256
+               Source: "pieces--"
+              Identifier pieces
+                 Type: uint256
+                 Source: "pieces"
+          ExpressionStatement
+             Gas costs: 14
+             Source: "sptr -= skipstep"
+            Assignment using operator -=
+               Type: uint256
+               Source: "sptr -= skipstep"
+              Identifier sptr
+                 Type: uint256
+                 Source: "sptr"
+              Identifier skipstep
+                 Type: uint256
+                 Source: "skipstep"
+      IfStatement
+         Source: "if (scrapvalueleft > 0) {\r\n\t\t\tbailoutBalance += scrapvalueleft;\r\n\t\t}"
+        BinaryOperation using operator >
+           Type: bool
+           Gas costs: 9
+           Source: "scrapvalueleft > 0"
+          Identifier scrapvalueleft
+             Type: uint256
+             Source: "scrapvalueleft"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        Block
+           Source: "{\r\n\t\t\tbailoutBalance += scrapvalueleft;\r\n\t\t}"
+          ExpressionStatement
+             Gas costs: 20233
+             Source: "bailoutBalance += scrapvalueleft"
+            Assignment using operator +=
+               Type: uint256
+               Source: "bailoutBalance += scrapvalueleft"
+              Identifier bailoutBalance
+                 Type: uint256
+                 Source: "bailoutBalance"
+              Identifier scrapvalueleft
+                 Type: uint256
+                 Source: "scrapvalueleft"
+  FunctionDefinition "getDogName" - const
+     Source: "function getDogName(address adr) private constant returns (string thename) {\r\n\t\tif (bytes(dogNames[adr]).length > 0)\r\n\t\t\tthename = dogNames[adr];\r\n\t\telse\r\n\t\t\tthename = 'Unnamed Mutt';\r\n\t}"
+    ParameterList
+       Gas costs: 0
+       Source: "(address adr)"
+      VariableDeclaration "adr"
+         Type: address
+         Source: "address adr"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 3
+       Source: "(string thename)"
+      VariableDeclaration "thename"
+         Type: string memory
+         Source: "string thename"
+        ElementaryTypeName string
+           Source: "string"
+    Block
+       Source: "{\r\n\t\tif (bytes(dogNames[adr]).length > 0)\r\n\t\t\tthename = dogNames[adr];\r\n\t\telse\r\n\t\t\tthename = 'Unnamed Mutt';\r\n\t}"
+      IfStatement
+         Source: "if (bytes(dogNames[adr]).length > 0)\r\n\t\t\tthename = dogNames[adr];\r\n\t\telse\r\n\t\t\tthename = 'Unnamed Mutt'"
+        BinaryOperation using operator >
+           Type: bool
+           Gas costs: 353
+           Source: "bytes(dogNames[adr]).length > 0"
+          MemberAccess to member length
+             Type: uint256
+             Source: "bytes(dogNames[adr]).length"
+            FunctionCall
+               Type: bytes storage ref
+               Source: "bytes(dogNames[adr])"
+              ElementaryTypeNameExpression bytes
+                 Type: type(bytes storage pointer)
+                 Source: "bytes"
+              IndexAccess
+                 Type: string storage ref
+                 Source: "dogNames[adr]"
+                Identifier dogNames
+                   Type: mapping(address => string storage ref)
+                   Source: "dogNames"
+                Identifier adr
+                   Type: address
+                   Source: "adr"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        ExpressionStatement
+           Gas costs: [???]
+           Source: "thename = dogNames[adr]"
+          Assignment using operator =
+             Type: string memory
+             Source: "thename = dogNames[adr]"
+            Identifier thename
+               Type: string memory
+               Source: "thename"
+            IndexAccess
+               Type: string storage ref
+               Source: "dogNames[adr]"
+              Identifier dogNames
+                 Type: mapping(address => string storage ref)
+                 Source: "dogNames"
+              Identifier adr
+                 Type: address
+                 Source: "adr"
+        ExpressionStatement
+           Gas costs: [???]
+           Source: "thename = 'Unnamed Mutt'"
+          Assignment using operator =
+             Type: string memory
+             Source: "thename = 'Unnamed Mutt'"
+            Identifier thename
+               Type: string memory
+               Source: "thename"
+            Literal, token: [no token] value: Unnamed Mutt
+               Type: literal_string "Unnamed Mutt"
+               Source: "'Unnamed Mutt'"
+  FunctionDefinition "randInt" - const
+     Source: "function randInt(uint max, uint seedswitch) private constant returns (uint randomNumber) {\r\n\t\treturn( uint(sha3(block.blockhash(block.number-1), block.timestamp + seedswitch) ) % max + 1 );\r\n\t}"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint max, uint seedswitch)"
+      VariableDeclaration "max"
+         Type: uint256
+         Source: "uint max"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "seedswitch"
+         Type: uint256
+         Source: "uint seedswitch"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint randomNumber)"
+      VariableDeclaration "randomNumber"
+         Type: uint256
+         Source: "uint randomNumber"
+        ElementaryTypeName uint
+           Source: "uint"
+    Block
+       Source: "{\r\n\t\treturn( uint(sha3(block.blockhash(block.number-1), block.timestamp + seedswitch) ) % max + 1 );\r\n\t}"
+      Return
+         Gas costs: [???]
+         Source: "return( uint(sha3(block.blockhash(block.number-1), block.timestamp + seedswitch) ) % max + 1 )"
+        TupleExpression
+           Type: uint256
+           Source: "( uint(sha3(block.blockhash(block.number-1), block.timestamp + seedswitch) ) % max + 1 )"
+          BinaryOperation using operator +
+             Type: uint256
+             Source: "uint(sha3(block.blockhash(block.number-1), block.timestamp + seedswitch) ) % max + 1"
+            BinaryOperation using operator %
+               Type: uint256
+               Source: "uint(sha3(block.blockhash(block.number-1), block.timestamp + seedswitch) ) % max"
+              FunctionCall
+                 Type: uint256
+                 Source: "uint(sha3(block.blockhash(block.number-1), block.timestamp + seedswitch) )"
+                ElementaryTypeNameExpression uint
+                   Type: type(uint256)
+                   Source: "uint"
+                FunctionCall
+                   Type: bytes32
+                   Source: "sha3(block.blockhash(block.number-1), block.timestamp + seedswitch)"
+                  Identifier sha3
+                     Type: function () pure returns (bytes32)
+                     Source: "sha3"
+                  FunctionCall
+                     Type: bytes32
+                     Source: "block.blockhash(block.number-1)"
+                    MemberAccess to member blockhash
+                       Type: function (uint256) view returns (bytes32)
+                       Source: "block.blockhash"
+                      Identifier block
+                         Type: block
+                         Source: "block"
+                    BinaryOperation using operator -
+                       Type: uint256
+                       Source: "block.number-1"
+                      MemberAccess to member number
+                         Type: uint256
+                         Source: "block.number"
+                        Identifier block
+                           Type: block
+                           Source: "block"
+                      Literal, token: [no token] value: 1
+                         Type: int_const 1
+                         Source: "1"
+                  BinaryOperation using operator +
+                     Type: uint256
+                     Source: "block.timestamp + seedswitch"
+                    MemberAccess to member timestamp
+                       Type: uint256
+                       Source: "block.timestamp"
+                      Identifier block
+                         Type: block
+                         Source: "block"
+                    Identifier seedswitch
+                       Type: uint256
+                       Source: "seedswitch"
+              Identifier max
+                 Type: uint256
+                 Source: "max"
+            Literal, token: [no token] value: 1
+               Type: int_const 1
+               Source: "1"

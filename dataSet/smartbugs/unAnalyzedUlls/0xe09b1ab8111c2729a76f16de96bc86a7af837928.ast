@@ -1,0 +1,2970 @@
+Syntax trees:
+
+
+======= /home/fabric/ArocRevision/Aroc/dataSet/smartbugs-21-7-13/unAnalyzedUlls/0xe09b1ab8111c2729a76f16de96bc86a7af837928.sol =======
+PragmaDirective
+   Source: "pragma solidity ^0.4.24;"
+ContractDefinition "FiftyFlip"
+   Source: "contract FiftyFlip {\r\n    uint constant DONATING_X = 20; // 2% kujira\r\n\r\n    // Need to be discussed\r\n    uint constant JACKPOT_FEE = 10; // 1% jackpot\r\n    uint constant JACKPOT_MODULO = 1000; // 0.1% jackpotwin\r\n    uint constant DEV_FEE = 20; // 2% devfee\r\n    uint constant WIN_X = 1900; // 1.9x\r\n\r\n    // There is minimum and maximum bets.\r\n    uint constant MIN_BET = 0.01 ether;\r\n    uint constant MAX_BET = 1 ether;\r\n\r\n    uint constant BET_EXPIRATION_BLOCKS = 250;\r\n\r\n    // owner and PoC contract address\r\n    address public owner;\r\n    address public autoPlayBot;\r\n    address public secretSigner;\r\n    address private whale;\r\n\r\n    // Accumulated jackpot fund.\r\n    uint256 public jackpotSize;\r\n    uint256 public devFeeSize;\r\n\r\n    // Funds that are locked in potentially winning bets.\r\n    uint256 public lockedInBets;\r\n    uint256 public totalAmountToWhale;\r\n\r\n\r\n    struct Bet {\r\n        // Wager amount in wei.\r\n        uint amount;\r\n        // Block number of placeBet tx.\r\n        uint256 blockNumber;\r\n        // Bit mask representing winning bet outcomes (see MAX_MASK_MODULO comment).\r\n        bool betMask;\r\n        // Address of a player, used to pay out winning bets.\r\n        address player;\r\n    }\r\n\r\n    mapping (uint => Bet) bets;\r\n    mapping (address => uint) donateAmount;\r\n\r\n    // events\r\n    event Wager(uint ticketID, uint betAmount, uint256 betBlockNumber, bool betMask, address betPlayer);\r\n    event Win(address winner, uint amount, uint ticketID, bool maskRes, uint jackpotRes);\r\n    event Lose(address loser, uint amount, uint ticketID, bool maskRes, uint jackpotRes);\r\n    event Refund(uint ticketID, uint256 amount, address requester);\r\n    event Donate(uint256 amount, address donator);\r\n    event FailedPayment(address paidUser, uint amount);\r\n    event Payment(address noPaidUser, uint amount);\r\n    event JackpotPayment(address player, uint ticketID, uint jackpotWin);\r\n\r\n    // constructor\r\n    constructor (address whaleAddress, address autoPlayBotAddress, address secretSignerAddress) public {\r\n        owner = msg.sender;\r\n        autoPlayBot = autoPlayBotAddress;\r\n        whale = whaleAddress;\r\n        secretSigner = secretSignerAddress;\r\n        jackpotSize = 0;\r\n        devFeeSize = 0;\r\n        lockedInBets = 0;\r\n        totalAmountToWhale = 0;\r\n    }\r\n\r\n    // modifiers\r\n    modifier onlyOwner() {\r\n        require (msg.sender == owner, \"You are not the owner of this contract!\");\r\n        _;\r\n    }    \r\n\r\n    modifier onlyBot() {\r\n        require (msg.sender == autoPlayBot, \"You are not the bot of this contract!\");\r\n        _;\r\n    }\r\n    \r\n    modifier checkContractHealth() {\r\n        require (address(this).balance >= lockedInBets + jackpotSize + devFeeSize, \"This contract doesn't have enough balance, it is stopped till someone donate to this game!\");\r\n        _;\r\n    }\r\n\r\n    // betMast:\r\n    // false is front, true is back\r\n\r\n    function() public payable { }\r\n\r\n\r\n    function setBotAddress(address autoPlayBotAddress)\r\n    onlyOwner() \r\n    external \r\n    {\r\n        autoPlayBot = autoPlayBotAddress;\r\n    }\r\n\r\n    function setSecretSigner(address _secretSigner)\r\n    onlyOwner()  \r\n    external\r\n    {\r\n        secretSigner = _secretSigner;\r\n    }\r\n\r\n    // wager function\r\n    function wager(bool bMask, uint ticketID, uint ticketLastBlock, uint8 v, bytes32 r, bytes32 s)  \r\n    checkContractHealth()\r\n    external\r\n    payable { \r\n        Bet storage bet = bets[ticketID];\r\n        uint amount = msg.value;\r\n        address player = msg.sender;\r\n        require (bet.player == address(0), \"Ticket is not new one!\");\r\n        require (amount >= MIN_BET, \"Your bet is lower than minimum bet amount\");\r\n        require (amount <= MAX_BET, \"Your bet is higher than maximum bet amount\");\r\n        require (getCollateralBalance() >= 2 * amount, \"If we accept this, this contract will be in danger!\");\r\n\r\n        require (block.number <= ticketLastBlock, \"Ticket has expired.\");\r\n        bytes32 signatureHash = keccak256(abi.encodePacked('\\x19Ethereum Signed Message:\\n37', uint40(ticketLastBlock), ticketID));\r\n        require (secretSigner == ecrecover(signatureHash, v, r, s), \"web3 vrs signature is not valid.\");\r\n\r\n        jackpotSize += amount * JACKPOT_FEE / 1000;\r\n        devFeeSize += amount * DEV_FEE / 1000;\r\n        lockedInBets += amount * WIN_X / 1000;\r\n\r\n        uint donate_amount = amount * DONATING_X / 1000;\r\n        // <yes> <report> UNCHECKED_LL_CALLS\r\n        whale.call.value(donate_amount)(bytes4(keccak256(\"donate()\")));\r\n        totalAmountToWhale += donate_amount;\r\n\r\n        bet.amount = amount;\r\n        bet.blockNumber = block.number;\r\n        bet.betMask = bMask;\r\n        bet.player = player;\r\n\r\n        emit Wager(ticketID, bet.amount, bet.blockNumber, bet.betMask, bet.player);\r\n    }\r\n\r\n    // method to determine winners and losers\r\n    function play(uint ticketReveal)\r\n    checkContractHealth()\r\n    external\r\n    {\r\n        uint ticketID = uint(keccak256(abi.encodePacked(ticketReveal)));\r\n        Bet storage bet = bets[ticketID];\r\n        require (bet.player != address(0), \"TicketID is not correct!\");\r\n        require (bet.amount != 0, \"Ticket is already used one!\");\r\n        uint256 blockNumber = bet.blockNumber;\r\n        if(blockNumber < block.number && blockNumber >= block.number - BET_EXPIRATION_BLOCKS)\r\n        {\r\n            uint256 random = uint256(keccak256(abi.encodePacked(blockhash(blockNumber),  ticketReveal)));\r\n            bool maskRes = (random % 2) !=0;\r\n            uint jackpotRes = random % JACKPOT_MODULO;\r\n    \r\n            uint tossWinAmount = bet.amount * WIN_X / 1000;\r\n\r\n            uint tossWin = 0;\r\n            uint jackpotWin = 0;\r\n            \r\n            if(bet.betMask == maskRes) {\r\n                tossWin = tossWinAmount;\r\n            }\r\n            if(jackpotRes == 0) {\r\n                jackpotWin = jackpotSize;\r\n                jackpotSize = 0;\r\n            }\r\n            if (jackpotWin > 0) {\r\n                emit JackpotPayment(bet.player, ticketID, jackpotWin);\r\n            }\r\n            if(tossWin + jackpotWin > 0)\r\n            {\r\n                payout(bet.player, tossWin + jackpotWin, ticketID, maskRes, jackpotRes);\r\n            }\r\n            else \r\n            {\r\n                loseWager(bet.player, bet.amount, ticketID, maskRes, jackpotRes);\r\n            }\r\n            lockedInBets -= tossWinAmount;\r\n            bet.amount = 0;\r\n        }\r\n        else\r\n        {\r\n            revert();\r\n        }\r\n    }\r\n\r\n    function donateForContractHealth()\r\n    external \r\n    payable\r\n    {\r\n        donateAmount[msg.sender] += msg.value;\r\n        emit Donate(msg.value, msg.sender);\r\n    }\r\n\r\n    function withdrawDonation(uint amount)\r\n    external \r\n    {\r\n        require(donateAmount[msg.sender] >= amount, \"You are going to withdraw more than you donated!\");\r\n        \r\n        if (sendFunds(msg.sender, amount)){\r\n            donateAmount[msg.sender] -= amount;\r\n        }\r\n    }\r\n\r\n    // method to refund\r\n    function refund(uint ticketID)\r\n    checkContractHealth()\r\n    external {\r\n        Bet storage bet = bets[ticketID];\r\n        \r\n        require (bet.amount != 0, \"this ticket has no balance\");\r\n        require (block.number > bet.blockNumber + BET_EXPIRATION_BLOCKS, \"this ticket is expired.\");\r\n        sendRefund(ticketID);\r\n    }\r\n\r\n    // Funds withdrawl\r\n    function withdrawDevFee(address withdrawAddress, uint withdrawAmount)\r\n    onlyOwner()\r\n    checkContractHealth() \r\n    external {\r\n        require (devFeeSize >= withdrawAmount, \"You are trying to withdraw more amount than developer fee.\");\r\n        require (withdrawAmount <= address(this).balance, \"Contract balance is lower than withdrawAmount\");\r\n        require (devFeeSize <= address(this).balance, \"Not enough funds to withdraw.\");\r\n        if (sendFunds(withdrawAddress, withdrawAmount)){\r\n            devFeeSize -= withdrawAmount;\r\n        }\r\n    }\r\n\r\n    // Funds withdrawl\r\n    function withdrawBotFee(uint withdrawAmount)\r\n    onlyBot()\r\n    checkContractHealth() \r\n    external {\r\n        require (devFeeSize >= withdrawAmount, \"You are trying to withdraw more amount than developer fee.\");\r\n        require (withdrawAmount <= address(this).balance, \"Contract balance is lower than withdrawAmount\");\r\n        require (devFeeSize <= address(this).balance, \"Not enough funds to withdraw.\");\r\n        if (sendFunds(autoPlayBot, withdrawAmount)){\r\n            devFeeSize -= withdrawAmount;\r\n        }\r\n    }\r\n\r\n    // Get Bet Info from id\r\n    function getBetInfo(uint ticketID) \r\n    constant\r\n    external \r\n    returns (uint, uint256, bool, address){\r\n        Bet storage bet = bets[ticketID];\r\n        return (bet.amount, bet.blockNumber, bet.betMask, bet.player);\r\n    }\r\n\r\n    // Get Bet Info from id\r\n    function getContractBalance() \r\n    constant\r\n    external \r\n    returns (uint){\r\n        return address(this).balance;\r\n    }\r\n\r\n    // Get Collateral for Bet\r\n    function getCollateralBalance() \r\n    constant\r\n    public \r\n    returns (uint){\r\n        if (address(this).balance > lockedInBets + jackpotSize + devFeeSize)\r\n            return address(this).balance - lockedInBets - jackpotSize - devFeeSize;\r\n        return 0;\r\n    }\r\n\r\n    // Contract may be destroyed only when there are no ongoing bets,\r\n    // either settled or refunded. All funds are transferred to contract owner.\r\n    function kill() external onlyOwner() {\r\n        require (lockedInBets == 0, \"All bets should be processed (settled or refunded) before self-destruct.\");\r\n        selfdestruct(owner);\r\n    }\r\n\r\n    // Payout ETH to winner\r\n    function payout(address winner, uint ethToTransfer, uint ticketID, bool maskRes, uint jackpotRes) \r\n    internal \r\n    {        \r\n        winner.transfer(ethToTransfer);\r\n        emit Win(winner, ethToTransfer, ticketID, maskRes, jackpotRes);\r\n    }\r\n\r\n    // sendRefund to requester\r\n    function sendRefund(uint ticketID) \r\n    internal \r\n    {\r\n        Bet storage bet = bets[ticketID];\r\n        address requester = bet.player;\r\n        uint256 ethToTransfer = bet.amount;        \r\n        requester.transfer(ethToTransfer);\r\n\r\n        uint tossWinAmount = bet.amount * WIN_X / 1000;\r\n        lockedInBets -= tossWinAmount;\r\n\r\n        bet.amount = 0;\r\n        emit Refund(ticketID, ethToTransfer, requester);\r\n    }\r\n\r\n    // Helper routine to process the payment.\r\n    function sendFunds(address paidUser, uint amount) private returns (bool){\r\n        bool success = paidUser.send(amount);\r\n        if (success) {\r\n            emit Payment(paidUser, amount);\r\n        } else {\r\n            emit FailedPayment(paidUser, amount);\r\n        }\r\n        return success;\r\n    }\r\n    // Payout ETH to whale when player loses\r\n    function loseWager(address player, uint amount, uint ticketID, bool maskRes, uint jackpotRes) \r\n    internal \r\n    {\r\n        emit Lose(player, amount, ticketID, maskRes, jackpotRes);\r\n    }\r\n\r\n    // bulk clean the storage.\r\n    function clearStorage(uint[] toCleanTicketIDs) external {\r\n        uint length = toCleanTicketIDs.length;\r\n\r\n        for (uint i = 0; i < length; i++) {\r\n            clearProcessedBet(toCleanTicketIDs[i]);\r\n        }\r\n    }\r\n\r\n    // Helper routine to move 'processed' bets into 'clean' state.\r\n    function clearProcessedBet(uint ticketID) private {\r\n        Bet storage bet = bets[ticketID];\r\n\r\n        // Do not overwrite active bets with zeros; additionally prevent cleanup of bets\r\n        // for which ticketID signatures may have not expired yet (see whitepaper for details).\r\n        if (bet.amount != 0 || block.number <= bet.blockNumber + BET_EXPIRATION_BLOCKS) {\r\n            return;\r\n        }\r\n\r\n        bet.blockNumber = 0;\r\n        bet.betMask = false;\r\n        bet.player = address(0);\r\n    }\r\n\r\n    // A trap door for when someone sends tokens other than the intended ones so the overseers can decide where to send them.\r\n    function transferAnyERC20Token(address tokenAddress, address tokenOwner, uint tokens) \r\n    public \r\n    onlyOwner() \r\n    returns (bool success) \r\n    {\r\n        return ERC20Interface(tokenAddress).transfer(tokenOwner, tokens);\r\n    }\r\n}"
+  VariableDeclaration "DONATING_X"
+     Type: uint256
+     Source: "uint constant DONATING_X = 20"
+    ElementaryTypeName uint
+       Source: "uint"
+    Literal, token: [no token] value: 20
+       Type: int_const 20
+       Source: "20"
+  VariableDeclaration "JACKPOT_FEE"
+     Type: uint256
+     Source: "uint constant JACKPOT_FEE = 10"
+    ElementaryTypeName uint
+       Source: "uint"
+    Literal, token: [no token] value: 10
+       Type: int_const 10
+       Source: "10"
+  VariableDeclaration "JACKPOT_MODULO"
+     Type: uint256
+     Source: "uint constant JACKPOT_MODULO = 1000"
+    ElementaryTypeName uint
+       Source: "uint"
+    Literal, token: [no token] value: 1000
+       Type: int_const 1000
+       Source: "1000"
+  VariableDeclaration "DEV_FEE"
+     Type: uint256
+     Source: "uint constant DEV_FEE = 20"
+    ElementaryTypeName uint
+       Source: "uint"
+    Literal, token: [no token] value: 20
+       Type: int_const 20
+       Source: "20"
+  VariableDeclaration "WIN_X"
+     Type: uint256
+     Source: "uint constant WIN_X = 1900"
+    ElementaryTypeName uint
+       Source: "uint"
+    Literal, token: [no token] value: 1900
+       Type: int_const 1900
+       Source: "1900"
+  VariableDeclaration "MIN_BET"
+     Type: uint256
+     Source: "uint constant MIN_BET = 0.01 ether"
+    ElementaryTypeName uint
+       Source: "uint"
+    Literal, token: [no token] value: 0.01
+       Type: int_const 10000000000000000
+       Source: "0.01 ether"
+  VariableDeclaration "MAX_BET"
+     Type: uint256
+     Source: "uint constant MAX_BET = 1 ether"
+    ElementaryTypeName uint
+       Source: "uint"
+    Literal, token: [no token] value: 1
+       Type: int_const 1000000000000000000
+       Source: "1 ether"
+  VariableDeclaration "BET_EXPIRATION_BLOCKS"
+     Type: uint256
+     Source: "uint constant BET_EXPIRATION_BLOCKS = 250"
+    ElementaryTypeName uint
+       Source: "uint"
+    Literal, token: [no token] value: 250
+       Type: int_const 250
+       Source: "250"
+  VariableDeclaration "owner"
+     Type: address
+     Source: "address public owner"
+    ElementaryTypeName address
+       Source: "address"
+  VariableDeclaration "autoPlayBot"
+     Type: address
+     Source: "address public autoPlayBot"
+    ElementaryTypeName address
+       Source: "address"
+  VariableDeclaration "secretSigner"
+     Type: address
+     Source: "address public secretSigner"
+    ElementaryTypeName address
+       Source: "address"
+  VariableDeclaration "whale"
+     Type: address
+     Source: "address private whale"
+    ElementaryTypeName address
+       Source: "address"
+  VariableDeclaration "jackpotSize"
+     Type: uint256
+     Source: "uint256 public jackpotSize"
+    ElementaryTypeName uint256
+       Source: "uint256"
+  VariableDeclaration "devFeeSize"
+     Type: uint256
+     Source: "uint256 public devFeeSize"
+    ElementaryTypeName uint256
+       Source: "uint256"
+  VariableDeclaration "lockedInBets"
+     Type: uint256
+     Source: "uint256 public lockedInBets"
+    ElementaryTypeName uint256
+       Source: "uint256"
+  VariableDeclaration "totalAmountToWhale"
+     Type: uint256
+     Source: "uint256 public totalAmountToWhale"
+    ElementaryTypeName uint256
+       Source: "uint256"
+  StructDefinition "Bet"
+     Source: "struct Bet {\r\n        // Wager amount in wei.\r\n        uint amount;\r\n        // Block number of placeBet tx.\r\n        uint256 blockNumber;\r\n        // Bit mask representing winning bet outcomes (see MAX_MASK_MODULO comment).\r\n        bool betMask;\r\n        // Address of a player, used to pay out winning bets.\r\n        address player;\r\n    }"
+    VariableDeclaration "amount"
+       Type: uint256
+       Source: "uint amount"
+      ElementaryTypeName uint
+         Source: "uint"
+    VariableDeclaration "blockNumber"
+       Type: uint256
+       Source: "uint256 blockNumber"
+      ElementaryTypeName uint256
+         Source: "uint256"
+    VariableDeclaration "betMask"
+       Type: bool
+       Source: "bool betMask"
+      ElementaryTypeName bool
+         Source: "bool"
+    VariableDeclaration "player"
+       Type: address
+       Source: "address player"
+      ElementaryTypeName address
+         Source: "address"
+  VariableDeclaration "bets"
+     Type: mapping(uint256 => struct FiftyFlip.Bet storage ref)
+     Source: "mapping (uint => Bet) bets"
+    Mapping
+       Source: "mapping (uint => Bet)"
+      ElementaryTypeName uint
+         Source: "uint"
+      UserDefinedTypeName "Bet"
+         Source: "Bet"
+  VariableDeclaration "donateAmount"
+     Type: mapping(address => uint256)
+     Source: "mapping (address => uint) donateAmount"
+    Mapping
+       Source: "mapping (address => uint)"
+      ElementaryTypeName address
+         Source: "address"
+      ElementaryTypeName uint
+         Source: "uint"
+  EventDefinition "Wager"
+     Source: "event Wager(uint ticketID, uint betAmount, uint256 betBlockNumber, bool betMask, address betPlayer);"
+    ParameterList
+       Source: "(uint ticketID, uint betAmount, uint256 betBlockNumber, bool betMask, address betPlayer)"
+      VariableDeclaration "ticketID"
+         Type: uint256
+         Source: "uint ticketID"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "betAmount"
+         Type: uint256
+         Source: "uint betAmount"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "betBlockNumber"
+         Type: uint256
+         Source: "uint256 betBlockNumber"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "betMask"
+         Type: bool
+         Source: "bool betMask"
+        ElementaryTypeName bool
+           Source: "bool"
+      VariableDeclaration "betPlayer"
+         Type: address
+         Source: "address betPlayer"
+        ElementaryTypeName address
+           Source: "address"
+  EventDefinition "Win"
+     Source: "event Win(address winner, uint amount, uint ticketID, bool maskRes, uint jackpotRes);"
+    ParameterList
+       Source: "(address winner, uint amount, uint ticketID, bool maskRes, uint jackpotRes)"
+      VariableDeclaration "winner"
+         Type: address
+         Source: "address winner"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "amount"
+         Type: uint256
+         Source: "uint amount"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "ticketID"
+         Type: uint256
+         Source: "uint ticketID"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "maskRes"
+         Type: bool
+         Source: "bool maskRes"
+        ElementaryTypeName bool
+           Source: "bool"
+      VariableDeclaration "jackpotRes"
+         Type: uint256
+         Source: "uint jackpotRes"
+        ElementaryTypeName uint
+           Source: "uint"
+  EventDefinition "Lose"
+     Source: "event Lose(address loser, uint amount, uint ticketID, bool maskRes, uint jackpotRes);"
+    ParameterList
+       Source: "(address loser, uint amount, uint ticketID, bool maskRes, uint jackpotRes)"
+      VariableDeclaration "loser"
+         Type: address
+         Source: "address loser"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "amount"
+         Type: uint256
+         Source: "uint amount"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "ticketID"
+         Type: uint256
+         Source: "uint ticketID"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "maskRes"
+         Type: bool
+         Source: "bool maskRes"
+        ElementaryTypeName bool
+           Source: "bool"
+      VariableDeclaration "jackpotRes"
+         Type: uint256
+         Source: "uint jackpotRes"
+        ElementaryTypeName uint
+           Source: "uint"
+  EventDefinition "Refund"
+     Source: "event Refund(uint ticketID, uint256 amount, address requester);"
+    ParameterList
+       Source: "(uint ticketID, uint256 amount, address requester)"
+      VariableDeclaration "ticketID"
+         Type: uint256
+         Source: "uint ticketID"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "amount"
+         Type: uint256
+         Source: "uint256 amount"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "requester"
+         Type: address
+         Source: "address requester"
+        ElementaryTypeName address
+           Source: "address"
+  EventDefinition "Donate"
+     Source: "event Donate(uint256 amount, address donator);"
+    ParameterList
+       Source: "(uint256 amount, address donator)"
+      VariableDeclaration "amount"
+         Type: uint256
+         Source: "uint256 amount"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "donator"
+         Type: address
+         Source: "address donator"
+        ElementaryTypeName address
+           Source: "address"
+  EventDefinition "FailedPayment"
+     Source: "event FailedPayment(address paidUser, uint amount);"
+    ParameterList
+       Source: "(address paidUser, uint amount)"
+      VariableDeclaration "paidUser"
+         Type: address
+         Source: "address paidUser"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "amount"
+         Type: uint256
+         Source: "uint amount"
+        ElementaryTypeName uint
+           Source: "uint"
+  EventDefinition "Payment"
+     Source: "event Payment(address noPaidUser, uint amount);"
+    ParameterList
+       Source: "(address noPaidUser, uint amount)"
+      VariableDeclaration "noPaidUser"
+         Type: address
+         Source: "address noPaidUser"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "amount"
+         Type: uint256
+         Source: "uint amount"
+        ElementaryTypeName uint
+           Source: "uint"
+  EventDefinition "JackpotPayment"
+     Source: "event JackpotPayment(address player, uint ticketID, uint jackpotWin);"
+    ParameterList
+       Source: "(address player, uint ticketID, uint jackpotWin)"
+      VariableDeclaration "player"
+         Type: address
+         Source: "address player"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "ticketID"
+         Type: uint256
+         Source: "uint ticketID"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "jackpotWin"
+         Type: uint256
+         Source: "uint jackpotWin"
+        ElementaryTypeName uint
+           Source: "uint"
+  FunctionDefinition "" - public
+     Source: "constructor (address whaleAddress, address autoPlayBotAddress, address secretSignerAddress) public {\r\n        owner = msg.sender;\r\n        autoPlayBot = autoPlayBotAddress;\r\n        whale = whaleAddress;\r\n        secretSigner = secretSignerAddress;\r\n        jackpotSize = 0;\r\n        devFeeSize = 0;\r\n        lockedInBets = 0;\r\n        totalAmountToWhale = 0;\r\n    }"
+    ParameterList
+       Source: "(address whaleAddress, address autoPlayBotAddress, address secretSignerAddress)"
+      VariableDeclaration "whaleAddress"
+         Type: address
+         Source: "address whaleAddress"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "autoPlayBotAddress"
+         Type: address
+         Source: "address autoPlayBotAddress"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "secretSignerAddress"
+         Type: address
+         Source: "address secretSignerAddress"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Source: ""
+    Block
+       Source: "{\r\n        owner = msg.sender;\r\n        autoPlayBot = autoPlayBotAddress;\r\n        whale = whaleAddress;\r\n        secretSigner = secretSignerAddress;\r\n        jackpotSize = 0;\r\n        devFeeSize = 0;\r\n        lockedInBets = 0;\r\n        totalAmountToWhale = 0;\r\n    }"
+      ExpressionStatement
+         Source: "owner = msg.sender"
+        Assignment using operator =
+           Type: address
+           Source: "owner = msg.sender"
+          Identifier owner
+             Type: address
+             Source: "owner"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+      ExpressionStatement
+         Source: "autoPlayBot = autoPlayBotAddress"
+        Assignment using operator =
+           Type: address
+           Source: "autoPlayBot = autoPlayBotAddress"
+          Identifier autoPlayBot
+             Type: address
+             Source: "autoPlayBot"
+          Identifier autoPlayBotAddress
+             Type: address
+             Source: "autoPlayBotAddress"
+      ExpressionStatement
+         Source: "whale = whaleAddress"
+        Assignment using operator =
+           Type: address
+           Source: "whale = whaleAddress"
+          Identifier whale
+             Type: address
+             Source: "whale"
+          Identifier whaleAddress
+             Type: address
+             Source: "whaleAddress"
+      ExpressionStatement
+         Source: "secretSigner = secretSignerAddress"
+        Assignment using operator =
+           Type: address
+           Source: "secretSigner = secretSignerAddress"
+          Identifier secretSigner
+             Type: address
+             Source: "secretSigner"
+          Identifier secretSignerAddress
+             Type: address
+             Source: "secretSignerAddress"
+      ExpressionStatement
+         Source: "jackpotSize = 0"
+        Assignment using operator =
+           Type: uint256
+           Source: "jackpotSize = 0"
+          Identifier jackpotSize
+             Type: uint256
+             Source: "jackpotSize"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+      ExpressionStatement
+         Source: "devFeeSize = 0"
+        Assignment using operator =
+           Type: uint256
+           Source: "devFeeSize = 0"
+          Identifier devFeeSize
+             Type: uint256
+             Source: "devFeeSize"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+      ExpressionStatement
+         Source: "lockedInBets = 0"
+        Assignment using operator =
+           Type: uint256
+           Source: "lockedInBets = 0"
+          Identifier lockedInBets
+             Type: uint256
+             Source: "lockedInBets"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+      ExpressionStatement
+         Source: "totalAmountToWhale = 0"
+        Assignment using operator =
+           Type: uint256
+           Source: "totalAmountToWhale = 0"
+          Identifier totalAmountToWhale
+             Type: uint256
+             Source: "totalAmountToWhale"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+  ModifierDefinition "onlyOwner"
+     Source: "modifier onlyOwner() {\r\n        require (msg.sender == owner, \"You are not the owner of this contract!\");\r\n        _;\r\n    }"
+    ParameterList
+       Source: "()"
+    Block
+       Source: "{\r\n        require (msg.sender == owner, \"You are not the owner of this contract!\");\r\n        _;\r\n    }"
+      ExpressionStatement
+         Source: "require (msg.sender == owner, \"You are not the owner of this contract!\")"
+        FunctionCall
+           Type: tuple()
+           Source: "require (msg.sender == owner, \"You are not the owner of this contract!\")"
+          Identifier require
+             Type: function (bool,string memory) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "msg.sender == owner"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Identifier owner
+               Type: address
+               Source: "owner"
+          Literal, token: [no token] value: You are not the owner of this contract!
+             Type: literal_string "You are not the owner of this contract!"
+             Source: "\"You are not the owner of this contract!\""
+      PlaceholderStatement
+         Source: "_"
+  ModifierDefinition "onlyBot"
+     Source: "modifier onlyBot() {\r\n        require (msg.sender == autoPlayBot, \"You are not the bot of this contract!\");\r\n        _;\r\n    }"
+    ParameterList
+       Source: "()"
+    Block
+       Source: "{\r\n        require (msg.sender == autoPlayBot, \"You are not the bot of this contract!\");\r\n        _;\r\n    }"
+      ExpressionStatement
+         Source: "require (msg.sender == autoPlayBot, \"You are not the bot of this contract!\")"
+        FunctionCall
+           Type: tuple()
+           Source: "require (msg.sender == autoPlayBot, \"You are not the bot of this contract!\")"
+          Identifier require
+             Type: function (bool,string memory) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "msg.sender == autoPlayBot"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Identifier autoPlayBot
+               Type: address
+               Source: "autoPlayBot"
+          Literal, token: [no token] value: You are not the bot of this contract!
+             Type: literal_string "You are not the bot of this contract!"
+             Source: "\"You are not the bot of this contract!\""
+      PlaceholderStatement
+         Source: "_"
+  ModifierDefinition "checkContractHealth"
+     Source: "modifier checkContractHealth() {\r\n        require (address(this).balance >= lockedInBets + jackpotSize + devFeeSize, \"This contract doesn't have enough balance, it is stopped till someone donate to this game!\");\r\n        _;\r\n    }"
+    ParameterList
+       Source: "()"
+    Block
+       Source: "{\r\n        require (address(this).balance >= lockedInBets + jackpotSize + devFeeSize, \"This contract doesn't have enough balance, it is stopped till someone donate to this game!\");\r\n        _;\r\n    }"
+      ExpressionStatement
+         Source: "require (address(this).balance >= lockedInBets + jackpotSize + devFeeSize, \"This contract doesn't have enough balance, it is stopped till someone donate to this game!\")"
+        FunctionCall
+           Type: tuple()
+           Source: "require (address(this).balance >= lockedInBets + jackpotSize + devFeeSize, \"This contract doesn't have enough balance, it is stopped till someone donate to this game!\")"
+          Identifier require
+             Type: function (bool,string memory) pure
+             Source: "require"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "address(this).balance >= lockedInBets + jackpotSize + devFeeSize"
+            MemberAccess to member balance
+               Type: uint256
+               Source: "address(this).balance"
+              FunctionCall
+                 Type: address
+                 Source: "address(this)"
+                ElementaryTypeNameExpression address
+                   Type: type(address)
+                   Source: "address"
+                Identifier this
+                   Type: contract FiftyFlip
+                   Source: "this"
+            BinaryOperation using operator +
+               Type: uint256
+               Source: "lockedInBets + jackpotSize + devFeeSize"
+              BinaryOperation using operator +
+                 Type: uint256
+                 Source: "lockedInBets + jackpotSize"
+                Identifier lockedInBets
+                   Type: uint256
+                   Source: "lockedInBets"
+                Identifier jackpotSize
+                   Type: uint256
+                   Source: "jackpotSize"
+              Identifier devFeeSize
+                 Type: uint256
+                 Source: "devFeeSize"
+          Literal, token: [no token] value: This contract doesn't have enough balance, it is stopped till someone donate to this game!
+             Type: literal_string "This contract doesn't have enough balance, it is stopped till someone donate to this game!"
+             Source: "\"This contract doesn't have enough balance, it is stopped till someone donate to this game!\""
+      PlaceholderStatement
+         Source: "_"
+  FunctionDefinition "" - public
+     Source: "function() public payable { }"
+    ParameterList
+       Source: "()"
+    ParameterList
+       Source: ""
+    Block
+       Source: "{ }"
+  FunctionDefinition "setBotAddress" - public
+     Source: "function setBotAddress(address autoPlayBotAddress)\r\n    onlyOwner() \r\n    external \r\n    {\r\n        autoPlayBot = autoPlayBotAddress;\r\n    }"
+    ParameterList
+       Source: "(address autoPlayBotAddress)"
+      VariableDeclaration "autoPlayBotAddress"
+         Type: address
+         Source: "address autoPlayBotAddress"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Source: "onlyOwner()"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n        autoPlayBot = autoPlayBotAddress;\r\n    }"
+      ExpressionStatement
+         Source: "autoPlayBot = autoPlayBotAddress"
+        Assignment using operator =
+           Type: address
+           Source: "autoPlayBot = autoPlayBotAddress"
+          Identifier autoPlayBot
+             Type: address
+             Source: "autoPlayBot"
+          Identifier autoPlayBotAddress
+             Type: address
+             Source: "autoPlayBotAddress"
+  FunctionDefinition "setSecretSigner" - public
+     Source: "function setSecretSigner(address _secretSigner)\r\n    onlyOwner()  \r\n    external\r\n    {\r\n        secretSigner = _secretSigner;\r\n    }"
+    ParameterList
+       Source: "(address _secretSigner)"
+      VariableDeclaration "_secretSigner"
+         Type: address
+         Source: "address _secretSigner"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Source: "onlyOwner()"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n        secretSigner = _secretSigner;\r\n    }"
+      ExpressionStatement
+         Source: "secretSigner = _secretSigner"
+        Assignment using operator =
+           Type: address
+           Source: "secretSigner = _secretSigner"
+          Identifier secretSigner
+             Type: address
+             Source: "secretSigner"
+          Identifier _secretSigner
+             Type: address
+             Source: "_secretSigner"
+  FunctionDefinition "wager" - public
+     Source: "function wager(bool bMask, uint ticketID, uint ticketLastBlock, uint8 v, bytes32 r, bytes32 s)  \r\n    checkContractHealth()\r\n    external\r\n    payable { \r\n        Bet storage bet = bets[ticketID];\r\n        uint amount = msg.value;\r\n        address player = msg.sender;\r\n        require (bet.player == address(0), \"Ticket is not new one!\");\r\n        require (amount >= MIN_BET, \"Your bet is lower than minimum bet amount\");\r\n        require (amount <= MAX_BET, \"Your bet is higher than maximum bet amount\");\r\n        require (getCollateralBalance() >= 2 * amount, \"If we accept this, this contract will be in danger!\");\r\n\r\n        require (block.number <= ticketLastBlock, \"Ticket has expired.\");\r\n        bytes32 signatureHash = keccak256(abi.encodePacked('\\x19Ethereum Signed Message:\\n37', uint40(ticketLastBlock), ticketID));\r\n        require (secretSigner == ecrecover(signatureHash, v, r, s), \"web3 vrs signature is not valid.\");\r\n\r\n        jackpotSize += amount * JACKPOT_FEE / 1000;\r\n        devFeeSize += amount * DEV_FEE / 1000;\r\n        lockedInBets += amount * WIN_X / 1000;\r\n\r\n        uint donate_amount = amount * DONATING_X / 1000;\r\n        // <yes> <report> UNCHECKED_LL_CALLS\r\n        whale.call.value(donate_amount)(bytes4(keccak256(\"donate()\")));\r\n        totalAmountToWhale += donate_amount;\r\n\r\n        bet.amount = amount;\r\n        bet.blockNumber = block.number;\r\n        bet.betMask = bMask;\r\n        bet.player = player;\r\n\r\n        emit Wager(ticketID, bet.amount, bet.blockNumber, bet.betMask, bet.player);\r\n    }"
+    ParameterList
+       Source: "(bool bMask, uint ticketID, uint ticketLastBlock, uint8 v, bytes32 r, bytes32 s)"
+      VariableDeclaration "bMask"
+         Type: bool
+         Source: "bool bMask"
+        ElementaryTypeName bool
+           Source: "bool"
+      VariableDeclaration "ticketID"
+         Type: uint256
+         Source: "uint ticketID"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "ticketLastBlock"
+         Type: uint256
+         Source: "uint ticketLastBlock"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "v"
+         Type: uint8
+         Source: "uint8 v"
+        ElementaryTypeName uint8
+           Source: "uint8"
+      VariableDeclaration "r"
+         Type: bytes32
+         Source: "bytes32 r"
+        ElementaryTypeName bytes32
+           Source: "bytes32"
+      VariableDeclaration "s"
+         Type: bytes32
+         Source: "bytes32 s"
+        ElementaryTypeName bytes32
+           Source: "bytes32"
+    ParameterList
+       Source: ""
+    ModifierInvocation "checkContractHealth"
+       Source: "checkContractHealth()"
+      Identifier checkContractHealth
+         Type: modifier ()
+         Source: "checkContractHealth"
+    Block
+       Source: "{ \r\n        Bet storage bet = bets[ticketID];\r\n        uint amount = msg.value;\r\n        address player = msg.sender;\r\n        require (bet.player == address(0), \"Ticket is not new one!\");\r\n        require (amount >= MIN_BET, \"Your bet is lower than minimum bet amount\");\r\n        require (amount <= MAX_BET, \"Your bet is higher than maximum bet amount\");\r\n        require (getCollateralBalance() >= 2 * amount, \"If we accept this, this contract will be in danger!\");\r\n\r\n        require (block.number <= ticketLastBlock, \"Ticket has expired.\");\r\n        bytes32 signatureHash = keccak256(abi.encodePacked('\\x19Ethereum Signed Message:\\n37', uint40(ticketLastBlock), ticketID));\r\n        require (secretSigner == ecrecover(signatureHash, v, r, s), \"web3 vrs signature is not valid.\");\r\n\r\n        jackpotSize += amount * JACKPOT_FEE / 1000;\r\n        devFeeSize += amount * DEV_FEE / 1000;\r\n        lockedInBets += amount * WIN_X / 1000;\r\n\r\n        uint donate_amount = amount * DONATING_X / 1000;\r\n        // <yes> <report> UNCHECKED_LL_CALLS\r\n        whale.call.value(donate_amount)(bytes4(keccak256(\"donate()\")));\r\n        totalAmountToWhale += donate_amount;\r\n\r\n        bet.amount = amount;\r\n        bet.blockNumber = block.number;\r\n        bet.betMask = bMask;\r\n        bet.player = player;\r\n\r\n        emit Wager(ticketID, bet.amount, bet.blockNumber, bet.betMask, bet.player);\r\n    }"
+      VariableDeclarationStatement
+         Source: "Bet storage bet = bets[ticketID]"
+        VariableDeclaration "bet"
+           Type: struct FiftyFlip.Bet storage pointer
+           Source: "Bet storage bet"
+          UserDefinedTypeName "Bet"
+             Source: "Bet"
+        IndexAccess
+           Type: struct FiftyFlip.Bet storage ref
+           Source: "bets[ticketID]"
+          Identifier bets
+             Type: mapping(uint256 => struct FiftyFlip.Bet storage ref)
+             Source: "bets"
+          Identifier ticketID
+             Type: uint256
+             Source: "ticketID"
+      VariableDeclarationStatement
+         Source: "uint amount = msg.value"
+        VariableDeclaration "amount"
+           Type: uint256
+           Source: "uint amount"
+          ElementaryTypeName uint
+             Source: "uint"
+        MemberAccess to member value
+           Type: uint256
+           Source: "msg.value"
+          Identifier msg
+             Type: msg
+             Source: "msg"
+      VariableDeclarationStatement
+         Source: "address player = msg.sender"
+        VariableDeclaration "player"
+           Type: address
+           Source: "address player"
+          ElementaryTypeName address
+             Source: "address"
+        MemberAccess to member sender
+           Type: address
+           Source: "msg.sender"
+          Identifier msg
+             Type: msg
+             Source: "msg"
+      ExpressionStatement
+         Source: "require (bet.player == address(0), \"Ticket is not new one!\")"
+        FunctionCall
+           Type: tuple()
+           Source: "require (bet.player == address(0), \"Ticket is not new one!\")"
+          Identifier require
+             Type: function (bool,string memory) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "bet.player == address(0)"
+            MemberAccess to member player
+               Type: address
+               Source: "bet.player"
+              Identifier bet
+                 Type: struct FiftyFlip.Bet storage pointer
+                 Source: "bet"
+            FunctionCall
+               Type: address
+               Source: "address(0)"
+              ElementaryTypeNameExpression address
+                 Type: type(address)
+                 Source: "address"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+          Literal, token: [no token] value: Ticket is not new one!
+             Type: literal_string "Ticket is not new one!"
+             Source: "\"Ticket is not new one!\""
+      ExpressionStatement
+         Source: "require (amount >= MIN_BET, \"Your bet is lower than minimum bet amount\")"
+        FunctionCall
+           Type: tuple()
+           Source: "require (amount >= MIN_BET, \"Your bet is lower than minimum bet amount\")"
+          Identifier require
+             Type: function (bool,string memory) pure
+             Source: "require"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "amount >= MIN_BET"
+            Identifier amount
+               Type: uint256
+               Source: "amount"
+            Identifier MIN_BET
+               Type: uint256
+               Source: "MIN_BET"
+          Literal, token: [no token] value: Your bet is lower than minimum bet amount
+             Type: literal_string "Your bet is lower than minimum bet amount"
+             Source: "\"Your bet is lower than minimum bet amount\""
+      ExpressionStatement
+         Source: "require (amount <= MAX_BET, \"Your bet is higher than maximum bet amount\")"
+        FunctionCall
+           Type: tuple()
+           Source: "require (amount <= MAX_BET, \"Your bet is higher than maximum bet amount\")"
+          Identifier require
+             Type: function (bool,string memory) pure
+             Source: "require"
+          BinaryOperation using operator <=
+             Type: bool
+             Source: "amount <= MAX_BET"
+            Identifier amount
+               Type: uint256
+               Source: "amount"
+            Identifier MAX_BET
+               Type: uint256
+               Source: "MAX_BET"
+          Literal, token: [no token] value: Your bet is higher than maximum bet amount
+             Type: literal_string "Your bet is higher than maximum bet amount"
+             Source: "\"Your bet is higher than maximum bet amount\""
+      ExpressionStatement
+         Source: "require (getCollateralBalance() >= 2 * amount, \"If we accept this, this contract will be in danger!\")"
+        FunctionCall
+           Type: tuple()
+           Source: "require (getCollateralBalance() >= 2 * amount, \"If we accept this, this contract will be in danger!\")"
+          Identifier require
+             Type: function (bool,string memory) pure
+             Source: "require"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "getCollateralBalance() >= 2 * amount"
+            FunctionCall
+               Type: uint256
+               Source: "getCollateralBalance()"
+              Identifier getCollateralBalance
+                 Type: function () view returns (uint256)
+                 Source: "getCollateralBalance"
+            BinaryOperation using operator *
+               Type: uint256
+               Source: "2 * amount"
+              Literal, token: [no token] value: 2
+                 Type: int_const 2
+                 Source: "2"
+              Identifier amount
+                 Type: uint256
+                 Source: "amount"
+          Literal, token: [no token] value: If we accept this, this contract will be in danger!
+             Type: literal_string "If we accept this, this contract will be in danger!"
+             Source: "\"If we accept this, this contract will be in danger!\""
+      ExpressionStatement
+         Source: "require (block.number <= ticketLastBlock, \"Ticket has expired.\")"
+        FunctionCall
+           Type: tuple()
+           Source: "require (block.number <= ticketLastBlock, \"Ticket has expired.\")"
+          Identifier require
+             Type: function (bool,string memory) pure
+             Source: "require"
+          BinaryOperation using operator <=
+             Type: bool
+             Source: "block.number <= ticketLastBlock"
+            MemberAccess to member number
+               Type: uint256
+               Source: "block.number"
+              Identifier block
+                 Type: block
+                 Source: "block"
+            Identifier ticketLastBlock
+               Type: uint256
+               Source: "ticketLastBlock"
+          Literal, token: [no token] value: Ticket has expired.
+             Type: literal_string "Ticket has expired."
+             Source: "\"Ticket has expired.\""
+      VariableDeclarationStatement
+         Source: "bytes32 signatureHash = keccak256(abi.encodePacked('\\x19Ethereum Signed Message:\\n37', uint40(ticketLastBlock), ticketID))"
+        VariableDeclaration "signatureHash"
+           Type: bytes32
+           Source: "bytes32 signatureHash"
+          ElementaryTypeName bytes32
+             Source: "bytes32"
+        FunctionCall
+           Type: bytes32
+           Source: "keccak256(abi.encodePacked('\\x19Ethereum Signed Message:\\n37', uint40(ticketLastBlock), ticketID))"
+          Identifier keccak256
+             Type: function () pure returns (bytes32)
+             Source: "keccak256"
+          FunctionCall
+             Type: bytes memory
+             Source: "abi.encodePacked('\\x19Ethereum Signed Message:\\n37', uint40(ticketLastBlock), ticketID)"
+            MemberAccess to member encodePacked
+               Type: function () pure returns (bytes memory)
+               Source: "abi.encodePacked"
+              Identifier abi
+                 Type: abi
+                 Source: "abi"
+            Literal, token: [no token] value: Ethereum Signed Message:
+37
+               Type: literal_string "Ethereum Signed Message:
+37"
+               Source: "'\\x19Ethereum Signed Message:\\n37'"
+            FunctionCall
+               Type: uint40
+               Source: "uint40(ticketLastBlock)"
+              ElementaryTypeNameExpression uint40
+                 Type: type(uint40)
+                 Source: "uint40"
+              Identifier ticketLastBlock
+                 Type: uint256
+                 Source: "ticketLastBlock"
+            Identifier ticketID
+               Type: uint256
+               Source: "ticketID"
+      ExpressionStatement
+         Source: "require (secretSigner == ecrecover(signatureHash, v, r, s), \"web3 vrs signature is not valid.\")"
+        FunctionCall
+           Type: tuple()
+           Source: "require (secretSigner == ecrecover(signatureHash, v, r, s), \"web3 vrs signature is not valid.\")"
+          Identifier require
+             Type: function (bool,string memory) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "secretSigner == ecrecover(signatureHash, v, r, s)"
+            Identifier secretSigner
+               Type: address
+               Source: "secretSigner"
+            FunctionCall
+               Type: address
+               Source: "ecrecover(signatureHash, v, r, s)"
+              Identifier ecrecover
+                 Type: function (bytes32,uint8,bytes32,bytes32) pure returns (address)
+                 Source: "ecrecover"
+              Identifier signatureHash
+                 Type: bytes32
+                 Source: "signatureHash"
+              Identifier v
+                 Type: uint8
+                 Source: "v"
+              Identifier r
+                 Type: bytes32
+                 Source: "r"
+              Identifier s
+                 Type: bytes32
+                 Source: "s"
+          Literal, token: [no token] value: web3 vrs signature is not valid.
+             Type: literal_string "web3 vrs signature is not valid."
+             Source: "\"web3 vrs signature is not valid.\""
+      ExpressionStatement
+         Source: "jackpotSize += amount * JACKPOT_FEE / 1000"
+        Assignment using operator +=
+           Type: uint256
+           Source: "jackpotSize += amount * JACKPOT_FEE / 1000"
+          Identifier jackpotSize
+             Type: uint256
+             Source: "jackpotSize"
+          BinaryOperation using operator /
+             Type: uint256
+             Source: "amount * JACKPOT_FEE / 1000"
+            BinaryOperation using operator *
+               Type: uint256
+               Source: "amount * JACKPOT_FEE"
+              Identifier amount
+                 Type: uint256
+                 Source: "amount"
+              Identifier JACKPOT_FEE
+                 Type: uint256
+                 Source: "JACKPOT_FEE"
+            Literal, token: [no token] value: 1000
+               Type: int_const 1000
+               Source: "1000"
+      ExpressionStatement
+         Source: "devFeeSize += amount * DEV_FEE / 1000"
+        Assignment using operator +=
+           Type: uint256
+           Source: "devFeeSize += amount * DEV_FEE / 1000"
+          Identifier devFeeSize
+             Type: uint256
+             Source: "devFeeSize"
+          BinaryOperation using operator /
+             Type: uint256
+             Source: "amount * DEV_FEE / 1000"
+            BinaryOperation using operator *
+               Type: uint256
+               Source: "amount * DEV_FEE"
+              Identifier amount
+                 Type: uint256
+                 Source: "amount"
+              Identifier DEV_FEE
+                 Type: uint256
+                 Source: "DEV_FEE"
+            Literal, token: [no token] value: 1000
+               Type: int_const 1000
+               Source: "1000"
+      ExpressionStatement
+         Source: "lockedInBets += amount * WIN_X / 1000"
+        Assignment using operator +=
+           Type: uint256
+           Source: "lockedInBets += amount * WIN_X / 1000"
+          Identifier lockedInBets
+             Type: uint256
+             Source: "lockedInBets"
+          BinaryOperation using operator /
+             Type: uint256
+             Source: "amount * WIN_X / 1000"
+            BinaryOperation using operator *
+               Type: uint256
+               Source: "amount * WIN_X"
+              Identifier amount
+                 Type: uint256
+                 Source: "amount"
+              Identifier WIN_X
+                 Type: uint256
+                 Source: "WIN_X"
+            Literal, token: [no token] value: 1000
+               Type: int_const 1000
+               Source: "1000"
+      VariableDeclarationStatement
+         Source: "uint donate_amount = amount * DONATING_X / 1000"
+        VariableDeclaration "donate_amount"
+           Type: uint256
+           Source: "uint donate_amount"
+          ElementaryTypeName uint
+             Source: "uint"
+        BinaryOperation using operator /
+           Type: uint256
+           Source: "amount * DONATING_X / 1000"
+          BinaryOperation using operator *
+             Type: uint256
+             Source: "amount * DONATING_X"
+            Identifier amount
+               Type: uint256
+               Source: "amount"
+            Identifier DONATING_X
+               Type: uint256
+               Source: "DONATING_X"
+          Literal, token: [no token] value: 1000
+             Type: int_const 1000
+             Source: "1000"
+      ExpressionStatement
+         Source: "whale.call.value(donate_amount)(bytes4(keccak256(\"donate()\")))"
+        FunctionCall
+           Type: bool
+           Source: "whale.call.value(donate_amount)(bytes4(keccak256(\"donate()\")))"
+          FunctionCall
+             Type: function () payable returns (bool)
+             Source: "whale.call.value(donate_amount)"
+            MemberAccess to member value
+               Type: function (uint256) returns (function () payable returns (bool))
+               Source: "whale.call.value"
+              MemberAccess to member call
+                 Type: function () payable returns (bool)
+                 Source: "whale.call"
+                Identifier whale
+                   Type: address
+                   Source: "whale"
+            Identifier donate_amount
+               Type: uint256
+               Source: "donate_amount"
+          FunctionCall
+             Type: bytes4
+             Source: "bytes4(keccak256(\"donate()\"))"
+            ElementaryTypeNameExpression bytes4
+               Type: type(bytes4)
+               Source: "bytes4"
+            FunctionCall
+               Type: bytes32
+               Source: "keccak256(\"donate()\")"
+              Identifier keccak256
+                 Type: function () pure returns (bytes32)
+                 Source: "keccak256"
+              Literal, token: [no token] value: donate()
+                 Type: literal_string "donate()"
+                 Source: "\"donate()\""
+      ExpressionStatement
+         Source: "totalAmountToWhale += donate_amount"
+        Assignment using operator +=
+           Type: uint256
+           Source: "totalAmountToWhale += donate_amount"
+          Identifier totalAmountToWhale
+             Type: uint256
+             Source: "totalAmountToWhale"
+          Identifier donate_amount
+             Type: uint256
+             Source: "donate_amount"
+      ExpressionStatement
+         Source: "bet.amount = amount"
+        Assignment using operator =
+           Type: uint256
+           Source: "bet.amount = amount"
+          MemberAccess to member amount
+             Type: uint256
+             Source: "bet.amount"
+            Identifier bet
+               Type: struct FiftyFlip.Bet storage pointer
+               Source: "bet"
+          Identifier amount
+             Type: uint256
+             Source: "amount"
+      ExpressionStatement
+         Source: "bet.blockNumber = block.number"
+        Assignment using operator =
+           Type: uint256
+           Source: "bet.blockNumber = block.number"
+          MemberAccess to member blockNumber
+             Type: uint256
+             Source: "bet.blockNumber"
+            Identifier bet
+               Type: struct FiftyFlip.Bet storage pointer
+               Source: "bet"
+          MemberAccess to member number
+             Type: uint256
+             Source: "block.number"
+            Identifier block
+               Type: block
+               Source: "block"
+      ExpressionStatement
+         Source: "bet.betMask = bMask"
+        Assignment using operator =
+           Type: bool
+           Source: "bet.betMask = bMask"
+          MemberAccess to member betMask
+             Type: bool
+             Source: "bet.betMask"
+            Identifier bet
+               Type: struct FiftyFlip.Bet storage pointer
+               Source: "bet"
+          Identifier bMask
+             Type: bool
+             Source: "bMask"
+      ExpressionStatement
+         Source: "bet.player = player"
+        Assignment using operator =
+           Type: address
+           Source: "bet.player = player"
+          MemberAccess to member player
+             Type: address
+             Source: "bet.player"
+            Identifier bet
+               Type: struct FiftyFlip.Bet storage pointer
+               Source: "bet"
+          Identifier player
+             Type: address
+             Source: "player"
+      EmitStatement
+         Source: "emit Wager(ticketID, bet.amount, bet.blockNumber, bet.betMask, bet.player)"
+        FunctionCall
+           Type: tuple()
+           Source: "Wager(ticketID, bet.amount, bet.blockNumber, bet.betMask, bet.player)"
+          Identifier Wager
+             Type: function (uint256,uint256,uint256,bool,address)
+             Source: "Wager"
+          Identifier ticketID
+             Type: uint256
+             Source: "ticketID"
+          MemberAccess to member amount
+             Type: uint256
+             Source: "bet.amount"
+            Identifier bet
+               Type: struct FiftyFlip.Bet storage pointer
+               Source: "bet"
+          MemberAccess to member blockNumber
+             Type: uint256
+             Source: "bet.blockNumber"
+            Identifier bet
+               Type: struct FiftyFlip.Bet storage pointer
+               Source: "bet"
+          MemberAccess to member betMask
+             Type: bool
+             Source: "bet.betMask"
+            Identifier bet
+               Type: struct FiftyFlip.Bet storage pointer
+               Source: "bet"
+          MemberAccess to member player
+             Type: address
+             Source: "bet.player"
+            Identifier bet
+               Type: struct FiftyFlip.Bet storage pointer
+               Source: "bet"
+  FunctionDefinition "play" - public
+     Source: "function play(uint ticketReveal)\r\n    checkContractHealth()\r\n    external\r\n    {\r\n        uint ticketID = uint(keccak256(abi.encodePacked(ticketReveal)));\r\n        Bet storage bet = bets[ticketID];\r\n        require (bet.player != address(0), \"TicketID is not correct!\");\r\n        require (bet.amount != 0, \"Ticket is already used one!\");\r\n        uint256 blockNumber = bet.blockNumber;\r\n        if(blockNumber < block.number && blockNumber >= block.number - BET_EXPIRATION_BLOCKS)\r\n        {\r\n            uint256 random = uint256(keccak256(abi.encodePacked(blockhash(blockNumber),  ticketReveal)));\r\n            bool maskRes = (random % 2) !=0;\r\n            uint jackpotRes = random % JACKPOT_MODULO;\r\n    \r\n            uint tossWinAmount = bet.amount * WIN_X / 1000;\r\n\r\n            uint tossWin = 0;\r\n            uint jackpotWin = 0;\r\n            \r\n            if(bet.betMask == maskRes) {\r\n                tossWin = tossWinAmount;\r\n            }\r\n            if(jackpotRes == 0) {\r\n                jackpotWin = jackpotSize;\r\n                jackpotSize = 0;\r\n            }\r\n            if (jackpotWin > 0) {\r\n                emit JackpotPayment(bet.player, ticketID, jackpotWin);\r\n            }\r\n            if(tossWin + jackpotWin > 0)\r\n            {\r\n                payout(bet.player, tossWin + jackpotWin, ticketID, maskRes, jackpotRes);\r\n            }\r\n            else \r\n            {\r\n                loseWager(bet.player, bet.amount, ticketID, maskRes, jackpotRes);\r\n            }\r\n            lockedInBets -= tossWinAmount;\r\n            bet.amount = 0;\r\n        }\r\n        else\r\n        {\r\n            revert();\r\n        }\r\n    }"
+    ParameterList
+       Source: "(uint ticketReveal)"
+      VariableDeclaration "ticketReveal"
+         Type: uint256
+         Source: "uint ticketReveal"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Source: ""
+    ModifierInvocation "checkContractHealth"
+       Source: "checkContractHealth()"
+      Identifier checkContractHealth
+         Type: modifier ()
+         Source: "checkContractHealth"
+    Block
+       Source: "{\r\n        uint ticketID = uint(keccak256(abi.encodePacked(ticketReveal)));\r\n        Bet storage bet = bets[ticketID];\r\n        require (bet.player != address(0), \"TicketID is not correct!\");\r\n        require (bet.amount != 0, \"Ticket is already used one!\");\r\n        uint256 blockNumber = bet.blockNumber;\r\n        if(blockNumber < block.number && blockNumber >= block.number - BET_EXPIRATION_BLOCKS)\r\n        {\r\n            uint256 random = uint256(keccak256(abi.encodePacked(blockhash(blockNumber),  ticketReveal)));\r\n            bool maskRes = (random % 2) !=0;\r\n            uint jackpotRes = random % JACKPOT_MODULO;\r\n    \r\n            uint tossWinAmount = bet.amount * WIN_X / 1000;\r\n\r\n            uint tossWin = 0;\r\n            uint jackpotWin = 0;\r\n            \r\n            if(bet.betMask == maskRes) {\r\n                tossWin = tossWinAmount;\r\n            }\r\n            if(jackpotRes == 0) {\r\n                jackpotWin = jackpotSize;\r\n                jackpotSize = 0;\r\n            }\r\n            if (jackpotWin > 0) {\r\n                emit JackpotPayment(bet.player, ticketID, jackpotWin);\r\n            }\r\n            if(tossWin + jackpotWin > 0)\r\n            {\r\n                payout(bet.player, tossWin + jackpotWin, ticketID, maskRes, jackpotRes);\r\n            }\r\n            else \r\n            {\r\n                loseWager(bet.player, bet.amount, ticketID, maskRes, jackpotRes);\r\n            }\r\n            lockedInBets -= tossWinAmount;\r\n            bet.amount = 0;\r\n        }\r\n        else\r\n        {\r\n            revert();\r\n        }\r\n    }"
+      VariableDeclarationStatement
+         Source: "uint ticketID = uint(keccak256(abi.encodePacked(ticketReveal)))"
+        VariableDeclaration "ticketID"
+           Type: uint256
+           Source: "uint ticketID"
+          ElementaryTypeName uint
+             Source: "uint"
+        FunctionCall
+           Type: uint256
+           Source: "uint(keccak256(abi.encodePacked(ticketReveal)))"
+          ElementaryTypeNameExpression uint
+             Type: type(uint256)
+             Source: "uint"
+          FunctionCall
+             Type: bytes32
+             Source: "keccak256(abi.encodePacked(ticketReveal))"
+            Identifier keccak256
+               Type: function () pure returns (bytes32)
+               Source: "keccak256"
+            FunctionCall
+               Type: bytes memory
+               Source: "abi.encodePacked(ticketReveal)"
+              MemberAccess to member encodePacked
+                 Type: function () pure returns (bytes memory)
+                 Source: "abi.encodePacked"
+                Identifier abi
+                   Type: abi
+                   Source: "abi"
+              Identifier ticketReveal
+                 Type: uint256
+                 Source: "ticketReveal"
+      VariableDeclarationStatement
+         Source: "Bet storage bet = bets[ticketID]"
+        VariableDeclaration "bet"
+           Type: struct FiftyFlip.Bet storage pointer
+           Source: "Bet storage bet"
+          UserDefinedTypeName "Bet"
+             Source: "Bet"
+        IndexAccess
+           Type: struct FiftyFlip.Bet storage ref
+           Source: "bets[ticketID]"
+          Identifier bets
+             Type: mapping(uint256 => struct FiftyFlip.Bet storage ref)
+             Source: "bets"
+          Identifier ticketID
+             Type: uint256
+             Source: "ticketID"
+      ExpressionStatement
+         Source: "require (bet.player != address(0), \"TicketID is not correct!\")"
+        FunctionCall
+           Type: tuple()
+           Source: "require (bet.player != address(0), \"TicketID is not correct!\")"
+          Identifier require
+             Type: function (bool,string memory) pure
+             Source: "require"
+          BinaryOperation using operator !=
+             Type: bool
+             Source: "bet.player != address(0)"
+            MemberAccess to member player
+               Type: address
+               Source: "bet.player"
+              Identifier bet
+                 Type: struct FiftyFlip.Bet storage pointer
+                 Source: "bet"
+            FunctionCall
+               Type: address
+               Source: "address(0)"
+              ElementaryTypeNameExpression address
+                 Type: type(address)
+                 Source: "address"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+          Literal, token: [no token] value: TicketID is not correct!
+             Type: literal_string "TicketID is not correct!"
+             Source: "\"TicketID is not correct!\""
+      ExpressionStatement
+         Source: "require (bet.amount != 0, \"Ticket is already used one!\")"
+        FunctionCall
+           Type: tuple()
+           Source: "require (bet.amount != 0, \"Ticket is already used one!\")"
+          Identifier require
+             Type: function (bool,string memory) pure
+             Source: "require"
+          BinaryOperation using operator !=
+             Type: bool
+             Source: "bet.amount != 0"
+            MemberAccess to member amount
+               Type: uint256
+               Source: "bet.amount"
+              Identifier bet
+                 Type: struct FiftyFlip.Bet storage pointer
+                 Source: "bet"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+          Literal, token: [no token] value: Ticket is already used one!
+             Type: literal_string "Ticket is already used one!"
+             Source: "\"Ticket is already used one!\""
+      VariableDeclarationStatement
+         Source: "uint256 blockNumber = bet.blockNumber"
+        VariableDeclaration "blockNumber"
+           Type: uint256
+           Source: "uint256 blockNumber"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        MemberAccess to member blockNumber
+           Type: uint256
+           Source: "bet.blockNumber"
+          Identifier bet
+             Type: struct FiftyFlip.Bet storage pointer
+             Source: "bet"
+      IfStatement
+         Source: "if(blockNumber < block.number && blockNumber >= block.number - BET_EXPIRATION_BLOCKS)\r\n        {\r\n            uint256 random = uint256(keccak256(abi.encodePacked(blockhash(blockNumber),  ticketReveal)));\r\n            bool maskRes = (random % 2) !=0;\r\n            uint jackpotRes = random % JACKPOT_MODULO;\r\n    \r\n            uint tossWinAmount = bet.amount * WIN_X / 1000;\r\n\r\n            uint tossWin = 0;\r\n            uint jackpotWin = 0;\r\n            \r\n            if(bet.betMask == maskRes) {\r\n                tossWin = tossWinAmount;\r\n            }\r\n            if(jackpotRes == 0) {\r\n                jackpotWin = jackpotSize;\r\n                jackpotSize = 0;\r\n            }\r\n            if (jackpotWin > 0) {\r\n                emit JackpotPayment(bet.player, ticketID, jackpotWin);\r\n            }\r\n            if(tossWin + jackpotWin > 0)\r\n            {\r\n                payout(bet.player, tossWin + jackpotWin, ticketID, maskRes, jackpotRes);\r\n            }\r\n            else \r\n            {\r\n                loseWager(bet.player, bet.amount, ticketID, maskRes, jackpotRes);\r\n            }\r\n            lockedInBets -= tossWinAmount;\r\n            bet.amount = 0;\r\n        }\r\n        else\r\n        {\r\n            revert();\r\n        }"
+        BinaryOperation using operator &&
+           Type: bool
+           Source: "blockNumber < block.number && blockNumber >= block.number - BET_EXPIRATION_BLOCKS"
+          BinaryOperation using operator <
+             Type: bool
+             Source: "blockNumber < block.number"
+            Identifier blockNumber
+               Type: uint256
+               Source: "blockNumber"
+            MemberAccess to member number
+               Type: uint256
+               Source: "block.number"
+              Identifier block
+                 Type: block
+                 Source: "block"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "blockNumber >= block.number - BET_EXPIRATION_BLOCKS"
+            Identifier blockNumber
+               Type: uint256
+               Source: "blockNumber"
+            BinaryOperation using operator -
+               Type: uint256
+               Source: "block.number - BET_EXPIRATION_BLOCKS"
+              MemberAccess to member number
+                 Type: uint256
+                 Source: "block.number"
+                Identifier block
+                   Type: block
+                   Source: "block"
+              Identifier BET_EXPIRATION_BLOCKS
+                 Type: uint256
+                 Source: "BET_EXPIRATION_BLOCKS"
+        Block
+           Source: "{\r\n            uint256 random = uint256(keccak256(abi.encodePacked(blockhash(blockNumber),  ticketReveal)));\r\n            bool maskRes = (random % 2) !=0;\r\n            uint jackpotRes = random % JACKPOT_MODULO;\r\n    \r\n            uint tossWinAmount = bet.amount * WIN_X / 1000;\r\n\r\n            uint tossWin = 0;\r\n            uint jackpotWin = 0;\r\n            \r\n            if(bet.betMask == maskRes) {\r\n                tossWin = tossWinAmount;\r\n            }\r\n            if(jackpotRes == 0) {\r\n                jackpotWin = jackpotSize;\r\n                jackpotSize = 0;\r\n            }\r\n            if (jackpotWin > 0) {\r\n                emit JackpotPayment(bet.player, ticketID, jackpotWin);\r\n            }\r\n            if(tossWin + jackpotWin > 0)\r\n            {\r\n                payout(bet.player, tossWin + jackpotWin, ticketID, maskRes, jackpotRes);\r\n            }\r\n            else \r\n            {\r\n                loseWager(bet.player, bet.amount, ticketID, maskRes, jackpotRes);\r\n            }\r\n            lockedInBets -= tossWinAmount;\r\n            bet.amount = 0;\r\n        }"
+          VariableDeclarationStatement
+             Source: "uint256 random = uint256(keccak256(abi.encodePacked(blockhash(blockNumber),  ticketReveal)))"
+            VariableDeclaration "random"
+               Type: uint256
+               Source: "uint256 random"
+              ElementaryTypeName uint256
+                 Source: "uint256"
+            FunctionCall
+               Type: uint256
+               Source: "uint256(keccak256(abi.encodePacked(blockhash(blockNumber),  ticketReveal)))"
+              ElementaryTypeNameExpression uint256
+                 Type: type(uint256)
+                 Source: "uint256"
+              FunctionCall
+                 Type: bytes32
+                 Source: "keccak256(abi.encodePacked(blockhash(blockNumber),  ticketReveal))"
+                Identifier keccak256
+                   Type: function () pure returns (bytes32)
+                   Source: "keccak256"
+                FunctionCall
+                   Type: bytes memory
+                   Source: "abi.encodePacked(blockhash(blockNumber),  ticketReveal)"
+                  MemberAccess to member encodePacked
+                     Type: function () pure returns (bytes memory)
+                     Source: "abi.encodePacked"
+                    Identifier abi
+                       Type: abi
+                       Source: "abi"
+                  FunctionCall
+                     Type: bytes32
+                     Source: "blockhash(blockNumber)"
+                    Identifier blockhash
+                       Type: function (uint256) view returns (bytes32)
+                       Source: "blockhash"
+                    Identifier blockNumber
+                       Type: uint256
+                       Source: "blockNumber"
+                  Identifier ticketReveal
+                     Type: uint256
+                     Source: "ticketReveal"
+          VariableDeclarationStatement
+             Source: "bool maskRes = (random % 2) !=0"
+            VariableDeclaration "maskRes"
+               Type: bool
+               Source: "bool maskRes"
+              ElementaryTypeName bool
+                 Source: "bool"
+            BinaryOperation using operator !=
+               Type: bool
+               Source: "(random % 2) !=0"
+              TupleExpression
+                 Type: uint256
+                 Source: "(random % 2)"
+                BinaryOperation using operator %
+                   Type: uint256
+                   Source: "random % 2"
+                  Identifier random
+                     Type: uint256
+                     Source: "random"
+                  Literal, token: [no token] value: 2
+                     Type: int_const 2
+                     Source: "2"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+          VariableDeclarationStatement
+             Source: "uint jackpotRes = random % JACKPOT_MODULO"
+            VariableDeclaration "jackpotRes"
+               Type: uint256
+               Source: "uint jackpotRes"
+              ElementaryTypeName uint
+                 Source: "uint"
+            BinaryOperation using operator %
+               Type: uint256
+               Source: "random % JACKPOT_MODULO"
+              Identifier random
+                 Type: uint256
+                 Source: "random"
+              Identifier JACKPOT_MODULO
+                 Type: uint256
+                 Source: "JACKPOT_MODULO"
+          VariableDeclarationStatement
+             Source: "uint tossWinAmount = bet.amount * WIN_X / 1000"
+            VariableDeclaration "tossWinAmount"
+               Type: uint256
+               Source: "uint tossWinAmount"
+              ElementaryTypeName uint
+                 Source: "uint"
+            BinaryOperation using operator /
+               Type: uint256
+               Source: "bet.amount * WIN_X / 1000"
+              BinaryOperation using operator *
+                 Type: uint256
+                 Source: "bet.amount * WIN_X"
+                MemberAccess to member amount
+                   Type: uint256
+                   Source: "bet.amount"
+                  Identifier bet
+                     Type: struct FiftyFlip.Bet storage pointer
+                     Source: "bet"
+                Identifier WIN_X
+                   Type: uint256
+                   Source: "WIN_X"
+              Literal, token: [no token] value: 1000
+                 Type: int_const 1000
+                 Source: "1000"
+          VariableDeclarationStatement
+             Source: "uint tossWin = 0"
+            VariableDeclaration "tossWin"
+               Type: uint256
+               Source: "uint tossWin"
+              ElementaryTypeName uint
+                 Source: "uint"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+          VariableDeclarationStatement
+             Source: "uint jackpotWin = 0"
+            VariableDeclaration "jackpotWin"
+               Type: uint256
+               Source: "uint jackpotWin"
+              ElementaryTypeName uint
+                 Source: "uint"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+          IfStatement
+             Source: "if(bet.betMask == maskRes) {\r\n                tossWin = tossWinAmount;\r\n            }"
+            BinaryOperation using operator ==
+               Type: bool
+               Source: "bet.betMask == maskRes"
+              MemberAccess to member betMask
+                 Type: bool
+                 Source: "bet.betMask"
+                Identifier bet
+                   Type: struct FiftyFlip.Bet storage pointer
+                   Source: "bet"
+              Identifier maskRes
+                 Type: bool
+                 Source: "maskRes"
+            Block
+               Source: "{\r\n                tossWin = tossWinAmount;\r\n            }"
+              ExpressionStatement
+                 Source: "tossWin = tossWinAmount"
+                Assignment using operator =
+                   Type: uint256
+                   Source: "tossWin = tossWinAmount"
+                  Identifier tossWin
+                     Type: uint256
+                     Source: "tossWin"
+                  Identifier tossWinAmount
+                     Type: uint256
+                     Source: "tossWinAmount"
+          IfStatement
+             Source: "if(jackpotRes == 0) {\r\n                jackpotWin = jackpotSize;\r\n                jackpotSize = 0;\r\n            }"
+            BinaryOperation using operator ==
+               Type: bool
+               Source: "jackpotRes == 0"
+              Identifier jackpotRes
+                 Type: uint256
+                 Source: "jackpotRes"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+            Block
+               Source: "{\r\n                jackpotWin = jackpotSize;\r\n                jackpotSize = 0;\r\n            }"
+              ExpressionStatement
+                 Source: "jackpotWin = jackpotSize"
+                Assignment using operator =
+                   Type: uint256
+                   Source: "jackpotWin = jackpotSize"
+                  Identifier jackpotWin
+                     Type: uint256
+                     Source: "jackpotWin"
+                  Identifier jackpotSize
+                     Type: uint256
+                     Source: "jackpotSize"
+              ExpressionStatement
+                 Source: "jackpotSize = 0"
+                Assignment using operator =
+                   Type: uint256
+                   Source: "jackpotSize = 0"
+                  Identifier jackpotSize
+                     Type: uint256
+                     Source: "jackpotSize"
+                  Literal, token: [no token] value: 0
+                     Type: int_const 0
+                     Source: "0"
+          IfStatement
+             Source: "if (jackpotWin > 0) {\r\n                emit JackpotPayment(bet.player, ticketID, jackpotWin);\r\n            }"
+            BinaryOperation using operator >
+               Type: bool
+               Source: "jackpotWin > 0"
+              Identifier jackpotWin
+                 Type: uint256
+                 Source: "jackpotWin"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+            Block
+               Source: "{\r\n                emit JackpotPayment(bet.player, ticketID, jackpotWin);\r\n            }"
+              EmitStatement
+                 Source: "emit JackpotPayment(bet.player, ticketID, jackpotWin)"
+                FunctionCall
+                   Type: tuple()
+                   Source: "JackpotPayment(bet.player, ticketID, jackpotWin)"
+                  Identifier JackpotPayment
+                     Type: function (address,uint256,uint256)
+                     Source: "JackpotPayment"
+                  MemberAccess to member player
+                     Type: address
+                     Source: "bet.player"
+                    Identifier bet
+                       Type: struct FiftyFlip.Bet storage pointer
+                       Source: "bet"
+                  Identifier ticketID
+                     Type: uint256
+                     Source: "ticketID"
+                  Identifier jackpotWin
+                     Type: uint256
+                     Source: "jackpotWin"
+          IfStatement
+             Source: "if(tossWin + jackpotWin > 0)\r\n            {\r\n                payout(bet.player, tossWin + jackpotWin, ticketID, maskRes, jackpotRes);\r\n            }\r\n            else \r\n            {\r\n                loseWager(bet.player, bet.amount, ticketID, maskRes, jackpotRes);\r\n            }"
+            BinaryOperation using operator >
+               Type: bool
+               Source: "tossWin + jackpotWin > 0"
+              BinaryOperation using operator +
+                 Type: uint256
+                 Source: "tossWin + jackpotWin"
+                Identifier tossWin
+                   Type: uint256
+                   Source: "tossWin"
+                Identifier jackpotWin
+                   Type: uint256
+                   Source: "jackpotWin"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+            Block
+               Source: "{\r\n                payout(bet.player, tossWin + jackpotWin, ticketID, maskRes, jackpotRes);\r\n            }"
+              ExpressionStatement
+                 Source: "payout(bet.player, tossWin + jackpotWin, ticketID, maskRes, jackpotRes)"
+                FunctionCall
+                   Type: tuple()
+                   Source: "payout(bet.player, tossWin + jackpotWin, ticketID, maskRes, jackpotRes)"
+                  Identifier payout
+                     Type: function (address,uint256,uint256,bool,uint256)
+                     Source: "payout"
+                  MemberAccess to member player
+                     Type: address
+                     Source: "bet.player"
+                    Identifier bet
+                       Type: struct FiftyFlip.Bet storage pointer
+                       Source: "bet"
+                  BinaryOperation using operator +
+                     Type: uint256
+                     Source: "tossWin + jackpotWin"
+                    Identifier tossWin
+                       Type: uint256
+                       Source: "tossWin"
+                    Identifier jackpotWin
+                       Type: uint256
+                       Source: "jackpotWin"
+                  Identifier ticketID
+                     Type: uint256
+                     Source: "ticketID"
+                  Identifier maskRes
+                     Type: bool
+                     Source: "maskRes"
+                  Identifier jackpotRes
+                     Type: uint256
+                     Source: "jackpotRes"
+            Block
+               Source: "{\r\n                loseWager(bet.player, bet.amount, ticketID, maskRes, jackpotRes);\r\n            }"
+              ExpressionStatement
+                 Source: "loseWager(bet.player, bet.amount, ticketID, maskRes, jackpotRes)"
+                FunctionCall
+                   Type: tuple()
+                   Source: "loseWager(bet.player, bet.amount, ticketID, maskRes, jackpotRes)"
+                  Identifier loseWager
+                     Type: function (address,uint256,uint256,bool,uint256)
+                     Source: "loseWager"
+                  MemberAccess to member player
+                     Type: address
+                     Source: "bet.player"
+                    Identifier bet
+                       Type: struct FiftyFlip.Bet storage pointer
+                       Source: "bet"
+                  MemberAccess to member amount
+                     Type: uint256
+                     Source: "bet.amount"
+                    Identifier bet
+                       Type: struct FiftyFlip.Bet storage pointer
+                       Source: "bet"
+                  Identifier ticketID
+                     Type: uint256
+                     Source: "ticketID"
+                  Identifier maskRes
+                     Type: bool
+                     Source: "maskRes"
+                  Identifier jackpotRes
+                     Type: uint256
+                     Source: "jackpotRes"
+          ExpressionStatement
+             Source: "lockedInBets -= tossWinAmount"
+            Assignment using operator -=
+               Type: uint256
+               Source: "lockedInBets -= tossWinAmount"
+              Identifier lockedInBets
+                 Type: uint256
+                 Source: "lockedInBets"
+              Identifier tossWinAmount
+                 Type: uint256
+                 Source: "tossWinAmount"
+          ExpressionStatement
+             Source: "bet.amount = 0"
+            Assignment using operator =
+               Type: uint256
+               Source: "bet.amount = 0"
+              MemberAccess to member amount
+                 Type: uint256
+                 Source: "bet.amount"
+                Identifier bet
+                   Type: struct FiftyFlip.Bet storage pointer
+                   Source: "bet"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+        Block
+           Source: "{\r\n            revert();\r\n        }"
+          ExpressionStatement
+             Source: "revert()"
+            FunctionCall
+               Type: tuple()
+               Source: "revert()"
+              Identifier revert
+                 Type: function () pure
+                 Source: "revert"
+  FunctionDefinition "donateForContractHealth" - public
+     Source: "function donateForContractHealth()\r\n    external \r\n    payable\r\n    {\r\n        donateAmount[msg.sender] += msg.value;\r\n        emit Donate(msg.value, msg.sender);\r\n    }"
+    ParameterList
+       Source: "()"
+    ParameterList
+       Source: ""
+    Block
+       Source: "{\r\n        donateAmount[msg.sender] += msg.value;\r\n        emit Donate(msg.value, msg.sender);\r\n    }"
+      ExpressionStatement
+         Source: "donateAmount[msg.sender] += msg.value"
+        Assignment using operator +=
+           Type: uint256
+           Source: "donateAmount[msg.sender] += msg.value"
+          IndexAccess
+             Type: uint256
+             Source: "donateAmount[msg.sender]"
+            Identifier donateAmount
+               Type: mapping(address => uint256)
+               Source: "donateAmount"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          MemberAccess to member value
+             Type: uint256
+             Source: "msg.value"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+      EmitStatement
+         Source: "emit Donate(msg.value, msg.sender)"
+        FunctionCall
+           Type: tuple()
+           Source: "Donate(msg.value, msg.sender)"
+          Identifier Donate
+             Type: function (uint256,address)
+             Source: "Donate"
+          MemberAccess to member value
+             Type: uint256
+             Source: "msg.value"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+  FunctionDefinition "withdrawDonation" - public
+     Source: "function withdrawDonation(uint amount)\r\n    external \r\n    {\r\n        require(donateAmount[msg.sender] >= amount, \"You are going to withdraw more than you donated!\");\r\n        \r\n        if (sendFunds(msg.sender, amount)){\r\n            donateAmount[msg.sender] -= amount;\r\n        }\r\n    }"
+    ParameterList
+       Source: "(uint amount)"
+      VariableDeclaration "amount"
+         Type: uint256
+         Source: "uint amount"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Source: ""
+    Block
+       Source: "{\r\n        require(donateAmount[msg.sender] >= amount, \"You are going to withdraw more than you donated!\");\r\n        \r\n        if (sendFunds(msg.sender, amount)){\r\n            donateAmount[msg.sender] -= amount;\r\n        }\r\n    }"
+      ExpressionStatement
+         Source: "require(donateAmount[msg.sender] >= amount, \"You are going to withdraw more than you donated!\")"
+        FunctionCall
+           Type: tuple()
+           Source: "require(donateAmount[msg.sender] >= amount, \"You are going to withdraw more than you donated!\")"
+          Identifier require
+             Type: function (bool,string memory) pure
+             Source: "require"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "donateAmount[msg.sender] >= amount"
+            IndexAccess
+               Type: uint256
+               Source: "donateAmount[msg.sender]"
+              Identifier donateAmount
+                 Type: mapping(address => uint256)
+                 Source: "donateAmount"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+            Identifier amount
+               Type: uint256
+               Source: "amount"
+          Literal, token: [no token] value: You are going to withdraw more than you donated!
+             Type: literal_string "You are going to withdraw more than you donated!"
+             Source: "\"You are going to withdraw more than you donated!\""
+      IfStatement
+         Source: "if (sendFunds(msg.sender, amount)){\r\n            donateAmount[msg.sender] -= amount;\r\n        }"
+        FunctionCall
+           Type: bool
+           Source: "sendFunds(msg.sender, amount)"
+          Identifier sendFunds
+             Type: function (address,uint256) returns (bool)
+             Source: "sendFunds"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier amount
+             Type: uint256
+             Source: "amount"
+        Block
+           Source: "{\r\n            donateAmount[msg.sender] -= amount;\r\n        }"
+          ExpressionStatement
+             Source: "donateAmount[msg.sender] -= amount"
+            Assignment using operator -=
+               Type: uint256
+               Source: "donateAmount[msg.sender] -= amount"
+              IndexAccess
+                 Type: uint256
+                 Source: "donateAmount[msg.sender]"
+                Identifier donateAmount
+                   Type: mapping(address => uint256)
+                   Source: "donateAmount"
+                MemberAccess to member sender
+                   Type: address
+                   Source: "msg.sender"
+                  Identifier msg
+                     Type: msg
+                     Source: "msg"
+              Identifier amount
+                 Type: uint256
+                 Source: "amount"
+  FunctionDefinition "refund" - public
+     Source: "function refund(uint ticketID)\r\n    checkContractHealth()\r\n    external {\r\n        Bet storage bet = bets[ticketID];\r\n        \r\n        require (bet.amount != 0, \"this ticket has no balance\");\r\n        require (block.number > bet.blockNumber + BET_EXPIRATION_BLOCKS, \"this ticket is expired.\");\r\n        sendRefund(ticketID);\r\n    }"
+    ParameterList
+       Source: "(uint ticketID)"
+      VariableDeclaration "ticketID"
+         Type: uint256
+         Source: "uint ticketID"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Source: ""
+    ModifierInvocation "checkContractHealth"
+       Source: "checkContractHealth()"
+      Identifier checkContractHealth
+         Type: modifier ()
+         Source: "checkContractHealth"
+    Block
+       Source: "{\r\n        Bet storage bet = bets[ticketID];\r\n        \r\n        require (bet.amount != 0, \"this ticket has no balance\");\r\n        require (block.number > bet.blockNumber + BET_EXPIRATION_BLOCKS, \"this ticket is expired.\");\r\n        sendRefund(ticketID);\r\n    }"
+      VariableDeclarationStatement
+         Source: "Bet storage bet = bets[ticketID]"
+        VariableDeclaration "bet"
+           Type: struct FiftyFlip.Bet storage pointer
+           Source: "Bet storage bet"
+          UserDefinedTypeName "Bet"
+             Source: "Bet"
+        IndexAccess
+           Type: struct FiftyFlip.Bet storage ref
+           Source: "bets[ticketID]"
+          Identifier bets
+             Type: mapping(uint256 => struct FiftyFlip.Bet storage ref)
+             Source: "bets"
+          Identifier ticketID
+             Type: uint256
+             Source: "ticketID"
+      ExpressionStatement
+         Source: "require (bet.amount != 0, \"this ticket has no balance\")"
+        FunctionCall
+           Type: tuple()
+           Source: "require (bet.amount != 0, \"this ticket has no balance\")"
+          Identifier require
+             Type: function (bool,string memory) pure
+             Source: "require"
+          BinaryOperation using operator !=
+             Type: bool
+             Source: "bet.amount != 0"
+            MemberAccess to member amount
+               Type: uint256
+               Source: "bet.amount"
+              Identifier bet
+                 Type: struct FiftyFlip.Bet storage pointer
+                 Source: "bet"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+          Literal, token: [no token] value: this ticket has no balance
+             Type: literal_string "this ticket has no balance"
+             Source: "\"this ticket has no balance\""
+      ExpressionStatement
+         Source: "require (block.number > bet.blockNumber + BET_EXPIRATION_BLOCKS, \"this ticket is expired.\")"
+        FunctionCall
+           Type: tuple()
+           Source: "require (block.number > bet.blockNumber + BET_EXPIRATION_BLOCKS, \"this ticket is expired.\")"
+          Identifier require
+             Type: function (bool,string memory) pure
+             Source: "require"
+          BinaryOperation using operator >
+             Type: bool
+             Source: "block.number > bet.blockNumber + BET_EXPIRATION_BLOCKS"
+            MemberAccess to member number
+               Type: uint256
+               Source: "block.number"
+              Identifier block
+                 Type: block
+                 Source: "block"
+            BinaryOperation using operator +
+               Type: uint256
+               Source: "bet.blockNumber + BET_EXPIRATION_BLOCKS"
+              MemberAccess to member blockNumber
+                 Type: uint256
+                 Source: "bet.blockNumber"
+                Identifier bet
+                   Type: struct FiftyFlip.Bet storage pointer
+                   Source: "bet"
+              Identifier BET_EXPIRATION_BLOCKS
+                 Type: uint256
+                 Source: "BET_EXPIRATION_BLOCKS"
+          Literal, token: [no token] value: this ticket is expired.
+             Type: literal_string "this ticket is expired."
+             Source: "\"this ticket is expired.\""
+      ExpressionStatement
+         Source: "sendRefund(ticketID)"
+        FunctionCall
+           Type: tuple()
+           Source: "sendRefund(ticketID)"
+          Identifier sendRefund
+             Type: function (uint256)
+             Source: "sendRefund"
+          Identifier ticketID
+             Type: uint256
+             Source: "ticketID"
+  FunctionDefinition "withdrawDevFee" - public
+     Source: "function withdrawDevFee(address withdrawAddress, uint withdrawAmount)\r\n    onlyOwner()\r\n    checkContractHealth() \r\n    external {\r\n        require (devFeeSize >= withdrawAmount, \"You are trying to withdraw more amount than developer fee.\");\r\n        require (withdrawAmount <= address(this).balance, \"Contract balance is lower than withdrawAmount\");\r\n        require (devFeeSize <= address(this).balance, \"Not enough funds to withdraw.\");\r\n        if (sendFunds(withdrawAddress, withdrawAmount)){\r\n            devFeeSize -= withdrawAmount;\r\n        }\r\n    }"
+    ParameterList
+       Source: "(address withdrawAddress, uint withdrawAmount)"
+      VariableDeclaration "withdrawAddress"
+         Type: address
+         Source: "address withdrawAddress"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "withdrawAmount"
+         Type: uint256
+         Source: "uint withdrawAmount"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Source: "onlyOwner()"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    ModifierInvocation "checkContractHealth"
+       Source: "checkContractHealth()"
+      Identifier checkContractHealth
+         Type: modifier ()
+         Source: "checkContractHealth"
+    Block
+       Source: "{\r\n        require (devFeeSize >= withdrawAmount, \"You are trying to withdraw more amount than developer fee.\");\r\n        require (withdrawAmount <= address(this).balance, \"Contract balance is lower than withdrawAmount\");\r\n        require (devFeeSize <= address(this).balance, \"Not enough funds to withdraw.\");\r\n        if (sendFunds(withdrawAddress, withdrawAmount)){\r\n            devFeeSize -= withdrawAmount;\r\n        }\r\n    }"
+      ExpressionStatement
+         Source: "require (devFeeSize >= withdrawAmount, \"You are trying to withdraw more amount than developer fee.\")"
+        FunctionCall
+           Type: tuple()
+           Source: "require (devFeeSize >= withdrawAmount, \"You are trying to withdraw more amount than developer fee.\")"
+          Identifier require
+             Type: function (bool,string memory) pure
+             Source: "require"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "devFeeSize >= withdrawAmount"
+            Identifier devFeeSize
+               Type: uint256
+               Source: "devFeeSize"
+            Identifier withdrawAmount
+               Type: uint256
+               Source: "withdrawAmount"
+          Literal, token: [no token] value: You are trying to withdraw more amount than developer fee.
+             Type: literal_string "You are trying to withdraw more amount than developer fee."
+             Source: "\"You are trying to withdraw more amount than developer fee.\""
+      ExpressionStatement
+         Source: "require (withdrawAmount <= address(this).balance, \"Contract balance is lower than withdrawAmount\")"
+        FunctionCall
+           Type: tuple()
+           Source: "require (withdrawAmount <= address(this).balance, \"Contract balance is lower than withdrawAmount\")"
+          Identifier require
+             Type: function (bool,string memory) pure
+             Source: "require"
+          BinaryOperation using operator <=
+             Type: bool
+             Source: "withdrawAmount <= address(this).balance"
+            Identifier withdrawAmount
+               Type: uint256
+               Source: "withdrawAmount"
+            MemberAccess to member balance
+               Type: uint256
+               Source: "address(this).balance"
+              FunctionCall
+                 Type: address
+                 Source: "address(this)"
+                ElementaryTypeNameExpression address
+                   Type: type(address)
+                   Source: "address"
+                Identifier this
+                   Type: contract FiftyFlip
+                   Source: "this"
+          Literal, token: [no token] value: Contract balance is lower than withdrawAmount
+             Type: literal_string "Contract balance is lower than withdrawAmount"
+             Source: "\"Contract balance is lower than withdrawAmount\""
+      ExpressionStatement
+         Source: "require (devFeeSize <= address(this).balance, \"Not enough funds to withdraw.\")"
+        FunctionCall
+           Type: tuple()
+           Source: "require (devFeeSize <= address(this).balance, \"Not enough funds to withdraw.\")"
+          Identifier require
+             Type: function (bool,string memory) pure
+             Source: "require"
+          BinaryOperation using operator <=
+             Type: bool
+             Source: "devFeeSize <= address(this).balance"
+            Identifier devFeeSize
+               Type: uint256
+               Source: "devFeeSize"
+            MemberAccess to member balance
+               Type: uint256
+               Source: "address(this).balance"
+              FunctionCall
+                 Type: address
+                 Source: "address(this)"
+                ElementaryTypeNameExpression address
+                   Type: type(address)
+                   Source: "address"
+                Identifier this
+                   Type: contract FiftyFlip
+                   Source: "this"
+          Literal, token: [no token] value: Not enough funds to withdraw.
+             Type: literal_string "Not enough funds to withdraw."
+             Source: "\"Not enough funds to withdraw.\""
+      IfStatement
+         Source: "if (sendFunds(withdrawAddress, withdrawAmount)){\r\n            devFeeSize -= withdrawAmount;\r\n        }"
+        FunctionCall
+           Type: bool
+           Source: "sendFunds(withdrawAddress, withdrawAmount)"
+          Identifier sendFunds
+             Type: function (address,uint256) returns (bool)
+             Source: "sendFunds"
+          Identifier withdrawAddress
+             Type: address
+             Source: "withdrawAddress"
+          Identifier withdrawAmount
+             Type: uint256
+             Source: "withdrawAmount"
+        Block
+           Source: "{\r\n            devFeeSize -= withdrawAmount;\r\n        }"
+          ExpressionStatement
+             Source: "devFeeSize -= withdrawAmount"
+            Assignment using operator -=
+               Type: uint256
+               Source: "devFeeSize -= withdrawAmount"
+              Identifier devFeeSize
+                 Type: uint256
+                 Source: "devFeeSize"
+              Identifier withdrawAmount
+                 Type: uint256
+                 Source: "withdrawAmount"
+  FunctionDefinition "withdrawBotFee" - public
+     Source: "function withdrawBotFee(uint withdrawAmount)\r\n    onlyBot()\r\n    checkContractHealth() \r\n    external {\r\n        require (devFeeSize >= withdrawAmount, \"You are trying to withdraw more amount than developer fee.\");\r\n        require (withdrawAmount <= address(this).balance, \"Contract balance is lower than withdrawAmount\");\r\n        require (devFeeSize <= address(this).balance, \"Not enough funds to withdraw.\");\r\n        if (sendFunds(autoPlayBot, withdrawAmount)){\r\n            devFeeSize -= withdrawAmount;\r\n        }\r\n    }"
+    ParameterList
+       Source: "(uint withdrawAmount)"
+      VariableDeclaration "withdrawAmount"
+         Type: uint256
+         Source: "uint withdrawAmount"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Source: ""
+    ModifierInvocation "onlyBot"
+       Source: "onlyBot()"
+      Identifier onlyBot
+         Type: modifier ()
+         Source: "onlyBot"
+    ModifierInvocation "checkContractHealth"
+       Source: "checkContractHealth()"
+      Identifier checkContractHealth
+         Type: modifier ()
+         Source: "checkContractHealth"
+    Block
+       Source: "{\r\n        require (devFeeSize >= withdrawAmount, \"You are trying to withdraw more amount than developer fee.\");\r\n        require (withdrawAmount <= address(this).balance, \"Contract balance is lower than withdrawAmount\");\r\n        require (devFeeSize <= address(this).balance, \"Not enough funds to withdraw.\");\r\n        if (sendFunds(autoPlayBot, withdrawAmount)){\r\n            devFeeSize -= withdrawAmount;\r\n        }\r\n    }"
+      ExpressionStatement
+         Source: "require (devFeeSize >= withdrawAmount, \"You are trying to withdraw more amount than developer fee.\")"
+        FunctionCall
+           Type: tuple()
+           Source: "require (devFeeSize >= withdrawAmount, \"You are trying to withdraw more amount than developer fee.\")"
+          Identifier require
+             Type: function (bool,string memory) pure
+             Source: "require"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "devFeeSize >= withdrawAmount"
+            Identifier devFeeSize
+               Type: uint256
+               Source: "devFeeSize"
+            Identifier withdrawAmount
+               Type: uint256
+               Source: "withdrawAmount"
+          Literal, token: [no token] value: You are trying to withdraw more amount than developer fee.
+             Type: literal_string "You are trying to withdraw more amount than developer fee."
+             Source: "\"You are trying to withdraw more amount than developer fee.\""
+      ExpressionStatement
+         Source: "require (withdrawAmount <= address(this).balance, \"Contract balance is lower than withdrawAmount\")"
+        FunctionCall
+           Type: tuple()
+           Source: "require (withdrawAmount <= address(this).balance, \"Contract balance is lower than withdrawAmount\")"
+          Identifier require
+             Type: function (bool,string memory) pure
+             Source: "require"
+          BinaryOperation using operator <=
+             Type: bool
+             Source: "withdrawAmount <= address(this).balance"
+            Identifier withdrawAmount
+               Type: uint256
+               Source: "withdrawAmount"
+            MemberAccess to member balance
+               Type: uint256
+               Source: "address(this).balance"
+              FunctionCall
+                 Type: address
+                 Source: "address(this)"
+                ElementaryTypeNameExpression address
+                   Type: type(address)
+                   Source: "address"
+                Identifier this
+                   Type: contract FiftyFlip
+                   Source: "this"
+          Literal, token: [no token] value: Contract balance is lower than withdrawAmount
+             Type: literal_string "Contract balance is lower than withdrawAmount"
+             Source: "\"Contract balance is lower than withdrawAmount\""
+      ExpressionStatement
+         Source: "require (devFeeSize <= address(this).balance, \"Not enough funds to withdraw.\")"
+        FunctionCall
+           Type: tuple()
+           Source: "require (devFeeSize <= address(this).balance, \"Not enough funds to withdraw.\")"
+          Identifier require
+             Type: function (bool,string memory) pure
+             Source: "require"
+          BinaryOperation using operator <=
+             Type: bool
+             Source: "devFeeSize <= address(this).balance"
+            Identifier devFeeSize
+               Type: uint256
+               Source: "devFeeSize"
+            MemberAccess to member balance
+               Type: uint256
+               Source: "address(this).balance"
+              FunctionCall
+                 Type: address
+                 Source: "address(this)"
+                ElementaryTypeNameExpression address
+                   Type: type(address)
+                   Source: "address"
+                Identifier this
+                   Type: contract FiftyFlip
+                   Source: "this"
+          Literal, token: [no token] value: Not enough funds to withdraw.
+             Type: literal_string "Not enough funds to withdraw."
+             Source: "\"Not enough funds to withdraw.\""
+      IfStatement
+         Source: "if (sendFunds(autoPlayBot, withdrawAmount)){\r\n            devFeeSize -= withdrawAmount;\r\n        }"
+        FunctionCall
+           Type: bool
+           Source: "sendFunds(autoPlayBot, withdrawAmount)"
+          Identifier sendFunds
+             Type: function (address,uint256) returns (bool)
+             Source: "sendFunds"
+          Identifier autoPlayBot
+             Type: address
+             Source: "autoPlayBot"
+          Identifier withdrawAmount
+             Type: uint256
+             Source: "withdrawAmount"
+        Block
+           Source: "{\r\n            devFeeSize -= withdrawAmount;\r\n        }"
+          ExpressionStatement
+             Source: "devFeeSize -= withdrawAmount"
+            Assignment using operator -=
+               Type: uint256
+               Source: "devFeeSize -= withdrawAmount"
+              Identifier devFeeSize
+                 Type: uint256
+                 Source: "devFeeSize"
+              Identifier withdrawAmount
+                 Type: uint256
+                 Source: "withdrawAmount"
+  FunctionDefinition "getBetInfo" - public - const
+     Source: "function getBetInfo(uint ticketID) \r\n    constant\r\n    external \r\n    returns (uint, uint256, bool, address){\r\n        Bet storage bet = bets[ticketID];\r\n        return (bet.amount, bet.blockNumber, bet.betMask, bet.player);\r\n    }"
+    ParameterList
+       Source: "(uint ticketID)"
+      VariableDeclaration "ticketID"
+         Type: uint256
+         Source: "uint ticketID"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Source: "(uint, uint256, bool, address)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint256"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration ""
+         Type: bool
+         Source: "bool"
+        ElementaryTypeName bool
+           Source: "bool"
+      VariableDeclaration ""
+         Type: address
+         Source: "address"
+        ElementaryTypeName address
+           Source: "address"
+    Block
+       Source: "{\r\n        Bet storage bet = bets[ticketID];\r\n        return (bet.amount, bet.blockNumber, bet.betMask, bet.player);\r\n    }"
+      VariableDeclarationStatement
+         Source: "Bet storage bet = bets[ticketID]"
+        VariableDeclaration "bet"
+           Type: struct FiftyFlip.Bet storage pointer
+           Source: "Bet storage bet"
+          UserDefinedTypeName "Bet"
+             Source: "Bet"
+        IndexAccess
+           Type: struct FiftyFlip.Bet storage ref
+           Source: "bets[ticketID]"
+          Identifier bets
+             Type: mapping(uint256 => struct FiftyFlip.Bet storage ref)
+             Source: "bets"
+          Identifier ticketID
+             Type: uint256
+             Source: "ticketID"
+      Return
+         Source: "return (bet.amount, bet.blockNumber, bet.betMask, bet.player)"
+        TupleExpression
+           Type: tuple(uint256,uint256,bool,address)
+           Source: "(bet.amount, bet.blockNumber, bet.betMask, bet.player)"
+          MemberAccess to member amount
+             Type: uint256
+             Source: "bet.amount"
+            Identifier bet
+               Type: struct FiftyFlip.Bet storage pointer
+               Source: "bet"
+          MemberAccess to member blockNumber
+             Type: uint256
+             Source: "bet.blockNumber"
+            Identifier bet
+               Type: struct FiftyFlip.Bet storage pointer
+               Source: "bet"
+          MemberAccess to member betMask
+             Type: bool
+             Source: "bet.betMask"
+            Identifier bet
+               Type: struct FiftyFlip.Bet storage pointer
+               Source: "bet"
+          MemberAccess to member player
+             Type: address
+             Source: "bet.player"
+            Identifier bet
+               Type: struct FiftyFlip.Bet storage pointer
+               Source: "bet"
+  FunctionDefinition "getContractBalance" - public - const
+     Source: "function getContractBalance() \r\n    constant\r\n    external \r\n    returns (uint){\r\n        return address(this).balance;\r\n    }"
+    ParameterList
+       Source: "()"
+    ParameterList
+       Source: "(uint)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint"
+        ElementaryTypeName uint
+           Source: "uint"
+    Block
+       Source: "{\r\n        return address(this).balance;\r\n    }"
+      Return
+         Source: "return address(this).balance"
+        MemberAccess to member balance
+           Type: uint256
+           Source: "address(this).balance"
+          FunctionCall
+             Type: address
+             Source: "address(this)"
+            ElementaryTypeNameExpression address
+               Type: type(address)
+               Source: "address"
+            Identifier this
+               Type: contract FiftyFlip
+               Source: "this"
+  FunctionDefinition "getCollateralBalance" - public - const
+     Source: "function getCollateralBalance() \r\n    constant\r\n    public \r\n    returns (uint){\r\n        if (address(this).balance > lockedInBets + jackpotSize + devFeeSize)\r\n            return address(this).balance - lockedInBets - jackpotSize - devFeeSize;\r\n        return 0;\r\n    }"
+    ParameterList
+       Source: "()"
+    ParameterList
+       Source: "(uint)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint"
+        ElementaryTypeName uint
+           Source: "uint"
+    Block
+       Source: "{\r\n        if (address(this).balance > lockedInBets + jackpotSize + devFeeSize)\r\n            return address(this).balance - lockedInBets - jackpotSize - devFeeSize;\r\n        return 0;\r\n    }"
+      IfStatement
+         Source: "if (address(this).balance > lockedInBets + jackpotSize + devFeeSize)\r\n            return address(this).balance - lockedInBets - jackpotSize - devFeeSize"
+        BinaryOperation using operator >
+           Type: bool
+           Source: "address(this).balance > lockedInBets + jackpotSize + devFeeSize"
+          MemberAccess to member balance
+             Type: uint256
+             Source: "address(this).balance"
+            FunctionCall
+               Type: address
+               Source: "address(this)"
+              ElementaryTypeNameExpression address
+                 Type: type(address)
+                 Source: "address"
+              Identifier this
+                 Type: contract FiftyFlip
+                 Source: "this"
+          BinaryOperation using operator +
+             Type: uint256
+             Source: "lockedInBets + jackpotSize + devFeeSize"
+            BinaryOperation using operator +
+               Type: uint256
+               Source: "lockedInBets + jackpotSize"
+              Identifier lockedInBets
+                 Type: uint256
+                 Source: "lockedInBets"
+              Identifier jackpotSize
+                 Type: uint256
+                 Source: "jackpotSize"
+            Identifier devFeeSize
+               Type: uint256
+               Source: "devFeeSize"
+        Return
+           Source: "return address(this).balance - lockedInBets - jackpotSize - devFeeSize"
+          BinaryOperation using operator -
+             Type: uint256
+             Source: "address(this).balance - lockedInBets - jackpotSize - devFeeSize"
+            BinaryOperation using operator -
+               Type: uint256
+               Source: "address(this).balance - lockedInBets - jackpotSize"
+              BinaryOperation using operator -
+                 Type: uint256
+                 Source: "address(this).balance - lockedInBets"
+                MemberAccess to member balance
+                   Type: uint256
+                   Source: "address(this).balance"
+                  FunctionCall
+                     Type: address
+                     Source: "address(this)"
+                    ElementaryTypeNameExpression address
+                       Type: type(address)
+                       Source: "address"
+                    Identifier this
+                       Type: contract FiftyFlip
+                       Source: "this"
+                Identifier lockedInBets
+                   Type: uint256
+                   Source: "lockedInBets"
+              Identifier jackpotSize
+                 Type: uint256
+                 Source: "jackpotSize"
+            Identifier devFeeSize
+               Type: uint256
+               Source: "devFeeSize"
+      Return
+         Source: "return 0"
+        Literal, token: [no token] value: 0
+           Type: int_const 0
+           Source: "0"
+  FunctionDefinition "kill" - public
+     Source: "function kill() external onlyOwner() {\r\n        require (lockedInBets == 0, \"All bets should be processed (settled or refunded) before self-destruct.\");\r\n        selfdestruct(owner);\r\n    }"
+    ParameterList
+       Source: "()"
+    ParameterList
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Source: "onlyOwner()"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n        require (lockedInBets == 0, \"All bets should be processed (settled or refunded) before self-destruct.\");\r\n        selfdestruct(owner);\r\n    }"
+      ExpressionStatement
+         Source: "require (lockedInBets == 0, \"All bets should be processed (settled or refunded) before self-destruct.\")"
+        FunctionCall
+           Type: tuple()
+           Source: "require (lockedInBets == 0, \"All bets should be processed (settled or refunded) before self-destruct.\")"
+          Identifier require
+             Type: function (bool,string memory) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "lockedInBets == 0"
+            Identifier lockedInBets
+               Type: uint256
+               Source: "lockedInBets"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+          Literal, token: [no token] value: All bets should be processed (settled or refunded) before self-destruct.
+             Type: literal_string "All bets should be processed (settled or refunded) before self-destruct."
+             Source: "\"All bets should be processed (settled or refunded) before self-destruct.\""
+      ExpressionStatement
+         Source: "selfdestruct(owner)"
+        FunctionCall
+           Type: tuple()
+           Source: "selfdestruct(owner)"
+          Identifier selfdestruct
+             Type: function (address)
+             Source: "selfdestruct"
+          Identifier owner
+             Type: address
+             Source: "owner"
+  FunctionDefinition "payout"
+     Source: "function payout(address winner, uint ethToTransfer, uint ticketID, bool maskRes, uint jackpotRes) \r\n    internal \r\n    {        \r\n        winner.transfer(ethToTransfer);\r\n        emit Win(winner, ethToTransfer, ticketID, maskRes, jackpotRes);\r\n    }"
+    ParameterList
+       Source: "(address winner, uint ethToTransfer, uint ticketID, bool maskRes, uint jackpotRes)"
+      VariableDeclaration "winner"
+         Type: address
+         Source: "address winner"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "ethToTransfer"
+         Type: uint256
+         Source: "uint ethToTransfer"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "ticketID"
+         Type: uint256
+         Source: "uint ticketID"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "maskRes"
+         Type: bool
+         Source: "bool maskRes"
+        ElementaryTypeName bool
+           Source: "bool"
+      VariableDeclaration "jackpotRes"
+         Type: uint256
+         Source: "uint jackpotRes"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Source: ""
+    Block
+       Source: "{        \r\n        winner.transfer(ethToTransfer);\r\n        emit Win(winner, ethToTransfer, ticketID, maskRes, jackpotRes);\r\n    }"
+      ExpressionStatement
+         Source: "winner.transfer(ethToTransfer)"
+        FunctionCall
+           Type: tuple()
+           Source: "winner.transfer(ethToTransfer)"
+          MemberAccess to member transfer
+             Type: function (uint256)
+             Source: "winner.transfer"
+            Identifier winner
+               Type: address
+               Source: "winner"
+          Identifier ethToTransfer
+             Type: uint256
+             Source: "ethToTransfer"
+      EmitStatement
+         Source: "emit Win(winner, ethToTransfer, ticketID, maskRes, jackpotRes)"
+        FunctionCall
+           Type: tuple()
+           Source: "Win(winner, ethToTransfer, ticketID, maskRes, jackpotRes)"
+          Identifier Win
+             Type: function (address,uint256,uint256,bool,uint256)
+             Source: "Win"
+          Identifier winner
+             Type: address
+             Source: "winner"
+          Identifier ethToTransfer
+             Type: uint256
+             Source: "ethToTransfer"
+          Identifier ticketID
+             Type: uint256
+             Source: "ticketID"
+          Identifier maskRes
+             Type: bool
+             Source: "maskRes"
+          Identifier jackpotRes
+             Type: uint256
+             Source: "jackpotRes"
+  FunctionDefinition "sendRefund"
+     Source: "function sendRefund(uint ticketID) \r\n    internal \r\n    {\r\n        Bet storage bet = bets[ticketID];\r\n        address requester = bet.player;\r\n        uint256 ethToTransfer = bet.amount;        \r\n        requester.transfer(ethToTransfer);\r\n\r\n        uint tossWinAmount = bet.amount * WIN_X / 1000;\r\n        lockedInBets -= tossWinAmount;\r\n\r\n        bet.amount = 0;\r\n        emit Refund(ticketID, ethToTransfer, requester);\r\n    }"
+    ParameterList
+       Source: "(uint ticketID)"
+      VariableDeclaration "ticketID"
+         Type: uint256
+         Source: "uint ticketID"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Source: ""
+    Block
+       Source: "{\r\n        Bet storage bet = bets[ticketID];\r\n        address requester = bet.player;\r\n        uint256 ethToTransfer = bet.amount;        \r\n        requester.transfer(ethToTransfer);\r\n\r\n        uint tossWinAmount = bet.amount * WIN_X / 1000;\r\n        lockedInBets -= tossWinAmount;\r\n\r\n        bet.amount = 0;\r\n        emit Refund(ticketID, ethToTransfer, requester);\r\n    }"
+      VariableDeclarationStatement
+         Source: "Bet storage bet = bets[ticketID]"
+        VariableDeclaration "bet"
+           Type: struct FiftyFlip.Bet storage pointer
+           Source: "Bet storage bet"
+          UserDefinedTypeName "Bet"
+             Source: "Bet"
+        IndexAccess
+           Type: struct FiftyFlip.Bet storage ref
+           Source: "bets[ticketID]"
+          Identifier bets
+             Type: mapping(uint256 => struct FiftyFlip.Bet storage ref)
+             Source: "bets"
+          Identifier ticketID
+             Type: uint256
+             Source: "ticketID"
+      VariableDeclarationStatement
+         Source: "address requester = bet.player"
+        VariableDeclaration "requester"
+           Type: address
+           Source: "address requester"
+          ElementaryTypeName address
+             Source: "address"
+        MemberAccess to member player
+           Type: address
+           Source: "bet.player"
+          Identifier bet
+             Type: struct FiftyFlip.Bet storage pointer
+             Source: "bet"
+      VariableDeclarationStatement
+         Source: "uint256 ethToTransfer = bet.amount"
+        VariableDeclaration "ethToTransfer"
+           Type: uint256
+           Source: "uint256 ethToTransfer"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        MemberAccess to member amount
+           Type: uint256
+           Source: "bet.amount"
+          Identifier bet
+             Type: struct FiftyFlip.Bet storage pointer
+             Source: "bet"
+      ExpressionStatement
+         Source: "requester.transfer(ethToTransfer)"
+        FunctionCall
+           Type: tuple()
+           Source: "requester.transfer(ethToTransfer)"
+          MemberAccess to member transfer
+             Type: function (uint256)
+             Source: "requester.transfer"
+            Identifier requester
+               Type: address
+               Source: "requester"
+          Identifier ethToTransfer
+             Type: uint256
+             Source: "ethToTransfer"
+      VariableDeclarationStatement
+         Source: "uint tossWinAmount = bet.amount * WIN_X / 1000"
+        VariableDeclaration "tossWinAmount"
+           Type: uint256
+           Source: "uint tossWinAmount"
+          ElementaryTypeName uint
+             Source: "uint"
+        BinaryOperation using operator /
+           Type: uint256
+           Source: "bet.amount * WIN_X / 1000"
+          BinaryOperation using operator *
+             Type: uint256
+             Source: "bet.amount * WIN_X"
+            MemberAccess to member amount
+               Type: uint256
+               Source: "bet.amount"
+              Identifier bet
+                 Type: struct FiftyFlip.Bet storage pointer
+                 Source: "bet"
+            Identifier WIN_X
+               Type: uint256
+               Source: "WIN_X"
+          Literal, token: [no token] value: 1000
+             Type: int_const 1000
+             Source: "1000"
+      ExpressionStatement
+         Source: "lockedInBets -= tossWinAmount"
+        Assignment using operator -=
+           Type: uint256
+           Source: "lockedInBets -= tossWinAmount"
+          Identifier lockedInBets
+             Type: uint256
+             Source: "lockedInBets"
+          Identifier tossWinAmount
+             Type: uint256
+             Source: "tossWinAmount"
+      ExpressionStatement
+         Source: "bet.amount = 0"
+        Assignment using operator =
+           Type: uint256
+           Source: "bet.amount = 0"
+          MemberAccess to member amount
+             Type: uint256
+             Source: "bet.amount"
+            Identifier bet
+               Type: struct FiftyFlip.Bet storage pointer
+               Source: "bet"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+      EmitStatement
+         Source: "emit Refund(ticketID, ethToTransfer, requester)"
+        FunctionCall
+           Type: tuple()
+           Source: "Refund(ticketID, ethToTransfer, requester)"
+          Identifier Refund
+             Type: function (uint256,uint256,address)
+             Source: "Refund"
+          Identifier ticketID
+             Type: uint256
+             Source: "ticketID"
+          Identifier ethToTransfer
+             Type: uint256
+             Source: "ethToTransfer"
+          Identifier requester
+             Type: address
+             Source: "requester"
+  FunctionDefinition "sendFunds"
+     Source: "function sendFunds(address paidUser, uint amount) private returns (bool){\r\n        bool success = paidUser.send(amount);\r\n        if (success) {\r\n            emit Payment(paidUser, amount);\r\n        } else {\r\n            emit FailedPayment(paidUser, amount);\r\n        }\r\n        return success;\r\n    }"
+    ParameterList
+       Source: "(address paidUser, uint amount)"
+      VariableDeclaration "paidUser"
+         Type: address
+         Source: "address paidUser"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "amount"
+         Type: uint256
+         Source: "uint amount"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Source: "(bool)"
+      VariableDeclaration ""
+         Type: bool
+         Source: "bool"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n        bool success = paidUser.send(amount);\r\n        if (success) {\r\n            emit Payment(paidUser, amount);\r\n        } else {\r\n            emit FailedPayment(paidUser, amount);\r\n        }\r\n        return success;\r\n    }"
+      VariableDeclarationStatement
+         Source: "bool success = paidUser.send(amount)"
+        VariableDeclaration "success"
+           Type: bool
+           Source: "bool success"
+          ElementaryTypeName bool
+             Source: "bool"
+        FunctionCall
+           Type: bool
+           Source: "paidUser.send(amount)"
+          MemberAccess to member send
+             Type: function (uint256) returns (bool)
+             Source: "paidUser.send"
+            Identifier paidUser
+               Type: address
+               Source: "paidUser"
+          Identifier amount
+             Type: uint256
+             Source: "amount"
+      IfStatement
+         Source: "if (success) {\r\n            emit Payment(paidUser, amount);\r\n        } else {\r\n            emit FailedPayment(paidUser, amount);\r\n        }"
+        Identifier success
+           Type: bool
+           Source: "success"
+        Block
+           Source: "{\r\n            emit Payment(paidUser, amount);\r\n        }"
+          EmitStatement
+             Source: "emit Payment(paidUser, amount)"
+            FunctionCall
+               Type: tuple()
+               Source: "Payment(paidUser, amount)"
+              Identifier Payment
+                 Type: function (address,uint256)
+                 Source: "Payment"
+              Identifier paidUser
+                 Type: address
+                 Source: "paidUser"
+              Identifier amount
+                 Type: uint256
+                 Source: "amount"
+        Block
+           Source: "{\r\n            emit FailedPayment(paidUser, amount);\r\n        }"
+          EmitStatement
+             Source: "emit FailedPayment(paidUser, amount)"
+            FunctionCall
+               Type: tuple()
+               Source: "FailedPayment(paidUser, amount)"
+              Identifier FailedPayment
+                 Type: function (address,uint256)
+                 Source: "FailedPayment"
+              Identifier paidUser
+                 Type: address
+                 Source: "paidUser"
+              Identifier amount
+                 Type: uint256
+                 Source: "amount"
+      Return
+         Source: "return success"
+        Identifier success
+           Type: bool
+           Source: "success"
+  FunctionDefinition "loseWager"
+     Source: "function loseWager(address player, uint amount, uint ticketID, bool maskRes, uint jackpotRes) \r\n    internal \r\n    {\r\n        emit Lose(player, amount, ticketID, maskRes, jackpotRes);\r\n    }"
+    ParameterList
+       Source: "(address player, uint amount, uint ticketID, bool maskRes, uint jackpotRes)"
+      VariableDeclaration "player"
+         Type: address
+         Source: "address player"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "amount"
+         Type: uint256
+         Source: "uint amount"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "ticketID"
+         Type: uint256
+         Source: "uint ticketID"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "maskRes"
+         Type: bool
+         Source: "bool maskRes"
+        ElementaryTypeName bool
+           Source: "bool"
+      VariableDeclaration "jackpotRes"
+         Type: uint256
+         Source: "uint jackpotRes"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Source: ""
+    Block
+       Source: "{\r\n        emit Lose(player, amount, ticketID, maskRes, jackpotRes);\r\n    }"
+      EmitStatement
+         Source: "emit Lose(player, amount, ticketID, maskRes, jackpotRes)"
+        FunctionCall
+           Type: tuple()
+           Source: "Lose(player, amount, ticketID, maskRes, jackpotRes)"
+          Identifier Lose
+             Type: function (address,uint256,uint256,bool,uint256)
+             Source: "Lose"
+          Identifier player
+             Type: address
+             Source: "player"
+          Identifier amount
+             Type: uint256
+             Source: "amount"
+          Identifier ticketID
+             Type: uint256
+             Source: "ticketID"
+          Identifier maskRes
+             Type: bool
+             Source: "maskRes"
+          Identifier jackpotRes
+             Type: uint256
+             Source: "jackpotRes"
+  FunctionDefinition "clearStorage" - public
+     Source: "function clearStorage(uint[] toCleanTicketIDs) external {\r\n        uint length = toCleanTicketIDs.length;\r\n\r\n        for (uint i = 0; i < length; i++) {\r\n            clearProcessedBet(toCleanTicketIDs[i]);\r\n        }\r\n    }"
+    ParameterList
+       Source: "(uint[] toCleanTicketIDs)"
+      VariableDeclaration "toCleanTicketIDs"
+         Type: uint256[] calldata
+         Source: "uint[] toCleanTicketIDs"
+        ArrayTypeName
+           Source: "uint[]"
+          ElementaryTypeName uint
+             Source: "uint"
+    ParameterList
+       Source: ""
+    Block
+       Source: "{\r\n        uint length = toCleanTicketIDs.length;\r\n\r\n        for (uint i = 0; i < length; i++) {\r\n            clearProcessedBet(toCleanTicketIDs[i]);\r\n        }\r\n    }"
+      VariableDeclarationStatement
+         Source: "uint length = toCleanTicketIDs.length"
+        VariableDeclaration "length"
+           Type: uint256
+           Source: "uint length"
+          ElementaryTypeName uint
+             Source: "uint"
+        MemberAccess to member length
+           Type: uint256
+           Source: "toCleanTicketIDs.length"
+          Identifier toCleanTicketIDs
+             Type: uint256[] calldata
+             Source: "toCleanTicketIDs"
+      ForStatement
+         Source: "for (uint i = 0; i < length; i++) {\r\n            clearProcessedBet(toCleanTicketIDs[i]);\r\n        }"
+        VariableDeclarationStatement
+           Source: "uint i = 0"
+          VariableDeclaration "i"
+             Type: uint256
+             Source: "uint i"
+            ElementaryTypeName uint
+               Source: "uint"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        BinaryOperation using operator <
+           Type: bool
+           Source: "i < length"
+          Identifier i
+             Type: uint256
+             Source: "i"
+          Identifier length
+             Type: uint256
+             Source: "length"
+        ExpressionStatement
+           Source: "i++"
+          UnaryOperation (postfix) ++
+             Type: uint256
+             Source: "i++"
+            Identifier i
+               Type: uint256
+               Source: "i"
+        Block
+           Source: "{\r\n            clearProcessedBet(toCleanTicketIDs[i]);\r\n        }"
+          ExpressionStatement
+             Source: "clearProcessedBet(toCleanTicketIDs[i])"
+            FunctionCall
+               Type: tuple()
+               Source: "clearProcessedBet(toCleanTicketIDs[i])"
+              Identifier clearProcessedBet
+                 Type: function (uint256)
+                 Source: "clearProcessedBet"
+              IndexAccess
+                 Type: uint256
+                 Source: "toCleanTicketIDs[i]"
+                Identifier toCleanTicketIDs
+                   Type: uint256[] calldata
+                   Source: "toCleanTicketIDs"
+                Identifier i
+                   Type: uint256
+                   Source: "i"
+  FunctionDefinition "clearProcessedBet"
+     Source: "function clearProcessedBet(uint ticketID) private {\r\n        Bet storage bet = bets[ticketID];\r\n\r\n        // Do not overwrite active bets with zeros; additionally prevent cleanup of bets\r\n        // for which ticketID signatures may have not expired yet (see whitepaper for details).\r\n        if (bet.amount != 0 || block.number <= bet.blockNumber + BET_EXPIRATION_BLOCKS) {\r\n            return;\r\n        }\r\n\r\n        bet.blockNumber = 0;\r\n        bet.betMask = false;\r\n        bet.player = address(0);\r\n    }"
+    ParameterList
+       Source: "(uint ticketID)"
+      VariableDeclaration "ticketID"
+         Type: uint256
+         Source: "uint ticketID"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Source: ""
+    Block
+       Source: "{\r\n        Bet storage bet = bets[ticketID];\r\n\r\n        // Do not overwrite active bets with zeros; additionally prevent cleanup of bets\r\n        // for which ticketID signatures may have not expired yet (see whitepaper for details).\r\n        if (bet.amount != 0 || block.number <= bet.blockNumber + BET_EXPIRATION_BLOCKS) {\r\n            return;\r\n        }\r\n\r\n        bet.blockNumber = 0;\r\n        bet.betMask = false;\r\n        bet.player = address(0);\r\n    }"
+      VariableDeclarationStatement
+         Source: "Bet storage bet = bets[ticketID]"
+        VariableDeclaration "bet"
+           Type: struct FiftyFlip.Bet storage pointer
+           Source: "Bet storage bet"
+          UserDefinedTypeName "Bet"
+             Source: "Bet"
+        IndexAccess
+           Type: struct FiftyFlip.Bet storage ref
+           Source: "bets[ticketID]"
+          Identifier bets
+             Type: mapping(uint256 => struct FiftyFlip.Bet storage ref)
+             Source: "bets"
+          Identifier ticketID
+             Type: uint256
+             Source: "ticketID"
+      IfStatement
+         Source: "if (bet.amount != 0 || block.number <= bet.blockNumber + BET_EXPIRATION_BLOCKS) {\r\n            return;\r\n        }"
+        BinaryOperation using operator ||
+           Type: bool
+           Source: "bet.amount != 0 || block.number <= bet.blockNumber + BET_EXPIRATION_BLOCKS"
+          BinaryOperation using operator !=
+             Type: bool
+             Source: "bet.amount != 0"
+            MemberAccess to member amount
+               Type: uint256
+               Source: "bet.amount"
+              Identifier bet
+                 Type: struct FiftyFlip.Bet storage pointer
+                 Source: "bet"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+          BinaryOperation using operator <=
+             Type: bool
+             Source: "block.number <= bet.blockNumber + BET_EXPIRATION_BLOCKS"
+            MemberAccess to member number
+               Type: uint256
+               Source: "block.number"
+              Identifier block
+                 Type: block
+                 Source: "block"
+            BinaryOperation using operator +
+               Type: uint256
+               Source: "bet.blockNumber + BET_EXPIRATION_BLOCKS"
+              MemberAccess to member blockNumber
+                 Type: uint256
+                 Source: "bet.blockNumber"
+                Identifier bet
+                   Type: struct FiftyFlip.Bet storage pointer
+                   Source: "bet"
+              Identifier BET_EXPIRATION_BLOCKS
+                 Type: uint256
+                 Source: "BET_EXPIRATION_BLOCKS"
+        Block
+           Source: "{\r\n            return;\r\n        }"
+          Return
+             Source: "return;"
+      ExpressionStatement
+         Source: "bet.blockNumber = 0"
+        Assignment using operator =
+           Type: uint256
+           Source: "bet.blockNumber = 0"
+          MemberAccess to member blockNumber
+             Type: uint256
+             Source: "bet.blockNumber"
+            Identifier bet
+               Type: struct FiftyFlip.Bet storage pointer
+               Source: "bet"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+      ExpressionStatement
+         Source: "bet.betMask = false"
+        Assignment using operator =
+           Type: bool
+           Source: "bet.betMask = false"
+          MemberAccess to member betMask
+             Type: bool
+             Source: "bet.betMask"
+            Identifier bet
+               Type: struct FiftyFlip.Bet storage pointer
+               Source: "bet"
+          Literal, token: false value: false
+             Type: bool
+             Source: "false"
+      ExpressionStatement
+         Source: "bet.player = address(0)"
+        Assignment using operator =
+           Type: address
+           Source: "bet.player = address(0)"
+          MemberAccess to member player
+             Type: address
+             Source: "bet.player"
+            Identifier bet
+               Type: struct FiftyFlip.Bet storage pointer
+               Source: "bet"
+          FunctionCall
+             Type: address
+             Source: "address(0)"
+            ElementaryTypeNameExpression address
+               Type: type(address)
+               Source: "address"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+  FunctionDefinition "transferAnyERC20Token" - public
+     Source: "function transferAnyERC20Token(address tokenAddress, address tokenOwner, uint tokens) \r\n    public \r\n    onlyOwner() \r\n    returns (bool success) \r\n    {\r\n        return ERC20Interface(tokenAddress).transfer(tokenOwner, tokens);\r\n    }"
+    ParameterList
+       Source: "(address tokenAddress, address tokenOwner, uint tokens)"
+      VariableDeclaration "tokenAddress"
+         Type: address
+         Source: "address tokenAddress"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "tokenOwner"
+         Type: address
+         Source: "address tokenOwner"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "tokens"
+         Type: uint256
+         Source: "uint tokens"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+    ModifierInvocation "onlyOwner"
+       Source: "onlyOwner()"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n        return ERC20Interface(tokenAddress).transfer(tokenOwner, tokens);\r\n    }"
+      Return
+         Source: "return ERC20Interface(tokenAddress).transfer(tokenOwner, tokens)"
+        FunctionCall
+           Type: bool
+           Source: "ERC20Interface(tokenAddress).transfer(tokenOwner, tokens)"
+          MemberAccess to member transfer
+             Type: function (address,uint256) external returns (bool)
+             Source: "ERC20Interface(tokenAddress).transfer"
+            FunctionCall
+               Type: contract ERC20Interface
+               Source: "ERC20Interface(tokenAddress)"
+              Identifier ERC20Interface
+                 Type: type(contract ERC20Interface)
+                 Source: "ERC20Interface"
+              Identifier tokenAddress
+                 Type: address
+                 Source: "tokenAddress"
+          Identifier tokenOwner
+             Type: address
+             Source: "tokenOwner"
+          Identifier tokens
+             Type: uint256
+             Source: "tokens"
+ContractDefinition "ERC20Interface"
+   Source: "contract ERC20Interface \r\n{\r\n    function transfer(address to, uint256 tokens) public returns (bool success);\r\n}"
+  FunctionDefinition "transfer" - public
+     Source: "function transfer(address to, uint256 tokens) public returns (bool success);"
+    ParameterList
+       Source: "(address to, uint256 tokens)"
+      VariableDeclaration "to"
+         Type: address
+         Source: "address to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "tokens"
+         Type: uint256
+         Source: "uint256 tokens"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"

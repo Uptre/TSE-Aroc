@@ -1,0 +1,175 @@
+Syntax trees:
+
+
+======= /home/fabric/ArocRevision/Aroc/dataSet/smartbugs-21-7-13/reentrancy31/simple_dao.sol =======
+PragmaDirective
+   Gas costs: 0
+   Source: "pragma solidity ^0.4.2;"
+ContractDefinition "SimpleDAO"
+   Source: "contract SimpleDAO {\n  mapping (address => uint) public credit;\n\n  function donate(address to) payable {\n    credit[to] += msg.value;\n  }\n\n  function withdraw(uint amount) {\n    if (credit[msg.sender]>= amount) {\n      // <yes> <report> REENTRANCY\n      bool res = msg.sender.call.value(amount)();\n      credit[msg.sender]-=amount;\n    }\n  }\n\n  function queryCredit(address to) returns (uint){\n    return credit[to];\n  }\n}"
+  VariableDeclaration "credit"
+     Type: mapping(address => uint256)
+     Gas costs: 431
+     Source: "mapping (address => uint) public credit"
+    Mapping
+       Source: "mapping (address => uint)"
+      ElementaryTypeName address
+         Source: "address"
+      ElementaryTypeName uint
+         Source: "uint"
+  FunctionDefinition "donate" - public
+     Source: "function donate(address to) payable {\n    credit[to] += msg.value;\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address to)"
+      VariableDeclaration "to"
+         Type: address
+         Source: "address to"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\n    credit[to] += msg.value;\n  }"
+      ExpressionStatement
+         Gas costs: 20328
+         Source: "credit[to] += msg.value"
+        Assignment using operator +=
+           Type: uint256
+           Source: "credit[to] += msg.value"
+          IndexAccess
+             Type: uint256
+             Source: "credit[to]"
+            Identifier credit
+               Type: mapping(address => uint256)
+               Source: "credit"
+            Identifier to
+               Type: address
+               Source: "to"
+          MemberAccess to member value
+             Type: uint256
+             Source: "msg.value"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+  FunctionDefinition "withdraw" - public
+     Source: "function withdraw(uint amount) {\n    if (credit[msg.sender]>= amount) {\n      // <yes> <report> REENTRANCY\n      bool res = msg.sender.call.value(amount)();\n      credit[msg.sender]-=amount;\n    }\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint amount)"
+      VariableDeclaration "amount"
+         Type: uint256
+         Source: "uint amount"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\n    if (credit[msg.sender]>= amount) {\n      // <yes> <report> REENTRANCY\n      bool res = msg.sender.call.value(amount)();\n      credit[msg.sender]-=amount;\n    }\n  }"
+      IfStatement
+         Source: "if (credit[msg.sender]>= amount) {\n      // <yes> <report> REENTRANCY\n      bool res = msg.sender.call.value(amount)();\n      credit[msg.sender]-=amount;\n    }"
+        BinaryOperation using operator >=
+           Type: bool
+           Gas costs: 307
+           Source: "credit[msg.sender]>= amount"
+          IndexAccess
+             Type: uint256
+             Source: "credit[msg.sender]"
+            Identifier credit
+               Type: mapping(address => uint256)
+               Source: "credit"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Identifier amount
+             Type: uint256
+             Source: "amount"
+        Block
+           Source: "{\n      // <yes> <report> REENTRANCY\n      bool res = msg.sender.call.value(amount)();\n      credit[msg.sender]-=amount;\n    }"
+          VariableDeclarationStatement
+             Gas costs: [???]
+             Source: "bool res = msg.sender.call.value(amount)()"
+            VariableDeclaration "res"
+               Type: bool
+               Source: "bool res"
+              ElementaryTypeName bool
+                 Source: "bool"
+            FunctionCall
+               Type: bool
+               Source: "msg.sender.call.value(amount)()"
+              FunctionCall
+                 Type: function () payable returns (bool)
+                 Source: "msg.sender.call.value(amount)"
+                MemberAccess to member value
+                   Type: function (uint256) returns (function () payable returns (bool))
+                   Source: "msg.sender.call.value"
+                  MemberAccess to member call
+                     Type: function () payable returns (bool)
+                     Source: "msg.sender.call"
+                    MemberAccess to member sender
+                       Type: address
+                       Source: "msg.sender"
+                      Identifier msg
+                         Type: msg
+                         Source: "msg"
+                Identifier amount
+                   Type: uint256
+                   Source: "amount"
+          ExpressionStatement
+             Gas costs: 20322
+             Source: "credit[msg.sender]-=amount"
+            Assignment using operator -=
+               Type: uint256
+               Source: "credit[msg.sender]-=amount"
+              IndexAccess
+                 Type: uint256
+                 Source: "credit[msg.sender]"
+                Identifier credit
+                   Type: mapping(address => uint256)
+                   Source: "credit"
+                MemberAccess to member sender
+                   Type: address
+                   Source: "msg.sender"
+                  Identifier msg
+                     Type: msg
+                     Source: "msg"
+              Identifier amount
+                 Type: uint256
+                 Source: "amount"
+  FunctionDefinition "queryCredit" - public
+     Source: "function queryCredit(address to) returns (uint){\n    return credit[to];\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address to)"
+      VariableDeclaration "to"
+         Type: address
+         Source: "address to"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint"
+        ElementaryTypeName uint
+           Source: "uint"
+    Block
+       Source: "{\n    return credit[to];\n  }"
+      Return
+         Gas costs: 304
+         Source: "return credit[to]"
+        IndexAccess
+           Type: uint256
+           Source: "credit[to]"
+          Identifier credit
+             Type: mapping(address => uint256)
+             Source: "credit"
+          Identifier to
+             Type: address
+             Source: "to"

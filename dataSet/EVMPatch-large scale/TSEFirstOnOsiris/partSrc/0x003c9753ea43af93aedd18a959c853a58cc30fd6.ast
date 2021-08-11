@@ -1,0 +1,1318 @@
+Syntax trees:
+
+
+======= /home/fabric/ArocRevision/Aroc/osirisData/contractSrc/0x003c9753ea43af93aedd18a959c853a58cc30fd6.sol =======
+PragmaDirective
+   Gas costs: 0
+   Source: "pragma solidity ^0.4.18;"
+ContractDefinition "SafeMath"
+   Source: "library SafeMath {\r\n  function mul(uint256 a, uint256 b) internal pure returns (uint256) {\r\n    if (a == 0) {\r\n      return 0;\r\n    }\r\n    uint256 c = a * b;\r\n    assert(c / a == b);\r\n    return c;\r\n  }\r\n  \r\n  function div(uint256 a, uint256 b) internal pure returns (uint256) {\r\n    // assert(b > 0); // Solidity automatically throws when dividing by 0\r\n    uint256 c = a / b;\r\n    // assert(a == b * c + a % b); // There is no case in which this doesn't hold\r\n    return c;\r\n  }\r\n  \r\n  function sub(uint256 a, uint256 b) internal pure returns (uint256) {\r\n    assert(b <= a);\r\n    return a - b;\r\n  }\r\n  \r\n  function add(uint256 a, uint256 b) internal pure returns (uint256) {\r\n    uint256 c = a + b;\r\n    assert(c >= a);\r\n    return c;\r\n  }\r\n}"
+  FunctionDefinition "mul"
+     Source: "function mul(uint256 a, uint256 b) internal pure returns (uint256) {\r\n    if (a == 0) {\r\n      return 0;\r\n    }\r\n    uint256 c = a * b;\r\n    assert(c / a == b);\r\n    return c;\r\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 a, uint256 b)"
+      VariableDeclaration "a"
+         Type: uint256
+         Source: "uint256 a"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "b"
+         Type: uint256
+         Source: "uint256 b"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint256)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint256"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{\r\n    if (a == 0) {\r\n      return 0;\r\n    }\r\n    uint256 c = a * b;\r\n    assert(c / a == b);\r\n    return c;\r\n  }"
+      IfStatement
+         Source: "if (a == 0) {\r\n      return 0;\r\n    }"
+        BinaryOperation using operator ==
+           Type: bool
+           Gas costs: 9
+           Source: "a == 0"
+          Identifier a
+             Type: uint256
+             Source: "a"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        Block
+           Source: "{\r\n      return 0;\r\n    }"
+          Return
+             Gas costs: 19
+             Source: "return 0"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+      VariableDeclarationStatement
+         Gas costs: 19
+         Source: "uint256 c = a * b"
+        VariableDeclaration "c"
+           Type: uint256
+           Source: "uint256 c"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        BinaryOperation using operator *
+           Type: uint256
+           Source: "a * b"
+          Identifier a
+             Type: uint256
+             Source: "a"
+          Identifier b
+             Type: uint256
+             Source: "b"
+      ExpressionStatement
+         Gas costs: 60
+         Source: "assert(c / a == b)"
+        FunctionCall
+           Type: tuple()
+           Source: "assert(c / a == b)"
+          Identifier assert
+             Type: function (bool) pure
+             Source: "assert"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "c / a == b"
+            BinaryOperation using operator /
+               Type: uint256
+               Source: "c / a"
+              Identifier c
+                 Type: uint256
+                 Source: "c"
+              Identifier a
+                 Type: uint256
+                 Source: "a"
+            Identifier b
+               Type: uint256
+               Source: "b"
+      Return
+         Gas costs: 8
+         Source: "return c"
+        Identifier c
+           Type: uint256
+           Source: "c"
+  FunctionDefinition "div"
+     Source: "function div(uint256 a, uint256 b) internal pure returns (uint256) {\r\n    // assert(b > 0); // Solidity automatically throws when dividing by 0\r\n    uint256 c = a / b;\r\n    // assert(a == b * c + a % b); // There is no case in which this doesn't hold\r\n    return c;\r\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 a, uint256 b)"
+      VariableDeclaration "a"
+         Type: uint256
+         Source: "uint256 a"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "b"
+         Type: uint256
+         Source: "uint256 b"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint256)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint256"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{\r\n    // assert(b > 0); // Solidity automatically throws when dividing by 0\r\n    uint256 c = a / b;\r\n    // assert(a == b * c + a % b); // There is no case in which this doesn't hold\r\n    return c;\r\n  }"
+      VariableDeclarationStatement
+         Gas costs: 42
+         Source: "uint256 c = a / b"
+        VariableDeclaration "c"
+           Type: uint256
+           Source: "uint256 c"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        BinaryOperation using operator /
+           Type: uint256
+           Source: "a / b"
+          Identifier a
+             Type: uint256
+             Source: "a"
+          Identifier b
+             Type: uint256
+             Source: "b"
+      Return
+         Gas costs: 8
+         Source: "return c"
+        Identifier c
+           Type: uint256
+           Source: "c"
+  FunctionDefinition "sub"
+     Source: "function sub(uint256 a, uint256 b) internal pure returns (uint256) {\r\n    assert(b <= a);\r\n    return a - b;\r\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 a, uint256 b)"
+      VariableDeclaration "a"
+         Type: uint256
+         Source: "uint256 a"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "b"
+         Type: uint256
+         Source: "uint256 b"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint256"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{\r\n    assert(b <= a);\r\n    return a - b;\r\n  }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "assert(b <= a)"
+        FunctionCall
+           Type: tuple()
+           Source: "assert(b <= a)"
+          Identifier assert
+             Type: function (bool) pure
+             Source: "assert"
+          BinaryOperation using operator <=
+             Type: bool
+             Source: "b <= a"
+            Identifier b
+               Type: uint256
+               Source: "b"
+            Identifier a
+               Type: uint256
+               Source: "a"
+      Return
+         Gas costs: 0
+         Source: "return a - b"
+        BinaryOperation using operator -
+           Type: uint256
+           Source: "a - b"
+          Identifier a
+             Type: uint256
+             Source: "a"
+          Identifier b
+             Type: uint256
+             Source: "b"
+  FunctionDefinition "add"
+     Source: "function add(uint256 a, uint256 b) internal pure returns (uint256) {\r\n    uint256 c = a + b;\r\n    assert(c >= a);\r\n    return c;\r\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 a, uint256 b)"
+      VariableDeclaration "a"
+         Type: uint256
+         Source: "uint256 a"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "b"
+         Type: uint256
+         Source: "uint256 b"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint256)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint256"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{\r\n    uint256 c = a + b;\r\n    assert(c >= a);\r\n    return c;\r\n  }"
+      VariableDeclarationStatement
+         Gas costs: 17
+         Source: "uint256 c = a + b"
+        VariableDeclaration "c"
+           Type: uint256
+           Source: "uint256 c"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        BinaryOperation using operator +
+           Type: uint256
+           Source: "a + b"
+          Identifier a
+             Type: uint256
+             Source: "a"
+          Identifier b
+             Type: uint256
+             Source: "b"
+      ExpressionStatement
+         Gas costs: 32
+         Source: "assert(c >= a)"
+        FunctionCall
+           Type: tuple()
+           Source: "assert(c >= a)"
+          Identifier assert
+             Type: function (bool) pure
+             Source: "assert"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "c >= a"
+            Identifier c
+               Type: uint256
+               Source: "c"
+            Identifier a
+               Type: uint256
+               Source: "a"
+      Return
+         Gas costs: 8
+         Source: "return c"
+        Identifier c
+           Type: uint256
+           Source: "c"
+ContractDefinition "token"
+   Gas costs: 0
+   Source: "interface token {\r\n    function transfer(address receiver, uint amount) public;\r\n    function burn(uint256 _value) public returns (bool success);\r\n}"
+  FunctionDefinition "transfer" - public
+     Source: "function transfer(address receiver, uint amount) public;"
+    ParameterList
+       Source: "(address receiver, uint amount)"
+      VariableDeclaration "receiver"
+         Type: address
+         Source: "address receiver"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "amount"
+         Type: uint256
+         Source: "uint amount"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Source: ""
+  FunctionDefinition "burn" - public
+     Source: "function burn(uint256 _value) public returns (bool success);"
+    ParameterList
+       Source: "(uint256 _value)"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+ContractDefinition "Ownable"
+   Source: "contract Ownable {\r\n\r\n    address public owner;\r\n\r\n    function Ownable() public {\r\n        owner = msg.sender;\r\n    }\r\n\r\n    modifier onlyOwner() {\r\n        require(msg.sender == owner);\r\n        _;\r\n    }\r\n    \r\n}"
+  VariableDeclaration "owner"
+     Type: address
+     Gas costs: [???]
+     Source: "address public owner"
+    ElementaryTypeName address
+       Source: "address"
+  FunctionDefinition "Ownable" - public
+     Source: "function Ownable() public {\r\n        owner = msg.sender;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        owner = msg.sender;\r\n    }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "owner = msg.sender"
+        Assignment using operator =
+           Type: address
+           Source: "owner = msg.sender"
+          Identifier owner
+             Type: address
+             Source: "owner"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+  ModifierDefinition "onlyOwner"
+     Source: "modifier onlyOwner() {\r\n        require(msg.sender == owner);\r\n        _;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    Block
+       Source: "{\r\n        require(msg.sender == owner);\r\n        _;\r\n    }"
+      ExpressionStatement
+         Gas costs: 564
+         Source: "require(msg.sender == owner)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(msg.sender == owner)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "msg.sender == owner"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Identifier owner
+               Type: address
+               Source: "owner"
+      PlaceholderStatement
+         Gas costs: 0
+         Source: "_"
+ContractDefinition "IQNICO"
+   Source: "contract IQNICO is Ownable {\r\n    \r\n    using SafeMath for uint256;\r\n    \r\n    uint256 public constant EXCHANGE_RATE = 350;\r\n    uint256 public constant START = 1517313600; // Tuesday, 30-Jan-18 12:00:00 UTC in RFC 2822\r\n\r\n\r\n\r\n    uint256 availableTokens;\r\n    address addressToSendEthereum;\r\n    \r\n    uint public amountRaised;\r\n    uint public deadline;\r\n    uint public price;\r\n    token public tokenReward;\r\n    mapping(address => uint256) public balanceOf;\r\n\r\n    /**\r\n     * Constrctor function\r\n     *\r\n     * Setup the owner\r\n     */\r\n    function IQNICO (\r\n        address addressOfTokenUsedAsReward,\r\n        address _addressToSendEthereum\r\n    ) public {\r\n        availableTokens = 700 * 10 ** 18;\r\n        addressToSendEthereum = _addressToSendEthereum;\r\n        deadline = START + 42 days;\r\n        tokenReward = token(addressOfTokenUsedAsReward);\r\n    }\r\n\r\n    /**\r\n     * Fallback function\r\n     *\r\n     * The function without name is the default function that is called whenever anyone sends funds to a contract\r\n     */\r\n    function () public payable {\r\n        require(now < deadline && now >= START);\r\n        uint256 amount = msg.value;\r\n        uint256 tokens = amount * EXCHANGE_RATE;\r\n        uint256 bonus = getBonus(tokens);\r\n        tokens = tokens.add(bonus);\r\n        balanceOf[msg.sender] += tokens;\r\n        amountRaised += tokens;\r\n        availableTokens -= tokens;\r\n        tokenReward.transfer(msg.sender, tokens);\r\n        addressToSendEthereum.transfer(amount);\r\n    }\r\n    \r\n    \r\n    function getBonus(uint256 _tokens) public constant returns (uint256) {\r\n\r\n        require(_tokens > 0);\r\n        \r\n        if (START <= now && now < START + 1 days) {\r\n\r\n            return _tokens.mul(30).div(100); // 30% first day\r\n\r\n        } else if (START <= now && now < START + 1 weeks) {\r\n\r\n            return _tokens.div(4); // 25% first week\r\n\r\n        } else if (START + 1 weeks <= now && now < START + 2 weeks) {\r\n\r\n            return _tokens.div(5); // 20% second week\r\n\r\n        } else if (START + 2 weeks <= now && now < START + 3 weeks) {\r\n\r\n            return _tokens.mul(15).div(100); // 15% third week\r\n\r\n        } else if (START + 3 weeks <= now && now < START + 4 weeks) {\r\n\r\n            return _tokens.div(10); // 10% fourth week\r\n\r\n        } else if (START + 4 weeks <= now && now < START + 5 weeks) {\r\n\r\n            return _tokens.div(20); // 5% fifth week\r\n\r\n        } else {\r\n\r\n            return 0;\r\n\r\n        }\r\n    }\r\n\r\n    modifier afterDeadline() { \r\n        require(now >= deadline);\r\n        _; \r\n    }\r\n    \r\n    function sellForOtherCoins(address _address,uint amount)  public payable onlyOwner\r\n    {\r\n        uint256 tokens = amount;\r\n        uint256 bonus = getBonus(tokens);\r\n        tokens = tokens.add(bonus);\r\n        availableTokens -= tokens;\r\n        tokenReward.transfer(_address, tokens);\r\n    }\r\n    \r\n    function burnAfterIco() public onlyOwner returns (bool success){\r\n        uint256 balance = availableTokens;\r\n        tokenReward.burn(balance);\r\n        availableTokens = 0;\r\n        return true;\r\n    }\r\n\r\n    function tokensAvailable() public constant returns (uint256) {\r\n        return availableTokens;\r\n    }\r\n\r\n}"
+  InheritanceSpecifier
+     Gas costs: 0
+     Source: "Ownable"
+    UserDefinedTypeName "Ownable"
+       Source: "Ownable"
+  UsingForDirective
+     Gas costs: 0
+     Source: "using SafeMath for uint256;"
+    UserDefinedTypeName "SafeMath"
+       Source: "SafeMath"
+    ElementaryTypeName uint256
+       Source: "uint256"
+  VariableDeclaration "EXCHANGE_RATE"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint256 public constant EXCHANGE_RATE = 350"
+    ElementaryTypeName uint256
+       Source: "uint256"
+    Literal, token: [no token] value: 350
+       Type: int_const 350
+       Source: "350"
+  VariableDeclaration "START"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint256 public constant START = 1517313600"
+    ElementaryTypeName uint256
+       Source: "uint256"
+    Literal, token: [no token] value: 1517313600
+       Type: int_const 1517313600
+       Source: "1517313600"
+  VariableDeclaration "availableTokens"
+     Type: uint256
+     Gas costs: 0
+     Source: "uint256 availableTokens"
+    ElementaryTypeName uint256
+       Source: "uint256"
+  VariableDeclaration "addressToSendEthereum"
+     Type: address
+     Gas costs: 0
+     Source: "address addressToSendEthereum"
+    ElementaryTypeName address
+       Source: "address"
+  VariableDeclaration "amountRaised"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint public amountRaised"
+    ElementaryTypeName uint
+       Source: "uint"
+  VariableDeclaration "deadline"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint public deadline"
+    ElementaryTypeName uint
+       Source: "uint"
+  VariableDeclaration "price"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint public price"
+    ElementaryTypeName uint
+       Source: "uint"
+  VariableDeclaration "tokenReward"
+     Type: contract token
+     Gas costs: [???]
+     Source: "token public tokenReward"
+    UserDefinedTypeName "token"
+       Source: "token"
+  VariableDeclaration "balanceOf"
+     Type: mapping(address => uint256)
+     Gas costs: [???]
+     Source: "mapping(address => uint256) public balanceOf"
+    Mapping
+       Source: "mapping(address => uint256)"
+      ElementaryTypeName address
+         Source: "address"
+      ElementaryTypeName uint256
+         Source: "uint256"
+  FunctionDefinition "IQNICO" - public
+     Source: "function IQNICO (\r\n        address addressOfTokenUsedAsReward,\r\n        address _addressToSendEthereum\r\n    ) public {\r\n        availableTokens = 700 * 10 ** 18;\r\n        addressToSendEthereum = _addressToSendEthereum;\r\n        deadline = START + 42 days;\r\n        tokenReward = token(addressOfTokenUsedAsReward);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(\r\n        address addressOfTokenUsedAsReward,\r\n        address _addressToSendEthereum\r\n    )"
+      VariableDeclaration "addressOfTokenUsedAsReward"
+         Type: address
+         Source: "address addressOfTokenUsedAsReward"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_addressToSendEthereum"
+         Type: address
+         Source: "address _addressToSendEthereum"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        availableTokens = 700 * 10 ** 18;\r\n        addressToSendEthereum = _addressToSendEthereum;\r\n        deadline = START + 42 days;\r\n        tokenReward = token(addressOfTokenUsedAsReward);\r\n    }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "availableTokens = 700 * 10 ** 18"
+        Assignment using operator =
+           Type: uint256
+           Source: "availableTokens = 700 * 10 ** 18"
+          Identifier availableTokens
+             Type: uint256
+             Source: "availableTokens"
+          BinaryOperation using operator *
+             Type: int_const 700000000000000000000
+             Source: "700 * 10 ** 18"
+            Literal, token: [no token] value: 700
+               Type: int_const 700
+               Source: "700"
+            BinaryOperation using operator **
+               Type: int_const 1000000000000000000
+               Source: "10 ** 18"
+              Literal, token: [no token] value: 10
+                 Type: int_const 10
+                 Source: "10"
+              Literal, token: [no token] value: 18
+                 Type: int_const 18
+                 Source: "18"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "addressToSendEthereum = _addressToSendEthereum"
+        Assignment using operator =
+           Type: address
+           Source: "addressToSendEthereum = _addressToSendEthereum"
+          Identifier addressToSendEthereum
+             Type: address
+             Source: "addressToSendEthereum"
+          Identifier _addressToSendEthereum
+             Type: address
+             Source: "_addressToSendEthereum"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "deadline = START + 42 days"
+        Assignment using operator =
+           Type: uint256
+           Source: "deadline = START + 42 days"
+          Identifier deadline
+             Type: uint256
+             Source: "deadline"
+          BinaryOperation using operator +
+             Type: uint256
+             Source: "START + 42 days"
+            Identifier START
+               Type: uint256
+               Source: "START"
+            Literal, token: [no token] value: 42
+               Type: int_const 3628800
+               Source: "42 days"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "tokenReward = token(addressOfTokenUsedAsReward)"
+        Assignment using operator =
+           Type: contract token
+           Source: "tokenReward = token(addressOfTokenUsedAsReward)"
+          Identifier tokenReward
+             Type: contract token
+             Source: "tokenReward"
+          FunctionCall
+             Type: contract token
+             Source: "token(addressOfTokenUsedAsReward)"
+            Identifier token
+               Type: type(contract token)
+               Source: "token"
+            Identifier addressOfTokenUsedAsReward
+               Type: address
+               Source: "addressOfTokenUsedAsReward"
+  FunctionDefinition "" - public
+     Source: "function () public payable {\r\n        require(now < deadline && now >= START);\r\n        uint256 amount = msg.value;\r\n        uint256 tokens = amount * EXCHANGE_RATE;\r\n        uint256 bonus = getBonus(tokens);\r\n        tokens = tokens.add(bonus);\r\n        balanceOf[msg.sender] += tokens;\r\n        amountRaised += tokens;\r\n        availableTokens -= tokens;\r\n        tokenReward.transfer(msg.sender, tokens);\r\n        addressToSendEthereum.transfer(amount);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        require(now < deadline && now >= START);\r\n        uint256 amount = msg.value;\r\n        uint256 tokens = amount * EXCHANGE_RATE;\r\n        uint256 bonus = getBonus(tokens);\r\n        tokens = tokens.add(bonus);\r\n        balanceOf[msg.sender] += tokens;\r\n        amountRaised += tokens;\r\n        availableTokens -= tokens;\r\n        tokenReward.transfer(msg.sender, tokens);\r\n        addressToSendEthereum.transfer(amount);\r\n    }"
+      ExpressionStatement
+         Gas costs: 264
+         Source: "require(now < deadline && now >= START)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(now < deadline && now >= START)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator &&
+             Type: bool
+             Source: "now < deadline && now >= START"
+            BinaryOperation using operator <
+               Type: bool
+               Source: "now < deadline"
+              Identifier now
+                 Type: uint256
+                 Source: "now"
+              Identifier deadline
+                 Type: uint256
+                 Source: "deadline"
+            BinaryOperation using operator >=
+               Type: bool
+               Source: "now >= START"
+              Identifier now
+                 Type: uint256
+                 Source: "now"
+              Identifier START
+                 Type: uint256
+                 Source: "START"
+      VariableDeclarationStatement
+         Gas costs: 10
+         Source: "uint256 amount = msg.value"
+        VariableDeclaration "amount"
+           Type: uint256
+           Source: "uint256 amount"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        MemberAccess to member value
+           Type: uint256
+           Source: "msg.value"
+          Identifier msg
+             Type: msg
+             Source: "msg"
+      VariableDeclarationStatement
+         Gas costs: 16
+         Source: "uint256 tokens = amount * EXCHANGE_RATE"
+        VariableDeclaration "tokens"
+           Type: uint256
+           Source: "uint256 tokens"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        BinaryOperation using operator *
+           Type: uint256
+           Source: "amount * EXCHANGE_RATE"
+          Identifier amount
+             Type: uint256
+             Source: "amount"
+          Identifier EXCHANGE_RATE
+             Type: uint256
+             Source: "EXCHANGE_RATE"
+      VariableDeclarationStatement
+         Gas costs: 15
+         Source: "uint256 bonus = getBonus(tokens)"
+        VariableDeclaration "bonus"
+           Type: uint256
+           Source: "uint256 bonus"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        FunctionCall
+           Type: uint256
+           Source: "getBonus(tokens)"
+          Identifier getBonus
+             Type: function (uint256) view returns (uint256)
+             Source: "getBonus"
+          Identifier tokens
+             Type: uint256
+             Source: "tokens"
+      ExpressionStatement
+         Gas costs: 41
+         Source: "tokens = tokens.add(bonus)"
+        Assignment using operator =
+           Type: uint256
+           Source: "tokens = tokens.add(bonus)"
+          Identifier tokens
+             Type: uint256
+             Source: "tokens"
+          FunctionCall
+             Type: uint256
+             Source: "tokens.add(bonus)"
+            MemberAccess to member add
+               Type: function (uint256,uint256) pure returns (uint256)
+               Source: "tokens.add"
+              Identifier tokens
+                 Type: uint256
+                 Source: "tokens"
+            Identifier bonus
+               Type: uint256
+               Source: "bonus"
+      ExpressionStatement
+         Gas costs: 20328
+         Source: "balanceOf[msg.sender] += tokens"
+        Assignment using operator +=
+           Type: uint256
+           Source: "balanceOf[msg.sender] += tokens"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[msg.sender]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Identifier tokens
+             Type: uint256
+             Source: "tokens"
+      ExpressionStatement
+         Gas costs: 20233
+         Source: "amountRaised += tokens"
+        Assignment using operator +=
+           Type: uint256
+           Source: "amountRaised += tokens"
+          Identifier amountRaised
+             Type: uint256
+             Source: "amountRaised"
+          Identifier tokens
+             Type: uint256
+             Source: "tokens"
+      ExpressionStatement
+         Gas costs: 20233
+         Source: "availableTokens -= tokens"
+        Assignment using operator -=
+           Type: uint256
+           Source: "availableTokens -= tokens"
+          Identifier availableTokens
+             Type: uint256
+             Source: "availableTokens"
+          Identifier tokens
+             Type: uint256
+             Source: "tokens"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "tokenReward.transfer(msg.sender, tokens)"
+        FunctionCall
+           Type: tuple()
+           Source: "tokenReward.transfer(msg.sender, tokens)"
+          MemberAccess to member transfer
+             Type: function (address,uint256) external
+             Source: "tokenReward.transfer"
+            Identifier tokenReward
+               Type: contract token
+               Source: "tokenReward"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier tokens
+             Type: uint256
+             Source: "tokens"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "addressToSendEthereum.transfer(amount)"
+        FunctionCall
+           Type: tuple()
+           Source: "addressToSendEthereum.transfer(amount)"
+          MemberAccess to member transfer
+             Type: function (uint256)
+             Source: "addressToSendEthereum.transfer"
+            Identifier addressToSendEthereum
+               Type: address
+               Source: "addressToSendEthereum"
+          Identifier amount
+             Type: uint256
+             Source: "amount"
+  FunctionDefinition "getBonus" - public - const
+     Source: "function getBonus(uint256 _tokens) public constant returns (uint256) {\r\n\r\n        require(_tokens > 0);\r\n        \r\n        if (START <= now && now < START + 1 days) {\r\n\r\n            return _tokens.mul(30).div(100); // 30% first day\r\n\r\n        } else if (START <= now && now < START + 1 weeks) {\r\n\r\n            return _tokens.div(4); // 25% first week\r\n\r\n        } else if (START + 1 weeks <= now && now < START + 2 weeks) {\r\n\r\n            return _tokens.div(5); // 20% second week\r\n\r\n        } else if (START + 2 weeks <= now && now < START + 3 weeks) {\r\n\r\n            return _tokens.mul(15).div(100); // 15% third week\r\n\r\n        } else if (START + 3 weeks <= now && now < START + 4 weeks) {\r\n\r\n            return _tokens.div(10); // 10% fourth week\r\n\r\n        } else if (START + 4 weeks <= now && now < START + 5 weeks) {\r\n\r\n            return _tokens.div(20); // 5% fifth week\r\n\r\n        } else {\r\n\r\n            return 0;\r\n\r\n        }\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 _tokens)"
+      VariableDeclaration "_tokens"
+         Type: uint256
+         Source: "uint256 _tokens"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint256)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint256"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{\r\n\r\n        require(_tokens > 0);\r\n        \r\n        if (START <= now && now < START + 1 days) {\r\n\r\n            return _tokens.mul(30).div(100); // 30% first day\r\n\r\n        } else if (START <= now && now < START + 1 weeks) {\r\n\r\n            return _tokens.div(4); // 25% first week\r\n\r\n        } else if (START + 1 weeks <= now && now < START + 2 weeks) {\r\n\r\n            return _tokens.div(5); // 20% second week\r\n\r\n        } else if (START + 2 weeks <= now && now < START + 3 weeks) {\r\n\r\n            return _tokens.mul(15).div(100); // 15% third week\r\n\r\n        } else if (START + 3 weeks <= now && now < START + 4 weeks) {\r\n\r\n            return _tokens.div(10); // 10% fourth week\r\n\r\n        } else if (START + 4 weeks <= now && now < START + 5 weeks) {\r\n\r\n            return _tokens.div(20); // 5% fifth week\r\n\r\n        } else {\r\n\r\n            return 0;\r\n\r\n        }\r\n    }"
+      ExpressionStatement
+         Gas costs: 35
+         Source: "require(_tokens > 0)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(_tokens > 0)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >
+             Type: bool
+             Source: "_tokens > 0"
+            Identifier _tokens
+               Type: uint256
+               Source: "_tokens"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+      IfStatement
+         Source: "if (START <= now && now < START + 1 days) {\r\n\r\n            return _tokens.mul(30).div(100); // 30% first day\r\n\r\n        } else if (START <= now && now < START + 1 weeks) {\r\n\r\n            return _tokens.div(4); // 25% first week\r\n\r\n        } else if (START + 1 weeks <= now && now < START + 2 weeks) {\r\n\r\n            return _tokens.div(5); // 20% second week\r\n\r\n        } else if (START + 2 weeks <= now && now < START + 3 weeks) {\r\n\r\n            return _tokens.mul(15).div(100); // 15% third week\r\n\r\n        } else if (START + 3 weeks <= now && now < START + 4 weeks) {\r\n\r\n            return _tokens.div(10); // 10% fourth week\r\n\r\n        } else if (START + 4 weeks <= now && now < START + 5 weeks) {\r\n\r\n            return _tokens.div(20); // 5% fifth week\r\n\r\n        } else {\r\n\r\n            return 0;\r\n\r\n        }"
+        BinaryOperation using operator &&
+           Type: bool
+           Gas costs: 41
+           Source: "START <= now && now < START + 1 days"
+          BinaryOperation using operator <=
+             Type: bool
+             Source: "START <= now"
+            Identifier START
+               Type: uint256
+               Source: "START"
+            Identifier now
+               Type: uint256
+               Source: "now"
+          BinaryOperation using operator <
+             Type: bool
+             Source: "now < START + 1 days"
+            Identifier now
+               Type: uint256
+               Source: "now"
+            BinaryOperation using operator +
+               Type: uint256
+               Source: "START + 1 days"
+              Identifier START
+                 Type: uint256
+                 Source: "START"
+              Literal, token: [no token] value: 1
+                 Type: int_const 86400
+                 Source: "1 days"
+        Block
+           Source: "{\r\n\r\n            return _tokens.mul(30).div(100); // 30% first day\r\n\r\n        }"
+          Return
+             Gas costs: 85
+             Source: "return _tokens.mul(30).div(100)"
+            FunctionCall
+               Type: uint256
+               Source: "_tokens.mul(30).div(100)"
+              MemberAccess to member div
+                 Type: function (uint256,uint256) pure returns (uint256)
+                 Source: "_tokens.mul(30).div"
+                FunctionCall
+                   Type: uint256
+                   Source: "_tokens.mul(30)"
+                  MemberAccess to member mul
+                     Type: function (uint256,uint256) pure returns (uint256)
+                     Source: "_tokens.mul"
+                    Identifier _tokens
+                       Type: uint256
+                       Source: "_tokens"
+                  Literal, token: [no token] value: 30
+                     Type: int_const 30
+                     Source: "30"
+              Literal, token: [no token] value: 100
+                 Type: int_const 100
+                 Source: "100"
+        IfStatement
+           Source: "if (START <= now && now < START + 1 weeks) {\r\n\r\n            return _tokens.div(4); // 25% first week\r\n\r\n        } else if (START + 1 weeks <= now && now < START + 2 weeks) {\r\n\r\n            return _tokens.div(5); // 20% second week\r\n\r\n        } else if (START + 2 weeks <= now && now < START + 3 weeks) {\r\n\r\n            return _tokens.mul(15).div(100); // 15% third week\r\n\r\n        } else if (START + 3 weeks <= now && now < START + 4 weeks) {\r\n\r\n            return _tokens.div(10); // 10% fourth week\r\n\r\n        } else if (START + 4 weeks <= now && now < START + 5 weeks) {\r\n\r\n            return _tokens.div(20); // 5% fifth week\r\n\r\n        } else {\r\n\r\n            return 0;\r\n\r\n        }"
+          BinaryOperation using operator &&
+             Type: bool
+             Gas costs: 41
+             Source: "START <= now && now < START + 1 weeks"
+            BinaryOperation using operator <=
+               Type: bool
+               Source: "START <= now"
+              Identifier START
+                 Type: uint256
+                 Source: "START"
+              Identifier now
+                 Type: uint256
+                 Source: "now"
+            BinaryOperation using operator <
+               Type: bool
+               Source: "now < START + 1 weeks"
+              Identifier now
+                 Type: uint256
+                 Source: "now"
+              BinaryOperation using operator +
+                 Type: uint256
+                 Source: "START + 1 weeks"
+                Identifier START
+                   Type: uint256
+                   Source: "START"
+                Literal, token: [no token] value: 1
+                   Type: int_const 604800
+                   Source: "1 weeks"
+          Block
+             Source: "{\r\n\r\n            return _tokens.div(4); // 25% first week\r\n\r\n        }"
+            Return
+               Gas costs: 52
+               Source: "return _tokens.div(4)"
+              FunctionCall
+                 Type: uint256
+                 Source: "_tokens.div(4)"
+                MemberAccess to member div
+                   Type: function (uint256,uint256) pure returns (uint256)
+                   Source: "_tokens.div"
+                  Identifier _tokens
+                     Type: uint256
+                     Source: "_tokens"
+                Literal, token: [no token] value: 4
+                   Type: int_const 4
+                   Source: "4"
+          IfStatement
+             Source: "if (START + 1 weeks <= now && now < START + 2 weeks) {\r\n\r\n            return _tokens.div(5); // 20% second week\r\n\r\n        } else if (START + 2 weeks <= now && now < START + 3 weeks) {\r\n\r\n            return _tokens.mul(15).div(100); // 15% third week\r\n\r\n        } else if (START + 3 weeks <= now && now < START + 4 weeks) {\r\n\r\n            return _tokens.div(10); // 10% fourth week\r\n\r\n        } else if (START + 4 weeks <= now && now < START + 5 weeks) {\r\n\r\n            return _tokens.div(20); // 5% fifth week\r\n\r\n        } else {\r\n\r\n            return 0;\r\n\r\n        }"
+            BinaryOperation using operator &&
+               Type: bool
+               Gas costs: 47
+               Source: "START + 1 weeks <= now && now < START + 2 weeks"
+              BinaryOperation using operator <=
+                 Type: bool
+                 Source: "START + 1 weeks <= now"
+                BinaryOperation using operator +
+                   Type: uint256
+                   Source: "START + 1 weeks"
+                  Identifier START
+                     Type: uint256
+                     Source: "START"
+                  Literal, token: [no token] value: 1
+                     Type: int_const 604800
+                     Source: "1 weeks"
+                Identifier now
+                   Type: uint256
+                   Source: "now"
+              BinaryOperation using operator <
+                 Type: bool
+                 Source: "now < START + 2 weeks"
+                Identifier now
+                   Type: uint256
+                   Source: "now"
+                BinaryOperation using operator +
+                   Type: uint256
+                   Source: "START + 2 weeks"
+                  Identifier START
+                     Type: uint256
+                     Source: "START"
+                  Literal, token: [no token] value: 2
+                     Type: int_const 1209600
+                     Source: "2 weeks"
+            Block
+               Source: "{\r\n\r\n            return _tokens.div(5); // 20% second week\r\n\r\n        }"
+              Return
+                 Gas costs: 52
+                 Source: "return _tokens.div(5)"
+                FunctionCall
+                   Type: uint256
+                   Source: "_tokens.div(5)"
+                  MemberAccess to member div
+                     Type: function (uint256,uint256) pure returns (uint256)
+                     Source: "_tokens.div"
+                    Identifier _tokens
+                       Type: uint256
+                       Source: "_tokens"
+                  Literal, token: [no token] value: 5
+                     Type: int_const 5
+                     Source: "5"
+            IfStatement
+               Source: "if (START + 2 weeks <= now && now < START + 3 weeks) {\r\n\r\n            return _tokens.mul(15).div(100); // 15% third week\r\n\r\n        } else if (START + 3 weeks <= now && now < START + 4 weeks) {\r\n\r\n            return _tokens.div(10); // 10% fourth week\r\n\r\n        } else if (START + 4 weeks <= now && now < START + 5 weeks) {\r\n\r\n            return _tokens.div(20); // 5% fifth week\r\n\r\n        } else {\r\n\r\n            return 0;\r\n\r\n        }"
+              BinaryOperation using operator &&
+                 Type: bool
+                 Gas costs: 47
+                 Source: "START + 2 weeks <= now && now < START + 3 weeks"
+                BinaryOperation using operator <=
+                   Type: bool
+                   Source: "START + 2 weeks <= now"
+                  BinaryOperation using operator +
+                     Type: uint256
+                     Source: "START + 2 weeks"
+                    Identifier START
+                       Type: uint256
+                       Source: "START"
+                    Literal, token: [no token] value: 2
+                       Type: int_const 1209600
+                       Source: "2 weeks"
+                  Identifier now
+                     Type: uint256
+                     Source: "now"
+                BinaryOperation using operator <
+                   Type: bool
+                   Source: "now < START + 3 weeks"
+                  Identifier now
+                     Type: uint256
+                     Source: "now"
+                  BinaryOperation using operator +
+                     Type: uint256
+                     Source: "START + 3 weeks"
+                    Identifier START
+                       Type: uint256
+                       Source: "START"
+                    Literal, token: [no token] value: 3
+                       Type: int_const 1814400
+                       Source: "3 weeks"
+              Block
+                 Source: "{\r\n\r\n            return _tokens.mul(15).div(100); // 15% third week\r\n\r\n        }"
+                Return
+                   Gas costs: 85
+                   Source: "return _tokens.mul(15).div(100)"
+                  FunctionCall
+                     Type: uint256
+                     Source: "_tokens.mul(15).div(100)"
+                    MemberAccess to member div
+                       Type: function (uint256,uint256) pure returns (uint256)
+                       Source: "_tokens.mul(15).div"
+                      FunctionCall
+                         Type: uint256
+                         Source: "_tokens.mul(15)"
+                        MemberAccess to member mul
+                           Type: function (uint256,uint256) pure returns (uint256)
+                           Source: "_tokens.mul"
+                          Identifier _tokens
+                             Type: uint256
+                             Source: "_tokens"
+                        Literal, token: [no token] value: 15
+                           Type: int_const 15
+                           Source: "15"
+                    Literal, token: [no token] value: 100
+                       Type: int_const 100
+                       Source: "100"
+              IfStatement
+                 Source: "if (START + 3 weeks <= now && now < START + 4 weeks) {\r\n\r\n            return _tokens.div(10); // 10% fourth week\r\n\r\n        } else if (START + 4 weeks <= now && now < START + 5 weeks) {\r\n\r\n            return _tokens.div(20); // 5% fifth week\r\n\r\n        } else {\r\n\r\n            return 0;\r\n\r\n        }"
+                BinaryOperation using operator &&
+                   Type: bool
+                   Gas costs: 47
+                   Source: "START + 3 weeks <= now && now < START + 4 weeks"
+                  BinaryOperation using operator <=
+                     Type: bool
+                     Source: "START + 3 weeks <= now"
+                    BinaryOperation using operator +
+                       Type: uint256
+                       Source: "START + 3 weeks"
+                      Identifier START
+                         Type: uint256
+                         Source: "START"
+                      Literal, token: [no token] value: 3
+                         Type: int_const 1814400
+                         Source: "3 weeks"
+                    Identifier now
+                       Type: uint256
+                       Source: "now"
+                  BinaryOperation using operator <
+                     Type: bool
+                     Source: "now < START + 4 weeks"
+                    Identifier now
+                       Type: uint256
+                       Source: "now"
+                    BinaryOperation using operator +
+                       Type: uint256
+                       Source: "START + 4 weeks"
+                      Identifier START
+                         Type: uint256
+                         Source: "START"
+                      Literal, token: [no token] value: 4
+                         Type: int_const 2419200
+                         Source: "4 weeks"
+                Block
+                   Source: "{\r\n\r\n            return _tokens.div(10); // 10% fourth week\r\n\r\n        }"
+                  Return
+                     Gas costs: 52
+                     Source: "return _tokens.div(10)"
+                    FunctionCall
+                       Type: uint256
+                       Source: "_tokens.div(10)"
+                      MemberAccess to member div
+                         Type: function (uint256,uint256) pure returns (uint256)
+                         Source: "_tokens.div"
+                        Identifier _tokens
+                           Type: uint256
+                           Source: "_tokens"
+                      Literal, token: [no token] value: 10
+                         Type: int_const 10
+                         Source: "10"
+                IfStatement
+                   Source: "if (START + 4 weeks <= now && now < START + 5 weeks) {\r\n\r\n            return _tokens.div(20); // 5% fifth week\r\n\r\n        } else {\r\n\r\n            return 0;\r\n\r\n        }"
+                  BinaryOperation using operator &&
+                     Type: bool
+                     Gas costs: 47
+                     Source: "START + 4 weeks <= now && now < START + 5 weeks"
+                    BinaryOperation using operator <=
+                       Type: bool
+                       Source: "START + 4 weeks <= now"
+                      BinaryOperation using operator +
+                         Type: uint256
+                         Source: "START + 4 weeks"
+                        Identifier START
+                           Type: uint256
+                           Source: "START"
+                        Literal, token: [no token] value: 4
+                           Type: int_const 2419200
+                           Source: "4 weeks"
+                      Identifier now
+                         Type: uint256
+                         Source: "now"
+                    BinaryOperation using operator <
+                       Type: bool
+                       Source: "now < START + 5 weeks"
+                      Identifier now
+                         Type: uint256
+                         Source: "now"
+                      BinaryOperation using operator +
+                         Type: uint256
+                         Source: "START + 5 weeks"
+                        Identifier START
+                           Type: uint256
+                           Source: "START"
+                        Literal, token: [no token] value: 5
+                           Type: int_const 3024000
+                           Source: "5 weeks"
+                  Block
+                     Source: "{\r\n\r\n            return _tokens.div(20); // 5% fifth week\r\n\r\n        }"
+                    Return
+                       Gas costs: 52
+                       Source: "return _tokens.div(20)"
+                      FunctionCall
+                         Type: uint256
+                         Source: "_tokens.div(20)"
+                        MemberAccess to member div
+                           Type: function (uint256,uint256) pure returns (uint256)
+                           Source: "_tokens.div"
+                          Identifier _tokens
+                             Type: uint256
+                             Source: "_tokens"
+                        Literal, token: [no token] value: 20
+                           Type: int_const 20
+                           Source: "20"
+                  Block
+                     Source: "{\r\n\r\n            return 0;\r\n\r\n        }"
+                    Return
+                       Gas costs: 8
+                       Source: "return 0"
+                      Literal, token: [no token] value: 0
+                         Type: int_const 0
+                         Source: "0"
+  ModifierDefinition "afterDeadline"
+     Source: "modifier afterDeadline() { \r\n        require(now >= deadline);\r\n        _; \r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    Block
+       Source: "{ \r\n        require(now >= deadline);\r\n        _; \r\n    }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "require(now >= deadline)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(now >= deadline)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "now >= deadline"
+            Identifier now
+               Type: uint256
+               Source: "now"
+            Identifier deadline
+               Type: uint256
+               Source: "deadline"
+      PlaceholderStatement
+         Gas costs: 0
+         Source: "_"
+  FunctionDefinition "sellForOtherCoins" - public
+     Source: "function sellForOtherCoins(address _address,uint amount)  public payable onlyOwner\r\n    {\r\n        uint256 tokens = amount;\r\n        uint256 bonus = getBonus(tokens);\r\n        tokens = tokens.add(bonus);\r\n        availableTokens -= tokens;\r\n        tokenReward.transfer(_address, tokens);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _address,uint amount)"
+      VariableDeclaration "_address"
+         Type: address
+         Source: "address _address"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "amount"
+         Type: uint256
+         Source: "uint amount"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n        uint256 tokens = amount;\r\n        uint256 bonus = getBonus(tokens);\r\n        tokens = tokens.add(bonus);\r\n        availableTokens -= tokens;\r\n        tokenReward.transfer(_address, tokens);\r\n    }"
+      VariableDeclarationStatement
+         Gas costs: 11
+         Source: "uint256 tokens = amount"
+        VariableDeclaration "tokens"
+           Type: uint256
+           Source: "uint256 tokens"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        Identifier amount
+           Type: uint256
+           Source: "amount"
+      VariableDeclarationStatement
+         Gas costs: 26
+         Source: "uint256 bonus = getBonus(tokens)"
+        VariableDeclaration "bonus"
+           Type: uint256
+           Source: "uint256 bonus"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        FunctionCall
+           Type: uint256
+           Source: "getBonus(tokens)"
+          Identifier getBonus
+             Type: function (uint256) view returns (uint256)
+             Source: "getBonus"
+          Identifier tokens
+             Type: uint256
+             Source: "tokens"
+      ExpressionStatement
+         Gas costs: 41
+         Source: "tokens = tokens.add(bonus)"
+        Assignment using operator =
+           Type: uint256
+           Source: "tokens = tokens.add(bonus)"
+          Identifier tokens
+             Type: uint256
+             Source: "tokens"
+          FunctionCall
+             Type: uint256
+             Source: "tokens.add(bonus)"
+            MemberAccess to member add
+               Type: function (uint256,uint256) pure returns (uint256)
+               Source: "tokens.add"
+              Identifier tokens
+                 Type: uint256
+                 Source: "tokens"
+            Identifier bonus
+               Type: uint256
+               Source: "bonus"
+      ExpressionStatement
+         Gas costs: 20233
+         Source: "availableTokens -= tokens"
+        Assignment using operator -=
+           Type: uint256
+           Source: "availableTokens -= tokens"
+          Identifier availableTokens
+             Type: uint256
+             Source: "availableTokens"
+          Identifier tokens
+             Type: uint256
+             Source: "tokens"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "tokenReward.transfer(_address, tokens)"
+        FunctionCall
+           Type: tuple()
+           Source: "tokenReward.transfer(_address, tokens)"
+          MemberAccess to member transfer
+             Type: function (address,uint256) external
+             Source: "tokenReward.transfer"
+            Identifier tokenReward
+               Type: contract token
+               Source: "tokenReward"
+          Identifier _address
+             Type: address
+             Source: "_address"
+          Identifier tokens
+             Type: uint256
+             Source: "tokens"
+  FunctionDefinition "burnAfterIco" - public
+     Source: "function burnAfterIco() public onlyOwner returns (bool success){\r\n        uint256 balance = availableTokens;\r\n        tokenReward.burn(balance);\r\n        availableTokens = 0;\r\n        return true;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n        uint256 balance = availableTokens;\r\n        tokenReward.burn(balance);\r\n        availableTokens = 0;\r\n        return true;\r\n    }"
+      VariableDeclarationStatement
+         Gas costs: 211
+         Source: "uint256 balance = availableTokens"
+        VariableDeclaration "balance"
+           Type: uint256
+           Source: "uint256 balance"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        Identifier availableTokens
+           Type: uint256
+           Source: "availableTokens"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "tokenReward.burn(balance)"
+        FunctionCall
+           Type: bool
+           Source: "tokenReward.burn(balance)"
+          MemberAccess to member burn
+             Type: function (uint256) external returns (bool)
+             Source: "tokenReward.burn"
+            Identifier tokenReward
+               Type: contract token
+               Source: "tokenReward"
+          Identifier balance
+             Type: uint256
+             Source: "balance"
+      ExpressionStatement
+         Gas costs: 5014
+         Source: "availableTokens = 0"
+        Assignment using operator =
+           Type: uint256
+           Source: "availableTokens = 0"
+          Identifier availableTokens
+             Type: uint256
+             Source: "availableTokens"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+      Return
+         Gas costs: 8
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+  FunctionDefinition "tokensAvailable" - public - const
+     Source: "function tokensAvailable() public constant returns (uint256) {\r\n        return availableTokens;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint256)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint256"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{\r\n        return availableTokens;\r\n    }"
+      Return
+         Gas costs: 208
+         Source: "return availableTokens"
+        Identifier availableTokens
+           Type: uint256
+           Source: "availableTokens"

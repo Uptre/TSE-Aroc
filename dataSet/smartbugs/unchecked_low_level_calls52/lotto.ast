@@ -1,0 +1,125 @@
+Syntax trees:
+
+
+======= lotto.sol =======
+PragmaDirective
+   Gas costs: 0
+   Source: "pragma solidity ^0.4.18;"
+ContractDefinition "Lotto"
+   Source: "contract Lotto {\n\n     bool public payedOut = false;\n     address public winner;\n     uint public winAmount;\n\n     // ... extra functionality here\n\n     function sendToWinner() public {\n         require(!payedOut);\n         // <yes> <report> UNCHECKED_LL_CALLS\n         winner.send(winAmount);\n         payedOut = true;\n     }\n\n     function withdrawLeftOver() public {\n         require(payedOut);\n         // <yes> <report> UNCHECKED_LL_CALLS\n         msg.sender.send(this.balance);\n     }\n }"
+  VariableDeclaration "payedOut"
+     Type: bool
+     Gas costs: 335
+     Source: "bool public payedOut = false"
+    ElementaryTypeName bool
+       Source: "bool"
+    Literal, token: false value: false
+       Type: bool
+       Source: "false"
+  VariableDeclaration "winner"
+     Type: address
+     Gas costs: 385
+     Source: "address public winner"
+    ElementaryTypeName address
+       Source: "address"
+  VariableDeclaration "winAmount"
+     Type: uint256
+     Gas costs: 287
+     Source: "uint public winAmount"
+    ElementaryTypeName uint
+       Source: "uint"
+  FunctionDefinition "sendToWinner" - public
+     Source: "function sendToWinner() public {\n         require(!payedOut);\n         // <yes> <report> UNCHECKED_LL_CALLS\n         winner.send(winAmount);\n         payedOut = true;\n     }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\n         require(!payedOut);\n         // <yes> <report> UNCHECKED_LL_CALLS\n         winner.send(winAmount);\n         payedOut = true;\n     }"
+      ExpressionStatement
+         Gas costs: 268
+         Source: "require(!payedOut)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(!payedOut)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          UnaryOperation (prefix) !
+             Type: bool
+             Source: "!payedOut"
+            Identifier payedOut
+               Type: bool
+               Source: "payedOut"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "winner.send(winAmount)"
+        FunctionCall
+           Type: bool
+           Source: "winner.send(winAmount)"
+          MemberAccess to member send
+             Type: function (uint256) returns (bool)
+             Source: "winner.send"
+            Identifier winner
+               Type: address
+               Source: "winner"
+          Identifier winAmount
+             Type: uint256
+             Source: "winAmount"
+      ExpressionStatement
+         Gas costs: 20267
+         Source: "payedOut = true"
+        Assignment using operator =
+           Type: bool
+           Source: "payedOut = true"
+          Identifier payedOut
+             Type: bool
+             Source: "payedOut"
+          Literal, token: true value: true
+             Type: bool
+             Source: "true"
+  FunctionDefinition "withdrawLeftOver" - public
+     Source: "function withdrawLeftOver() public {\n         require(payedOut);\n         // <yes> <report> UNCHECKED_LL_CALLS\n         msg.sender.send(this.balance);\n     }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\n         require(payedOut);\n         // <yes> <report> UNCHECKED_LL_CALLS\n         msg.sender.send(this.balance);\n     }"
+      ExpressionStatement
+         Gas costs: 265
+         Source: "require(payedOut)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(payedOut)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          Identifier payedOut
+             Type: bool
+             Source: "payedOut"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "msg.sender.send(this.balance)"
+        FunctionCall
+           Type: bool
+           Source: "msg.sender.send(this.balance)"
+          MemberAccess to member send
+             Type: function (uint256) returns (bool)
+             Source: "msg.sender.send"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          MemberAccess to member balance
+             Type: uint256
+             Source: "this.balance"
+            Identifier this
+               Type: contract Lotto
+               Source: "this"

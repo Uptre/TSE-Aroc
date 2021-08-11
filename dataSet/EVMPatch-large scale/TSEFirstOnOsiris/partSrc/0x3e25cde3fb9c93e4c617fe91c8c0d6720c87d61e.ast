@@ -1,0 +1,229 @@
+Syntax trees:
+
+
+======= /home/fabric/ArocRevision/Aroc/osirisData/contractSrc/0x3e25cde3fb9c93e4c617fe91c8c0d6720c87d61e.sol =======
+PragmaDirective
+   Gas costs: 0
+   Source: "pragma solidity ^0.4.11;"
+ContractDefinition "BasicMathLib"
+   Source: "library BasicMathLib {\r\n  event Err(string typeErr);\r\n\r\n  /// @dev Multiplies two numbers and checks for overflow before returning.\r\n  /// Does not throw but rather logs an Err event if there is overflow.\r\n  /// @param a First number\r\n  /// @param b Second number\r\n  /// @return err False normally, or true if there is overflow\r\n  /// @return res The product of a and b, or 0 if there is overflow\r\n  function times(uint256 a, uint256 b) constant returns (bool err,uint256 res) {\r\n    assembly{\r\n      res := mul(a,b)\r\n      jumpi(allGood, or(iszero(b), eq(div(res,b), a)))\r\n      err := 1\r\n      res := 0\r\n      allGood:\r\n    }\r\n    if (err)\r\n      Err(\"times func overflow\");\r\n  }\r\n\r\n  /// @dev Divides two numbers but checks for 0 in the divisor first.\r\n  /// Does not throw but rather logs an Err event if 0 is in the divisor.\r\n  /// @param a First number\r\n  /// @param b Second number\r\n  /// @return err False normally, or true if `b` is 0\r\n  /// @return res The quotient of a and b, or 0 if `b` is 0\r\n  function dividedBy(uint256 a, uint256 b) constant returns (bool err,uint256 res) {\r\n    assembly{\r\n      jumpi(e, iszero(b))\r\n      res := div(a,b)\r\n      mstore(add(mload(0x40),0x20),res)\r\n      return(mload(0x40),0x40)\r\n      e:\r\n    }\r\n    Err(\"tried to divide by zero\");\r\n    return (true, 0);\r\n  }\r\n\r\n  /// @dev Adds two numbers and checks for overflow before returning.\r\n  /// Does not throw but rather logs an Err event if there is overflow.\r\n  /// @param a First number\r\n  /// @param b Second number\r\n  /// @return err False normally, or true if there is overflow\r\n  /// @return res The sum of a and b, or 0 if there is overflow\r\n  function plus(uint256 a, uint256 b) constant returns (bool err, uint256 res) {\r\n    assembly{\r\n      res := add(a,b)\r\n      jumpi(allGood, and(eq(sub(res,b), a), gt(res,b)))\r\n      err := 1\r\n      res := 0\r\n      allGood:\r\n    }\r\n    if (err)\r\n      Err(\"plus func overflow\");\r\n  }\r\n\r\n  /// @dev Subtracts two numbers and checks for underflow before returning.\r\n  /// Does not throw but rather logs an Err event if there is underflow.\r\n  /// @param a First number\r\n  /// @param b Second number\r\n  /// @return err False normally, or true if there is underflow\r\n  /// @return res The difference between a and b, or 0 if there is underflow\r\n  function minus(uint256 a, uint256 b) constant returns (bool err,uint256 res) {\r\n    assembly{\r\n      res := sub(a,b)\r\n      jumpi(allGood, eq(and(eq(add(res,b), a), or(lt(res,a), eq(res,a))), 1))\r\n      err := 1\r\n      res := 0\r\n      allGood:\r\n    }\r\n    if (err)\r\n      Err(\"minus func underflow\");\r\n  }\r\n}"
+  EventDefinition "Err"
+     Gas costs: 0
+     Source: "event Err(string typeErr);"
+    ParameterList
+       Source: "(string typeErr)"
+      VariableDeclaration "typeErr"
+         Type: string memory
+         Source: "string typeErr"
+        ElementaryTypeName string
+           Source: "string"
+  FunctionDefinition "times" - public - const
+     Source: "function times(uint256 a, uint256 b) constant returns (bool err,uint256 res) {\r\n    assembly{\r\n      res := mul(a,b)\r\n      jumpi(allGood, or(iszero(b), eq(div(res,b), a)))\r\n      err := 1\r\n      res := 0\r\n      allGood:\r\n    }\r\n    if (err)\r\n      Err(\"times func overflow\");\r\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 a, uint256 b)"
+      VariableDeclaration "a"
+         Type: uint256
+         Source: "uint256 a"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "b"
+         Type: uint256
+         Source: "uint256 b"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 6
+       Source: "(bool err,uint256 res)"
+      VariableDeclaration "err"
+         Type: bool
+         Source: "bool err"
+        ElementaryTypeName bool
+           Source: "bool"
+      VariableDeclaration "res"
+         Type: uint256
+         Source: "uint256 res"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{\r\n    assembly{\r\n      res := mul(a,b)\r\n      jumpi(allGood, or(iszero(b), eq(div(res,b), a)))\r\n      err := 1\r\n      res := 0\r\n      allGood:\r\n    }\r\n    if (err)\r\n      Err(\"times func overflow\");\r\n  }"
+      InlineAssembly
+         Gas costs: 0
+         Source: "assembly{\r\n      res := mul(a,b)\r\n      jumpi(allGood, or(iszero(b), eq(div(res,b), a)))\r\n      err := 1\r\n      res := 0\r\n      allGood:\r\n    }\r\n    if"
+      IfStatement
+         Source: "if (err)\r\n      Err(\"times func overflow\")"
+        Identifier err
+           Type: bool
+           Gas costs: 3
+           Source: "err"
+        ExpressionStatement
+           Gas costs: 1635
+           Source: "Err(\"times func overflow\")"
+          FunctionCall
+             Type: tuple()
+             Source: "Err(\"times func overflow\")"
+            Identifier Err
+               Type: function (string memory)
+               Source: "Err"
+            Literal, token: [no token] value: times func overflow
+               Type: literal_string "times func overflow"
+               Source: "\"times func overflow\""
+  FunctionDefinition "dividedBy" - public - const
+     Source: "function dividedBy(uint256 a, uint256 b) constant returns (bool err,uint256 res) {\r\n    assembly{\r\n      jumpi(e, iszero(b))\r\n      res := div(a,b)\r\n      mstore(add(mload(0x40),0x20),res)\r\n      return(mload(0x40),0x40)\r\n      e:\r\n    }\r\n    Err(\"tried to divide by zero\");\r\n    return (true, 0);\r\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 a, uint256 b)"
+      VariableDeclaration "a"
+         Type: uint256
+         Source: "uint256 a"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "b"
+         Type: uint256
+         Source: "uint256 b"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 6
+       Source: "(bool err,uint256 res)"
+      VariableDeclaration "err"
+         Type: bool
+         Source: "bool err"
+        ElementaryTypeName bool
+           Source: "bool"
+      VariableDeclaration "res"
+         Type: uint256
+         Source: "uint256 res"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{\r\n    assembly{\r\n      jumpi(e, iszero(b))\r\n      res := div(a,b)\r\n      mstore(add(mload(0x40),0x20),res)\r\n      return(mload(0x40),0x40)\r\n      e:\r\n    }\r\n    Err(\"tried to divide by zero\");\r\n    return (true, 0);\r\n  }"
+      InlineAssembly
+         Gas costs: 0
+         Source: "assembly{\r\n      jumpi(e, iszero(b))\r\n      res := div(a,b)\r\n      mstore(add(mload(0x40),0x20),res)\r\n      return(mload(0x40),0x40)\r\n      e:\r\n    }\r\n    Err"
+      ExpressionStatement
+         Gas costs: 1635
+         Source: "Err(\"tried to divide by zero\")"
+        FunctionCall
+           Type: tuple()
+           Source: "Err(\"tried to divide by zero\")"
+          Identifier Err
+             Type: function (string memory)
+             Source: "Err"
+          Literal, token: [no token] value: tried to divide by zero
+             Type: literal_string "tried to divide by zero"
+             Source: "\"tried to divide by zero\""
+      Return
+         Gas costs: 24
+         Source: "return (true, 0)"
+        TupleExpression
+           Type: tuple(bool,int_const 0)
+           Source: "(true, 0)"
+          Literal, token: true value: true
+             Type: bool
+             Source: "true"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+  FunctionDefinition "plus" - public - const
+     Source: "function plus(uint256 a, uint256 b) constant returns (bool err, uint256 res) {\r\n    assembly{\r\n      res := add(a,b)\r\n      jumpi(allGood, and(eq(sub(res,b), a), gt(res,b)))\r\n      err := 1\r\n      res := 0\r\n      allGood:\r\n    }\r\n    if (err)\r\n      Err(\"plus func overflow\");\r\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 a, uint256 b)"
+      VariableDeclaration "a"
+         Type: uint256
+         Source: "uint256 a"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "b"
+         Type: uint256
+         Source: "uint256 b"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 6
+       Source: "(bool err, uint256 res)"
+      VariableDeclaration "err"
+         Type: bool
+         Source: "bool err"
+        ElementaryTypeName bool
+           Source: "bool"
+      VariableDeclaration "res"
+         Type: uint256
+         Source: "uint256 res"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{\r\n    assembly{\r\n      res := add(a,b)\r\n      jumpi(allGood, and(eq(sub(res,b), a), gt(res,b)))\r\n      err := 1\r\n      res := 0\r\n      allGood:\r\n    }\r\n    if (err)\r\n      Err(\"plus func overflow\");\r\n  }"
+      InlineAssembly
+         Gas costs: 0
+         Source: "assembly{\r\n      res := add(a,b)\r\n      jumpi(allGood, and(eq(sub(res,b), a), gt(res,b)))\r\n      err := 1\r\n      res := 0\r\n      allGood:\r\n    }\r\n    if"
+      IfStatement
+         Source: "if (err)\r\n      Err(\"plus func overflow\")"
+        Identifier err
+           Type: bool
+           Gas costs: 3
+           Source: "err"
+        ExpressionStatement
+           Gas costs: 1635
+           Source: "Err(\"plus func overflow\")"
+          FunctionCall
+             Type: tuple()
+             Source: "Err(\"plus func overflow\")"
+            Identifier Err
+               Type: function (string memory)
+               Source: "Err"
+            Literal, token: [no token] value: plus func overflow
+               Type: literal_string "plus func overflow"
+               Source: "\"plus func overflow\""
+  FunctionDefinition "minus" - public - const
+     Source: "function minus(uint256 a, uint256 b) constant returns (bool err,uint256 res) {\r\n    assembly{\r\n      res := sub(a,b)\r\n      jumpi(allGood, eq(and(eq(add(res,b), a), or(lt(res,a), eq(res,a))), 1))\r\n      err := 1\r\n      res := 0\r\n      allGood:\r\n    }\r\n    if (err)\r\n      Err(\"minus func underflow\");\r\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 a, uint256 b)"
+      VariableDeclaration "a"
+         Type: uint256
+         Source: "uint256 a"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "b"
+         Type: uint256
+         Source: "uint256 b"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 6
+       Source: "(bool err,uint256 res)"
+      VariableDeclaration "err"
+         Type: bool
+         Source: "bool err"
+        ElementaryTypeName bool
+           Source: "bool"
+      VariableDeclaration "res"
+         Type: uint256
+         Source: "uint256 res"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{\r\n    assembly{\r\n      res := sub(a,b)\r\n      jumpi(allGood, eq(and(eq(add(res,b), a), or(lt(res,a), eq(res,a))), 1))\r\n      err := 1\r\n      res := 0\r\n      allGood:\r\n    }\r\n    if (err)\r\n      Err(\"minus func underflow\");\r\n  }"
+      InlineAssembly
+         Gas costs: 0
+         Source: "assembly{\r\n      res := sub(a,b)\r\n      jumpi(allGood, eq(and(eq(add(res,b), a), or(lt(res,a), eq(res,a))), 1))\r\n      err := 1\r\n      res := 0\r\n      allGood:\r\n    }\r\n    if"
+      IfStatement
+         Source: "if (err)\r\n      Err(\"minus func underflow\")"
+        Identifier err
+           Type: bool
+           Gas costs: 3
+           Source: "err"
+        ExpressionStatement
+           Gas costs: 1635
+           Source: "Err(\"minus func underflow\")"
+          FunctionCall
+             Type: tuple()
+             Source: "Err(\"minus func underflow\")"
+            Identifier Err
+               Type: function (string memory)
+               Source: "Err"
+            Literal, token: [no token] value: minus func underflow
+               Type: literal_string "minus func underflow"
+               Source: "\"minus func underflow\""

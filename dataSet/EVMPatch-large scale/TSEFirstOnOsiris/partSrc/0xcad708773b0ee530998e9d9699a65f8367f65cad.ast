@@ -1,0 +1,804 @@
+Syntax trees:
+
+
+======= /home/fabric/ArocRevision/Aroc/osirisData/contractSrc/0xcad708773b0ee530998e9d9699a65f8367f65cad.sol =======
+PragmaDirective
+   Gas costs: 0
+   Source: "pragma solidity ^0.4.19;"
+ContractDefinition "Ownable"
+   Source: "contract Ownable {\r\n  address public owner;\r\n\r\n\r\n  /** \r\n   * @dev The Ownable constructor sets the original `owner` of the contract to the sender\r\n   * account.\r\n   */\r\n  function Ownable() internal {\r\n    owner = msg.sender;\r\n  }\r\n\r\n\r\n  /**\r\n   * @dev Throws if called by any account other than the owner. \r\n   */\r\n  modifier onlyOwner() {\r\n    require(msg.sender == owner);\r\n    _;\r\n  }\r\n\r\n\r\n  /**\r\n   * @dev Allows the current owner to transfer control of the contract to a newOwner.\r\n   * @param newOwner The address to transfer ownership to. \r\n   */\r\n  function transferOwnership(address newOwner) onlyOwner public {\r\n    require(newOwner != address(0));\r\n    owner = newOwner;\r\n  }\r\n\r\n}"
+  VariableDeclaration "owner"
+     Type: address
+     Gas costs: [???]
+     Source: "address public owner"
+    ElementaryTypeName address
+       Source: "address"
+  FunctionDefinition "Ownable"
+     Source: "function Ownable() internal {\r\n    owner = msg.sender;\r\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n    owner = msg.sender;\r\n  }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "owner = msg.sender"
+        Assignment using operator =
+           Type: address
+           Source: "owner = msg.sender"
+          Identifier owner
+             Type: address
+             Source: "owner"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+  ModifierDefinition "onlyOwner"
+     Source: "modifier onlyOwner() {\r\n    require(msg.sender == owner);\r\n    _;\r\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    Block
+       Source: "{\r\n    require(msg.sender == owner);\r\n    _;\r\n  }"
+      ExpressionStatement
+         Gas costs: 1410
+         Source: "require(msg.sender == owner)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(msg.sender == owner)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "msg.sender == owner"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Identifier owner
+               Type: address
+               Source: "owner"
+      PlaceholderStatement
+         Gas costs: 0
+         Source: "_"
+  FunctionDefinition "transferOwnership" - public
+     Source: "function transferOwnership(address newOwner) onlyOwner public {\r\n    require(newOwner != address(0));\r\n    owner = newOwner;\r\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address newOwner)"
+      VariableDeclaration "newOwner"
+         Type: address
+         Source: "address newOwner"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n    require(newOwner != address(0));\r\n    owner = newOwner;\r\n  }"
+      ExpressionStatement
+         Gas costs: 50
+         Source: "require(newOwner != address(0))"
+        FunctionCall
+           Type: tuple()
+           Source: "require(newOwner != address(0))"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator !=
+             Type: bool
+             Source: "newOwner != address(0)"
+            Identifier newOwner
+               Type: address
+               Source: "newOwner"
+            FunctionCall
+               Type: address
+               Source: "address(0)"
+              ElementaryTypeNameExpression address
+                 Type: type(address)
+                 Source: "address"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+      ExpressionStatement
+         Gas costs: 20267
+         Source: "owner = newOwner"
+        Assignment using operator =
+           Type: address
+           Source: "owner = newOwner"
+          Identifier owner
+             Type: address
+             Source: "owner"
+          Identifier newOwner
+             Type: address
+             Source: "newOwner"
+ContractDefinition "TariInvestment"
+   Source: "contract TariInvestment is Ownable {\r\n\r\n  // Address of the target contract\r\n  address public investmentAddress = 0x33eFC5120D99a63bdF990013ECaBbd6c900803CE;\r\n  // Major partner address\r\n  address public majorPartnerAddress = 0x8f0592bDCeE38774d93bC1fd2c97ee6540385356;\r\n  // Minor partner address\r\n  address public minorPartnerAddress = 0xC787C3f6F75D7195361b64318CE019f90507f806;\r\n  // Record balances to allow refunding\r\n  mapping(address => uint) public balances;\r\n  // Total received. Used for refunding.\r\n  uint public totalInvestment;\r\n  // Available refunds. Used for refunding.\r\n  uint public availableRefunds;\r\n  // Deadline when refunding starts.\r\n  uint public refundingDeadline;\r\n  // Gas used for withdrawals.\r\n  uint public withdrawal_gas;\r\n  // States: Open for investments - allows investments and transfers,\r\n  //         Refunding investments - any state can transition to refunding state\r\n  enum State{Open, Refunding}\r\n\r\n\r\n  State public state = State.Open;\r\n\r\n  function TariInvestment() public {\r\n    refundingDeadline = now + 4 days;\r\n    // Withdrawal gas is added to the standard 2300 by the solidity compiler.\r\n    set_withdrawal_gas(1000);\r\n  }\r\n\r\n  // Payments to this contract require a bit of gas. 100k should be enough.\r\n  function() payable public {\r\n    // Reject any value transfers once we have finished sending the balance to the target contract.\r\n    require(state == State.Open);\r\n    balances[msg.sender] += msg.value;\r\n    totalInvestment += msg.value;\r\n  }\r\n\r\n  // Transfer some funds to the target investment address.\r\n  function execute_transfer(uint transfer_amount, uint gas_amount) public onlyOwner {\r\n    // Transferral of funds shouldn't be possible during refunding.\r\n    require(state == State.Open);\r\n\r\n    // Major fee is 1,50% = 15 / 1000\r\n    uint major_fee = transfer_amount * 15 / 1000;\r\n    // Minor fee is 1% = 10 / 1000\r\n    uint minor_fee = transfer_amount * 10 / 1000;\r\n    require(majorPartnerAddress.call.gas(gas_amount).value(major_fee)());\r\n    require(minorPartnerAddress.call.gas(gas_amount).value(minor_fee)());\r\n\r\n    // Send the rest\r\n    require(investmentAddress.call.gas(gas_amount).value(transfer_amount - major_fee - minor_fee)());\r\n  }\r\n\r\n  // Convenience function to transfer all available balance.\r\n  function execute_transfer_all(uint gas_amount) public onlyOwner {\r\n    execute_transfer(this.balance, gas_amount);\r\n  }\r\n\r\n  // Refund an investor when he sends a withdrawal transaction.\r\n  // Only available once refunds are enabled or the deadline for transfers is reached.\r\n  function withdraw() public {\r\n    if (state != State.Refunding) {\r\n      require(refundingDeadline <= now);\r\n      state = State.Refunding;\r\n      availableRefunds = this.balance;\r\n    }\r\n\r\n    // withdrawal = availableRefunds * investor's share\r\n    uint withdrawal = availableRefunds * balances[msg.sender] / totalInvestment;\r\n    balances[msg.sender] = 0;\r\n    require(msg.sender.call.gas(withdrawal_gas).value(withdrawal)());\r\n  }\r\n\r\n  // Convenience function to allow immediate refunds.\r\n  function enable_refunds() public onlyOwner {\r\n    state = State.Refunding;\r\n  }\r\n\r\n  // Sets the amount of gas allowed to withdrawers\r\n  function set_withdrawal_gas(uint gas_amount) public onlyOwner {\r\n    withdrawal_gas = gas_amount;\r\n  }\r\n\r\n}"
+  InheritanceSpecifier
+     Gas costs: 0
+     Source: "Ownable"
+    UserDefinedTypeName "Ownable"
+       Source: "Ownable"
+  VariableDeclaration "investmentAddress"
+     Type: address
+     Gas costs: [???]
+     Source: "address public investmentAddress = 0x33eFC5120D99a63bdF990013ECaBbd6c900803CE"
+    ElementaryTypeName address
+       Source: "address"
+    Literal, token: [no token] value: 0x33eFC5120D99a63bdF990013ECaBbd6c900803CE
+       Type: address
+       Source: "0x33eFC5120D99a63bdF990013ECaBbd6c900803CE"
+  VariableDeclaration "majorPartnerAddress"
+     Type: address
+     Gas costs: [???]
+     Source: "address public majorPartnerAddress = 0x8f0592bDCeE38774d93bC1fd2c97ee6540385356"
+    ElementaryTypeName address
+       Source: "address"
+    Literal, token: [no token] value: 0x8f0592bDCeE38774d93bC1fd2c97ee6540385356
+       Type: address
+       Source: "0x8f0592bDCeE38774d93bC1fd2c97ee6540385356"
+  VariableDeclaration "minorPartnerAddress"
+     Type: address
+     Gas costs: [???]
+     Source: "address public minorPartnerAddress = 0xC787C3f6F75D7195361b64318CE019f90507f806"
+    ElementaryTypeName address
+       Source: "address"
+    Literal, token: [no token] value: 0xC787C3f6F75D7195361b64318CE019f90507f806
+       Type: address
+       Source: "0xC787C3f6F75D7195361b64318CE019f90507f806"
+  VariableDeclaration "balances"
+     Type: mapping(address => uint256)
+     Gas costs: [???]
+     Source: "mapping(address => uint) public balances"
+    Mapping
+       Source: "mapping(address => uint)"
+      ElementaryTypeName address
+         Source: "address"
+      ElementaryTypeName uint
+         Source: "uint"
+  VariableDeclaration "totalInvestment"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint public totalInvestment"
+    ElementaryTypeName uint
+       Source: "uint"
+  VariableDeclaration "availableRefunds"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint public availableRefunds"
+    ElementaryTypeName uint
+       Source: "uint"
+  VariableDeclaration "refundingDeadline"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint public refundingDeadline"
+    ElementaryTypeName uint
+       Source: "uint"
+  VariableDeclaration "withdrawal_gas"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint public withdrawal_gas"
+    ElementaryTypeName uint
+       Source: "uint"
+  EnumDefinition "State"
+    EnumValue "Open"
+    EnumValue "Refunding"
+  VariableDeclaration "state"
+     Type: enum TariInvestment.State
+     Gas costs: [???]
+     Source: "State public state = State.Open"
+    UserDefinedTypeName "State"
+       Source: "State"
+    MemberAccess to member Open
+       Type: enum TariInvestment.State
+       Source: "State.Open"
+      Identifier State
+         Type: type(enum TariInvestment.State)
+         Source: "State"
+  FunctionDefinition "TariInvestment" - public
+     Source: "function TariInvestment() public {\r\n    refundingDeadline = now + 4 days;\r\n    // Withdrawal gas is added to the standard 2300 by the solidity compiler.\r\n    set_withdrawal_gas(1000);\r\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n    refundingDeadline = now + 4 days;\r\n    // Withdrawal gas is added to the standard 2300 by the solidity compiler.\r\n    set_withdrawal_gas(1000);\r\n  }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "refundingDeadline = now + 4 days"
+        Assignment using operator =
+           Type: uint256
+           Source: "refundingDeadline = now + 4 days"
+          Identifier refundingDeadline
+             Type: uint256
+             Source: "refundingDeadline"
+          BinaryOperation using operator +
+             Type: uint256
+             Source: "now + 4 days"
+            Identifier now
+               Type: uint256
+               Source: "now"
+            Literal, token: [no token] value: 4
+               Type: int_const 345600
+               Source: "4 days"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "set_withdrawal_gas(1000)"
+        FunctionCall
+           Type: tuple()
+           Source: "set_withdrawal_gas(1000)"
+          Identifier set_withdrawal_gas
+             Type: function (uint256)
+             Source: "set_withdrawal_gas"
+          Literal, token: [no token] value: 1000
+             Type: int_const 1000
+             Source: "1000"
+  FunctionDefinition "" - public
+     Source: "function() payable public {\r\n    // Reject any value transfers once we have finished sending the balance to the target contract.\r\n    require(state == State.Open);\r\n    balances[msg.sender] += msg.value;\r\n    totalInvestment += msg.value;\r\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n    // Reject any value transfers once we have finished sending the balance to the target contract.\r\n    require(state == State.Open);\r\n    balances[msg.sender] += msg.value;\r\n    totalInvestment += msg.value;\r\n  }"
+      ExpressionStatement
+         Gas costs: 323
+         Source: "require(state == State.Open)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(state == State.Open)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "state == State.Open"
+            Identifier state
+               Type: enum TariInvestment.State
+               Source: "state"
+            MemberAccess to member Open
+               Type: enum TariInvestment.State
+               Source: "State.Open"
+              Identifier State
+                 Type: type(enum TariInvestment.State)
+                 Source: "State"
+      ExpressionStatement
+         Gas costs: 20327
+         Source: "balances[msg.sender] += msg.value"
+        Assignment using operator +=
+           Type: uint256
+           Source: "balances[msg.sender] += msg.value"
+          IndexAccess
+             Type: uint256
+             Source: "balances[msg.sender]"
+            Identifier balances
+               Type: mapping(address => uint256)
+               Source: "balances"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          MemberAccess to member value
+             Type: uint256
+             Source: "msg.value"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+      ExpressionStatement
+         Gas costs: 20232
+         Source: "totalInvestment += msg.value"
+        Assignment using operator +=
+           Type: uint256
+           Source: "totalInvestment += msg.value"
+          Identifier totalInvestment
+             Type: uint256
+             Source: "totalInvestment"
+          MemberAccess to member value
+             Type: uint256
+             Source: "msg.value"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+  FunctionDefinition "execute_transfer" - public
+     Source: "function execute_transfer(uint transfer_amount, uint gas_amount) public onlyOwner {\r\n    // Transferral of funds shouldn't be possible during refunding.\r\n    require(state == State.Open);\r\n\r\n    // Major fee is 1,50% = 15 / 1000\r\n    uint major_fee = transfer_amount * 15 / 1000;\r\n    // Minor fee is 1% = 10 / 1000\r\n    uint minor_fee = transfer_amount * 10 / 1000;\r\n    require(majorPartnerAddress.call.gas(gas_amount).value(major_fee)());\r\n    require(minorPartnerAddress.call.gas(gas_amount).value(minor_fee)());\r\n\r\n    // Send the rest\r\n    require(investmentAddress.call.gas(gas_amount).value(transfer_amount - major_fee - minor_fee)());\r\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint transfer_amount, uint gas_amount)"
+      VariableDeclaration "transfer_amount"
+         Type: uint256
+         Source: "uint transfer_amount"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "gas_amount"
+         Type: uint256
+         Source: "uint gas_amount"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n    // Transferral of funds shouldn't be possible during refunding.\r\n    require(state == State.Open);\r\n\r\n    // Major fee is 1,50% = 15 / 1000\r\n    uint major_fee = transfer_amount * 15 / 1000;\r\n    // Minor fee is 1% = 10 / 1000\r\n    uint minor_fee = transfer_amount * 10 / 1000;\r\n    require(majorPartnerAddress.call.gas(gas_amount).value(major_fee)());\r\n    require(minorPartnerAddress.call.gas(gas_amount).value(minor_fee)());\r\n\r\n    // Send the rest\r\n    require(investmentAddress.call.gas(gas_amount).value(transfer_amount - major_fee - minor_fee)());\r\n  }"
+      ExpressionStatement
+         Gas costs: 323
+         Source: "require(state == State.Open)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(state == State.Open)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "state == State.Open"
+            Identifier state
+               Type: enum TariInvestment.State
+               Source: "state"
+            MemberAccess to member Open
+               Type: enum TariInvestment.State
+               Source: "State.Open"
+              Identifier State
+                 Type: type(enum TariInvestment.State)
+                 Source: "State"
+      VariableDeclarationStatement
+         Gas costs: 50
+         Source: "uint major_fee = transfer_amount * 15 / 1000"
+        VariableDeclaration "major_fee"
+           Type: uint256
+           Source: "uint major_fee"
+          ElementaryTypeName uint
+             Source: "uint"
+        BinaryOperation using operator /
+           Type: uint256
+           Source: "transfer_amount * 15 / 1000"
+          BinaryOperation using operator *
+             Type: uint256
+             Source: "transfer_amount * 15"
+            Identifier transfer_amount
+               Type: uint256
+               Source: "transfer_amount"
+            Literal, token: [no token] value: 15
+               Type: int_const 15
+               Source: "15"
+          Literal, token: [no token] value: 1000
+             Type: int_const 1000
+             Source: "1000"
+      VariableDeclarationStatement
+         Gas costs: 50
+         Source: "uint minor_fee = transfer_amount * 10 / 1000"
+        VariableDeclaration "minor_fee"
+           Type: uint256
+           Source: "uint minor_fee"
+          ElementaryTypeName uint
+             Source: "uint"
+        BinaryOperation using operator /
+           Type: uint256
+           Source: "transfer_amount * 10 / 1000"
+          BinaryOperation using operator *
+             Type: uint256
+             Source: "transfer_amount * 10"
+            Identifier transfer_amount
+               Type: uint256
+               Source: "transfer_amount"
+            Literal, token: [no token] value: 10
+               Type: int_const 10
+               Source: "10"
+          Literal, token: [no token] value: 1000
+             Type: int_const 1000
+             Source: "1000"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "require(majorPartnerAddress.call.gas(gas_amount).value(major_fee)())"
+        FunctionCall
+           Type: tuple()
+           Source: "require(majorPartnerAddress.call.gas(gas_amount).value(major_fee)())"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          FunctionCall
+             Type: bool
+             Source: "majorPartnerAddress.call.gas(gas_amount).value(major_fee)()"
+            FunctionCall
+               Type: function () payable returns (bool)
+               Source: "majorPartnerAddress.call.gas(gas_amount).value(major_fee)"
+              MemberAccess to member value
+                 Type: function (uint256) returns (function () payable returns (bool))
+                 Source: "majorPartnerAddress.call.gas(gas_amount).value"
+                FunctionCall
+                   Type: function () payable returns (bool)
+                   Source: "majorPartnerAddress.call.gas(gas_amount)"
+                  MemberAccess to member gas
+                     Type: function (uint256) returns (function () payable returns (bool))
+                     Source: "majorPartnerAddress.call.gas"
+                    MemberAccess to member call
+                       Type: function () payable returns (bool)
+                       Source: "majorPartnerAddress.call"
+                      Identifier majorPartnerAddress
+                         Type: address
+                         Source: "majorPartnerAddress"
+                  Identifier gas_amount
+                     Type: uint256
+                     Source: "gas_amount"
+              Identifier major_fee
+                 Type: uint256
+                 Source: "major_fee"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "require(minorPartnerAddress.call.gas(gas_amount).value(minor_fee)())"
+        FunctionCall
+           Type: tuple()
+           Source: "require(minorPartnerAddress.call.gas(gas_amount).value(minor_fee)())"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          FunctionCall
+             Type: bool
+             Source: "minorPartnerAddress.call.gas(gas_amount).value(minor_fee)()"
+            FunctionCall
+               Type: function () payable returns (bool)
+               Source: "minorPartnerAddress.call.gas(gas_amount).value(minor_fee)"
+              MemberAccess to member value
+                 Type: function (uint256) returns (function () payable returns (bool))
+                 Source: "minorPartnerAddress.call.gas(gas_amount).value"
+                FunctionCall
+                   Type: function () payable returns (bool)
+                   Source: "minorPartnerAddress.call.gas(gas_amount)"
+                  MemberAccess to member gas
+                     Type: function (uint256) returns (function () payable returns (bool))
+                     Source: "minorPartnerAddress.call.gas"
+                    MemberAccess to member call
+                       Type: function () payable returns (bool)
+                       Source: "minorPartnerAddress.call"
+                      Identifier minorPartnerAddress
+                         Type: address
+                         Source: "minorPartnerAddress"
+                  Identifier gas_amount
+                     Type: uint256
+                     Source: "gas_amount"
+              Identifier minor_fee
+                 Type: uint256
+                 Source: "minor_fee"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "require(investmentAddress.call.gas(gas_amount).value(transfer_amount - major_fee - minor_fee)())"
+        FunctionCall
+           Type: tuple()
+           Source: "require(investmentAddress.call.gas(gas_amount).value(transfer_amount - major_fee - minor_fee)())"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          FunctionCall
+             Type: bool
+             Source: "investmentAddress.call.gas(gas_amount).value(transfer_amount - major_fee - minor_fee)()"
+            FunctionCall
+               Type: function () payable returns (bool)
+               Source: "investmentAddress.call.gas(gas_amount).value(transfer_amount - major_fee - minor_fee)"
+              MemberAccess to member value
+                 Type: function (uint256) returns (function () payable returns (bool))
+                 Source: "investmentAddress.call.gas(gas_amount).value"
+                FunctionCall
+                   Type: function () payable returns (bool)
+                   Source: "investmentAddress.call.gas(gas_amount)"
+                  MemberAccess to member gas
+                     Type: function (uint256) returns (function () payable returns (bool))
+                     Source: "investmentAddress.call.gas"
+                    MemberAccess to member call
+                       Type: function () payable returns (bool)
+                       Source: "investmentAddress.call"
+                      Identifier investmentAddress
+                         Type: address
+                         Source: "investmentAddress"
+                  Identifier gas_amount
+                     Type: uint256
+                     Source: "gas_amount"
+              BinaryOperation using operator -
+                 Type: uint256
+                 Source: "transfer_amount - major_fee - minor_fee"
+                BinaryOperation using operator -
+                   Type: uint256
+                   Source: "transfer_amount - major_fee"
+                  Identifier transfer_amount
+                     Type: uint256
+                     Source: "transfer_amount"
+                  Identifier major_fee
+                     Type: uint256
+                     Source: "major_fee"
+                Identifier minor_fee
+                   Type: uint256
+                   Source: "minor_fee"
+  FunctionDefinition "execute_transfer_all" - public
+     Source: "function execute_transfer_all(uint gas_amount) public onlyOwner {\r\n    execute_transfer(this.balance, gas_amount);\r\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint gas_amount)"
+      VariableDeclaration "gas_amount"
+         Type: uint256
+         Source: "uint gas_amount"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n    execute_transfer(this.balance, gas_amount);\r\n  }"
+      ExpressionStatement
+         Gas costs: 426
+         Source: "execute_transfer(this.balance, gas_amount)"
+        FunctionCall
+           Type: tuple()
+           Source: "execute_transfer(this.balance, gas_amount)"
+          Identifier execute_transfer
+             Type: function (uint256,uint256)
+             Source: "execute_transfer"
+          MemberAccess to member balance
+             Type: uint256
+             Source: "this.balance"
+            Identifier this
+               Type: contract TariInvestment
+               Source: "this"
+          Identifier gas_amount
+             Type: uint256
+             Source: "gas_amount"
+  FunctionDefinition "withdraw" - public
+     Source: "function withdraw() public {\r\n    if (state != State.Refunding) {\r\n      require(refundingDeadline <= now);\r\n      state = State.Refunding;\r\n      availableRefunds = this.balance;\r\n    }\r\n\r\n    // withdrawal = availableRefunds * investor's share\r\n    uint withdrawal = availableRefunds * balances[msg.sender] / totalInvestment;\r\n    balances[msg.sender] = 0;\r\n    require(msg.sender.call.gas(withdrawal_gas).value(withdrawal)());\r\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n    if (state != State.Refunding) {\r\n      require(refundingDeadline <= now);\r\n      state = State.Refunding;\r\n      availableRefunds = this.balance;\r\n    }\r\n\r\n    // withdrawal = availableRefunds * investor's share\r\n    uint withdrawal = availableRefunds * balances[msg.sender] / totalInvestment;\r\n    balances[msg.sender] = 0;\r\n    require(msg.sender.call.gas(withdrawal_gas).value(withdrawal)());\r\n  }"
+      IfStatement
+         Source: "if (state != State.Refunding) {\r\n      require(refundingDeadline <= now);\r\n      state = State.Refunding;\r\n      availableRefunds = this.balance;\r\n    }"
+        BinaryOperation using operator !=
+           Type: bool
+           Gas costs: 300
+           Source: "state != State.Refunding"
+          Identifier state
+             Type: enum TariInvestment.State
+             Source: "state"
+          MemberAccess to member Refunding
+             Type: enum TariInvestment.State
+             Source: "State.Refunding"
+            Identifier State
+               Type: type(enum TariInvestment.State)
+               Source: "State"
+        Block
+           Source: "{\r\n      require(refundingDeadline <= now);\r\n      state = State.Refunding;\r\n      availableRefunds = this.balance;\r\n    }"
+          ExpressionStatement
+             Gas costs: 237
+             Source: "require(refundingDeadline <= now)"
+            FunctionCall
+               Type: tuple()
+               Source: "require(refundingDeadline <= now)"
+              Identifier require
+                 Type: function (bool) pure
+                 Source: "require"
+              BinaryOperation using operator <=
+                 Type: bool
+                 Source: "refundingDeadline <= now"
+                Identifier refundingDeadline
+                   Type: uint256
+                   Source: "refundingDeadline"
+                Identifier now
+                   Type: uint256
+                   Source: "now"
+          ExpressionStatement
+             Gas costs: 20287
+             Source: "state = State.Refunding"
+            Assignment using operator =
+               Type: enum TariInvestment.State
+               Source: "state = State.Refunding"
+              Identifier state
+                 Type: enum TariInvestment.State
+                 Source: "state"
+              MemberAccess to member Refunding
+                 Type: enum TariInvestment.State
+                 Source: "State.Refunding"
+                Identifier State
+                   Type: type(enum TariInvestment.State)
+                   Source: "State"
+          ExpressionStatement
+             Gas costs: 20419
+             Source: "availableRefunds = this.balance"
+            Assignment using operator =
+               Type: uint256
+               Source: "availableRefunds = this.balance"
+              Identifier availableRefunds
+                 Type: uint256
+                 Source: "availableRefunds"
+              MemberAccess to member balance
+                 Type: uint256
+                 Source: "this.balance"
+                Identifier this
+                   Type: contract TariInvestment
+                   Source: "this"
+      VariableDeclarationStatement
+         Gas costs: 745
+         Source: "uint withdrawal = availableRefunds * balances[msg.sender] / totalInvestment"
+        VariableDeclaration "withdrawal"
+           Type: uint256
+           Source: "uint withdrawal"
+          ElementaryTypeName uint
+             Source: "uint"
+        BinaryOperation using operator /
+           Type: uint256
+           Source: "availableRefunds * balances[msg.sender] / totalInvestment"
+          BinaryOperation using operator *
+             Type: uint256
+             Source: "availableRefunds * balances[msg.sender]"
+            Identifier availableRefunds
+               Type: uint256
+               Source: "availableRefunds"
+            IndexAccess
+               Type: uint256
+               Source: "balances[msg.sender]"
+              Identifier balances
+                 Type: mapping(address => uint256)
+                 Source: "balances"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+          Identifier totalInvestment
+             Type: uint256
+             Source: "totalInvestment"
+      ExpressionStatement
+         Gas costs: 5109
+         Source: "balances[msg.sender] = 0"
+        Assignment using operator =
+           Type: uint256
+           Source: "balances[msg.sender] = 0"
+          IndexAccess
+             Type: uint256
+             Source: "balances[msg.sender]"
+            Identifier balances
+               Type: mapping(address => uint256)
+               Source: "balances"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "require(msg.sender.call.gas(withdrawal_gas).value(withdrawal)())"
+        FunctionCall
+           Type: tuple()
+           Source: "require(msg.sender.call.gas(withdrawal_gas).value(withdrawal)())"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          FunctionCall
+             Type: bool
+             Source: "msg.sender.call.gas(withdrawal_gas).value(withdrawal)()"
+            FunctionCall
+               Type: function () payable returns (bool)
+               Source: "msg.sender.call.gas(withdrawal_gas).value(withdrawal)"
+              MemberAccess to member value
+                 Type: function (uint256) returns (function () payable returns (bool))
+                 Source: "msg.sender.call.gas(withdrawal_gas).value"
+                FunctionCall
+                   Type: function () payable returns (bool)
+                   Source: "msg.sender.call.gas(withdrawal_gas)"
+                  MemberAccess to member gas
+                     Type: function (uint256) returns (function () payable returns (bool))
+                     Source: "msg.sender.call.gas"
+                    MemberAccess to member call
+                       Type: function () payable returns (bool)
+                       Source: "msg.sender.call"
+                      MemberAccess to member sender
+                         Type: address
+                         Source: "msg.sender"
+                        Identifier msg
+                           Type: msg
+                           Source: "msg"
+                  Identifier withdrawal_gas
+                     Type: uint256
+                     Source: "withdrawal_gas"
+              Identifier withdrawal
+                 Type: uint256
+                 Source: "withdrawal"
+  FunctionDefinition "enable_refunds" - public
+     Source: "function enable_refunds() public onlyOwner {\r\n    state = State.Refunding;\r\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n    state = State.Refunding;\r\n  }"
+      ExpressionStatement
+         Gas costs: 20287
+         Source: "state = State.Refunding"
+        Assignment using operator =
+           Type: enum TariInvestment.State
+           Source: "state = State.Refunding"
+          Identifier state
+             Type: enum TariInvestment.State
+             Source: "state"
+          MemberAccess to member Refunding
+             Type: enum TariInvestment.State
+             Source: "State.Refunding"
+            Identifier State
+               Type: type(enum TariInvestment.State)
+               Source: "State"
+  FunctionDefinition "set_withdrawal_gas" - public
+     Source: "function set_withdrawal_gas(uint gas_amount) public onlyOwner {\r\n    withdrawal_gas = gas_amount;\r\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint gas_amount)"
+      VariableDeclaration "gas_amount"
+         Type: uint256
+         Source: "uint gas_amount"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n    withdrawal_gas = gas_amount;\r\n  }"
+      ExpressionStatement
+         Gas costs: 20014
+         Source: "withdrawal_gas = gas_amount"
+        Assignment using operator =
+           Type: uint256
+           Source: "withdrawal_gas = gas_amount"
+          Identifier withdrawal_gas
+             Type: uint256
+             Source: "withdrawal_gas"
+          Identifier gas_amount
+             Type: uint256
+             Source: "gas_amount"

@@ -1,0 +1,2956 @@
+Syntax trees:
+
+
+======= /home/fabric/ArocRevision/Aroc/osirisData/contractSrc/0xbd5cfa0e509b2981753da7a53ee18f5876f8631e.sol =======
+PragmaDirective
+   Gas costs: 0
+   Source: "pragma solidity ^0.4.18;"
+ContractDefinition "tokenRecipient"
+   Gas costs: 0
+   Source: "interface tokenRecipient { function receiveApproval(address _from, uint256 _value, address _token, bytes _extraData) public; }"
+  FunctionDefinition "receiveApproval" - public
+     Source: "function receiveApproval(address _from, uint256 _value, address _token, bytes _extraData) public;"
+    ParameterList
+       Source: "(address _from, uint256 _value, address _token, bytes _extraData)"
+      VariableDeclaration "_from"
+         Type: address
+         Source: "address _from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "_token"
+         Type: address
+         Source: "address _token"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_extraData"
+         Type: bytes memory
+         Source: "bytes _extraData"
+        ElementaryTypeName bytes
+           Source: "bytes"
+    ParameterList
+       Source: ""
+ContractDefinition "EthereumUltimate"
+   Source: "contract EthereumUltimate {\r\n    string public name;\r\n    string public symbol;\r\n    uint8 public decimals;\r\n    uint256 public totalSupply;\r\n    uint256 public funds;\r\n    address public director;\r\n    bool public saleClosed;\r\n    bool public directorLock;\r\n    uint256 public claimAmount;\r\n    uint256 public payAmount;\r\n    uint256 public feeAmount;\r\n    uint256 public epoch;\r\n    uint256 public retentionMax;\r\n\r\n    mapping (address => uint256) public balances;\r\n    mapping (address => mapping (address => uint256)) public allowance;\r\n    mapping (address => bool) public buried;\r\n    mapping (address => uint256) public claimed;\r\n\r\n    event Transfer(address indexed _from, address indexed _to, uint256 _value);\r\n    \r\n    event Approval(address indexed _owner, address indexed _spender, uint256 _value);\r\n\r\n    event Burn(address indexed _from, uint256 _value);\r\n    \r\n    event Bury(address indexed _target, uint256 _value);\r\n    \r\n    event Claim(address indexed _target, address indexed _payout, address indexed _fee);\r\n\r\n    function EthereumUltimate() public {\r\n        director = msg.sender;\r\n        name = \"Ethereum Ultimate\";\r\n        symbol = \"ETHUT\";\r\n        decimals = 18;\r\n        saleClosed = false;\r\n        directorLock = false;\r\n        funds = 0;\r\n        totalSupply = 0;\r\n        \r\n        totalSupply += 1000000 * 10 ** uint256(decimals);\r\n        \r\n        // Assign reserved ETHUT supply to the director\r\n        balances[director] = totalSupply;\r\n        \r\n        // Define default values for Ethereum Ultimate functions\r\n        claimAmount = 5 * 10 ** (uint256(decimals) - 1);\r\n        payAmount = 4 * 10 ** (uint256(decimals) - 1);\r\n        feeAmount = 1 * 10 ** (uint256(decimals) - 1);\r\n        \r\n        // Seconds in a year\r\n        epoch = 31536000;\r\n        \r\n        retentionMax = 40 * 10 ** uint256(decimals);\r\n    }\r\n    \r\n    function balanceOf(address _owner) public constant returns (uint256 balance) {\r\n        return balances[_owner];\r\n    }\r\n    \r\n    modifier onlyDirector {\r\n        require(!directorLock);\r\n        \r\n        require(msg.sender == director);\r\n        _;\r\n    }\r\n    \r\n    modifier onlyDirectorForce {\r\n        require(msg.sender == director);\r\n        _;\r\n    }\r\n    \r\n\r\n    function transferDirector(address newDirector) public onlyDirectorForce {\r\n        director = newDirector;\r\n    }\r\n    \r\n\r\n    function withdrawFunds() public onlyDirectorForce {\r\n        director.transfer(this.balance);\r\n    }\r\n\r\n\t\r\n    function selfLock() public payable onlyDirector {\r\n        require(saleClosed);\r\n        \r\n        require(msg.value == 10 ether);\r\n        \r\n        directorLock = true;\r\n    }\r\n    \r\n    function amendClaim(uint8 claimAmountSet, uint8 payAmountSet, uint8 feeAmountSet, uint8 accuracy) public onlyDirector returns (bool success) {\r\n        require(claimAmountSet == (payAmountSet + feeAmountSet));\r\n        \r\n        claimAmount = claimAmountSet * 10 ** (uint256(decimals) - accuracy);\r\n        payAmount = payAmountSet * 10 ** (uint256(decimals) - accuracy);\r\n        feeAmount = feeAmountSet * 10 ** (uint256(decimals) - accuracy);\r\n        return true;\r\n    }\r\n    \r\n\r\n    function amendEpoch(uint256 epochSet) public onlyDirector returns (bool success) {\r\n        // Set the epoch\r\n        epoch = epochSet;\r\n        return true;\r\n    }\r\n    \r\n\r\n    function amendRetention(uint8 retentionSet, uint8 accuracy) public onlyDirector returns (bool success) {\r\n        // Set retentionMax\r\n        retentionMax = retentionSet * 10 ** (uint256(decimals) - accuracy);\r\n        return true;\r\n    }\r\n    \r\n\r\n    function closeSale() public onlyDirector returns (bool success) {\r\n        // The sale must be currently open\r\n        require(!saleClosed);\r\n        \r\n        // Lock the crowdsale\r\n        saleClosed = true;\r\n        return true;\r\n    }\r\n\r\n\r\n    function openSale() public onlyDirector returns (bool success) {\r\n        // The sale must be currently closed\r\n        require(saleClosed);\r\n        \r\n        // Unlock the crowdsale\r\n        saleClosed = false;\r\n        return true;\r\n    }\r\n    \r\n\r\n    function bury() public returns (bool success) {\r\n        // The address must be previously unburied\r\n        require(!buried[msg.sender]);\r\n        \r\n        // An address must have at least claimAmount to be buried\r\n        require(balances[msg.sender] >= claimAmount);\r\n        \r\n        // Prevent addresses with large balances from getting buried\r\n        require(balances[msg.sender] <= retentionMax);\r\n        \r\n        // Set buried state to true\r\n        buried[msg.sender] = true;\r\n        \r\n        // Set the initial claim clock to 1\r\n        claimed[msg.sender] = 1;\r\n        \r\n        // Execute an event reflecting the change\r\n        Bury(msg.sender, balances[msg.sender]);\r\n        return true;\r\n    }\r\n    \r\n\r\n    function claim(address _payout, address _fee) public returns (bool success) {\r\n        // The claimed address must have already been buried\r\n        require(buried[msg.sender]);\r\n        \r\n        // The payout and fee addresses must be different\r\n        require(_payout != _fee);\r\n        \r\n        // The claimed address cannot pay itself\r\n        require(msg.sender != _payout);\r\n        \r\n        // The claimed address cannot pay itself\r\n        require(msg.sender != _fee);\r\n        \r\n        // It must be either the first time this address is being claimed or atleast epoch in time has passed\r\n        require(claimed[msg.sender] == 1 || (block.timestamp - claimed[msg.sender]) >= epoch);\r\n        \r\n        // Check if the buried address has enough\r\n        require(balances[msg.sender] >= claimAmount);\r\n        \r\n        // Reset the claim clock to the current block time\r\n        claimed[msg.sender] = block.timestamp;\r\n        \r\n        // Save this for an assertion in the future\r\n        uint256 previousBalances = balances[msg.sender] + balances[_payout] + balances[_fee];\r\n        \r\n        // Remove claimAmount from the buried address\r\n        balances[msg.sender] -= claimAmount;\r\n        \r\n        // Pay the website owner that invoked the web node that found the ETHT seed key\r\n        balances[_payout] += payAmount;\r\n        \r\n        // Pay the broker node that unlocked the ETHUT\r\n        balances[_fee] += feeAmount;\r\n        \r\n        // Execute events to reflect the changes\r\n        Claim(msg.sender, _payout, _fee);\r\n        Transfer(msg.sender, _payout, payAmount);\r\n        Transfer(msg.sender, _fee, feeAmount);\r\n        \r\n        // Failsafe logic that should never be false\r\n        assert(balances[msg.sender] + balances[_payout] + balances[_fee] == previousBalances);\r\n        return true;\r\n    }\r\n    \r\n    /**\r\n     * Crowdsale function\r\n     */\r\n    function () public payable {\r\n        require(!saleClosed);\r\n        \r\n        // Minimum amount is 1 finney\r\n        require(msg.value >= 1 finney);\r\n        \r\n        // Price is 1 ETH = 10000 ETHT\r\n        uint256 amount = msg.value * 30000;\r\n        \r\n        // Supply cap may increase\r\n        require(totalSupply + amount <= (10000000 * 10 ** uint256(decimals)));\r\n        \r\n        // Increases the total supply\r\n        totalSupply += amount;\r\n        \r\n        // Adds the amount to the balance\r\n        balances[msg.sender] += amount;\r\n        \r\n        // Track ETH amount raised\r\n        funds += msg.value;\r\n        \r\n        // Execute an event reflecting the change\r\n        Transfer(this, msg.sender, amount);\r\n    }\r\n\r\n    function _transfer(address _from, address _to, uint _value) internal {\r\n        // Sending addresses cannot be buried\r\n        require(!buried[_from]);\r\n        \r\n        // If the receiving address is buried, it cannot exceed retentionMax\r\n        if (buried[_to]) {\r\n            require(balances[_to] + _value <= retentionMax);\r\n        }\r\n        \r\n        require(_to != 0x0);\r\n        \r\n        require(balances[_from] >= _value);\r\n        \r\n        require(balances[_to] + _value > balances[_to]);\r\n        \r\n        uint256 previousBalances = balances[_from] + balances[_to];\r\n        \r\n        balances[_from] -= _value;\r\n        \r\n        balances[_to] += _value;\r\n        Transfer(_from, _to, _value);\r\n        \r\n        assert(balances[_from] + balances[_to] == previousBalances);\r\n    }\r\n\r\n\r\n    function transfer(address _to, uint256 _value) public {\r\n        _transfer(msg.sender, _to, _value);\r\n    }\r\n\r\n\r\n    function transferFrom(address _from, address _to, uint256 _value) public returns (bool success) {\r\n        // Check allowance\r\n        require(_value <= allowance[_from][msg.sender]);\r\n        allowance[_from][msg.sender] -= _value;\r\n        _transfer(_from, _to, _value);\r\n        return true;\r\n    }\r\n\r\n\r\n    function approve(address _spender, uint256 _value) public returns (bool success) {\r\n        // Buried addresses cannot be approved\r\n        require(!buried[msg.sender]);\r\n        \r\n        allowance[msg.sender][_spender] = _value;\r\n        Approval(msg.sender, _spender, _value);\r\n        return true;\r\n    }\r\n\r\n\r\n    function approveAndCall(address _spender, uint256 _value, bytes _extraData) public returns (bool success) {\r\n        tokenRecipient spender = tokenRecipient(_spender);\r\n        if (approve(_spender, _value)) {\r\n            spender.receiveApproval(msg.sender, _value, this, _extraData);\r\n            return true;\r\n        }\r\n    }\r\n\r\n\r\n    function burn(uint256 _value) public returns (bool success) {\r\n        // Buried addresses cannot be burnt\r\n        require(!buried[msg.sender]);\r\n        \r\n        // Check if the sender has enough\r\n        require(balances[msg.sender] >= _value);\r\n        \r\n        // Subtract from the sender\r\n        balances[msg.sender] -= _value;\r\n        \r\n        // Updates totalSupply\r\n        totalSupply -= _value;\r\n        Burn(msg.sender, _value);\r\n        return true;\r\n    }\r\n\r\n\r\n    function burnFrom(address _from, uint256 _value) public returns (bool success) {\r\n        // Buried addresses cannot be burnt\r\n        require(!buried[_from]);\r\n        \r\n        // Check if the targeted balance is enough\r\n        require(balances[_from] >= _value);\r\n        \r\n        // Check allowance\r\n        require(_value <= allowance[_from][msg.sender]);\r\n        \r\n        // Subtract from the targeted balance\r\n        balances[_from] -= _value;\r\n        \r\n        // Subtract from the sender's allowance\r\n        allowance[_from][msg.sender] -= _value;\r\n        \r\n        // Update totalSupply\r\n        totalSupply -= _value;\r\n        Burn(_from, _value);\r\n        return true;\r\n    }\r\n}"
+  VariableDeclaration "name"
+     Type: string storage ref
+     Gas costs: [???]
+     Source: "string public name"
+    ElementaryTypeName string
+       Source: "string"
+  VariableDeclaration "symbol"
+     Type: string storage ref
+     Gas costs: [???]
+     Source: "string public symbol"
+    ElementaryTypeName string
+       Source: "string"
+  VariableDeclaration "decimals"
+     Type: uint8
+     Gas costs: [???]
+     Source: "uint8 public decimals"
+    ElementaryTypeName uint8
+       Source: "uint8"
+  VariableDeclaration "totalSupply"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint256 public totalSupply"
+    ElementaryTypeName uint256
+       Source: "uint256"
+  VariableDeclaration "funds"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint256 public funds"
+    ElementaryTypeName uint256
+       Source: "uint256"
+  VariableDeclaration "director"
+     Type: address
+     Gas costs: [???]
+     Source: "address public director"
+    ElementaryTypeName address
+       Source: "address"
+  VariableDeclaration "saleClosed"
+     Type: bool
+     Gas costs: [???]
+     Source: "bool public saleClosed"
+    ElementaryTypeName bool
+       Source: "bool"
+  VariableDeclaration "directorLock"
+     Type: bool
+     Gas costs: [???]
+     Source: "bool public directorLock"
+    ElementaryTypeName bool
+       Source: "bool"
+  VariableDeclaration "claimAmount"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint256 public claimAmount"
+    ElementaryTypeName uint256
+       Source: "uint256"
+  VariableDeclaration "payAmount"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint256 public payAmount"
+    ElementaryTypeName uint256
+       Source: "uint256"
+  VariableDeclaration "feeAmount"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint256 public feeAmount"
+    ElementaryTypeName uint256
+       Source: "uint256"
+  VariableDeclaration "epoch"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint256 public epoch"
+    ElementaryTypeName uint256
+       Source: "uint256"
+  VariableDeclaration "retentionMax"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint256 public retentionMax"
+    ElementaryTypeName uint256
+       Source: "uint256"
+  VariableDeclaration "balances"
+     Type: mapping(address => uint256)
+     Gas costs: [???]
+     Source: "mapping (address => uint256) public balances"
+    Mapping
+       Source: "mapping (address => uint256)"
+      ElementaryTypeName address
+         Source: "address"
+      ElementaryTypeName uint256
+         Source: "uint256"
+  VariableDeclaration "allowance"
+     Type: mapping(address => mapping(address => uint256))
+     Gas costs: [???]
+     Source: "mapping (address => mapping (address => uint256)) public allowance"
+    Mapping
+       Source: "mapping (address => mapping (address => uint256))"
+      ElementaryTypeName address
+         Source: "address"
+      Mapping
+         Source: "mapping (address => uint256)"
+        ElementaryTypeName address
+           Source: "address"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  VariableDeclaration "buried"
+     Type: mapping(address => bool)
+     Gas costs: [???]
+     Source: "mapping (address => bool) public buried"
+    Mapping
+       Source: "mapping (address => bool)"
+      ElementaryTypeName address
+         Source: "address"
+      ElementaryTypeName bool
+         Source: "bool"
+  VariableDeclaration "claimed"
+     Type: mapping(address => uint256)
+     Gas costs: [???]
+     Source: "mapping (address => uint256) public claimed"
+    Mapping
+       Source: "mapping (address => uint256)"
+      ElementaryTypeName address
+         Source: "address"
+      ElementaryTypeName uint256
+         Source: "uint256"
+  EventDefinition "Transfer"
+     Gas costs: 0
+     Source: "event Transfer(address indexed _from, address indexed _to, uint256 _value);"
+    ParameterList
+       Source: "(address indexed _from, address indexed _to, uint256 _value)"
+      VariableDeclaration "_from"
+         Type: address
+         Source: "address indexed _from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address indexed _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  EventDefinition "Approval"
+     Gas costs: 0
+     Source: "event Approval(address indexed _owner, address indexed _spender, uint256 _value);"
+    ParameterList
+       Source: "(address indexed _owner, address indexed _spender, uint256 _value)"
+      VariableDeclaration "_owner"
+         Type: address
+         Source: "address indexed _owner"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_spender"
+         Type: address
+         Source: "address indexed _spender"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  EventDefinition "Burn"
+     Gas costs: 0
+     Source: "event Burn(address indexed _from, uint256 _value);"
+    ParameterList
+       Source: "(address indexed _from, uint256 _value)"
+      VariableDeclaration "_from"
+         Type: address
+         Source: "address indexed _from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  EventDefinition "Bury"
+     Gas costs: 0
+     Source: "event Bury(address indexed _target, uint256 _value);"
+    ParameterList
+       Source: "(address indexed _target, uint256 _value)"
+      VariableDeclaration "_target"
+         Type: address
+         Source: "address indexed _target"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  EventDefinition "Claim"
+     Gas costs: 0
+     Source: "event Claim(address indexed _target, address indexed _payout, address indexed _fee);"
+    ParameterList
+       Source: "(address indexed _target, address indexed _payout, address indexed _fee)"
+      VariableDeclaration "_target"
+         Type: address
+         Source: "address indexed _target"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_payout"
+         Type: address
+         Source: "address indexed _payout"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_fee"
+         Type: address
+         Source: "address indexed _fee"
+        ElementaryTypeName address
+           Source: "address"
+  FunctionDefinition "EthereumUltimate" - public
+     Source: "function EthereumUltimate() public {\r\n        director = msg.sender;\r\n        name = \"Ethereum Ultimate\";\r\n        symbol = \"ETHUT\";\r\n        decimals = 18;\r\n        saleClosed = false;\r\n        directorLock = false;\r\n        funds = 0;\r\n        totalSupply = 0;\r\n        \r\n        totalSupply += 1000000 * 10 ** uint256(decimals);\r\n        \r\n        // Assign reserved ETHUT supply to the director\r\n        balances[director] = totalSupply;\r\n        \r\n        // Define default values for Ethereum Ultimate functions\r\n        claimAmount = 5 * 10 ** (uint256(decimals) - 1);\r\n        payAmount = 4 * 10 ** (uint256(decimals) - 1);\r\n        feeAmount = 1 * 10 ** (uint256(decimals) - 1);\r\n        \r\n        // Seconds in a year\r\n        epoch = 31536000;\r\n        \r\n        retentionMax = 40 * 10 ** uint256(decimals);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        director = msg.sender;\r\n        name = \"Ethereum Ultimate\";\r\n        symbol = \"ETHUT\";\r\n        decimals = 18;\r\n        saleClosed = false;\r\n        directorLock = false;\r\n        funds = 0;\r\n        totalSupply = 0;\r\n        \r\n        totalSupply += 1000000 * 10 ** uint256(decimals);\r\n        \r\n        // Assign reserved ETHUT supply to the director\r\n        balances[director] = totalSupply;\r\n        \r\n        // Define default values for Ethereum Ultimate functions\r\n        claimAmount = 5 * 10 ** (uint256(decimals) - 1);\r\n        payAmount = 4 * 10 ** (uint256(decimals) - 1);\r\n        feeAmount = 1 * 10 ** (uint256(decimals) - 1);\r\n        \r\n        // Seconds in a year\r\n        epoch = 31536000;\r\n        \r\n        retentionMax = 40 * 10 ** uint256(decimals);\r\n    }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "director = msg.sender"
+        Assignment using operator =
+           Type: address
+           Source: "director = msg.sender"
+          Identifier director
+             Type: address
+             Source: "director"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "name = \"Ethereum Ultimate\""
+        Assignment using operator =
+           Type: string storage ref
+           Source: "name = \"Ethereum Ultimate\""
+          Identifier name
+             Type: string storage ref
+             Source: "name"
+          Literal, token: [no token] value: Ethereum Ultimate
+             Type: literal_string "Ethereum Ultimate"
+             Source: "\"Ethereum Ultimate\""
+      ExpressionStatement
+         Gas costs: 0
+         Source: "symbol = \"ETHUT\""
+        Assignment using operator =
+           Type: string storage ref
+           Source: "symbol = \"ETHUT\""
+          Identifier symbol
+             Type: string storage ref
+             Source: "symbol"
+          Literal, token: [no token] value: ETHUT
+             Type: literal_string "ETHUT"
+             Source: "\"ETHUT\""
+      ExpressionStatement
+         Gas costs: 0
+         Source: "decimals = 18"
+        Assignment using operator =
+           Type: uint8
+           Source: "decimals = 18"
+          Identifier decimals
+             Type: uint8
+             Source: "decimals"
+          Literal, token: [no token] value: 18
+             Type: int_const 18
+             Source: "18"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "saleClosed = false"
+        Assignment using operator =
+           Type: bool
+           Source: "saleClosed = false"
+          Identifier saleClosed
+             Type: bool
+             Source: "saleClosed"
+          Literal, token: false value: false
+             Type: bool
+             Source: "false"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "directorLock = false"
+        Assignment using operator =
+           Type: bool
+           Source: "directorLock = false"
+          Identifier directorLock
+             Type: bool
+             Source: "directorLock"
+          Literal, token: false value: false
+             Type: bool
+             Source: "false"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "funds = 0"
+        Assignment using operator =
+           Type: uint256
+           Source: "funds = 0"
+          Identifier funds
+             Type: uint256
+             Source: "funds"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "totalSupply = 0"
+        Assignment using operator =
+           Type: uint256
+           Source: "totalSupply = 0"
+          Identifier totalSupply
+             Type: uint256
+             Source: "totalSupply"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "totalSupply += 1000000 * 10 ** uint256(decimals)"
+        Assignment using operator +=
+           Type: uint256
+           Source: "totalSupply += 1000000 * 10 ** uint256(decimals)"
+          Identifier totalSupply
+             Type: uint256
+             Source: "totalSupply"
+          BinaryOperation using operator *
+             Type: uint256
+             Source: "1000000 * 10 ** uint256(decimals)"
+            Literal, token: [no token] value: 1000000
+               Type: int_const 1000000
+               Source: "1000000"
+            BinaryOperation using operator **
+               Type: uint256
+               Source: "10 ** uint256(decimals)"
+              Literal, token: [no token] value: 10
+                 Type: int_const 10
+                 Source: "10"
+              FunctionCall
+                 Type: uint256
+                 Source: "uint256(decimals)"
+                ElementaryTypeNameExpression uint256
+                   Type: type(uint256)
+                   Source: "uint256"
+                Identifier decimals
+                   Type: uint8
+                   Source: "decimals"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "balances[director] = totalSupply"
+        Assignment using operator =
+           Type: uint256
+           Source: "balances[director] = totalSupply"
+          IndexAccess
+             Type: uint256
+             Source: "balances[director]"
+            Identifier balances
+               Type: mapping(address => uint256)
+               Source: "balances"
+            Identifier director
+               Type: address
+               Source: "director"
+          Identifier totalSupply
+             Type: uint256
+             Source: "totalSupply"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "claimAmount = 5 * 10 ** (uint256(decimals) - 1)"
+        Assignment using operator =
+           Type: uint256
+           Source: "claimAmount = 5 * 10 ** (uint256(decimals) - 1)"
+          Identifier claimAmount
+             Type: uint256
+             Source: "claimAmount"
+          BinaryOperation using operator *
+             Type: uint256
+             Source: "5 * 10 ** (uint256(decimals) - 1)"
+            Literal, token: [no token] value: 5
+               Type: int_const 5
+               Source: "5"
+            BinaryOperation using operator **
+               Type: uint256
+               Source: "10 ** (uint256(decimals) - 1)"
+              Literal, token: [no token] value: 10
+                 Type: int_const 10
+                 Source: "10"
+              TupleExpression
+                 Type: uint256
+                 Source: "(uint256(decimals) - 1)"
+                BinaryOperation using operator -
+                   Type: uint256
+                   Source: "uint256(decimals) - 1"
+                  FunctionCall
+                     Type: uint256
+                     Source: "uint256(decimals)"
+                    ElementaryTypeNameExpression uint256
+                       Type: type(uint256)
+                       Source: "uint256"
+                    Identifier decimals
+                       Type: uint8
+                       Source: "decimals"
+                  Literal, token: [no token] value: 1
+                     Type: int_const 1
+                     Source: "1"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "payAmount = 4 * 10 ** (uint256(decimals) - 1)"
+        Assignment using operator =
+           Type: uint256
+           Source: "payAmount = 4 * 10 ** (uint256(decimals) - 1)"
+          Identifier payAmount
+             Type: uint256
+             Source: "payAmount"
+          BinaryOperation using operator *
+             Type: uint256
+             Source: "4 * 10 ** (uint256(decimals) - 1)"
+            Literal, token: [no token] value: 4
+               Type: int_const 4
+               Source: "4"
+            BinaryOperation using operator **
+               Type: uint256
+               Source: "10 ** (uint256(decimals) - 1)"
+              Literal, token: [no token] value: 10
+                 Type: int_const 10
+                 Source: "10"
+              TupleExpression
+                 Type: uint256
+                 Source: "(uint256(decimals) - 1)"
+                BinaryOperation using operator -
+                   Type: uint256
+                   Source: "uint256(decimals) - 1"
+                  FunctionCall
+                     Type: uint256
+                     Source: "uint256(decimals)"
+                    ElementaryTypeNameExpression uint256
+                       Type: type(uint256)
+                       Source: "uint256"
+                    Identifier decimals
+                       Type: uint8
+                       Source: "decimals"
+                  Literal, token: [no token] value: 1
+                     Type: int_const 1
+                     Source: "1"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "feeAmount = 1 * 10 ** (uint256(decimals) - 1)"
+        Assignment using operator =
+           Type: uint256
+           Source: "feeAmount = 1 * 10 ** (uint256(decimals) - 1)"
+          Identifier feeAmount
+             Type: uint256
+             Source: "feeAmount"
+          BinaryOperation using operator *
+             Type: uint256
+             Source: "1 * 10 ** (uint256(decimals) - 1)"
+            Literal, token: [no token] value: 1
+               Type: int_const 1
+               Source: "1"
+            BinaryOperation using operator **
+               Type: uint256
+               Source: "10 ** (uint256(decimals) - 1)"
+              Literal, token: [no token] value: 10
+                 Type: int_const 10
+                 Source: "10"
+              TupleExpression
+                 Type: uint256
+                 Source: "(uint256(decimals) - 1)"
+                BinaryOperation using operator -
+                   Type: uint256
+                   Source: "uint256(decimals) - 1"
+                  FunctionCall
+                     Type: uint256
+                     Source: "uint256(decimals)"
+                    ElementaryTypeNameExpression uint256
+                       Type: type(uint256)
+                       Source: "uint256"
+                    Identifier decimals
+                       Type: uint8
+                       Source: "decimals"
+                  Literal, token: [no token] value: 1
+                     Type: int_const 1
+                     Source: "1"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "epoch = 31536000"
+        Assignment using operator =
+           Type: uint256
+           Source: "epoch = 31536000"
+          Identifier epoch
+             Type: uint256
+             Source: "epoch"
+          Literal, token: [no token] value: 31536000
+             Type: int_const 31536000
+             Source: "31536000"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "retentionMax = 40 * 10 ** uint256(decimals)"
+        Assignment using operator =
+           Type: uint256
+           Source: "retentionMax = 40 * 10 ** uint256(decimals)"
+          Identifier retentionMax
+             Type: uint256
+             Source: "retentionMax"
+          BinaryOperation using operator *
+             Type: uint256
+             Source: "40 * 10 ** uint256(decimals)"
+            Literal, token: [no token] value: 40
+               Type: int_const 40
+               Source: "40"
+            BinaryOperation using operator **
+               Type: uint256
+               Source: "10 ** uint256(decimals)"
+              Literal, token: [no token] value: 10
+                 Type: int_const 10
+                 Source: "10"
+              FunctionCall
+                 Type: uint256
+                 Source: "uint256(decimals)"
+                ElementaryTypeNameExpression uint256
+                   Type: type(uint256)
+                   Source: "uint256"
+                Identifier decimals
+                   Type: uint8
+                   Source: "decimals"
+  FunctionDefinition "balanceOf" - public - const
+     Source: "function balanceOf(address _owner) public constant returns (uint256 balance) {\r\n        return balances[_owner];\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _owner)"
+      VariableDeclaration "_owner"
+         Type: address
+         Source: "address _owner"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint256 balance)"
+      VariableDeclaration "balance"
+         Type: uint256
+         Source: "uint256 balance"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{\r\n        return balances[_owner];\r\n    }"
+      Return
+         Gas costs: 304
+         Source: "return balances[_owner]"
+        IndexAccess
+           Type: uint256
+           Source: "balances[_owner]"
+          Identifier balances
+             Type: mapping(address => uint256)
+             Source: "balances"
+          Identifier _owner
+             Type: address
+             Source: "_owner"
+  ModifierDefinition "onlyDirector"
+     Source: "modifier onlyDirector {\r\n        require(!directorLock);\r\n        \r\n        require(msg.sender == director);\r\n        _;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        require(!directorLock);\r\n        \r\n        require(msg.sender == director);\r\n        _;\r\n    }"
+      ExpressionStatement
+         Gas costs: 1908
+         Source: "require(!directorLock)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(!directorLock)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          UnaryOperation (prefix) !
+             Type: bool
+             Source: "!directorLock"
+            Identifier directorLock
+               Type: bool
+               Source: "directorLock"
+      ExpressionStatement
+         Gas costs: 1692
+         Source: "require(msg.sender == director)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(msg.sender == director)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "msg.sender == director"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Identifier director
+               Type: address
+               Source: "director"
+      PlaceholderStatement
+         Gas costs: 0
+         Source: "_"
+  ModifierDefinition "onlyDirectorForce"
+     Source: "modifier onlyDirectorForce {\r\n        require(msg.sender == director);\r\n        _;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        require(msg.sender == director);\r\n        _;\r\n    }"
+      ExpressionStatement
+         Gas costs: 564
+         Source: "require(msg.sender == director)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(msg.sender == director)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "msg.sender == director"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Identifier director
+               Type: address
+               Source: "director"
+      PlaceholderStatement
+         Gas costs: 0
+         Source: "_"
+  FunctionDefinition "transferDirector" - public
+     Source: "function transferDirector(address newDirector) public onlyDirectorForce {\r\n        director = newDirector;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address newDirector)"
+      VariableDeclaration "newDirector"
+         Type: address
+         Source: "address newDirector"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyDirectorForce"
+       Gas costs: 0
+       Source: "onlyDirectorForce"
+      Identifier onlyDirectorForce
+         Type: modifier ()
+         Source: "onlyDirectorForce"
+    Block
+       Source: "{\r\n        director = newDirector;\r\n    }"
+      ExpressionStatement
+         Gas costs: 20267
+         Source: "director = newDirector"
+        Assignment using operator =
+           Type: address
+           Source: "director = newDirector"
+          Identifier director
+             Type: address
+             Source: "director"
+          Identifier newDirector
+             Type: address
+             Source: "newDirector"
+  FunctionDefinition "withdrawFunds" - public
+     Source: "function withdrawFunds() public onlyDirectorForce {\r\n        director.transfer(this.balance);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyDirectorForce"
+       Gas costs: 0
+       Source: "onlyDirectorForce"
+      Identifier onlyDirectorForce
+         Type: modifier ()
+         Source: "onlyDirectorForce"
+    Block
+       Source: "{\r\n        director.transfer(this.balance);\r\n    }"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "director.transfer(this.balance)"
+        FunctionCall
+           Type: tuple()
+           Source: "director.transfer(this.balance)"
+          MemberAccess to member transfer
+             Type: function (uint256)
+             Source: "director.transfer"
+            Identifier director
+               Type: address
+               Source: "director"
+          MemberAccess to member balance
+             Type: uint256
+             Source: "this.balance"
+            Identifier this
+               Type: contract EthereumUltimate
+               Source: "this"
+  FunctionDefinition "selfLock" - public
+     Source: "function selfLock() public payable onlyDirector {\r\n        require(saleClosed);\r\n        \r\n        require(msg.value == 10 ether);\r\n        \r\n        directorLock = true;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyDirector"
+       Gas costs: 0
+       Source: "onlyDirector"
+      Identifier onlyDirector
+         Type: modifier ()
+         Source: "onlyDirector"
+    Block
+       Source: "{\r\n        require(saleClosed);\r\n        \r\n        require(msg.value == 10 ether);\r\n        \r\n        directorLock = true;\r\n    }"
+      ExpressionStatement
+         Gas costs: 315
+         Source: "require(saleClosed)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(saleClosed)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          Identifier saleClosed
+             Type: bool
+             Source: "saleClosed"
+      ExpressionStatement
+         Gas costs: 34
+         Source: "require(msg.value == 10 ether)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(msg.value == 10 ether)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "msg.value == 10 ether"
+            MemberAccess to member value
+               Type: uint256
+               Source: "msg.value"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Literal, token: [no token] value: 10
+               Type: int_const 10000000000000000000
+               Source: "10 ether"
+      ExpressionStatement
+         Gas costs: 20317
+         Source: "directorLock = true"
+        Assignment using operator =
+           Type: bool
+           Source: "directorLock = true"
+          Identifier directorLock
+             Type: bool
+             Source: "directorLock"
+          Literal, token: true value: true
+             Type: bool
+             Source: "true"
+  FunctionDefinition "amendClaim" - public
+     Source: "function amendClaim(uint8 claimAmountSet, uint8 payAmountSet, uint8 feeAmountSet, uint8 accuracy) public onlyDirector returns (bool success) {\r\n        require(claimAmountSet == (payAmountSet + feeAmountSet));\r\n        \r\n        claimAmount = claimAmountSet * 10 ** (uint256(decimals) - accuracy);\r\n        payAmount = payAmountSet * 10 ** (uint256(decimals) - accuracy);\r\n        feeAmount = feeAmountSet * 10 ** (uint256(decimals) - accuracy);\r\n        return true;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint8 claimAmountSet, uint8 payAmountSet, uint8 feeAmountSet, uint8 accuracy)"
+      VariableDeclaration "claimAmountSet"
+         Type: uint8
+         Source: "uint8 claimAmountSet"
+        ElementaryTypeName uint8
+           Source: "uint8"
+      VariableDeclaration "payAmountSet"
+         Type: uint8
+         Source: "uint8 payAmountSet"
+        ElementaryTypeName uint8
+           Source: "uint8"
+      VariableDeclaration "feeAmountSet"
+         Type: uint8
+         Source: "uint8 feeAmountSet"
+        ElementaryTypeName uint8
+           Source: "uint8"
+      VariableDeclaration "accuracy"
+         Type: uint8
+         Source: "uint8 accuracy"
+        ElementaryTypeName uint8
+           Source: "uint8"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+    ModifierInvocation "onlyDirector"
+       Gas costs: 0
+       Source: "onlyDirector"
+      Identifier onlyDirector
+         Type: modifier ()
+         Source: "onlyDirector"
+    Block
+       Source: "{\r\n        require(claimAmountSet == (payAmountSet + feeAmountSet));\r\n        \r\n        claimAmount = claimAmountSet * 10 ** (uint256(decimals) - accuracy);\r\n        payAmount = payAmountSet * 10 ** (uint256(decimals) - accuracy);\r\n        feeAmount = feeAmountSet * 10 ** (uint256(decimals) - accuracy);\r\n        return true;\r\n    }"
+      ExpressionStatement
+         Gas costs: 53
+         Source: "require(claimAmountSet == (payAmountSet + feeAmountSet))"
+        FunctionCall
+           Type: tuple()
+           Source: "require(claimAmountSet == (payAmountSet + feeAmountSet))"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "claimAmountSet == (payAmountSet + feeAmountSet)"
+            Identifier claimAmountSet
+               Type: uint8
+               Source: "claimAmountSet"
+            TupleExpression
+               Type: uint8
+               Source: "(payAmountSet + feeAmountSet)"
+              BinaryOperation using operator +
+                 Type: uint8
+                 Source: "payAmountSet + feeAmountSet"
+                Identifier payAmountSet
+                   Type: uint8
+                   Source: "payAmountSet"
+                Identifier feeAmountSet
+                   Type: uint8
+                   Source: "feeAmountSet"
+      ExpressionStatement
+         Gas costs: 21895
+         Source: "claimAmount = claimAmountSet * 10 ** (uint256(decimals) - accuracy)"
+        Assignment using operator =
+           Type: uint256
+           Source: "claimAmount = claimAmountSet * 10 ** (uint256(decimals) - accuracy)"
+          Identifier claimAmount
+             Type: uint256
+             Source: "claimAmount"
+          BinaryOperation using operator *
+             Type: uint256
+             Source: "claimAmountSet * 10 ** (uint256(decimals) - accuracy)"
+            Identifier claimAmountSet
+               Type: uint8
+               Source: "claimAmountSet"
+            BinaryOperation using operator **
+               Type: uint256
+               Source: "10 ** (uint256(decimals) - accuracy)"
+              Literal, token: [no token] value: 10
+                 Type: int_const 10
+                 Source: "10"
+              TupleExpression
+                 Type: uint256
+                 Source: "(uint256(decimals) - accuracy)"
+                BinaryOperation using operator -
+                   Type: uint256
+                   Source: "uint256(decimals) - accuracy"
+                  FunctionCall
+                     Type: uint256
+                     Source: "uint256(decimals)"
+                    ElementaryTypeNameExpression uint256
+                       Type: type(uint256)
+                       Source: "uint256"
+                    Identifier decimals
+                       Type: uint8
+                       Source: "decimals"
+                  Identifier accuracy
+                     Type: uint8
+                     Source: "accuracy"
+      ExpressionStatement
+         Gas costs: 21895
+         Source: "payAmount = payAmountSet * 10 ** (uint256(decimals) - accuracy)"
+        Assignment using operator =
+           Type: uint256
+           Source: "payAmount = payAmountSet * 10 ** (uint256(decimals) - accuracy)"
+          Identifier payAmount
+             Type: uint256
+             Source: "payAmount"
+          BinaryOperation using operator *
+             Type: uint256
+             Source: "payAmountSet * 10 ** (uint256(decimals) - accuracy)"
+            Identifier payAmountSet
+               Type: uint8
+               Source: "payAmountSet"
+            BinaryOperation using operator **
+               Type: uint256
+               Source: "10 ** (uint256(decimals) - accuracy)"
+              Literal, token: [no token] value: 10
+                 Type: int_const 10
+                 Source: "10"
+              TupleExpression
+                 Type: uint256
+                 Source: "(uint256(decimals) - accuracy)"
+                BinaryOperation using operator -
+                   Type: uint256
+                   Source: "uint256(decimals) - accuracy"
+                  FunctionCall
+                     Type: uint256
+                     Source: "uint256(decimals)"
+                    ElementaryTypeNameExpression uint256
+                       Type: type(uint256)
+                       Source: "uint256"
+                    Identifier decimals
+                       Type: uint8
+                       Source: "decimals"
+                  Identifier accuracy
+                     Type: uint8
+                     Source: "accuracy"
+      ExpressionStatement
+         Gas costs: 21895
+         Source: "feeAmount = feeAmountSet * 10 ** (uint256(decimals) - accuracy)"
+        Assignment using operator =
+           Type: uint256
+           Source: "feeAmount = feeAmountSet * 10 ** (uint256(decimals) - accuracy)"
+          Identifier feeAmount
+             Type: uint256
+             Source: "feeAmount"
+          BinaryOperation using operator *
+             Type: uint256
+             Source: "feeAmountSet * 10 ** (uint256(decimals) - accuracy)"
+            Identifier feeAmountSet
+               Type: uint8
+               Source: "feeAmountSet"
+            BinaryOperation using operator **
+               Type: uint256
+               Source: "10 ** (uint256(decimals) - accuracy)"
+              Literal, token: [no token] value: 10
+                 Type: int_const 10
+                 Source: "10"
+              TupleExpression
+                 Type: uint256
+                 Source: "(uint256(decimals) - accuracy)"
+                BinaryOperation using operator -
+                   Type: uint256
+                   Source: "uint256(decimals) - accuracy"
+                  FunctionCall
+                     Type: uint256
+                     Source: "uint256(decimals)"
+                    ElementaryTypeNameExpression uint256
+                       Type: type(uint256)
+                       Source: "uint256"
+                    Identifier decimals
+                       Type: uint8
+                       Source: "decimals"
+                  Identifier accuracy
+                     Type: uint8
+                     Source: "accuracy"
+      Return
+         Gas costs: 8
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+  FunctionDefinition "amendEpoch" - public
+     Source: "function amendEpoch(uint256 epochSet) public onlyDirector returns (bool success) {\r\n        // Set the epoch\r\n        epoch = epochSet;\r\n        return true;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 epochSet)"
+      VariableDeclaration "epochSet"
+         Type: uint256
+         Source: "uint256 epochSet"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+    ModifierInvocation "onlyDirector"
+       Gas costs: 0
+       Source: "onlyDirector"
+      Identifier onlyDirector
+         Type: modifier ()
+         Source: "onlyDirector"
+    Block
+       Source: "{\r\n        // Set the epoch\r\n        epoch = epochSet;\r\n        return true;\r\n    }"
+      ExpressionStatement
+         Gas costs: 20014
+         Source: "epoch = epochSet"
+        Assignment using operator =
+           Type: uint256
+           Source: "epoch = epochSet"
+          Identifier epoch
+             Type: uint256
+             Source: "epoch"
+          Identifier epochSet
+             Type: uint256
+             Source: "epochSet"
+      Return
+         Gas costs: 8
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+  FunctionDefinition "amendRetention" - public
+     Source: "function amendRetention(uint8 retentionSet, uint8 accuracy) public onlyDirector returns (bool success) {\r\n        // Set retentionMax\r\n        retentionMax = retentionSet * 10 ** (uint256(decimals) - accuracy);\r\n        return true;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint8 retentionSet, uint8 accuracy)"
+      VariableDeclaration "retentionSet"
+         Type: uint8
+         Source: "uint8 retentionSet"
+        ElementaryTypeName uint8
+           Source: "uint8"
+      VariableDeclaration "accuracy"
+         Type: uint8
+         Source: "uint8 accuracy"
+        ElementaryTypeName uint8
+           Source: "uint8"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+    ModifierInvocation "onlyDirector"
+       Gas costs: 0
+       Source: "onlyDirector"
+      Identifier onlyDirector
+         Type: modifier ()
+         Source: "onlyDirector"
+    Block
+       Source: "{\r\n        // Set retentionMax\r\n        retentionMax = retentionSet * 10 ** (uint256(decimals) - accuracy);\r\n        return true;\r\n    }"
+      ExpressionStatement
+         Gas costs: 21895
+         Source: "retentionMax = retentionSet * 10 ** (uint256(decimals) - accuracy)"
+        Assignment using operator =
+           Type: uint256
+           Source: "retentionMax = retentionSet * 10 ** (uint256(decimals) - accuracy)"
+          Identifier retentionMax
+             Type: uint256
+             Source: "retentionMax"
+          BinaryOperation using operator *
+             Type: uint256
+             Source: "retentionSet * 10 ** (uint256(decimals) - accuracy)"
+            Identifier retentionSet
+               Type: uint8
+               Source: "retentionSet"
+            BinaryOperation using operator **
+               Type: uint256
+               Source: "10 ** (uint256(decimals) - accuracy)"
+              Literal, token: [no token] value: 10
+                 Type: int_const 10
+                 Source: "10"
+              TupleExpression
+                 Type: uint256
+                 Source: "(uint256(decimals) - accuracy)"
+                BinaryOperation using operator -
+                   Type: uint256
+                   Source: "uint256(decimals) - accuracy"
+                  FunctionCall
+                     Type: uint256
+                     Source: "uint256(decimals)"
+                    ElementaryTypeNameExpression uint256
+                       Type: type(uint256)
+                       Source: "uint256"
+                    Identifier decimals
+                       Type: uint8
+                       Source: "decimals"
+                  Identifier accuracy
+                     Type: uint8
+                     Source: "accuracy"
+      Return
+         Gas costs: 8
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+  FunctionDefinition "closeSale" - public
+     Source: "function closeSale() public onlyDirector returns (bool success) {\r\n        // The sale must be currently open\r\n        require(!saleClosed);\r\n        \r\n        // Lock the crowdsale\r\n        saleClosed = true;\r\n        return true;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+    ModifierInvocation "onlyDirector"
+       Gas costs: 0
+       Source: "onlyDirector"
+      Identifier onlyDirector
+         Type: modifier ()
+         Source: "onlyDirector"
+    Block
+       Source: "{\r\n        // The sale must be currently open\r\n        require(!saleClosed);\r\n        \r\n        // Lock the crowdsale\r\n        saleClosed = true;\r\n        return true;\r\n    }"
+      ExpressionStatement
+         Gas costs: 318
+         Source: "require(!saleClosed)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(!saleClosed)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          UnaryOperation (prefix) !
+             Type: bool
+             Source: "!saleClosed"
+            Identifier saleClosed
+               Type: bool
+               Source: "saleClosed"
+      ExpressionStatement
+         Gas costs: 20317
+         Source: "saleClosed = true"
+        Assignment using operator =
+           Type: bool
+           Source: "saleClosed = true"
+          Identifier saleClosed
+             Type: bool
+             Source: "saleClosed"
+          Literal, token: true value: true
+             Type: bool
+             Source: "true"
+      Return
+         Gas costs: 8
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+  FunctionDefinition "openSale" - public
+     Source: "function openSale() public onlyDirector returns (bool success) {\r\n        // The sale must be currently closed\r\n        require(saleClosed);\r\n        \r\n        // Unlock the crowdsale\r\n        saleClosed = false;\r\n        return true;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+    ModifierInvocation "onlyDirector"
+       Gas costs: 0
+       Source: "onlyDirector"
+      Identifier onlyDirector
+         Type: modifier ()
+         Source: "onlyDirector"
+    Block
+       Source: "{\r\n        // The sale must be currently closed\r\n        require(saleClosed);\r\n        \r\n        // Unlock the crowdsale\r\n        saleClosed = false;\r\n        return true;\r\n    }"
+      ExpressionStatement
+         Gas costs: 315
+         Source: "require(saleClosed)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(saleClosed)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          Identifier saleClosed
+             Type: bool
+             Source: "saleClosed"
+      ExpressionStatement
+         Gas costs: 20317
+         Source: "saleClosed = false"
+        Assignment using operator =
+           Type: bool
+           Source: "saleClosed = false"
+          Identifier saleClosed
+             Type: bool
+             Source: "saleClosed"
+          Literal, token: false value: false
+             Type: bool
+             Source: "false"
+      Return
+         Gas costs: 8
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+  FunctionDefinition "bury" - public
+     Source: "function bury() public returns (bool success) {\r\n        // The address must be previously unburied\r\n        require(!buried[msg.sender]);\r\n        \r\n        // An address must have at least claimAmount to be buried\r\n        require(balances[msg.sender] >= claimAmount);\r\n        \r\n        // Prevent addresses with large balances from getting buried\r\n        require(balances[msg.sender] <= retentionMax);\r\n        \r\n        // Set buried state to true\r\n        buried[msg.sender] = true;\r\n        \r\n        // Set the initial claim clock to 1\r\n        claimed[msg.sender] = 1;\r\n        \r\n        // Execute an event reflecting the change\r\n        Bury(msg.sender, balances[msg.sender]);\r\n        return true;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n        // The address must be previously unburied\r\n        require(!buried[msg.sender]);\r\n        \r\n        // An address must have at least claimAmount to be buried\r\n        require(balances[msg.sender] >= claimAmount);\r\n        \r\n        // Prevent addresses with large balances from getting buried\r\n        require(balances[msg.sender] <= retentionMax);\r\n        \r\n        // Set buried state to true\r\n        buried[msg.sender] = true;\r\n        \r\n        // Set the initial claim clock to 1\r\n        claimed[msg.sender] = 1;\r\n        \r\n        // Execute an event reflecting the change\r\n        Bury(msg.sender, balances[msg.sender]);\r\n        return true;\r\n    }"
+      ExpressionStatement
+         Gas costs: 363
+         Source: "require(!buried[msg.sender])"
+        FunctionCall
+           Type: tuple()
+           Source: "require(!buried[msg.sender])"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          UnaryOperation (prefix) !
+             Type: bool
+             Source: "!buried[msg.sender]"
+            IndexAccess
+               Type: bool
+               Source: "buried[msg.sender]"
+              Identifier buried
+                 Type: mapping(address => bool)
+                 Source: "buried"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+      ExpressionStatement
+         Gas costs: 533
+         Source: "require(balances[msg.sender] >= claimAmount)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(balances[msg.sender] >= claimAmount)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "balances[msg.sender] >= claimAmount"
+            IndexAccess
+               Type: uint256
+               Source: "balances[msg.sender]"
+              Identifier balances
+                 Type: mapping(address => uint256)
+                 Source: "balances"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+            Identifier claimAmount
+               Type: uint256
+               Source: "claimAmount"
+      ExpressionStatement
+         Gas costs: 533
+         Source: "require(balances[msg.sender] <= retentionMax)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(balances[msg.sender] <= retentionMax)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator <=
+             Type: bool
+             Source: "balances[msg.sender] <= retentionMax"
+            IndexAccess
+               Type: uint256
+               Source: "balances[msg.sender]"
+              Identifier balances
+                 Type: mapping(address => uint256)
+                 Source: "balances"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+            Identifier retentionMax
+               Type: uint256
+               Source: "retentionMax"
+      ExpressionStatement
+         Gas costs: 20362
+         Source: "buried[msg.sender] = true"
+        Assignment using operator =
+           Type: bool
+           Source: "buried[msg.sender] = true"
+          IndexAccess
+             Type: bool
+             Source: "buried[msg.sender]"
+            Identifier buried
+               Type: mapping(address => bool)
+               Source: "buried"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Literal, token: true value: true
+             Type: bool
+             Source: "true"
+      ExpressionStatement
+         Gas costs: 20103
+         Source: "claimed[msg.sender] = 1"
+        Assignment using operator =
+           Type: uint256
+           Source: "claimed[msg.sender] = 1"
+          IndexAccess
+             Type: uint256
+             Source: "claimed[msg.sender]"
+            Identifier claimed
+               Type: mapping(address => uint256)
+               Source: "claimed"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Literal, token: [no token] value: 1
+             Type: int_const 1
+             Source: "1"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "Bury(msg.sender, balances[msg.sender])"
+        FunctionCall
+           Type: tuple()
+           Source: "Bury(msg.sender, balances[msg.sender])"
+          Identifier Bury
+             Type: function (address,uint256)
+             Source: "Bury"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          IndexAccess
+             Type: uint256
+             Source: "balances[msg.sender]"
+            Identifier balances
+               Type: mapping(address => uint256)
+               Source: "balances"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+      Return
+         Gas costs: 8
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+  FunctionDefinition "claim" - public
+     Source: "function claim(address _payout, address _fee) public returns (bool success) {\r\n        // The claimed address must have already been buried\r\n        require(buried[msg.sender]);\r\n        \r\n        // The payout and fee addresses must be different\r\n        require(_payout != _fee);\r\n        \r\n        // The claimed address cannot pay itself\r\n        require(msg.sender != _payout);\r\n        \r\n        // The claimed address cannot pay itself\r\n        require(msg.sender != _fee);\r\n        \r\n        // It must be either the first time this address is being claimed or atleast epoch in time has passed\r\n        require(claimed[msg.sender] == 1 || (block.timestamp - claimed[msg.sender]) >= epoch);\r\n        \r\n        // Check if the buried address has enough\r\n        require(balances[msg.sender] >= claimAmount);\r\n        \r\n        // Reset the claim clock to the current block time\r\n        claimed[msg.sender] = block.timestamp;\r\n        \r\n        // Save this for an assertion in the future\r\n        uint256 previousBalances = balances[msg.sender] + balances[_payout] + balances[_fee];\r\n        \r\n        // Remove claimAmount from the buried address\r\n        balances[msg.sender] -= claimAmount;\r\n        \r\n        // Pay the website owner that invoked the web node that found the ETHT seed key\r\n        balances[_payout] += payAmount;\r\n        \r\n        // Pay the broker node that unlocked the ETHUT\r\n        balances[_fee] += feeAmount;\r\n        \r\n        // Execute events to reflect the changes\r\n        Claim(msg.sender, _payout, _fee);\r\n        Transfer(msg.sender, _payout, payAmount);\r\n        Transfer(msg.sender, _fee, feeAmount);\r\n        \r\n        // Failsafe logic that should never be false\r\n        assert(balances[msg.sender] + balances[_payout] + balances[_fee] == previousBalances);\r\n        return true;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _payout, address _fee)"
+      VariableDeclaration "_payout"
+         Type: address
+         Source: "address _payout"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_fee"
+         Type: address
+         Source: "address _fee"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n        // The claimed address must have already been buried\r\n        require(buried[msg.sender]);\r\n        \r\n        // The payout and fee addresses must be different\r\n        require(_payout != _fee);\r\n        \r\n        // The claimed address cannot pay itself\r\n        require(msg.sender != _payout);\r\n        \r\n        // The claimed address cannot pay itself\r\n        require(msg.sender != _fee);\r\n        \r\n        // It must be either the first time this address is being claimed or atleast epoch in time has passed\r\n        require(claimed[msg.sender] == 1 || (block.timestamp - claimed[msg.sender]) >= epoch);\r\n        \r\n        // Check if the buried address has enough\r\n        require(balances[msg.sender] >= claimAmount);\r\n        \r\n        // Reset the claim clock to the current block time\r\n        claimed[msg.sender] = block.timestamp;\r\n        \r\n        // Save this for an assertion in the future\r\n        uint256 previousBalances = balances[msg.sender] + balances[_payout] + balances[_fee];\r\n        \r\n        // Remove claimAmount from the buried address\r\n        balances[msg.sender] -= claimAmount;\r\n        \r\n        // Pay the website owner that invoked the web node that found the ETHT seed key\r\n        balances[_payout] += payAmount;\r\n        \r\n        // Pay the broker node that unlocked the ETHUT\r\n        balances[_fee] += feeAmount;\r\n        \r\n        // Execute events to reflect the changes\r\n        Claim(msg.sender, _payout, _fee);\r\n        Transfer(msg.sender, _payout, payAmount);\r\n        Transfer(msg.sender, _fee, feeAmount);\r\n        \r\n        // Failsafe logic that should never be false\r\n        assert(balances[msg.sender] + balances[_payout] + balances[_fee] == previousBalances);\r\n        return true;\r\n    }"
+      ExpressionStatement
+         Gas costs: 360
+         Source: "require(buried[msg.sender])"
+        FunctionCall
+           Type: tuple()
+           Source: "require(buried[msg.sender])"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          IndexAccess
+             Type: bool
+             Source: "buried[msg.sender]"
+            Identifier buried
+               Type: mapping(address => bool)
+               Source: "buried"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+      ExpressionStatement
+         Gas costs: 50
+         Source: "require(_payout != _fee)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(_payout != _fee)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator !=
+             Type: bool
+             Source: "_payout != _fee"
+            Identifier _payout
+               Type: address
+               Source: "_payout"
+            Identifier _fee
+               Type: address
+               Source: "_fee"
+      ExpressionStatement
+         Gas costs: 49
+         Source: "require(msg.sender != _payout)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(msg.sender != _payout)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator !=
+             Type: bool
+             Source: "msg.sender != _payout"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Identifier _payout
+               Type: address
+               Source: "_payout"
+      ExpressionStatement
+         Gas costs: 49
+         Source: "require(msg.sender != _fee)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(msg.sender != _fee)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator !=
+             Type: bool
+             Source: "msg.sender != _fee"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Identifier _fee
+               Type: address
+               Source: "_fee"
+      ExpressionStatement
+         Gas costs: 861
+         Source: "require(claimed[msg.sender] == 1 || (block.timestamp - claimed[msg.sender]) >= epoch)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(claimed[msg.sender] == 1 || (block.timestamp - claimed[msg.sender]) >= epoch)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ||
+             Type: bool
+             Source: "claimed[msg.sender] == 1 || (block.timestamp - claimed[msg.sender]) >= epoch"
+            BinaryOperation using operator ==
+               Type: bool
+               Source: "claimed[msg.sender] == 1"
+              IndexAccess
+                 Type: uint256
+                 Source: "claimed[msg.sender]"
+                Identifier claimed
+                   Type: mapping(address => uint256)
+                   Source: "claimed"
+                MemberAccess to member sender
+                   Type: address
+                   Source: "msg.sender"
+                  Identifier msg
+                     Type: msg
+                     Source: "msg"
+              Literal, token: [no token] value: 1
+                 Type: int_const 1
+                 Source: "1"
+            BinaryOperation using operator >=
+               Type: bool
+               Source: "(block.timestamp - claimed[msg.sender]) >= epoch"
+              TupleExpression
+                 Type: uint256
+                 Source: "(block.timestamp - claimed[msg.sender])"
+                BinaryOperation using operator -
+                   Type: uint256
+                   Source: "block.timestamp - claimed[msg.sender]"
+                  MemberAccess to member timestamp
+                     Type: uint256
+                     Source: "block.timestamp"
+                    Identifier block
+                       Type: block
+                       Source: "block"
+                  IndexAccess
+                     Type: uint256
+                     Source: "claimed[msg.sender]"
+                    Identifier claimed
+                       Type: mapping(address => uint256)
+                       Source: "claimed"
+                    MemberAccess to member sender
+                       Type: address
+                       Source: "msg.sender"
+                      Identifier msg
+                         Type: msg
+                         Source: "msg"
+              Identifier epoch
+                 Type: uint256
+                 Source: "epoch"
+      ExpressionStatement
+         Gas costs: 533
+         Source: "require(balances[msg.sender] >= claimAmount)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(balances[msg.sender] >= claimAmount)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "balances[msg.sender] >= claimAmount"
+            IndexAccess
+               Type: uint256
+               Source: "balances[msg.sender]"
+              Identifier balances
+                 Type: mapping(address => uint256)
+                 Source: "balances"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+            Identifier claimAmount
+               Type: uint256
+               Source: "claimAmount"
+      ExpressionStatement
+         Gas costs: 20108
+         Source: "claimed[msg.sender] = block.timestamp"
+        Assignment using operator =
+           Type: uint256
+           Source: "claimed[msg.sender] = block.timestamp"
+          IndexAccess
+             Type: uint256
+             Source: "claimed[msg.sender]"
+            Identifier claimed
+               Type: mapping(address => uint256)
+               Source: "claimed"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          MemberAccess to member timestamp
+             Type: uint256
+             Source: "block.timestamp"
+            Identifier block
+               Type: block
+               Source: "block"
+      VariableDeclarationStatement
+         Gas costs: 892
+         Source: "uint256 previousBalances = balances[msg.sender] + balances[_payout] + balances[_fee]"
+        VariableDeclaration "previousBalances"
+           Type: uint256
+           Source: "uint256 previousBalances"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        BinaryOperation using operator +
+           Type: uint256
+           Source: "balances[msg.sender] + balances[_payout] + balances[_fee]"
+          BinaryOperation using operator +
+             Type: uint256
+             Source: "balances[msg.sender] + balances[_payout]"
+            IndexAccess
+               Type: uint256
+               Source: "balances[msg.sender]"
+              Identifier balances
+                 Type: mapping(address => uint256)
+                 Source: "balances"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+            IndexAccess
+               Type: uint256
+               Source: "balances[_payout]"
+              Identifier balances
+                 Type: mapping(address => uint256)
+                 Source: "balances"
+              Identifier _payout
+                 Type: address
+                 Source: "_payout"
+          IndexAccess
+             Type: uint256
+             Source: "balances[_fee]"
+            Identifier balances
+               Type: mapping(address => uint256)
+               Source: "balances"
+            Identifier _fee
+               Type: address
+               Source: "_fee"
+      ExpressionStatement
+         Gas costs: 20522
+         Source: "balances[msg.sender] -= claimAmount"
+        Assignment using operator -=
+           Type: uint256
+           Source: "balances[msg.sender] -= claimAmount"
+          IndexAccess
+             Type: uint256
+             Source: "balances[msg.sender]"
+            Identifier balances
+               Type: mapping(address => uint256)
+               Source: "balances"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Identifier claimAmount
+             Type: uint256
+             Source: "claimAmount"
+      ExpressionStatement
+         Gas costs: 20523
+         Source: "balances[_payout] += payAmount"
+        Assignment using operator +=
+           Type: uint256
+           Source: "balances[_payout] += payAmount"
+          IndexAccess
+             Type: uint256
+             Source: "balances[_payout]"
+            Identifier balances
+               Type: mapping(address => uint256)
+               Source: "balances"
+            Identifier _payout
+               Type: address
+               Source: "_payout"
+          Identifier payAmount
+             Type: uint256
+             Source: "payAmount"
+      ExpressionStatement
+         Gas costs: 20523
+         Source: "balances[_fee] += feeAmount"
+        Assignment using operator +=
+           Type: uint256
+           Source: "balances[_fee] += feeAmount"
+          IndexAccess
+             Type: uint256
+             Source: "balances[_fee]"
+            Identifier balances
+               Type: mapping(address => uint256)
+               Source: "balances"
+            Identifier _fee
+               Type: address
+               Source: "_fee"
+          Identifier feeAmount
+             Type: uint256
+             Source: "feeAmount"
+      ExpressionStatement
+         Gas costs: 1931
+         Source: "Claim(msg.sender, _payout, _fee)"
+        FunctionCall
+           Type: tuple()
+           Source: "Claim(msg.sender, _payout, _fee)"
+          Identifier Claim
+             Type: function (address,address,address)
+             Source: "Claim"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier _payout
+             Type: address
+             Source: "_payout"
+          Identifier _fee
+             Type: address
+             Source: "_fee"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "Transfer(msg.sender, _payout, payAmount)"
+        FunctionCall
+           Type: tuple()
+           Source: "Transfer(msg.sender, _payout, payAmount)"
+          Identifier Transfer
+             Type: function (address,address,uint256)
+             Source: "Transfer"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier _payout
+             Type: address
+             Source: "_payout"
+          Identifier payAmount
+             Type: uint256
+             Source: "payAmount"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "Transfer(msg.sender, _fee, feeAmount)"
+        FunctionCall
+           Type: tuple()
+           Source: "Transfer(msg.sender, _fee, feeAmount)"
+          Identifier Transfer
+             Type: function (address,address,uint256)
+             Source: "Transfer"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier _fee
+             Type: address
+             Source: "_fee"
+          Identifier feeAmount
+             Type: uint256
+             Source: "feeAmount"
+      ExpressionStatement
+         Gas costs: 910
+         Source: "assert(balances[msg.sender] + balances[_payout] + balances[_fee] == previousBalances)"
+        FunctionCall
+           Type: tuple()
+           Source: "assert(balances[msg.sender] + balances[_payout] + balances[_fee] == previousBalances)"
+          Identifier assert
+             Type: function (bool) pure
+             Source: "assert"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "balances[msg.sender] + balances[_payout] + balances[_fee] == previousBalances"
+            BinaryOperation using operator +
+               Type: uint256
+               Source: "balances[msg.sender] + balances[_payout] + balances[_fee]"
+              BinaryOperation using operator +
+                 Type: uint256
+                 Source: "balances[msg.sender] + balances[_payout]"
+                IndexAccess
+                   Type: uint256
+                   Source: "balances[msg.sender]"
+                  Identifier balances
+                     Type: mapping(address => uint256)
+                     Source: "balances"
+                  MemberAccess to member sender
+                     Type: address
+                     Source: "msg.sender"
+                    Identifier msg
+                       Type: msg
+                       Source: "msg"
+                IndexAccess
+                   Type: uint256
+                   Source: "balances[_payout]"
+                  Identifier balances
+                     Type: mapping(address => uint256)
+                     Source: "balances"
+                  Identifier _payout
+                     Type: address
+                     Source: "_payout"
+              IndexAccess
+                 Type: uint256
+                 Source: "balances[_fee]"
+                Identifier balances
+                   Type: mapping(address => uint256)
+                   Source: "balances"
+                Identifier _fee
+                   Type: address
+                   Source: "_fee"
+            Identifier previousBalances
+               Type: uint256
+               Source: "previousBalances"
+      Return
+         Gas costs: 8
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+  FunctionDefinition "" - public
+     Source: "function () public payable {\r\n        require(!saleClosed);\r\n        \r\n        // Minimum amount is 1 finney\r\n        require(msg.value >= 1 finney);\r\n        \r\n        // Price is 1 ETH = 10000 ETHT\r\n        uint256 amount = msg.value * 30000;\r\n        \r\n        // Supply cap may increase\r\n        require(totalSupply + amount <= (10000000 * 10 ** uint256(decimals)));\r\n        \r\n        // Increases the total supply\r\n        totalSupply += amount;\r\n        \r\n        // Adds the amount to the balance\r\n        balances[msg.sender] += amount;\r\n        \r\n        // Track ETH amount raised\r\n        funds += msg.value;\r\n        \r\n        // Execute an event reflecting the change\r\n        Transfer(this, msg.sender, amount);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        require(!saleClosed);\r\n        \r\n        // Minimum amount is 1 finney\r\n        require(msg.value >= 1 finney);\r\n        \r\n        // Price is 1 ETH = 10000 ETHT\r\n        uint256 amount = msg.value * 30000;\r\n        \r\n        // Supply cap may increase\r\n        require(totalSupply + amount <= (10000000 * 10 ** uint256(decimals)));\r\n        \r\n        // Increases the total supply\r\n        totalSupply += amount;\r\n        \r\n        // Adds the amount to the balance\r\n        balances[msg.sender] += amount;\r\n        \r\n        // Track ETH amount raised\r\n        funds += msg.value;\r\n        \r\n        // Execute an event reflecting the change\r\n        Transfer(this, msg.sender, amount);\r\n    }"
+      ExpressionStatement
+         Gas costs: 318
+         Source: "require(!saleClosed)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(!saleClosed)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          UnaryOperation (prefix) !
+             Type: bool
+             Source: "!saleClosed"
+            Identifier saleClosed
+               Type: bool
+               Source: "saleClosed"
+      ExpressionStatement
+         Gas costs: 37
+         Source: "require(msg.value >= 1 finney)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(msg.value >= 1 finney)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "msg.value >= 1 finney"
+            MemberAccess to member value
+               Type: uint256
+               Source: "msg.value"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Literal, token: [no token] value: 1
+               Type: int_const 1000000000000000
+               Source: "1 finney"
+      VariableDeclarationStatement
+         Gas costs: 18
+         Source: "uint256 amount = msg.value * 30000"
+        VariableDeclaration "amount"
+           Type: uint256
+           Source: "uint256 amount"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        BinaryOperation using operator *
+           Type: uint256
+           Source: "msg.value * 30000"
+          MemberAccess to member value
+             Type: uint256
+             Source: "msg.value"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Literal, token: [no token] value: 30000
+             Type: int_const 30000
+             Source: "30000"
+      ExpressionStatement
+         Gas costs: 2107
+         Source: "require(totalSupply + amount <= (10000000 * 10 ** uint256(decimals)))"
+        FunctionCall
+           Type: tuple()
+           Source: "require(totalSupply + amount <= (10000000 * 10 ** uint256(decimals)))"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator <=
+             Type: bool
+             Source: "totalSupply + amount <= (10000000 * 10 ** uint256(decimals))"
+            BinaryOperation using operator +
+               Type: uint256
+               Source: "totalSupply + amount"
+              Identifier totalSupply
+                 Type: uint256
+                 Source: "totalSupply"
+              Identifier amount
+                 Type: uint256
+                 Source: "amount"
+            TupleExpression
+               Type: uint256
+               Source: "(10000000 * 10 ** uint256(decimals))"
+              BinaryOperation using operator *
+                 Type: uint256
+                 Source: "10000000 * 10 ** uint256(decimals)"
+                Literal, token: [no token] value: 10000000
+                   Type: int_const 10000000
+                   Source: "10000000"
+                BinaryOperation using operator **
+                   Type: uint256
+                   Source: "10 ** uint256(decimals)"
+                  Literal, token: [no token] value: 10
+                     Type: int_const 10
+                     Source: "10"
+                  FunctionCall
+                     Type: uint256
+                     Source: "uint256(decimals)"
+                    ElementaryTypeNameExpression uint256
+                       Type: type(uint256)
+                       Source: "uint256"
+                    Identifier decimals
+                       Type: uint8
+                       Source: "decimals"
+      ExpressionStatement
+         Gas costs: 20233
+         Source: "totalSupply += amount"
+        Assignment using operator +=
+           Type: uint256
+           Source: "totalSupply += amount"
+          Identifier totalSupply
+             Type: uint256
+             Source: "totalSupply"
+          Identifier amount
+             Type: uint256
+             Source: "amount"
+      ExpressionStatement
+         Gas costs: 20328
+         Source: "balances[msg.sender] += amount"
+        Assignment using operator +=
+           Type: uint256
+           Source: "balances[msg.sender] += amount"
+          IndexAccess
+             Type: uint256
+             Source: "balances[msg.sender]"
+            Identifier balances
+               Type: mapping(address => uint256)
+               Source: "balances"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Identifier amount
+             Type: uint256
+             Source: "amount"
+      ExpressionStatement
+         Gas costs: 20232
+         Source: "funds += msg.value"
+        Assignment using operator +=
+           Type: uint256
+           Source: "funds += msg.value"
+          Identifier funds
+             Type: uint256
+             Source: "funds"
+          MemberAccess to member value
+             Type: uint256
+             Source: "msg.value"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "Transfer(this, msg.sender, amount)"
+        FunctionCall
+           Type: tuple()
+           Source: "Transfer(this, msg.sender, amount)"
+          Identifier Transfer
+             Type: function (address,address,uint256)
+             Source: "Transfer"
+          Identifier this
+             Type: contract EthereumUltimate
+             Source: "this"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier amount
+             Type: uint256
+             Source: "amount"
+  FunctionDefinition "_transfer"
+     Source: "function _transfer(address _from, address _to, uint _value) internal {\r\n        // Sending addresses cannot be buried\r\n        require(!buried[_from]);\r\n        \r\n        // If the receiving address is buried, it cannot exceed retentionMax\r\n        if (buried[_to]) {\r\n            require(balances[_to] + _value <= retentionMax);\r\n        }\r\n        \r\n        require(_to != 0x0);\r\n        \r\n        require(balances[_from] >= _value);\r\n        \r\n        require(balances[_to] + _value > balances[_to]);\r\n        \r\n        uint256 previousBalances = balances[_from] + balances[_to];\r\n        \r\n        balances[_from] -= _value;\r\n        \r\n        balances[_to] += _value;\r\n        Transfer(_from, _to, _value);\r\n        \r\n        assert(balances[_from] + balances[_to] == previousBalances);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _from, address _to, uint _value)"
+      VariableDeclaration "_from"
+         Type: address
+         Source: "address _from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint _value"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        // Sending addresses cannot be buried\r\n        require(!buried[_from]);\r\n        \r\n        // If the receiving address is buried, it cannot exceed retentionMax\r\n        if (buried[_to]) {\r\n            require(balances[_to] + _value <= retentionMax);\r\n        }\r\n        \r\n        require(_to != 0x0);\r\n        \r\n        require(balances[_from] >= _value);\r\n        \r\n        require(balances[_to] + _value > balances[_to]);\r\n        \r\n        uint256 previousBalances = balances[_from] + balances[_to];\r\n        \r\n        balances[_from] -= _value;\r\n        \r\n        balances[_to] += _value;\r\n        Transfer(_from, _to, _value);\r\n        \r\n        assert(balances[_from] + balances[_to] == previousBalances);\r\n    }"
+      ExpressionStatement
+         Gas costs: 364
+         Source: "require(!buried[_from])"
+        FunctionCall
+           Type: tuple()
+           Source: "require(!buried[_from])"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          UnaryOperation (prefix) !
+             Type: bool
+             Source: "!buried[_from]"
+            IndexAccess
+               Type: bool
+               Source: "buried[_from]"
+              Identifier buried
+                 Type: mapping(address => bool)
+                 Source: "buried"
+              Identifier _from
+                 Type: address
+                 Source: "_from"
+      IfStatement
+         Source: "if (buried[_to]) {\r\n            require(balances[_to] + _value <= retentionMax);\r\n        }"
+        IndexAccess
+           Type: bool
+           Gas costs: 335
+           Source: "buried[_to]"
+          Identifier buried
+             Type: mapping(address => bool)
+             Source: "buried"
+          Identifier _to
+             Type: address
+             Source: "_to"
+        Block
+           Source: "{\r\n            require(balances[_to] + _value <= retentionMax);\r\n        }"
+          ExpressionStatement
+             Gas costs: 540
+             Source: "require(balances[_to] + _value <= retentionMax)"
+            FunctionCall
+               Type: tuple()
+               Source: "require(balances[_to] + _value <= retentionMax)"
+              Identifier require
+                 Type: function (bool) pure
+                 Source: "require"
+              BinaryOperation using operator <=
+                 Type: bool
+                 Source: "balances[_to] + _value <= retentionMax"
+                BinaryOperation using operator +
+                   Type: uint256
+                   Source: "balances[_to] + _value"
+                  IndexAccess
+                     Type: uint256
+                     Source: "balances[_to]"
+                    Identifier balances
+                       Type: mapping(address => uint256)
+                       Source: "balances"
+                    Identifier _to
+                       Type: address
+                       Source: "_to"
+                  Identifier _value
+                     Type: uint256
+                     Source: "_value"
+                Identifier retentionMax
+                   Type: uint256
+                   Source: "retentionMax"
+      ExpressionStatement
+         Gas costs: 44
+         Source: "require(_to != 0x0)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(_to != 0x0)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator !=
+             Type: bool
+             Source: "_to != 0x0"
+            Identifier _to
+               Type: address
+               Source: "_to"
+            Literal, token: [no token] value: 0x0
+               Type: int_const 0
+               Source: "0x0"
+      ExpressionStatement
+         Gas costs: 334
+         Source: "require(balances[_from] >= _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(balances[_from] >= _value)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "balances[_from] >= _value"
+            IndexAccess
+               Type: uint256
+               Source: "balances[_from]"
+              Identifier balances
+                 Type: mapping(address => uint256)
+                 Source: "balances"
+              Identifier _from
+                 Type: address
+                 Source: "_from"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+      ExpressionStatement
+         Gas costs: 627
+         Source: "require(balances[_to] + _value > balances[_to])"
+        FunctionCall
+           Type: tuple()
+           Source: "require(balances[_to] + _value > balances[_to])"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >
+             Type: bool
+             Source: "balances[_to] + _value > balances[_to]"
+            BinaryOperation using operator +
+               Type: uint256
+               Source: "balances[_to] + _value"
+              IndexAccess
+                 Type: uint256
+                 Source: "balances[_to]"
+                Identifier balances
+                   Type: mapping(address => uint256)
+                   Source: "balances"
+                Identifier _to
+                   Type: address
+                   Source: "_to"
+              Identifier _value
+                 Type: uint256
+                 Source: "_value"
+            IndexAccess
+               Type: uint256
+               Source: "balances[_to]"
+              Identifier balances
+                 Type: mapping(address => uint256)
+                 Source: "balances"
+              Identifier _to
+                 Type: address
+                 Source: "_to"
+      VariableDeclarationStatement
+         Gas costs: 603
+         Source: "uint256 previousBalances = balances[_from] + balances[_to]"
+        VariableDeclaration "previousBalances"
+           Type: uint256
+           Source: "uint256 previousBalances"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        BinaryOperation using operator +
+           Type: uint256
+           Source: "balances[_from] + balances[_to]"
+          IndexAccess
+             Type: uint256
+             Source: "balances[_from]"
+            Identifier balances
+               Type: mapping(address => uint256)
+               Source: "balances"
+            Identifier _from
+               Type: address
+               Source: "_from"
+          IndexAccess
+             Type: uint256
+             Source: "balances[_to]"
+            Identifier balances
+               Type: mapping(address => uint256)
+               Source: "balances"
+            Identifier _to
+               Type: address
+               Source: "_to"
+      ExpressionStatement
+         Gas costs: 20323
+         Source: "balances[_from] -= _value"
+        Assignment using operator -=
+           Type: uint256
+           Source: "balances[_from] -= _value"
+          IndexAccess
+             Type: uint256
+             Source: "balances[_from]"
+            Identifier balances
+               Type: mapping(address => uint256)
+               Source: "balances"
+            Identifier _from
+               Type: address
+               Source: "_from"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: 20323
+         Source: "balances[_to] += _value"
+        Assignment using operator +=
+           Type: uint256
+           Source: "balances[_to] += _value"
+          IndexAccess
+             Type: uint256
+             Source: "balances[_to]"
+            Identifier balances
+               Type: mapping(address => uint256)
+               Source: "balances"
+            Identifier _to
+               Type: address
+               Source: "_to"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "Transfer(_from, _to, _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "Transfer(_from, _to, _value)"
+          Identifier Transfer
+             Type: function (address,address,uint256)
+             Source: "Transfer"
+          Identifier _from
+             Type: address
+             Source: "_from"
+          Identifier _to
+             Type: address
+             Source: "_to"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: 615
+         Source: "assert(balances[_from] + balances[_to] == previousBalances)"
+        FunctionCall
+           Type: tuple()
+           Source: "assert(balances[_from] + balances[_to] == previousBalances)"
+          Identifier assert
+             Type: function (bool) pure
+             Source: "assert"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "balances[_from] + balances[_to] == previousBalances"
+            BinaryOperation using operator +
+               Type: uint256
+               Source: "balances[_from] + balances[_to]"
+              IndexAccess
+                 Type: uint256
+                 Source: "balances[_from]"
+                Identifier balances
+                   Type: mapping(address => uint256)
+                   Source: "balances"
+                Identifier _from
+                   Type: address
+                   Source: "_from"
+              IndexAccess
+                 Type: uint256
+                 Source: "balances[_to]"
+                Identifier balances
+                   Type: mapping(address => uint256)
+                   Source: "balances"
+                Identifier _to
+                   Type: address
+                   Source: "_to"
+            Identifier previousBalances
+               Type: uint256
+               Source: "previousBalances"
+  FunctionDefinition "transfer" - public
+     Source: "function transfer(address _to, uint256 _value) public {\r\n        _transfer(msg.sender, _to, _value);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _to, uint256 _value)"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        _transfer(msg.sender, _to, _value);\r\n    }"
+      ExpressionStatement
+         Gas costs: 12
+         Source: "_transfer(msg.sender, _to, _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "_transfer(msg.sender, _to, _value)"
+          Identifier _transfer
+             Type: function (address,address,uint256)
+             Source: "_transfer"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier _to
+             Type: address
+             Source: "_to"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+  FunctionDefinition "transferFrom" - public
+     Source: "function transferFrom(address _from, address _to, uint256 _value) public returns (bool success) {\r\n        // Check allowance\r\n        require(_value <= allowance[_from][msg.sender]);\r\n        allowance[_from][msg.sender] -= _value;\r\n        _transfer(_from, _to, _value);\r\n        return true;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _from, address _to, uint256 _value)"
+      VariableDeclaration "_from"
+         Type: address
+         Source: "address _from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n        // Check allowance\r\n        require(_value <= allowance[_from][msg.sender]);\r\n        allowance[_from][msg.sender] -= _value;\r\n        _transfer(_from, _to, _value);\r\n        return true;\r\n    }"
+      ExpressionStatement
+         Gas costs: 423
+         Source: "require(_value <= allowance[_from][msg.sender])"
+        FunctionCall
+           Type: tuple()
+           Source: "require(_value <= allowance[_from][msg.sender])"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator <=
+             Type: bool
+             Source: "_value <= allowance[_from][msg.sender]"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+            IndexAccess
+               Type: uint256
+               Source: "allowance[_from][msg.sender]"
+              IndexAccess
+                 Type: mapping(address => uint256)
+                 Source: "allowance[_from]"
+                Identifier allowance
+                   Type: mapping(address => mapping(address => uint256))
+                   Source: "allowance"
+                Identifier _from
+                   Type: address
+                   Source: "_from"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+      ExpressionStatement
+         Gas costs: 20418
+         Source: "allowance[_from][msg.sender] -= _value"
+        Assignment using operator -=
+           Type: uint256
+           Source: "allowance[_from][msg.sender] -= _value"
+          IndexAccess
+             Type: uint256
+             Source: "allowance[_from][msg.sender]"
+            IndexAccess
+               Type: mapping(address => uint256)
+               Source: "allowance[_from]"
+              Identifier allowance
+                 Type: mapping(address => mapping(address => uint256))
+                 Source: "allowance"
+              Identifier _from
+                 Type: address
+                 Source: "_from"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: 24
+         Source: "_transfer(_from, _to, _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "_transfer(_from, _to, _value)"
+          Identifier _transfer
+             Type: function (address,address,uint256)
+             Source: "_transfer"
+          Identifier _from
+             Type: address
+             Source: "_from"
+          Identifier _to
+             Type: address
+             Source: "_to"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      Return
+         Gas costs: 8
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+  FunctionDefinition "approve" - public
+     Source: "function approve(address _spender, uint256 _value) public returns (bool success) {\r\n        // Buried addresses cannot be approved\r\n        require(!buried[msg.sender]);\r\n        \r\n        allowance[msg.sender][_spender] = _value;\r\n        Approval(msg.sender, _spender, _value);\r\n        return true;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _spender, uint256 _value)"
+      VariableDeclaration "_spender"
+         Type: address
+         Source: "address _spender"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n        // Buried addresses cannot be approved\r\n        require(!buried[msg.sender]);\r\n        \r\n        allowance[msg.sender][_spender] = _value;\r\n        Approval(msg.sender, _spender, _value);\r\n        return true;\r\n    }"
+      ExpressionStatement
+         Gas costs: 363
+         Source: "require(!buried[msg.sender])"
+        FunctionCall
+           Type: tuple()
+           Source: "require(!buried[msg.sender])"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          UnaryOperation (prefix) !
+             Type: bool
+             Source: "!buried[msg.sender]"
+            IndexAccess
+               Type: bool
+               Source: "buried[msg.sender]"
+              Identifier buried
+                 Type: mapping(address => bool)
+                 Source: "buried"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+      ExpressionStatement
+         Gas costs: 20199
+         Source: "allowance[msg.sender][_spender] = _value"
+        Assignment using operator =
+           Type: uint256
+           Source: "allowance[msg.sender][_spender] = _value"
+          IndexAccess
+             Type: uint256
+             Source: "allowance[msg.sender][_spender]"
+            IndexAccess
+               Type: mapping(address => uint256)
+               Source: "allowance[msg.sender]"
+              Identifier allowance
+                 Type: mapping(address => mapping(address => uint256))
+                 Source: "allowance"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+            Identifier _spender
+               Type: address
+               Source: "_spender"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "Approval(msg.sender, _spender, _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "Approval(msg.sender, _spender, _value)"
+          Identifier Approval
+             Type: function (address,address,uint256)
+             Source: "Approval"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier _spender
+             Type: address
+             Source: "_spender"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      Return
+         Gas costs: 8
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+  FunctionDefinition "approveAndCall" - public
+     Source: "function approveAndCall(address _spender, uint256 _value, bytes _extraData) public returns (bool success) {\r\n        tokenRecipient spender = tokenRecipient(_spender);\r\n        if (approve(_spender, _value)) {\r\n            spender.receiveApproval(msg.sender, _value, this, _extraData);\r\n            return true;\r\n        }\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _spender, uint256 _value, bytes _extraData)"
+      VariableDeclaration "_spender"
+         Type: address
+         Source: "address _spender"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "_extraData"
+         Type: bytes memory
+         Source: "bytes _extraData"
+        ElementaryTypeName bytes
+           Source: "bytes"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n        tokenRecipient spender = tokenRecipient(_spender);\r\n        if (approve(_spender, _value)) {\r\n            spender.receiveApproval(msg.sender, _value, this, _extraData);\r\n            return true;\r\n        }\r\n    }"
+      VariableDeclarationStatement
+         Gas costs: 11
+         Source: "tokenRecipient spender = tokenRecipient(_spender)"
+        VariableDeclaration "spender"
+           Type: contract tokenRecipient
+           Source: "tokenRecipient spender"
+          UserDefinedTypeName "tokenRecipient"
+             Source: "tokenRecipient"
+        FunctionCall
+           Type: contract tokenRecipient
+           Source: "tokenRecipient(_spender)"
+          Identifier tokenRecipient
+             Type: type(contract tokenRecipient)
+             Source: "tokenRecipient"
+          Identifier _spender
+             Type: address
+             Source: "_spender"
+      IfStatement
+         Source: "if (approve(_spender, _value)) {\r\n            spender.receiveApproval(msg.sender, _value, this, _extraData);\r\n            return true;\r\n        }"
+        FunctionCall
+           Type: bool
+           Gas costs: 21
+           Source: "approve(_spender, _value)"
+          Identifier approve
+             Type: function (address,uint256) returns (bool)
+             Source: "approve"
+          Identifier _spender
+             Type: address
+             Source: "_spender"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+        Block
+           Source: "{\r\n            spender.receiveApproval(msg.sender, _value, this, _extraData);\r\n            return true;\r\n        }"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "spender.receiveApproval(msg.sender, _value, this, _extraData)"
+            FunctionCall
+               Type: tuple()
+               Source: "spender.receiveApproval(msg.sender, _value, this, _extraData)"
+              MemberAccess to member receiveApproval
+                 Type: function (address,uint256,address,bytes memory) external
+                 Source: "spender.receiveApproval"
+                Identifier spender
+                   Type: contract tokenRecipient
+                   Source: "spender"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+              Identifier _value
+                 Type: uint256
+                 Source: "_value"
+              Identifier this
+                 Type: contract EthereumUltimate
+                 Source: "this"
+              Identifier _extraData
+                 Type: bytes memory
+                 Source: "_extraData"
+          Return
+             Gas costs: 19
+             Source: "return true"
+            Literal, token: true value: true
+               Type: bool
+               Source: "true"
+  FunctionDefinition "burn" - public
+     Source: "function burn(uint256 _value) public returns (bool success) {\r\n        // Buried addresses cannot be burnt\r\n        require(!buried[msg.sender]);\r\n        \r\n        // Check if the sender has enough\r\n        require(balances[msg.sender] >= _value);\r\n        \r\n        // Subtract from the sender\r\n        balances[msg.sender] -= _value;\r\n        \r\n        // Updates totalSupply\r\n        totalSupply -= _value;\r\n        Burn(msg.sender, _value);\r\n        return true;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 _value)"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n        // Buried addresses cannot be burnt\r\n        require(!buried[msg.sender]);\r\n        \r\n        // Check if the sender has enough\r\n        require(balances[msg.sender] >= _value);\r\n        \r\n        // Subtract from the sender\r\n        balances[msg.sender] -= _value;\r\n        \r\n        // Updates totalSupply\r\n        totalSupply -= _value;\r\n        Burn(msg.sender, _value);\r\n        return true;\r\n    }"
+      ExpressionStatement
+         Gas costs: 363
+         Source: "require(!buried[msg.sender])"
+        FunctionCall
+           Type: tuple()
+           Source: "require(!buried[msg.sender])"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          UnaryOperation (prefix) !
+             Type: bool
+             Source: "!buried[msg.sender]"
+            IndexAccess
+               Type: bool
+               Source: "buried[msg.sender]"
+              Identifier buried
+                 Type: mapping(address => bool)
+                 Source: "buried"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+      ExpressionStatement
+         Gas costs: 333
+         Source: "require(balances[msg.sender] >= _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(balances[msg.sender] >= _value)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "balances[msg.sender] >= _value"
+            IndexAccess
+               Type: uint256
+               Source: "balances[msg.sender]"
+              Identifier balances
+                 Type: mapping(address => uint256)
+                 Source: "balances"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+      ExpressionStatement
+         Gas costs: 20328
+         Source: "balances[msg.sender] -= _value"
+        Assignment using operator -=
+           Type: uint256
+           Source: "balances[msg.sender] -= _value"
+          IndexAccess
+             Type: uint256
+             Source: "balances[msg.sender]"
+            Identifier balances
+               Type: mapping(address => uint256)
+               Source: "balances"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: 20233
+         Source: "totalSupply -= _value"
+        Assignment using operator -=
+           Type: uint256
+           Source: "totalSupply -= _value"
+          Identifier totalSupply
+             Type: uint256
+             Source: "totalSupply"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "Burn(msg.sender, _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "Burn(msg.sender, _value)"
+          Identifier Burn
+             Type: function (address,uint256)
+             Source: "Burn"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      Return
+         Gas costs: 8
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+  FunctionDefinition "burnFrom" - public
+     Source: "function burnFrom(address _from, uint256 _value) public returns (bool success) {\r\n        // Buried addresses cannot be burnt\r\n        require(!buried[_from]);\r\n        \r\n        // Check if the targeted balance is enough\r\n        require(balances[_from] >= _value);\r\n        \r\n        // Check allowance\r\n        require(_value <= allowance[_from][msg.sender]);\r\n        \r\n        // Subtract from the targeted balance\r\n        balances[_from] -= _value;\r\n        \r\n        // Subtract from the sender's allowance\r\n        allowance[_from][msg.sender] -= _value;\r\n        \r\n        // Update totalSupply\r\n        totalSupply -= _value;\r\n        Burn(_from, _value);\r\n        return true;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _from, uint256 _value)"
+      VariableDeclaration "_from"
+         Type: address
+         Source: "address _from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n        // Buried addresses cannot be burnt\r\n        require(!buried[_from]);\r\n        \r\n        // Check if the targeted balance is enough\r\n        require(balances[_from] >= _value);\r\n        \r\n        // Check allowance\r\n        require(_value <= allowance[_from][msg.sender]);\r\n        \r\n        // Subtract from the targeted balance\r\n        balances[_from] -= _value;\r\n        \r\n        // Subtract from the sender's allowance\r\n        allowance[_from][msg.sender] -= _value;\r\n        \r\n        // Update totalSupply\r\n        totalSupply -= _value;\r\n        Burn(_from, _value);\r\n        return true;\r\n    }"
+      ExpressionStatement
+         Gas costs: 364
+         Source: "require(!buried[_from])"
+        FunctionCall
+           Type: tuple()
+           Source: "require(!buried[_from])"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          UnaryOperation (prefix) !
+             Type: bool
+             Source: "!buried[_from]"
+            IndexAccess
+               Type: bool
+               Source: "buried[_from]"
+              Identifier buried
+                 Type: mapping(address => bool)
+                 Source: "buried"
+              Identifier _from
+                 Type: address
+                 Source: "_from"
+      ExpressionStatement
+         Gas costs: 334
+         Source: "require(balances[_from] >= _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(balances[_from] >= _value)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "balances[_from] >= _value"
+            IndexAccess
+               Type: uint256
+               Source: "balances[_from]"
+              Identifier balances
+                 Type: mapping(address => uint256)
+                 Source: "balances"
+              Identifier _from
+                 Type: address
+                 Source: "_from"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+      ExpressionStatement
+         Gas costs: 423
+         Source: "require(_value <= allowance[_from][msg.sender])"
+        FunctionCall
+           Type: tuple()
+           Source: "require(_value <= allowance[_from][msg.sender])"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator <=
+             Type: bool
+             Source: "_value <= allowance[_from][msg.sender]"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+            IndexAccess
+               Type: uint256
+               Source: "allowance[_from][msg.sender]"
+              IndexAccess
+                 Type: mapping(address => uint256)
+                 Source: "allowance[_from]"
+                Identifier allowance
+                   Type: mapping(address => mapping(address => uint256))
+                   Source: "allowance"
+                Identifier _from
+                   Type: address
+                   Source: "_from"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+      ExpressionStatement
+         Gas costs: 20329
+         Source: "balances[_from] -= _value"
+        Assignment using operator -=
+           Type: uint256
+           Source: "balances[_from] -= _value"
+          IndexAccess
+             Type: uint256
+             Source: "balances[_from]"
+            Identifier balances
+               Type: mapping(address => uint256)
+               Source: "balances"
+            Identifier _from
+               Type: address
+               Source: "_from"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: 20412
+         Source: "allowance[_from][msg.sender] -= _value"
+        Assignment using operator -=
+           Type: uint256
+           Source: "allowance[_from][msg.sender] -= _value"
+          IndexAccess
+             Type: uint256
+             Source: "allowance[_from][msg.sender]"
+            IndexAccess
+               Type: mapping(address => uint256)
+               Source: "allowance[_from]"
+              Identifier allowance
+                 Type: mapping(address => mapping(address => uint256))
+                 Source: "allowance"
+              Identifier _from
+                 Type: address
+                 Source: "_from"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: 20233
+         Source: "totalSupply -= _value"
+        Assignment using operator -=
+           Type: uint256
+           Source: "totalSupply -= _value"
+          Identifier totalSupply
+             Type: uint256
+             Source: "totalSupply"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "Burn(_from, _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "Burn(_from, _value)"
+          Identifier Burn
+             Type: function (address,uint256)
+             Source: "Burn"
+          Identifier _from
+             Type: address
+             Source: "_from"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      Return
+         Gas costs: 8
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"

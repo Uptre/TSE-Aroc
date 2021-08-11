@@ -1,0 +1,900 @@
+Syntax trees:
+
+
+======= /home/fabric/ArocRevision/Aroc/dataSet/smartbugs-21-7-13/unAnalyzedUlls/0x958a8f594101d2c0485a52319f29b2647f2ebc06.sol =======
+PragmaDirective
+   Gas costs: 0
+   Source: "pragma solidity ^0.4.16;"
+ContractDefinition "Owned"
+   Source: "contract Owned {\r\n\r\n    /// @dev `owner` is the only address that can call a function with this\r\n    /// modifier\r\n    modifier onlyOwner() {\r\n        require(msg.sender == owner);\r\n        _;\r\n    }\r\n\r\n    address public owner;\r\n\r\n    /// @notice The Constructor assigns the message sender to be `owner`\r\n    function Owned() {\r\n        owner = msg.sender;\r\n    }\r\n\r\n    address public newOwner;\r\n\r\n    /// @notice `owner` can step down and assign some other address to this role\r\n    /// @param _newOwner The address of the new owner\r\n    ///  an unowned neutral vault, however that cannot be undone\r\n    function changeOwner(address _newOwner) onlyOwner {\r\n        newOwner = _newOwner;\r\n    }\r\n    /// @notice `newOwner` has to accept the ownership before it is transferred\r\n    ///  Any account or any contract with the ability to call `acceptOwnership`\r\n    ///  can be used to accept ownership of this contract, including a contract\r\n    ///  with no other functions\r\n    function acceptOwnership() {\r\n        if (msg.sender == newOwner) {\r\n            owner = newOwner;\r\n        }\r\n    }\r\n\r\n    // This is a general safty function that allows the owner to do a lot\r\n    //  of things in the unlikely event that something goes wrong\r\n    // _dst is the contract being called making this like a 1/1 multisig\r\n    function execute(address _dst, uint _value, bytes _data) onlyOwner {\r\n         // <yes> <report> UNCHECKED_LL_CALLS\r\n        _dst.call.value(_value)(_data);\r\n    }\r\n}"
+  ModifierDefinition "onlyOwner"
+     Source: "modifier onlyOwner() {\r\n        require(msg.sender == owner);\r\n        _;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    Block
+       Source: "{\r\n        require(msg.sender == owner);\r\n        _;\r\n    }"
+      ExpressionStatement
+         Gas costs: 1410
+         Source: "require(msg.sender == owner)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(msg.sender == owner)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "msg.sender == owner"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Identifier owner
+               Type: address
+               Source: "owner"
+      PlaceholderStatement
+         Gas costs: 0
+         Source: "_"
+  VariableDeclaration "owner"
+     Type: address
+     Gas costs: [???]
+     Source: "address public owner"
+    ElementaryTypeName address
+       Source: "address"
+  FunctionDefinition "Owned" - public
+     Source: "function Owned() {\r\n        owner = msg.sender;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        owner = msg.sender;\r\n    }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "owner = msg.sender"
+        Assignment using operator =
+           Type: address
+           Source: "owner = msg.sender"
+          Identifier owner
+             Type: address
+             Source: "owner"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+  VariableDeclaration "newOwner"
+     Type: address
+     Gas costs: [???]
+     Source: "address public newOwner"
+    ElementaryTypeName address
+       Source: "address"
+  FunctionDefinition "changeOwner" - public
+     Source: "function changeOwner(address _newOwner) onlyOwner {\r\n        newOwner = _newOwner;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _newOwner)"
+      VariableDeclaration "_newOwner"
+         Type: address
+         Source: "address _newOwner"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n        newOwner = _newOwner;\r\n    }"
+      ExpressionStatement
+         Gas costs: 20267
+         Source: "newOwner = _newOwner"
+        Assignment using operator =
+           Type: address
+           Source: "newOwner = _newOwner"
+          Identifier newOwner
+             Type: address
+             Source: "newOwner"
+          Identifier _newOwner
+             Type: address
+             Source: "_newOwner"
+  FunctionDefinition "acceptOwnership" - public
+     Source: "function acceptOwnership() {\r\n        if (msg.sender == newOwner) {\r\n            owner = newOwner;\r\n        }\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        if (msg.sender == newOwner) {\r\n            owner = newOwner;\r\n        }\r\n    }"
+      IfStatement
+         Source: "if (msg.sender == newOwner) {\r\n            owner = newOwner;\r\n        }"
+        BinaryOperation using operator ==
+           Type: bool
+           Gas costs: 256
+           Source: "msg.sender == newOwner"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier newOwner
+             Type: address
+             Source: "newOwner"
+        Block
+           Source: "{\r\n            owner = newOwner;\r\n        }"
+          ExpressionStatement
+             Gas costs: 20503
+             Source: "owner = newOwner"
+            Assignment using operator =
+               Type: address
+               Source: "owner = newOwner"
+              Identifier owner
+                 Type: address
+                 Source: "owner"
+              Identifier newOwner
+                 Type: address
+                 Source: "newOwner"
+  FunctionDefinition "execute" - public
+     Source: "function execute(address _dst, uint _value, bytes _data) onlyOwner {\r\n         // <yes> <report> UNCHECKED_LL_CALLS\r\n        _dst.call.value(_value)(_data);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _dst, uint _value, bytes _data)"
+      VariableDeclaration "_dst"
+         Type: address
+         Source: "address _dst"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint _value"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "_data"
+         Type: bytes memory
+         Source: "bytes _data"
+        ElementaryTypeName bytes
+           Source: "bytes"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n         // <yes> <report> UNCHECKED_LL_CALLS\r\n        _dst.call.value(_value)(_data);\r\n    }"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "_dst.call.value(_value)(_data)"
+        FunctionCall
+           Type: bool
+           Source: "_dst.call.value(_value)(_data)"
+          FunctionCall
+             Type: function () payable returns (bool)
+             Source: "_dst.call.value(_value)"
+            MemberAccess to member value
+               Type: function (uint256) returns (function () payable returns (bool))
+               Source: "_dst.call.value"
+              MemberAccess to member call
+                 Type: function () payable returns (bool)
+                 Source: "_dst.call"
+                Identifier _dst
+                   Type: address
+                   Source: "_dst"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+          Identifier _data
+             Type: bytes memory
+             Source: "_data"
+ContractDefinition "Marriage"
+   Source: "contract Marriage is Owned\r\n{\r\n    // Marriage data variables\r\n    string public partner1;\r\n    string public partner2;\r\n    uint public marriageDate;\r\n    string public marriageStatus;\r\n    string public vows;\r\n\r\n    Event[] public majorEvents;\r\n    Message[] public messages;\r\n\r\n    struct Event {\r\n        uint date;\r\n        string name;\r\n        string description;\r\n        string url;\r\n    }\r\n\r\n    struct Message {\r\n        uint date;\r\n        string nameFrom;\r\n        string text;\r\n        string url;\r\n        uint value;\r\n    }\r\n\r\n    modifier areMarried {\r\n        require(sha3(marriageStatus) == sha3(\"Married\"));\r\n        _;\r\n    }\r\n\r\n    //Set Owner\r\n    function Marriage(address _owner) {\r\n        owner = _owner;\r\n    }\r\n\r\n    function numberOfMajorEvents() constant public returns (uint) {\r\n        return majorEvents.length;\r\n    }\r\n\r\n    function numberOfMessages() constant public returns (uint) {\r\n        return messages.length;\r\n    }\r\n\r\n    // Create initial marriage contract\r\n    function createMarriage(\r\n        string _partner1,\r\n        string _partner2,\r\n        string _vows,\r\n        string url) onlyOwner\r\n    {\r\n        require(majorEvents.length == 0);\r\n        partner1 = _partner1;\r\n        partner2 = _partner2;\r\n        marriageDate = now;\r\n        vows = _vows;\r\n        marriageStatus = \"Married\";\r\n        majorEvents.push(Event(now, \"Marriage\", vows, url));\r\n        MajorEvent(\"Marrigage\", vows, url);\r\n    }\r\n\r\n    // Set the marriage status if it changes\r\n    function setStatus(string status, string url) onlyOwner\r\n    {\r\n        marriageStatus = status;\r\n        setMajorEvent(\"Changed Status\", status, url);\r\n    }\r\n\r\n    // Set the IPFS hash of the image of the couple\r\n    function setMajorEvent(string name, string description, string url) onlyOwner areMarried\r\n    {\r\n        majorEvents.push(Event(now, name, description, url));\r\n        MajorEvent(name, description, url);\r\n    }\r\n\r\n    function sendMessage(string nameFrom, string text, string url) payable areMarried {\r\n        if (msg.value > 0) {\r\n            owner.transfer(this.balance);\r\n        }\r\n        messages.push(Message(now, nameFrom, text, url, msg.value));\r\n        MessageSent(nameFrom, text, url, msg.value);\r\n    }\r\n\r\n\r\n    // Declare event structure\r\n    event MajorEvent(string name, string description, string url);\r\n    event MessageSent(string name, string description, string url, uint value);\r\n}"
+  InheritanceSpecifier
+     Gas costs: 0
+     Source: "Owned"
+    UserDefinedTypeName "Owned"
+       Source: "Owned"
+  VariableDeclaration "partner1"
+     Type: string storage ref
+     Gas costs: [???]
+     Source: "string public partner1"
+    ElementaryTypeName string
+       Source: "string"
+  VariableDeclaration "partner2"
+     Type: string storage ref
+     Gas costs: [???]
+     Source: "string public partner2"
+    ElementaryTypeName string
+       Source: "string"
+  VariableDeclaration "marriageDate"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint public marriageDate"
+    ElementaryTypeName uint
+       Source: "uint"
+  VariableDeclaration "marriageStatus"
+     Type: string storage ref
+     Gas costs: [???]
+     Source: "string public marriageStatus"
+    ElementaryTypeName string
+       Source: "string"
+  VariableDeclaration "vows"
+     Type: string storage ref
+     Gas costs: [???]
+     Source: "string public vows"
+    ElementaryTypeName string
+       Source: "string"
+  VariableDeclaration "majorEvents"
+     Type: struct Marriage.Event storage ref[] storage ref
+     Gas costs: [???]
+     Source: "Event[] public majorEvents"
+    ArrayTypeName
+       Source: "Event[]"
+      UserDefinedTypeName "Event"
+         Source: "Event"
+  VariableDeclaration "messages"
+     Type: struct Marriage.Message storage ref[] storage ref
+     Gas costs: [???]
+     Source: "Message[] public messages"
+    ArrayTypeName
+       Source: "Message[]"
+      UserDefinedTypeName "Message"
+         Source: "Message"
+  StructDefinition "Event"
+     Gas costs: 0
+     Source: "struct Event {\r\n        uint date;\r\n        string name;\r\n        string description;\r\n        string url;\r\n    }"
+    VariableDeclaration "date"
+       Type: uint256
+       Source: "uint date"
+      ElementaryTypeName uint
+         Source: "uint"
+    VariableDeclaration "name"
+       Type: string storage pointer
+       Source: "string name"
+      ElementaryTypeName string
+         Source: "string"
+    VariableDeclaration "description"
+       Type: string storage pointer
+       Source: "string description"
+      ElementaryTypeName string
+         Source: "string"
+    VariableDeclaration "url"
+       Type: string storage pointer
+       Source: "string url"
+      ElementaryTypeName string
+         Source: "string"
+  StructDefinition "Message"
+     Gas costs: 0
+     Source: "struct Message {\r\n        uint date;\r\n        string nameFrom;\r\n        string text;\r\n        string url;\r\n        uint value;\r\n    }"
+    VariableDeclaration "date"
+       Type: uint256
+       Source: "uint date"
+      ElementaryTypeName uint
+         Source: "uint"
+    VariableDeclaration "nameFrom"
+       Type: string storage pointer
+       Source: "string nameFrom"
+      ElementaryTypeName string
+         Source: "string"
+    VariableDeclaration "text"
+       Type: string storage pointer
+       Source: "string text"
+      ElementaryTypeName string
+         Source: "string"
+    VariableDeclaration "url"
+       Type: string storage pointer
+       Source: "string url"
+      ElementaryTypeName string
+         Source: "string"
+    VariableDeclaration "value"
+       Type: uint256
+       Source: "uint value"
+      ElementaryTypeName uint
+         Source: "uint"
+  ModifierDefinition "areMarried"
+     Source: "modifier areMarried {\r\n        require(sha3(marriageStatus) == sha3(\"Married\"));\r\n        _;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        require(sha3(marriageStatus) == sha3(\"Married\"));\r\n        _;\r\n    }"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "require(sha3(marriageStatus) == sha3(\"Married\"))"
+        FunctionCall
+           Type: tuple()
+           Source: "require(sha3(marriageStatus) == sha3(\"Married\"))"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "sha3(marriageStatus) == sha3(\"Married\")"
+            FunctionCall
+               Type: bytes32
+               Source: "sha3(marriageStatus)"
+              Identifier sha3
+                 Type: function () pure returns (bytes32)
+                 Source: "sha3"
+              Identifier marriageStatus
+                 Type: string storage ref
+                 Source: "marriageStatus"
+            FunctionCall
+               Type: bytes32
+               Source: "sha3(\"Married\")"
+              Identifier sha3
+                 Type: function () pure returns (bytes32)
+                 Source: "sha3"
+              Literal, token: [no token] value: Married
+                 Type: literal_string "Married"
+                 Source: "\"Married\""
+      PlaceholderStatement
+         Gas costs: 0
+         Source: "_"
+  FunctionDefinition "Marriage" - public
+     Source: "function Marriage(address _owner) {\r\n        owner = _owner;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _owner)"
+      VariableDeclaration "_owner"
+         Type: address
+         Source: "address _owner"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        owner = _owner;\r\n    }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "owner = _owner"
+        Assignment using operator =
+           Type: address
+           Source: "owner = _owner"
+          Identifier owner
+             Type: address
+             Source: "owner"
+          Identifier _owner
+             Type: address
+             Source: "_owner"
+  FunctionDefinition "numberOfMajorEvents" - public - const
+     Source: "function numberOfMajorEvents() constant public returns (uint) {\r\n        return majorEvents.length;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint"
+        ElementaryTypeName uint
+           Source: "uint"
+    Block
+       Source: "{\r\n        return majorEvents.length;\r\n    }"
+      Return
+         Gas costs: 216
+         Source: "return majorEvents.length"
+        MemberAccess to member length
+           Type: uint256
+           Source: "majorEvents.length"
+          Identifier majorEvents
+             Type: struct Marriage.Event storage ref[] storage ref
+             Source: "majorEvents"
+  FunctionDefinition "numberOfMessages" - public - const
+     Source: "function numberOfMessages() constant public returns (uint) {\r\n        return messages.length;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint"
+        ElementaryTypeName uint
+           Source: "uint"
+    Block
+       Source: "{\r\n        return messages.length;\r\n    }"
+      Return
+         Gas costs: 216
+         Source: "return messages.length"
+        MemberAccess to member length
+           Type: uint256
+           Source: "messages.length"
+          Identifier messages
+             Type: struct Marriage.Message storage ref[] storage ref
+             Source: "messages"
+  FunctionDefinition "createMarriage" - public
+     Source: "function createMarriage(\r\n        string _partner1,\r\n        string _partner2,\r\n        string _vows,\r\n        string url) onlyOwner\r\n    {\r\n        require(majorEvents.length == 0);\r\n        partner1 = _partner1;\r\n        partner2 = _partner2;\r\n        marriageDate = now;\r\n        vows = _vows;\r\n        marriageStatus = \"Married\";\r\n        majorEvents.push(Event(now, \"Marriage\", vows, url));\r\n        MajorEvent(\"Marrigage\", vows, url);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(\r\n        string _partner1,\r\n        string _partner2,\r\n        string _vows,\r\n        string url)"
+      VariableDeclaration "_partner1"
+         Type: string memory
+         Source: "string _partner1"
+        ElementaryTypeName string
+           Source: "string"
+      VariableDeclaration "_partner2"
+         Type: string memory
+         Source: "string _partner2"
+        ElementaryTypeName string
+           Source: "string"
+      VariableDeclaration "_vows"
+         Type: string memory
+         Source: "string _vows"
+        ElementaryTypeName string
+           Source: "string"
+      VariableDeclaration "url"
+         Type: string memory
+         Source: "string url"
+        ElementaryTypeName string
+           Source: "string"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n        require(majorEvents.length == 0);\r\n        partner1 = _partner1;\r\n        partner2 = _partner2;\r\n        marriageDate = now;\r\n        vows = _vows;\r\n        marriageStatus = \"Married\";\r\n        majorEvents.push(Event(now, \"Marriage\", vows, url));\r\n        MajorEvent(\"Marrigage\", vows, url);\r\n    }"
+      ExpressionStatement
+         Gas costs: 243
+         Source: "require(majorEvents.length == 0)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(majorEvents.length == 0)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "majorEvents.length == 0"
+            MemberAccess to member length
+               Type: uint256
+               Source: "majorEvents.length"
+              Identifier majorEvents
+                 Type: struct Marriage.Event storage ref[] storage ref
+                 Source: "majorEvents"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "partner1 = _partner1"
+        Assignment using operator =
+           Type: string storage ref
+           Source: "partner1 = _partner1"
+          Identifier partner1
+             Type: string storage ref
+             Source: "partner1"
+          Identifier _partner1
+             Type: string memory
+             Source: "_partner1"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "partner2 = _partner2"
+        Assignment using operator =
+           Type: string storage ref
+           Source: "partner2 = _partner2"
+          Identifier partner2
+             Type: string storage ref
+             Source: "partner2"
+          Identifier _partner2
+             Type: string memory
+             Source: "_partner2"
+      ExpressionStatement
+         Gas costs: 20013
+         Source: "marriageDate = now"
+        Assignment using operator =
+           Type: uint256
+           Source: "marriageDate = now"
+          Identifier marriageDate
+             Type: uint256
+             Source: "marriageDate"
+          Identifier now
+             Type: uint256
+             Source: "now"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "vows = _vows"
+        Assignment using operator =
+           Type: string storage ref
+           Source: "vows = _vows"
+          Identifier vows
+             Type: string storage ref
+             Source: "vows"
+          Identifier _vows
+             Type: string memory
+             Source: "_vows"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "marriageStatus = \"Married\""
+        Assignment using operator =
+           Type: string storage ref
+           Source: "marriageStatus = \"Married\""
+          Identifier marriageStatus
+             Type: string storage ref
+             Source: "marriageStatus"
+          Literal, token: [no token] value: Married
+             Type: literal_string "Married"
+             Source: "\"Married\""
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "majorEvents.push(Event(now, \"Marriage\", vows, url))"
+        FunctionCall
+           Type: uint256
+           Source: "majorEvents.push(Event(now, \"Marriage\", vows, url))"
+          MemberAccess to member push
+             Type: function (struct Marriage.Event storage ref) returns (uint256)
+             Source: "majorEvents.push"
+            Identifier majorEvents
+               Type: struct Marriage.Event storage ref[] storage ref
+               Source: "majorEvents"
+          FunctionCall
+             Type: struct Marriage.Event memory
+             Source: "Event(now, \"Marriage\", vows, url)"
+            Identifier Event
+               Type: type(struct Marriage.Event storage pointer)
+               Source: "Event"
+            Identifier now
+               Type: uint256
+               Source: "now"
+            Literal, token: [no token] value: Marriage
+               Type: literal_string "Marriage"
+               Source: "\"Marriage\""
+            Identifier vows
+               Type: string storage ref
+               Source: "vows"
+            Identifier url
+               Type: string memory
+               Source: "url"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "MajorEvent(\"Marrigage\", vows, url)"
+        FunctionCall
+           Type: tuple()
+           Source: "MajorEvent(\"Marrigage\", vows, url)"
+          Identifier MajorEvent
+             Type: function (string memory,string memory,string memory)
+             Source: "MajorEvent"
+          Literal, token: [no token] value: Marrigage
+             Type: literal_string "Marrigage"
+             Source: "\"Marrigage\""
+          Identifier vows
+             Type: string storage ref
+             Source: "vows"
+          Identifier url
+             Type: string memory
+             Source: "url"
+  FunctionDefinition "setStatus" - public
+     Source: "function setStatus(string status, string url) onlyOwner\r\n    {\r\n        marriageStatus = status;\r\n        setMajorEvent(\"Changed Status\", status, url);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(string status, string url)"
+      VariableDeclaration "status"
+         Type: string memory
+         Source: "string status"
+        ElementaryTypeName string
+           Source: "string"
+      VariableDeclaration "url"
+         Type: string memory
+         Source: "string url"
+        ElementaryTypeName string
+           Source: "string"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n        marriageStatus = status;\r\n        setMajorEvent(\"Changed Status\", status, url);\r\n    }"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "marriageStatus = status"
+        Assignment using operator =
+           Type: string storage ref
+           Source: "marriageStatus = status"
+          Identifier marriageStatus
+             Type: string storage ref
+             Source: "marriageStatus"
+          Identifier status
+             Type: string memory
+             Source: "status"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "setMajorEvent(\"Changed Status\", status, url)"
+        FunctionCall
+           Type: tuple()
+           Source: "setMajorEvent(\"Changed Status\", status, url)"
+          Identifier setMajorEvent
+             Type: function (string memory,string memory,string memory)
+             Source: "setMajorEvent"
+          Literal, token: [no token] value: Changed Status
+             Type: literal_string "Changed Status"
+             Source: "\"Changed Status\""
+          Identifier status
+             Type: string memory
+             Source: "status"
+          Identifier url
+             Type: string memory
+             Source: "url"
+  FunctionDefinition "setMajorEvent" - public
+     Source: "function setMajorEvent(string name, string description, string url) onlyOwner areMarried\r\n    {\r\n        majorEvents.push(Event(now, name, description, url));\r\n        MajorEvent(name, description, url);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(string name, string description, string url)"
+      VariableDeclaration "name"
+         Type: string memory
+         Source: "string name"
+        ElementaryTypeName string
+           Source: "string"
+      VariableDeclaration "description"
+         Type: string memory
+         Source: "string description"
+        ElementaryTypeName string
+           Source: "string"
+      VariableDeclaration "url"
+         Type: string memory
+         Source: "string url"
+        ElementaryTypeName string
+           Source: "string"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    ModifierInvocation "areMarried"
+       Gas costs: 0
+       Source: "areMarried"
+      Identifier areMarried
+         Type: modifier ()
+         Source: "areMarried"
+    Block
+       Source: "{\r\n        majorEvents.push(Event(now, name, description, url));\r\n        MajorEvent(name, description, url);\r\n    }"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "majorEvents.push(Event(now, name, description, url))"
+        FunctionCall
+           Type: uint256
+           Source: "majorEvents.push(Event(now, name, description, url))"
+          MemberAccess to member push
+             Type: function (struct Marriage.Event storage ref) returns (uint256)
+             Source: "majorEvents.push"
+            Identifier majorEvents
+               Type: struct Marriage.Event storage ref[] storage ref
+               Source: "majorEvents"
+          FunctionCall
+             Type: struct Marriage.Event memory
+             Source: "Event(now, name, description, url)"
+            Identifier Event
+               Type: type(struct Marriage.Event storage pointer)
+               Source: "Event"
+            Identifier now
+               Type: uint256
+               Source: "now"
+            Identifier name
+               Type: string memory
+               Source: "name"
+            Identifier description
+               Type: string memory
+               Source: "description"
+            Identifier url
+               Type: string memory
+               Source: "url"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "MajorEvent(name, description, url)"
+        FunctionCall
+           Type: tuple()
+           Source: "MajorEvent(name, description, url)"
+          Identifier MajorEvent
+             Type: function (string memory,string memory,string memory)
+             Source: "MajorEvent"
+          Identifier name
+             Type: string memory
+             Source: "name"
+          Identifier description
+             Type: string memory
+             Source: "description"
+          Identifier url
+             Type: string memory
+             Source: "url"
+  FunctionDefinition "sendMessage" - public
+     Source: "function sendMessage(string nameFrom, string text, string url) payable areMarried {\r\n        if (msg.value > 0) {\r\n            owner.transfer(this.balance);\r\n        }\r\n        messages.push(Message(now, nameFrom, text, url, msg.value));\r\n        MessageSent(nameFrom, text, url, msg.value);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(string nameFrom, string text, string url)"
+      VariableDeclaration "nameFrom"
+         Type: string memory
+         Source: "string nameFrom"
+        ElementaryTypeName string
+           Source: "string"
+      VariableDeclaration "text"
+         Type: string memory
+         Source: "string text"
+        ElementaryTypeName string
+           Source: "string"
+      VariableDeclaration "url"
+         Type: string memory
+         Source: "string url"
+        ElementaryTypeName string
+           Source: "string"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "areMarried"
+       Gas costs: 0
+       Source: "areMarried"
+      Identifier areMarried
+         Type: modifier ()
+         Source: "areMarried"
+    Block
+       Source: "{\r\n        if (msg.value > 0) {\r\n            owner.transfer(this.balance);\r\n        }\r\n        messages.push(Message(now, nameFrom, text, url, msg.value));\r\n        MessageSent(nameFrom, text, url, msg.value);\r\n    }"
+      IfStatement
+         Source: "if (msg.value > 0) {\r\n            owner.transfer(this.balance);\r\n        }"
+        BinaryOperation using operator >
+           Type: bool
+           Gas costs: 8
+           Source: "msg.value > 0"
+          MemberAccess to member value
+             Type: uint256
+             Source: "msg.value"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        Block
+           Source: "{\r\n            owner.transfer(this.balance);\r\n        }"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "owner.transfer(this.balance)"
+            FunctionCall
+               Type: tuple()
+               Source: "owner.transfer(this.balance)"
+              MemberAccess to member transfer
+                 Type: function (uint256)
+                 Source: "owner.transfer"
+                Identifier owner
+                   Type: address
+                   Source: "owner"
+              MemberAccess to member balance
+                 Type: uint256
+                 Source: "this.balance"
+                Identifier this
+                   Type: contract Marriage
+                   Source: "this"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "messages.push(Message(now, nameFrom, text, url, msg.value))"
+        FunctionCall
+           Type: uint256
+           Source: "messages.push(Message(now, nameFrom, text, url, msg.value))"
+          MemberAccess to member push
+             Type: function (struct Marriage.Message storage ref) returns (uint256)
+             Source: "messages.push"
+            Identifier messages
+               Type: struct Marriage.Message storage ref[] storage ref
+               Source: "messages"
+          FunctionCall
+             Type: struct Marriage.Message memory
+             Source: "Message(now, nameFrom, text, url, msg.value)"
+            Identifier Message
+               Type: type(struct Marriage.Message storage pointer)
+               Source: "Message"
+            Identifier now
+               Type: uint256
+               Source: "now"
+            Identifier nameFrom
+               Type: string memory
+               Source: "nameFrom"
+            Identifier text
+               Type: string memory
+               Source: "text"
+            Identifier url
+               Type: string memory
+               Source: "url"
+            MemberAccess to member value
+               Type: uint256
+               Source: "msg.value"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "MessageSent(nameFrom, text, url, msg.value)"
+        FunctionCall
+           Type: tuple()
+           Source: "MessageSent(nameFrom, text, url, msg.value)"
+          Identifier MessageSent
+             Type: function (string memory,string memory,string memory,uint256)
+             Source: "MessageSent"
+          Identifier nameFrom
+             Type: string memory
+             Source: "nameFrom"
+          Identifier text
+             Type: string memory
+             Source: "text"
+          Identifier url
+             Type: string memory
+             Source: "url"
+          MemberAccess to member value
+             Type: uint256
+             Source: "msg.value"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+  EventDefinition "MajorEvent"
+     Gas costs: 0
+     Source: "event MajorEvent(string name, string description, string url);"
+    ParameterList
+       Source: "(string name, string description, string url)"
+      VariableDeclaration "name"
+         Type: string memory
+         Source: "string name"
+        ElementaryTypeName string
+           Source: "string"
+      VariableDeclaration "description"
+         Type: string memory
+         Source: "string description"
+        ElementaryTypeName string
+           Source: "string"
+      VariableDeclaration "url"
+         Type: string memory
+         Source: "string url"
+        ElementaryTypeName string
+           Source: "string"
+  EventDefinition "MessageSent"
+     Gas costs: 0
+     Source: "event MessageSent(string name, string description, string url, uint value);"
+    ParameterList
+       Source: "(string name, string description, string url, uint value)"
+      VariableDeclaration "name"
+         Type: string memory
+         Source: "string name"
+        ElementaryTypeName string
+           Source: "string"
+      VariableDeclaration "description"
+         Type: string memory
+         Source: "string description"
+        ElementaryTypeName string
+           Source: "string"
+      VariableDeclaration "url"
+         Type: string memory
+         Source: "string url"
+        ElementaryTypeName string
+           Source: "string"
+      VariableDeclaration "value"
+         Type: uint256
+         Source: "uint value"
+        ElementaryTypeName uint
+           Source: "uint"

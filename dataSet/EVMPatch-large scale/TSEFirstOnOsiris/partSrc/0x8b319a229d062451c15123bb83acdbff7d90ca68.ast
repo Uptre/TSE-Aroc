@@ -1,0 +1,551 @@
+Syntax trees:
+
+
+======= /home/fabric/ArocRevision/Aroc/osirisData/contractSrc/0x8b319a229d062451c15123bb83acdbff7d90ca68.sol =======
+PragmaDirective
+   Gas costs: 0
+   Source: "pragma solidity ^0.4.18;"
+ContractDefinition "Token"
+   Gas costs: 0
+   Source: "contract Token {\r\n    function balanceOf(address _account) public constant returns (uint balance);\r\n\r\n    function transfer(address _to, uint _value) public returns (bool success);\r\n}"
+  FunctionDefinition "balanceOf" - public - const
+     Source: "function balanceOf(address _account) public constant returns (uint balance);"
+    ParameterList
+       Source: "(address _account)"
+      VariableDeclaration "_account"
+         Type: address
+         Source: "address _account"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Source: "(uint balance)"
+      VariableDeclaration "balance"
+         Type: uint256
+         Source: "uint balance"
+        ElementaryTypeName uint
+           Source: "uint"
+  FunctionDefinition "transfer" - public
+     Source: "function transfer(address _to, uint _value) public returns (bool success);"
+    ParameterList
+       Source: "(address _to, uint _value)"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint _value"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+ContractDefinition "CrowdSale"
+   Source: "contract CrowdSale {\r\n    address owner;\r\n\r\n    address Kiyomi = 0xc349d0F5dbdaF14dab04DAF5521284448C948Ec5;\r\n\r\n    uint public unitCost;\r\n\r\n    function CrowdSale() public {\r\n        owner = msg.sender;\r\n    }\r\n\r\n    function() public payable {\r\n        // Init Kiyomi contract\r\n        Token ppp = Token(Kiyomi);\r\n        // Get available supply for this account crowdsale\r\n        uint CrowdSaleSupply = ppp.balanceOf(this);\r\n        // Checkout requirements\r\n        require(msg.value > 0 && CrowdSaleSupply > 0 && unitCost > 0);\r\n        // Calculate and adjust required units\r\n        uint units = msg.value / unitCost;\r\n        units = CrowdSaleSupply < units ? CrowdSaleSupply : units;\r\n        // Transfer funds\r\n        require(units > 0 && ppp.transfer(msg.sender, units));\r\n        // Calculate remaining ether amount\r\n        uint remainEther = msg.value - (units * unitCost);\r\n        // Return remaining ETH if above 0.001 ETH (TO SAVE INVESTOR GAS)\r\n        if (remainEther >= 10 ** 15) {\r\n            msg.sender.transfer(remainEther);\r\n        }\r\n    }\r\n\r\n    function icoPrice(uint perEther) public returns (bool success) {\r\n        require(msg.sender == owner);\r\n        unitCost = 1 ether / (perEther * 10 ** 8);\r\n        return true;\r\n    }\r\n\r\n    function withdrawFunds(address _token) public returns (bool success) {\r\n        require(msg.sender == owner);\r\n        if (_token == address(0)) {\r\n            owner.transfer(this.balance);\r\n        }\r\n        else {\r\n            Token ERC20 = Token(_token);\r\n            ERC20.transfer(owner, ERC20.balanceOf(this));\r\n        }\r\n        return true;\r\n    }\r\n}"
+  VariableDeclaration "owner"
+     Type: address
+     Gas costs: 0
+     Source: "address owner"
+    ElementaryTypeName address
+       Source: "address"
+  VariableDeclaration "Kiyomi"
+     Type: address
+     Gas costs: 0
+     Source: "address Kiyomi = 0xc349d0F5dbdaF14dab04DAF5521284448C948Ec5"
+    ElementaryTypeName address
+       Source: "address"
+    Literal, token: [no token] value: 0xc349d0F5dbdaF14dab04DAF5521284448C948Ec5
+       Type: address
+       Source: "0xc349d0F5dbdaF14dab04DAF5521284448C948Ec5"
+  VariableDeclaration "unitCost"
+     Type: uint256
+     Gas costs: 287
+     Source: "uint public unitCost"
+    ElementaryTypeName uint
+       Source: "uint"
+  FunctionDefinition "CrowdSale" - public
+     Source: "function CrowdSale() public {\r\n        owner = msg.sender;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        owner = msg.sender;\r\n    }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "owner = msg.sender"
+        Assignment using operator =
+           Type: address
+           Source: "owner = msg.sender"
+          Identifier owner
+             Type: address
+             Source: "owner"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+  FunctionDefinition "" - public
+     Source: "function() public payable {\r\n        // Init Kiyomi contract\r\n        Token ppp = Token(Kiyomi);\r\n        // Get available supply for this account crowdsale\r\n        uint CrowdSaleSupply = ppp.balanceOf(this);\r\n        // Checkout requirements\r\n        require(msg.value > 0 && CrowdSaleSupply > 0 && unitCost > 0);\r\n        // Calculate and adjust required units\r\n        uint units = msg.value / unitCost;\r\n        units = CrowdSaleSupply < units ? CrowdSaleSupply : units;\r\n        // Transfer funds\r\n        require(units > 0 && ppp.transfer(msg.sender, units));\r\n        // Calculate remaining ether amount\r\n        uint remainEther = msg.value - (units * unitCost);\r\n        // Return remaining ETH if above 0.001 ETH (TO SAVE INVESTOR GAS)\r\n        if (remainEther >= 10 ** 15) {\r\n            msg.sender.transfer(remainEther);\r\n        }\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        // Init Kiyomi contract\r\n        Token ppp = Token(Kiyomi);\r\n        // Get available supply for this account crowdsale\r\n        uint CrowdSaleSupply = ppp.balanceOf(this);\r\n        // Checkout requirements\r\n        require(msg.value > 0 && CrowdSaleSupply > 0 && unitCost > 0);\r\n        // Calculate and adjust required units\r\n        uint units = msg.value / unitCost;\r\n        units = CrowdSaleSupply < units ? CrowdSaleSupply : units;\r\n        // Transfer funds\r\n        require(units > 0 && ppp.transfer(msg.sender, units));\r\n        // Calculate remaining ether amount\r\n        uint remainEther = msg.value - (units * unitCost);\r\n        // Return remaining ETH if above 0.001 ETH (TO SAVE INVESTOR GAS)\r\n        if (remainEther >= 10 ** 15) {\r\n            msg.sender.transfer(remainEther);\r\n        }\r\n    }"
+      VariableDeclarationStatement
+         Gas costs: 247
+         Source: "Token ppp = Token(Kiyomi)"
+        VariableDeclaration "ppp"
+           Type: contract Token
+           Source: "Token ppp"
+          UserDefinedTypeName "Token"
+             Source: "Token"
+        FunctionCall
+           Type: contract Token
+           Source: "Token(Kiyomi)"
+          Identifier Token
+             Type: type(contract Token)
+             Source: "Token"
+          Identifier Kiyomi
+             Type: address
+             Source: "Kiyomi"
+      VariableDeclarationStatement
+         Gas costs: [???]
+         Source: "uint CrowdSaleSupply = ppp.balanceOf(this)"
+        VariableDeclaration "CrowdSaleSupply"
+           Type: uint256
+           Source: "uint CrowdSaleSupply"
+          ElementaryTypeName uint
+             Source: "uint"
+        FunctionCall
+           Type: uint256
+           Source: "ppp.balanceOf(this)"
+          MemberAccess to member balanceOf
+             Type: function (address) view external returns (uint256)
+             Source: "ppp.balanceOf"
+            Identifier ppp
+               Type: contract Token
+               Source: "ppp"
+          Identifier this
+             Type: contract CrowdSale
+             Source: "this"
+      ExpressionStatement
+         Gas costs: 296
+         Source: "require(msg.value > 0 && CrowdSaleSupply > 0 && unitCost > 0)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(msg.value > 0 && CrowdSaleSupply > 0 && unitCost > 0)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator &&
+             Type: bool
+             Source: "msg.value > 0 && CrowdSaleSupply > 0 && unitCost > 0"
+            BinaryOperation using operator &&
+               Type: bool
+               Source: "msg.value > 0 && CrowdSaleSupply > 0"
+              BinaryOperation using operator >
+                 Type: bool
+                 Source: "msg.value > 0"
+                MemberAccess to member value
+                   Type: uint256
+                   Source: "msg.value"
+                  Identifier msg
+                     Type: msg
+                     Source: "msg"
+                Literal, token: [no token] value: 0
+                   Type: int_const 0
+                   Source: "0"
+              BinaryOperation using operator >
+                 Type: bool
+                 Source: "CrowdSaleSupply > 0"
+                Identifier CrowdSaleSupply
+                   Type: uint256
+                   Source: "CrowdSaleSupply"
+                Literal, token: [no token] value: 0
+                   Type: int_const 0
+                   Source: "0"
+            BinaryOperation using operator >
+               Type: bool
+               Source: "unitCost > 0"
+              Identifier unitCost
+                 Type: uint256
+                 Source: "unitCost"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+      VariableDeclarationStatement
+         Gas costs: 241
+         Source: "uint units = msg.value / unitCost"
+        VariableDeclaration "units"
+           Type: uint256
+           Source: "uint units"
+          ElementaryTypeName uint
+             Source: "uint"
+        BinaryOperation using operator /
+           Type: uint256
+           Source: "msg.value / unitCost"
+          MemberAccess to member value
+             Type: uint256
+             Source: "msg.value"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier unitCost
+             Type: uint256
+             Source: "unitCost"
+      ExpressionStatement
+         Gas costs: 46
+         Source: "units = CrowdSaleSupply < units ? CrowdSaleSupply : units"
+        Assignment using operator =
+           Type: uint256
+           Source: "units = CrowdSaleSupply < units ? CrowdSaleSupply : units"
+          Identifier units
+             Type: uint256
+             Source: "units"
+          Conditional
+             Type: uint256
+             Source: "CrowdSaleSupply < units ? CrowdSaleSupply : units"
+            BinaryOperation using operator <
+               Type: bool
+               Source: "CrowdSaleSupply < units"
+              Identifier CrowdSaleSupply
+                 Type: uint256
+                 Source: "CrowdSaleSupply"
+              Identifier units
+                 Type: uint256
+                 Source: "units"
+            Identifier CrowdSaleSupply
+               Type: uint256
+               Source: "CrowdSaleSupply"
+            Identifier units
+               Type: uint256
+               Source: "units"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "require(units > 0 && ppp.transfer(msg.sender, units))"
+        FunctionCall
+           Type: tuple()
+           Source: "require(units > 0 && ppp.transfer(msg.sender, units))"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator &&
+             Type: bool
+             Source: "units > 0 && ppp.transfer(msg.sender, units)"
+            BinaryOperation using operator >
+               Type: bool
+               Source: "units > 0"
+              Identifier units
+                 Type: uint256
+                 Source: "units"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+            FunctionCall
+               Type: bool
+               Source: "ppp.transfer(msg.sender, units)"
+              MemberAccess to member transfer
+                 Type: function (address,uint256) external returns (bool)
+                 Source: "ppp.transfer"
+                Identifier ppp
+                   Type: contract Token
+                   Source: "ppp"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+              Identifier units
+                 Type: uint256
+                 Source: "units"
+      VariableDeclarationStatement
+         Gas costs: 224
+         Source: "uint remainEther = msg.value - (units * unitCost)"
+        VariableDeclaration "remainEther"
+           Type: uint256
+           Source: "uint remainEther"
+          ElementaryTypeName uint
+             Source: "uint"
+        BinaryOperation using operator -
+           Type: uint256
+           Source: "msg.value - (units * unitCost)"
+          MemberAccess to member value
+             Type: uint256
+             Source: "msg.value"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          TupleExpression
+             Type: uint256
+             Source: "(units * unitCost)"
+            BinaryOperation using operator *
+               Type: uint256
+               Source: "units * unitCost"
+              Identifier units
+                 Type: uint256
+                 Source: "units"
+              Identifier unitCost
+                 Type: uint256
+                 Source: "unitCost"
+      IfStatement
+         Source: "if (remainEther >= 10 ** 15) {\r\n            msg.sender.transfer(remainEther);\r\n        }"
+        BinaryOperation using operator >=
+           Type: bool
+           Gas costs: 12
+           Source: "remainEther >= 10 ** 15"
+          Identifier remainEther
+             Type: uint256
+             Source: "remainEther"
+          BinaryOperation using operator **
+             Type: int_const 1000000000000000
+             Source: "10 ** 15"
+            Literal, token: [no token] value: 10
+               Type: int_const 10
+               Source: "10"
+            Literal, token: [no token] value: 15
+               Type: int_const 15
+               Source: "15"
+        Block
+           Source: "{\r\n            msg.sender.transfer(remainEther);\r\n        }"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "msg.sender.transfer(remainEther)"
+            FunctionCall
+               Type: tuple()
+               Source: "msg.sender.transfer(remainEther)"
+              MemberAccess to member transfer
+                 Type: function (uint256)
+                 Source: "msg.sender.transfer"
+                MemberAccess to member sender
+                   Type: address
+                   Source: "msg.sender"
+                  Identifier msg
+                     Type: msg
+                     Source: "msg"
+              Identifier remainEther
+                 Type: uint256
+                 Source: "remainEther"
+  FunctionDefinition "icoPrice" - public
+     Source: "function icoPrice(uint perEther) public returns (bool success) {\r\n        require(msg.sender == owner);\r\n        unitCost = 1 ether / (perEther * 10 ** 8);\r\n        return true;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint perEther)"
+      VariableDeclaration "perEther"
+         Type: uint256
+         Source: "uint perEther"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n        require(msg.sender == owner);\r\n        unitCost = 1 ether / (perEther * 10 ** 8);\r\n        return true;\r\n    }"
+      ExpressionStatement
+         Gas costs: 282
+         Source: "require(msg.sender == owner)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(msg.sender == owner)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "msg.sender == owner"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Identifier owner
+               Type: address
+               Source: "owner"
+      ExpressionStatement
+         Gas costs: 20053
+         Source: "unitCost = 1 ether / (perEther * 10 ** 8)"
+        Assignment using operator =
+           Type: uint256
+           Source: "unitCost = 1 ether / (perEther * 10 ** 8)"
+          Identifier unitCost
+             Type: uint256
+             Source: "unitCost"
+          BinaryOperation using operator /
+             Type: uint256
+             Source: "1 ether / (perEther * 10 ** 8)"
+            Literal, token: [no token] value: 1
+               Type: int_const 1000000000000000000
+               Source: "1 ether"
+            TupleExpression
+               Type: uint256
+               Source: "(perEther * 10 ** 8)"
+              BinaryOperation using operator *
+                 Type: uint256
+                 Source: "perEther * 10 ** 8"
+                Identifier perEther
+                   Type: uint256
+                   Source: "perEther"
+                BinaryOperation using operator **
+                   Type: int_const 100000000
+                   Source: "10 ** 8"
+                  Literal, token: [no token] value: 10
+                     Type: int_const 10
+                     Source: "10"
+                  Literal, token: [no token] value: 8
+                     Type: int_const 8
+                     Source: "8"
+      Return
+         Gas costs: 8
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+  FunctionDefinition "withdrawFunds" - public
+     Source: "function withdrawFunds(address _token) public returns (bool success) {\r\n        require(msg.sender == owner);\r\n        if (_token == address(0)) {\r\n            owner.transfer(this.balance);\r\n        }\r\n        else {\r\n            Token ERC20 = Token(_token);\r\n            ERC20.transfer(owner, ERC20.balanceOf(this));\r\n        }\r\n        return true;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _token)"
+      VariableDeclaration "_token"
+         Type: address
+         Source: "address _token"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n        require(msg.sender == owner);\r\n        if (_token == address(0)) {\r\n            owner.transfer(this.balance);\r\n        }\r\n        else {\r\n            Token ERC20 = Token(_token);\r\n            ERC20.transfer(owner, ERC20.balanceOf(this));\r\n        }\r\n        return true;\r\n    }"
+      ExpressionStatement
+         Gas costs: 282
+         Source: "require(msg.sender == owner)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(msg.sender == owner)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "msg.sender == owner"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Identifier owner
+               Type: address
+               Source: "owner"
+      IfStatement
+         Source: "if (_token == address(0)) {\r\n            owner.transfer(this.balance);\r\n        }\r\n        else {\r\n            Token ERC20 = Token(_token);\r\n            ERC20.transfer(owner, ERC20.balanceOf(this));\r\n        }"
+        BinaryOperation using operator ==
+           Type: bool
+           Gas costs: 21
+           Source: "_token == address(0)"
+          Identifier _token
+             Type: address
+             Source: "_token"
+          FunctionCall
+             Type: address
+             Source: "address(0)"
+            ElementaryTypeNameExpression address
+               Type: type(address)
+               Source: "address"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+        Block
+           Source: "{\r\n            owner.transfer(this.balance);\r\n        }"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "owner.transfer(this.balance)"
+            FunctionCall
+               Type: tuple()
+               Source: "owner.transfer(this.balance)"
+              MemberAccess to member transfer
+                 Type: function (uint256)
+                 Source: "owner.transfer"
+                Identifier owner
+                   Type: address
+                   Source: "owner"
+              MemberAccess to member balance
+                 Type: uint256
+                 Source: "this.balance"
+                Identifier this
+                   Type: contract CrowdSale
+                   Source: "this"
+        Block
+           Source: "{\r\n            Token ERC20 = Token(_token);\r\n            ERC20.transfer(owner, ERC20.balanceOf(this));\r\n        }"
+          VariableDeclarationStatement
+             Gas costs: 11
+             Source: "Token ERC20 = Token(_token)"
+            VariableDeclaration "ERC20"
+               Type: contract Token
+               Source: "Token ERC20"
+              UserDefinedTypeName "Token"
+                 Source: "Token"
+            FunctionCall
+               Type: contract Token
+               Source: "Token(_token)"
+              Identifier Token
+                 Type: type(contract Token)
+                 Source: "Token"
+              Identifier _token
+                 Type: address
+                 Source: "_token"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "ERC20.transfer(owner, ERC20.balanceOf(this))"
+            FunctionCall
+               Type: bool
+               Source: "ERC20.transfer(owner, ERC20.balanceOf(this))"
+              MemberAccess to member transfer
+                 Type: function (address,uint256) external returns (bool)
+                 Source: "ERC20.transfer"
+                Identifier ERC20
+                   Type: contract Token
+                   Source: "ERC20"
+              Identifier owner
+                 Type: address
+                 Source: "owner"
+              FunctionCall
+                 Type: uint256
+                 Source: "ERC20.balanceOf(this)"
+                MemberAccess to member balanceOf
+                   Type: function (address) view external returns (uint256)
+                   Source: "ERC20.balanceOf"
+                  Identifier ERC20
+                     Type: contract Token
+                     Source: "ERC20"
+                Identifier this
+                   Type: contract CrowdSale
+                   Source: "this"
+      Return
+         Gas costs: 8
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"

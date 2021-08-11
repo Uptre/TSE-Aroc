@@ -1,0 +1,331 @@
+Syntax trees:
+
+
+======= /home/fabric/ArocRevision/Aroc/dataSet/smartbugs-21-7-13/reentrancy31/modifier_reentrancy.sol =======
+PragmaDirective
+   Gas costs: 0
+   Source: "pragma solidity ^0.4.24;"
+ContractDefinition "ModifierEntrancy"
+   Source: "contract ModifierEntrancy {\n  mapping (address => uint) public tokenBalance;\n  string constant name = \"Nu Token\";\n\n  //If a contract has a zero balance and supports the token give them some token\n  // <yes> <report> REENTRANCY\n  function airDrop() hasNoBalance supportsToken  public{\n    tokenBalance[msg.sender] += 20;\n  }\n\n  //Checks that the contract responds the way we want\n  modifier supportsToken() {\n    require(keccak256(abi.encodePacked(\"Nu Token\")) == Bank(msg.sender).supportsToken());\n    _;\n  }\n  //Checks that the caller has a zero balance\n  modifier hasNoBalance {\n      require(tokenBalance[msg.sender] == 0);\n      _;\n  }\n}"
+  VariableDeclaration "tokenBalance"
+     Type: mapping(address => uint256)
+     Gas costs: 0
+     Source: "mapping (address => uint) public tokenBalance"
+    Mapping
+       Source: "mapping (address => uint)"
+      ElementaryTypeName address
+         Source: "address"
+      ElementaryTypeName uint
+         Source: "uint"
+  VariableDeclaration "name"
+     Type: string memory
+     Gas costs: 0
+     Source: "string constant name = \"Nu Token\""
+    ElementaryTypeName string
+       Source: "string"
+    Literal, token: [no token] value: Nu Token
+       Type: literal_string "Nu Token"
+       Source: "\"Nu Token\""
+  FunctionDefinition "airDrop" - public
+     Source: "function airDrop() hasNoBalance supportsToken  public{\n    tokenBalance[msg.sender] += 20;\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "hasNoBalance"
+       Gas costs: 0
+       Source: "hasNoBalance"
+      Identifier hasNoBalance
+         Type: modifier ()
+         Source: "hasNoBalance"
+    ModifierInvocation "supportsToken"
+       Gas costs: 0
+       Source: "supportsToken"
+      Identifier supportsToken
+         Type: modifier ()
+         Source: "supportsToken"
+    Block
+       Source: "{\n    tokenBalance[msg.sender] += 20;\n  }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "tokenBalance[msg.sender] += 20"
+        Assignment using operator +=
+           Type: uint256
+           Source: "tokenBalance[msg.sender] += 20"
+          IndexAccess
+             Type: uint256
+             Source: "tokenBalance[msg.sender]"
+            Identifier tokenBalance
+               Type: mapping(address => uint256)
+               Source: "tokenBalance"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Literal, token: [no token] value: 20
+             Type: int_const 20
+             Source: "20"
+  ModifierDefinition "supportsToken"
+     Source: "modifier supportsToken() {\n    require(keccak256(abi.encodePacked(\"Nu Token\")) == Bank(msg.sender).supportsToken());\n    _;\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    Block
+       Source: "{\n    require(keccak256(abi.encodePacked(\"Nu Token\")) == Bank(msg.sender).supportsToken());\n    _;\n  }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "require(keccak256(abi.encodePacked(\"Nu Token\")) == Bank(msg.sender).supportsToken())"
+        FunctionCall
+           Type: tuple()
+           Source: "require(keccak256(abi.encodePacked(\"Nu Token\")) == Bank(msg.sender).supportsToken())"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "keccak256(abi.encodePacked(\"Nu Token\")) == Bank(msg.sender).supportsToken()"
+            FunctionCall
+               Type: bytes32
+               Source: "keccak256(abi.encodePacked(\"Nu Token\"))"
+              Identifier keccak256
+                 Type: function () pure returns (bytes32)
+                 Source: "keccak256"
+              FunctionCall
+                 Type: bytes memory
+                 Source: "abi.encodePacked(\"Nu Token\")"
+                MemberAccess to member encodePacked
+                   Type: function () pure returns (bytes memory)
+                   Source: "abi.encodePacked"
+                  Identifier abi
+                     Type: abi
+                     Source: "abi"
+                Literal, token: [no token] value: Nu Token
+                   Type: literal_string "Nu Token"
+                   Source: "\"Nu Token\""
+            FunctionCall
+               Type: bytes32
+               Source: "Bank(msg.sender).supportsToken()"
+              MemberAccess to member supportsToken
+                 Type: function () pure external returns (bytes32)
+                 Source: "Bank(msg.sender).supportsToken"
+                FunctionCall
+                   Type: contract Bank
+                   Source: "Bank(msg.sender)"
+                  Identifier Bank
+                     Type: type(contract Bank)
+                     Source: "Bank"
+                  MemberAccess to member sender
+                     Type: address
+                     Source: "msg.sender"
+                    Identifier msg
+                       Type: msg
+                       Source: "msg"
+      PlaceholderStatement
+         Gas costs: 0
+         Source: "_"
+  ModifierDefinition "hasNoBalance"
+     Source: "modifier hasNoBalance {\n      require(tokenBalance[msg.sender] == 0);\n      _;\n  }"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\n      require(tokenBalance[msg.sender] == 0);\n      _;\n  }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "require(tokenBalance[msg.sender] == 0)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(tokenBalance[msg.sender] == 0)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "tokenBalance[msg.sender] == 0"
+            IndexAccess
+               Type: uint256
+               Source: "tokenBalance[msg.sender]"
+              Identifier tokenBalance
+                 Type: mapping(address => uint256)
+                 Source: "tokenBalance"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+      PlaceholderStatement
+         Gas costs: 0
+         Source: "_"
+ContractDefinition "Bank"
+   Source: "contract Bank{\n    function supportsToken() external pure returns(bytes32){\n        return(keccak256(abi.encodePacked(\"Nu Token\")));\n    }\n}"
+  FunctionDefinition "supportsToken" - public
+     Source: "function supportsToken() external pure returns(bytes32){\n        return(keccak256(abi.encodePacked(\"Nu Token\")));\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: "(bytes32)"
+      VariableDeclaration ""
+         Type: bytes32
+         Source: "bytes32"
+        ElementaryTypeName bytes32
+           Source: "bytes32"
+    Block
+       Source: "{\n        return(keccak256(abi.encodePacked(\"Nu Token\")));\n    }"
+      Return
+         Gas costs: 0
+         Source: "return(keccak256(abi.encodePacked(\"Nu Token\")))"
+        TupleExpression
+           Type: bytes32
+           Source: "(keccak256(abi.encodePacked(\"Nu Token\")))"
+          FunctionCall
+             Type: bytes32
+             Source: "keccak256(abi.encodePacked(\"Nu Token\"))"
+            Identifier keccak256
+               Type: function () pure returns (bytes32)
+               Source: "keccak256"
+            FunctionCall
+               Type: bytes memory
+               Source: "abi.encodePacked(\"Nu Token\")"
+              MemberAccess to member encodePacked
+                 Type: function () pure returns (bytes memory)
+                 Source: "abi.encodePacked"
+                Identifier abi
+                   Type: abi
+                   Source: "abi"
+              Literal, token: [no token] value: Nu Token
+                 Type: literal_string "Nu Token"
+                 Source: "\"Nu Token\""
+ContractDefinition "attack"
+   Source: "contract attack{ //An example of a contract that breaks the contract above.\n    bool hasBeenCalled;\n    function supportsToken() external returns(bytes32){\n        if(!hasBeenCalled){\n            hasBeenCalled = true;\n            ModifierEntrancy(msg.sender).airDrop();\n        }\n        return(keccak256(abi.encodePacked(\"Nu Token\")));\n    }\n    function call(address token) public{\n        ModifierEntrancy(token).airDrop();\n    }\n}"
+  VariableDeclaration "hasBeenCalled"
+     Type: bool
+     Gas costs: 0
+     Source: "bool hasBeenCalled"
+    ElementaryTypeName bool
+       Source: "bool"
+  FunctionDefinition "supportsToken" - public
+     Source: "function supportsToken() external returns(bytes32){\n        if(!hasBeenCalled){\n            hasBeenCalled = true;\n            ModifierEntrancy(msg.sender).airDrop();\n        }\n        return(keccak256(abi.encodePacked(\"Nu Token\")));\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(bytes32)"
+      VariableDeclaration ""
+         Type: bytes32
+         Source: "bytes32"
+        ElementaryTypeName bytes32
+           Source: "bytes32"
+    Block
+       Source: "{\n        if(!hasBeenCalled){\n            hasBeenCalled = true;\n            ModifierEntrancy(msg.sender).airDrop();\n        }\n        return(keccak256(abi.encodePacked(\"Nu Token\")));\n    }"
+      IfStatement
+         Source: "if(!hasBeenCalled){\n            hasBeenCalled = true;\n            ModifierEntrancy(msg.sender).airDrop();\n        }"
+        UnaryOperation (prefix) !
+           Type: bool
+           Gas costs: 242
+           Source: "!hasBeenCalled"
+          Identifier hasBeenCalled
+             Type: bool
+             Source: "hasBeenCalled"
+        Block
+           Source: "{\n            hasBeenCalled = true;\n            ModifierEntrancy(msg.sender).airDrop();\n        }"
+          ExpressionStatement
+             Gas costs: 20267
+             Source: "hasBeenCalled = true"
+            Assignment using operator =
+               Type: bool
+               Source: "hasBeenCalled = true"
+              Identifier hasBeenCalled
+                 Type: bool
+                 Source: "hasBeenCalled"
+              Literal, token: true value: true
+                 Type: bool
+                 Source: "true"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "ModifierEntrancy(msg.sender).airDrop()"
+            FunctionCall
+               Type: tuple()
+               Source: "ModifierEntrancy(msg.sender).airDrop()"
+              MemberAccess to member airDrop
+                 Type: function () external
+                 Source: "ModifierEntrancy(msg.sender).airDrop"
+                FunctionCall
+                   Type: contract ModifierEntrancy
+                   Source: "ModifierEntrancy(msg.sender)"
+                  Identifier ModifierEntrancy
+                     Type: type(contract ModifierEntrancy)
+                     Source: "ModifierEntrancy"
+                  MemberAccess to member sender
+                     Type: address
+                     Source: "msg.sender"
+                    Identifier msg
+                       Type: msg
+                       Source: "msg"
+      Return
+         Gas costs: [???]
+         Source: "return(keccak256(abi.encodePacked(\"Nu Token\")))"
+        TupleExpression
+           Type: bytes32
+           Source: "(keccak256(abi.encodePacked(\"Nu Token\")))"
+          FunctionCall
+             Type: bytes32
+             Source: "keccak256(abi.encodePacked(\"Nu Token\"))"
+            Identifier keccak256
+               Type: function () pure returns (bytes32)
+               Source: "keccak256"
+            FunctionCall
+               Type: bytes memory
+               Source: "abi.encodePacked(\"Nu Token\")"
+              MemberAccess to member encodePacked
+                 Type: function () pure returns (bytes memory)
+                 Source: "abi.encodePacked"
+                Identifier abi
+                   Type: abi
+                   Source: "abi"
+              Literal, token: [no token] value: Nu Token
+                 Type: literal_string "Nu Token"
+                 Source: "\"Nu Token\""
+  FunctionDefinition "call" - public
+     Source: "function call(address token) public{\n        ModifierEntrancy(token).airDrop();\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address token)"
+      VariableDeclaration "token"
+         Type: address
+         Source: "address token"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\n        ModifierEntrancy(token).airDrop();\n    }"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "ModifierEntrancy(token).airDrop()"
+        FunctionCall
+           Type: tuple()
+           Source: "ModifierEntrancy(token).airDrop()"
+          MemberAccess to member airDrop
+             Type: function () external
+             Source: "ModifierEntrancy(token).airDrop"
+            FunctionCall
+               Type: contract ModifierEntrancy
+               Source: "ModifierEntrancy(token)"
+              Identifier ModifierEntrancy
+                 Type: type(contract ModifierEntrancy)
+                 Source: "ModifierEntrancy"
+              Identifier token
+                 Type: address
+                 Source: "token"

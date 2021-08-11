@@ -1,0 +1,50 @@
+Syntax trees:
+
+
+======= /home/fabric/ArocRevision/Aroc/dataSet/smartbugs-21-7-13/arithmetic15/integer_overflow_1.sol =======
+PragmaDirective
+   Gas costs: 0
+   Source: "pragma solidity ^0.4.15;"
+ContractDefinition "Overflow"
+   Source: "contract Overflow {\n     uint private sellerBalance=0;\n\n     function add(uint value) returns (bool){\n         // <yes> <report> ARITHMETIC\n         sellerBalance += value; // possible overflow\n\n         // possible auditor assert\n         // assert(sellerBalance >= value);\n     }\n\n  // function safe_add(uint value) returns (bool){\n  //   require(value + sellerBalance >= sellerBalance);\n  // sellerBalance += value;\n  // } \n }"
+  VariableDeclaration "sellerBalance"
+     Type: uint256
+     Gas costs: 0
+     Source: "uint private sellerBalance=0"
+    ElementaryTypeName uint
+       Source: "uint"
+    Literal, token: [no token] value: 0
+       Type: int_const 0
+       Source: "0"
+  FunctionDefinition "add" - public
+     Source: "function add(uint value) returns (bool){\n         // <yes> <report> ARITHMETIC\n         sellerBalance += value; // possible overflow\n\n         // possible auditor assert\n         // assert(sellerBalance >= value);\n     }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint value)"
+      VariableDeclaration "value"
+         Type: uint256
+         Source: "uint value"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool)"
+      VariableDeclaration ""
+         Type: bool
+         Source: "bool"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\n         // <yes> <report> ARITHMETIC\n         sellerBalance += value; // possible overflow\n\n         // possible auditor assert\n         // assert(sellerBalance >= value);\n     }"
+      ExpressionStatement
+         Gas costs: 20233
+         Source: "sellerBalance += value"
+        Assignment using operator +=
+           Type: uint256
+           Source: "sellerBalance += value"
+          Identifier sellerBalance
+             Type: uint256
+             Source: "sellerBalance"
+          Identifier value
+             Type: uint256
+             Source: "value"

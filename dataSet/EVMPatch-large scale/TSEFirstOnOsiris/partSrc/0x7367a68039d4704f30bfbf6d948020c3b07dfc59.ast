@@ -1,0 +1,4266 @@
+Syntax trees:
+
+
+======= /home/fabric/ArocRevision/Aroc/osirisData/contractSrc/0x7367a68039d4704f30bfbf6d948020c3b07dfc59.sol =======
+PragmaDirective
+   Gas costs: 0
+   Source: "pragma solidity ^0.4.19;"
+ContractDefinition "InternalBeercoin"
+   Gas costs: 27
+   Source: "contract InternalBeercoin {\r\n    // As 18 decimal places will be used, the constants are multiplied by 10^18\r\n    uint256 internal constant INITIAL_SUPPLY = 15496000000 * 10**18;\r\n    uint256 internal constant DIAMOND_VALUE = 10000 * 10**18;\r\n    uint256 internal constant GOLD_VALUE = 100 * 10**18;\r\n    uint256 internal constant SILVER_VALUE = 10 * 10**18;\r\n    uint256 internal constant BRONZE_VALUE = 1 * 10**18;\r\n\r\n    // In addition to the initial total supply of 15496000000 Beercoins,\r\n    // more Beercoins will only be added by scanning bottle caps.\r\n    // 20800000000 bottle caps will be eventually produced.\r\n    //\r\n    // Within 10000 bottle caps,\r\n    // 1 (i.e. every 10000th cap in total) has a value of 10000 (\"Diamond\") Beercoins,\r\n    // 9 (i.e. every 1000th cap in total) have a value of 100 (\"Gold\") Beercoins,\r\n    // 990 (i.e. every 10th cap in total) have a value of 10 (\"Silver\") Beercoins,\r\n    // 9000 (i.e. every remaining cap) have a value of 1 (\"Bronze\") Beercoin.\r\n    //\r\n    // Therefore one bottle cap has an average Beercoin value of\r\n    // (1 * 10000 + 9 * 100 + 990 * 10 + 9000 * 1) / 10000 = 2.98.\r\n    //\r\n    // This means the total Beercoin value of all bottle caps that will\r\n    // be eventually produced equals 20800000000 * 2.98 = 61984000000.\r\n    uint64 internal producibleCaps = 20800000000;\r\n\r\n    // The  amounts of diamond, gold, silver, and bronze caps are stored\r\n    // as a single 256-bit value divided into four sections of 64 bits.\r\n    //\r\n    // Bits 255 to 192 are used for the amount of diamond caps,\r\n    // bits 191 to 128 are used for the amount of gold caps,\r\n    // bits 127 to 64 are used for the amount of silver caps,\r\n    // bits 63 to 0 are used for the amount of bronze caps.\r\n    //\r\n    // For example, the following numbers represent a single cap of a certain type:\r\n    // 0x0000000000000001000000000000000000000000000000000000000000000000 (diamond)\r\n    // 0x0000000000000000000000000000000100000000000000000000000000000000 (gold)\r\n    // 0x0000000000000000000000000000000000000000000000010000000000000000 (silver)\r\n    // 0x0000000000000000000000000000000000000000000000000000000000000001 (bronze)\r\n    uint256 internal packedProducedCaps = 0;\r\n    uint256 internal packedScannedCaps = 0;\r\n\r\n    // The amount of irreversibly burnt Beercoins\r\n    uint256 internal burntValue = 0;\r\n}"
+  VariableDeclaration "INITIAL_SUPPLY"
+     Type: uint256
+     Source: "uint256 internal constant INITIAL_SUPPLY = 15496000000 * 10**18"
+    ElementaryTypeName uint256
+       Source: "uint256"
+    BinaryOperation using operator *
+       Type: int_const 15496000000000000000000000000
+       Source: "15496000000 * 10**18"
+      Literal, token: [no token] value: 15496000000
+         Type: int_const 15496000000
+         Source: "15496000000"
+      BinaryOperation using operator **
+         Type: int_const 1000000000000000000
+         Source: "10**18"
+        Literal, token: [no token] value: 10
+           Type: int_const 10
+           Source: "10"
+        Literal, token: [no token] value: 18
+           Type: int_const 18
+           Source: "18"
+  VariableDeclaration "DIAMOND_VALUE"
+     Type: uint256
+     Source: "uint256 internal constant DIAMOND_VALUE = 10000 * 10**18"
+    ElementaryTypeName uint256
+       Source: "uint256"
+    BinaryOperation using operator *
+       Type: int_const 10000000000000000000000
+       Source: "10000 * 10**18"
+      Literal, token: [no token] value: 10000
+         Type: int_const 10000
+         Source: "10000"
+      BinaryOperation using operator **
+         Type: int_const 1000000000000000000
+         Source: "10**18"
+        Literal, token: [no token] value: 10
+           Type: int_const 10
+           Source: "10"
+        Literal, token: [no token] value: 18
+           Type: int_const 18
+           Source: "18"
+  VariableDeclaration "GOLD_VALUE"
+     Type: uint256
+     Source: "uint256 internal constant GOLD_VALUE = 100 * 10**18"
+    ElementaryTypeName uint256
+       Source: "uint256"
+    BinaryOperation using operator *
+       Type: int_const 100000000000000000000
+       Source: "100 * 10**18"
+      Literal, token: [no token] value: 100
+         Type: int_const 100
+         Source: "100"
+      BinaryOperation using operator **
+         Type: int_const 1000000000000000000
+         Source: "10**18"
+        Literal, token: [no token] value: 10
+           Type: int_const 10
+           Source: "10"
+        Literal, token: [no token] value: 18
+           Type: int_const 18
+           Source: "18"
+  VariableDeclaration "SILVER_VALUE"
+     Type: uint256
+     Source: "uint256 internal constant SILVER_VALUE = 10 * 10**18"
+    ElementaryTypeName uint256
+       Source: "uint256"
+    BinaryOperation using operator *
+       Type: int_const 10000000000000000000
+       Source: "10 * 10**18"
+      Literal, token: [no token] value: 10
+         Type: int_const 10
+         Source: "10"
+      BinaryOperation using operator **
+         Type: int_const 1000000000000000000
+         Source: "10**18"
+        Literal, token: [no token] value: 10
+           Type: int_const 10
+           Source: "10"
+        Literal, token: [no token] value: 18
+           Type: int_const 18
+           Source: "18"
+  VariableDeclaration "BRONZE_VALUE"
+     Type: uint256
+     Source: "uint256 internal constant BRONZE_VALUE = 1 * 10**18"
+    ElementaryTypeName uint256
+       Source: "uint256"
+    BinaryOperation using operator *
+       Type: int_const 1000000000000000000
+       Source: "1 * 10**18"
+      Literal, token: [no token] value: 1
+         Type: int_const 1
+         Source: "1"
+      BinaryOperation using operator **
+         Type: int_const 1000000000000000000
+         Source: "10**18"
+        Literal, token: [no token] value: 10
+           Type: int_const 10
+           Source: "10"
+        Literal, token: [no token] value: 18
+           Type: int_const 18
+           Source: "18"
+  VariableDeclaration "producibleCaps"
+     Type: uint64
+     Source: "uint64 internal producibleCaps = 20800000000"
+    ElementaryTypeName uint64
+       Source: "uint64"
+    Literal, token: [no token] value: 20800000000
+       Type: int_const 20800000000
+       Source: "20800000000"
+  VariableDeclaration "packedProducedCaps"
+     Type: uint256
+     Source: "uint256 internal packedProducedCaps = 0"
+    ElementaryTypeName uint256
+       Source: "uint256"
+    Literal, token: [no token] value: 0
+       Type: int_const 0
+       Source: "0"
+  VariableDeclaration "packedScannedCaps"
+     Type: uint256
+     Source: "uint256 internal packedScannedCaps = 0"
+    ElementaryTypeName uint256
+       Source: "uint256"
+    Literal, token: [no token] value: 0
+       Type: int_const 0
+       Source: "0"
+  VariableDeclaration "burntValue"
+     Type: uint256
+     Source: "uint256 internal burntValue = 0"
+    ElementaryTypeName uint256
+       Source: "uint256"
+    Literal, token: [no token] value: 0
+       Type: int_const 0
+       Source: "0"
+ContractDefinition "ExplorableBeercoin"
+   Source: "contract ExplorableBeercoin is InternalBeercoin {\r\n    /**\r\n     * The amount of caps that can still be produced\r\n     */\r\n    function unproducedCaps() public view returns (uint64) {\r\n        return producibleCaps;\r\n    }\r\n\r\n    /**\r\n     * The amount of caps that is produced but not yet scanned\r\n     */\r\n    function unscannedCaps() public view returns (uint64) {\r\n        uint256 caps = packedProducedCaps - packedScannedCaps;\r\n        uint64 amount = uint64(caps >> 192);\r\n        amount += uint64(caps >> 128);\r\n        amount += uint64(caps >> 64);\r\n        amount += uint64(caps);\r\n        return amount;\r\n    }\r\n\r\n    /**\r\n     * The amount of all caps produced so far\r\n     */\r\n    function producedCaps() public view returns (uint64) {\r\n        uint256 caps = packedProducedCaps;\r\n        uint64 amount = uint64(caps >> 192);\r\n        amount += uint64(caps >> 128);\r\n        amount += uint64(caps >> 64);\r\n        amount += uint64(caps);\r\n        return amount;\r\n    }\r\n\r\n    /**\r\n     * The amount of all caps scanned so far\r\n     */\r\n    function scannedCaps() public view returns (uint64) {\r\n        uint256 caps = packedScannedCaps;\r\n        uint64 amount = uint64(caps >> 192);\r\n        amount += uint64(caps >> 128);\r\n        amount += uint64(caps >> 64);\r\n        amount += uint64(caps);\r\n        return amount;\r\n    }\r\n\r\n    /**\r\n     * The amount of diamond caps produced so far\r\n     */\r\n    function producedDiamondCaps() public view returns (uint64) {\r\n        return uint64(packedProducedCaps >> 192);\r\n    }\r\n\r\n    /**\r\n     * The amount of diamond caps scanned so far\r\n     */\r\n    function scannedDiamondCaps() public view returns (uint64) {\r\n        return uint64(packedScannedCaps >> 192);\r\n    }\r\n\r\n    /**\r\n     * The amount of gold caps produced so far\r\n     */\r\n    function producedGoldCaps() public view returns (uint64) {\r\n        return uint64(packedProducedCaps >> 128);\r\n    }\r\n\r\n    /**\r\n     * The amount of gold caps scanned so far\r\n     */\r\n    function scannedGoldCaps() public view returns (uint64) {\r\n        return uint64(packedScannedCaps >> 128);\r\n    }\r\n\r\n    /**\r\n     * The amount of silver caps produced so far\r\n     */\r\n    function producedSilverCaps() public view returns (uint64) {\r\n        return uint64(packedProducedCaps >> 64);\r\n    }\r\n\r\n    /**\r\n     * The amount of silver caps scanned so far\r\n     */\r\n    function scannedSilverCaps() public view returns (uint64) {\r\n        return uint64(packedScannedCaps >> 64);\r\n    }\r\n\r\n    /**\r\n     * The amount of bronze caps produced so far\r\n     */\r\n    function producedBronzeCaps() public view returns (uint64) {\r\n        return uint64(packedProducedCaps);\r\n    }\r\n\r\n    /**\r\n     * The amount of bronze caps scanned so far\r\n     */\r\n    function scannedBronzeCaps() public view returns (uint64) {\r\n        return uint64(packedScannedCaps);\r\n    }\r\n}"
+  InheritanceSpecifier
+     Gas costs: 0
+     Source: "InternalBeercoin"
+    UserDefinedTypeName "InternalBeercoin"
+       Source: "InternalBeercoin"
+  FunctionDefinition "unproducedCaps" - public - const
+     Source: "function unproducedCaps() public view returns (uint64) {\r\n        return producibleCaps;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint64)"
+      VariableDeclaration ""
+         Type: uint64
+         Source: "uint64"
+        ElementaryTypeName uint64
+           Source: "uint64"
+    Block
+       Source: "{\r\n        return producibleCaps;\r\n    }"
+      Return
+         Gas costs: 244
+         Source: "return producibleCaps"
+        Identifier producibleCaps
+           Type: uint64
+           Source: "producibleCaps"
+  FunctionDefinition "unscannedCaps" - public - const
+     Source: "function unscannedCaps() public view returns (uint64) {\r\n        uint256 caps = packedProducedCaps - packedScannedCaps;\r\n        uint64 amount = uint64(caps >> 192);\r\n        amount += uint64(caps >> 128);\r\n        amount += uint64(caps >> 64);\r\n        amount += uint64(caps);\r\n        return amount;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint64)"
+      VariableDeclaration ""
+         Type: uint64
+         Source: "uint64"
+        ElementaryTypeName uint64
+           Source: "uint64"
+    Block
+       Source: "{\r\n        uint256 caps = packedProducedCaps - packedScannedCaps;\r\n        uint64 amount = uint64(caps >> 192);\r\n        amount += uint64(caps >> 128);\r\n        amount += uint64(caps >> 64);\r\n        amount += uint64(caps);\r\n        return amount;\r\n    }"
+      VariableDeclarationStatement
+         Gas costs: 417
+         Source: "uint256 caps = packedProducedCaps - packedScannedCaps"
+        VariableDeclaration "caps"
+           Type: uint256
+           Source: "uint256 caps"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        BinaryOperation using operator -
+           Type: uint256
+           Source: "packedProducedCaps - packedScannedCaps"
+          Identifier packedProducedCaps
+             Type: uint256
+             Source: "packedProducedCaps"
+          Identifier packedScannedCaps
+             Type: uint256
+             Source: "packedScannedCaps"
+      VariableDeclarationStatement
+         Gas costs: 88
+         Source: "uint64 amount = uint64(caps >> 192)"
+        VariableDeclaration "amount"
+           Type: uint64
+           Source: "uint64 amount"
+          ElementaryTypeName uint64
+             Source: "uint64"
+        FunctionCall
+           Type: uint64
+           Source: "uint64(caps >> 192)"
+          ElementaryTypeNameExpression uint64
+             Type: type(uint64)
+             Source: "uint64"
+          BinaryOperation using operator >>
+             Type: uint256
+             Source: "caps >> 192"
+            Identifier caps
+               Type: uint256
+               Source: "caps"
+            Literal, token: [no token] value: 192
+               Type: int_const 192
+               Source: "192"
+      ExpressionStatement
+         Gas costs: 91
+         Source: "amount += uint64(caps >> 128)"
+        Assignment using operator +=
+           Type: uint64
+           Source: "amount += uint64(caps >> 128)"
+          Identifier amount
+             Type: uint64
+             Source: "amount"
+          FunctionCall
+             Type: uint64
+             Source: "uint64(caps >> 128)"
+            ElementaryTypeNameExpression uint64
+               Type: type(uint64)
+               Source: "uint64"
+            BinaryOperation using operator >>
+               Type: uint256
+               Source: "caps >> 128"
+              Identifier caps
+                 Type: uint256
+                 Source: "caps"
+              Literal, token: [no token] value: 128
+                 Type: int_const 128
+                 Source: "128"
+      ExpressionStatement
+         Gas costs: 91
+         Source: "amount += uint64(caps >> 64)"
+        Assignment using operator +=
+           Type: uint64
+           Source: "amount += uint64(caps >> 64)"
+          Identifier amount
+             Type: uint64
+             Source: "amount"
+          FunctionCall
+             Type: uint64
+             Source: "uint64(caps >> 64)"
+            ElementaryTypeNameExpression uint64
+               Type: type(uint64)
+               Source: "uint64"
+            BinaryOperation using operator >>
+               Type: uint256
+               Source: "caps >> 64"
+              Identifier caps
+                 Type: uint256
+                 Source: "caps"
+              Literal, token: [no token] value: 64
+                 Type: int_const 64
+                 Source: "64"
+      ExpressionStatement
+         Gas costs: 14
+         Source: "amount += uint64(caps)"
+        Assignment using operator +=
+           Type: uint64
+           Source: "amount += uint64(caps)"
+          Identifier amount
+             Type: uint64
+             Source: "amount"
+          FunctionCall
+             Type: uint64
+             Source: "uint64(caps)"
+            ElementaryTypeNameExpression uint64
+               Type: type(uint64)
+               Source: "uint64"
+            Identifier caps
+               Type: uint256
+               Source: "caps"
+      Return
+         Gas costs: 8
+         Source: "return amount"
+        Identifier amount
+           Type: uint64
+           Source: "amount"
+  FunctionDefinition "producedCaps" - public - const
+     Source: "function producedCaps() public view returns (uint64) {\r\n        uint256 caps = packedProducedCaps;\r\n        uint64 amount = uint64(caps >> 192);\r\n        amount += uint64(caps >> 128);\r\n        amount += uint64(caps >> 64);\r\n        amount += uint64(caps);\r\n        return amount;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint64)"
+      VariableDeclaration ""
+         Type: uint64
+         Source: "uint64"
+        ElementaryTypeName uint64
+           Source: "uint64"
+    Block
+       Source: "{\r\n        uint256 caps = packedProducedCaps;\r\n        uint64 amount = uint64(caps >> 192);\r\n        amount += uint64(caps >> 128);\r\n        amount += uint64(caps >> 64);\r\n        amount += uint64(caps);\r\n        return amount;\r\n    }"
+      VariableDeclarationStatement
+         Gas costs: 211
+         Source: "uint256 caps = packedProducedCaps"
+        VariableDeclaration "caps"
+           Type: uint256
+           Source: "uint256 caps"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        Identifier packedProducedCaps
+           Type: uint256
+           Source: "packedProducedCaps"
+      VariableDeclarationStatement
+         Gas costs: 88
+         Source: "uint64 amount = uint64(caps >> 192)"
+        VariableDeclaration "amount"
+           Type: uint64
+           Source: "uint64 amount"
+          ElementaryTypeName uint64
+             Source: "uint64"
+        FunctionCall
+           Type: uint64
+           Source: "uint64(caps >> 192)"
+          ElementaryTypeNameExpression uint64
+             Type: type(uint64)
+             Source: "uint64"
+          BinaryOperation using operator >>
+             Type: uint256
+             Source: "caps >> 192"
+            Identifier caps
+               Type: uint256
+               Source: "caps"
+            Literal, token: [no token] value: 192
+               Type: int_const 192
+               Source: "192"
+      ExpressionStatement
+         Gas costs: 91
+         Source: "amount += uint64(caps >> 128)"
+        Assignment using operator +=
+           Type: uint64
+           Source: "amount += uint64(caps >> 128)"
+          Identifier amount
+             Type: uint64
+             Source: "amount"
+          FunctionCall
+             Type: uint64
+             Source: "uint64(caps >> 128)"
+            ElementaryTypeNameExpression uint64
+               Type: type(uint64)
+               Source: "uint64"
+            BinaryOperation using operator >>
+               Type: uint256
+               Source: "caps >> 128"
+              Identifier caps
+                 Type: uint256
+                 Source: "caps"
+              Literal, token: [no token] value: 128
+                 Type: int_const 128
+                 Source: "128"
+      ExpressionStatement
+         Gas costs: 91
+         Source: "amount += uint64(caps >> 64)"
+        Assignment using operator +=
+           Type: uint64
+           Source: "amount += uint64(caps >> 64)"
+          Identifier amount
+             Type: uint64
+             Source: "amount"
+          FunctionCall
+             Type: uint64
+             Source: "uint64(caps >> 64)"
+            ElementaryTypeNameExpression uint64
+               Type: type(uint64)
+               Source: "uint64"
+            BinaryOperation using operator >>
+               Type: uint256
+               Source: "caps >> 64"
+              Identifier caps
+                 Type: uint256
+                 Source: "caps"
+              Literal, token: [no token] value: 64
+                 Type: int_const 64
+                 Source: "64"
+      ExpressionStatement
+         Gas costs: 14
+         Source: "amount += uint64(caps)"
+        Assignment using operator +=
+           Type: uint64
+           Source: "amount += uint64(caps)"
+          Identifier amount
+             Type: uint64
+             Source: "amount"
+          FunctionCall
+             Type: uint64
+             Source: "uint64(caps)"
+            ElementaryTypeNameExpression uint64
+               Type: type(uint64)
+               Source: "uint64"
+            Identifier caps
+               Type: uint256
+               Source: "caps"
+      Return
+         Gas costs: 8
+         Source: "return amount"
+        Identifier amount
+           Type: uint64
+           Source: "amount"
+  FunctionDefinition "scannedCaps" - public - const
+     Source: "function scannedCaps() public view returns (uint64) {\r\n        uint256 caps = packedScannedCaps;\r\n        uint64 amount = uint64(caps >> 192);\r\n        amount += uint64(caps >> 128);\r\n        amount += uint64(caps >> 64);\r\n        amount += uint64(caps);\r\n        return amount;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint64)"
+      VariableDeclaration ""
+         Type: uint64
+         Source: "uint64"
+        ElementaryTypeName uint64
+           Source: "uint64"
+    Block
+       Source: "{\r\n        uint256 caps = packedScannedCaps;\r\n        uint64 amount = uint64(caps >> 192);\r\n        amount += uint64(caps >> 128);\r\n        amount += uint64(caps >> 64);\r\n        amount += uint64(caps);\r\n        return amount;\r\n    }"
+      VariableDeclarationStatement
+         Gas costs: 211
+         Source: "uint256 caps = packedScannedCaps"
+        VariableDeclaration "caps"
+           Type: uint256
+           Source: "uint256 caps"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        Identifier packedScannedCaps
+           Type: uint256
+           Source: "packedScannedCaps"
+      VariableDeclarationStatement
+         Gas costs: 88
+         Source: "uint64 amount = uint64(caps >> 192)"
+        VariableDeclaration "amount"
+           Type: uint64
+           Source: "uint64 amount"
+          ElementaryTypeName uint64
+             Source: "uint64"
+        FunctionCall
+           Type: uint64
+           Source: "uint64(caps >> 192)"
+          ElementaryTypeNameExpression uint64
+             Type: type(uint64)
+             Source: "uint64"
+          BinaryOperation using operator >>
+             Type: uint256
+             Source: "caps >> 192"
+            Identifier caps
+               Type: uint256
+               Source: "caps"
+            Literal, token: [no token] value: 192
+               Type: int_const 192
+               Source: "192"
+      ExpressionStatement
+         Gas costs: 91
+         Source: "amount += uint64(caps >> 128)"
+        Assignment using operator +=
+           Type: uint64
+           Source: "amount += uint64(caps >> 128)"
+          Identifier amount
+             Type: uint64
+             Source: "amount"
+          FunctionCall
+             Type: uint64
+             Source: "uint64(caps >> 128)"
+            ElementaryTypeNameExpression uint64
+               Type: type(uint64)
+               Source: "uint64"
+            BinaryOperation using operator >>
+               Type: uint256
+               Source: "caps >> 128"
+              Identifier caps
+                 Type: uint256
+                 Source: "caps"
+              Literal, token: [no token] value: 128
+                 Type: int_const 128
+                 Source: "128"
+      ExpressionStatement
+         Gas costs: 91
+         Source: "amount += uint64(caps >> 64)"
+        Assignment using operator +=
+           Type: uint64
+           Source: "amount += uint64(caps >> 64)"
+          Identifier amount
+             Type: uint64
+             Source: "amount"
+          FunctionCall
+             Type: uint64
+             Source: "uint64(caps >> 64)"
+            ElementaryTypeNameExpression uint64
+               Type: type(uint64)
+               Source: "uint64"
+            BinaryOperation using operator >>
+               Type: uint256
+               Source: "caps >> 64"
+              Identifier caps
+                 Type: uint256
+                 Source: "caps"
+              Literal, token: [no token] value: 64
+                 Type: int_const 64
+                 Source: "64"
+      ExpressionStatement
+         Gas costs: 14
+         Source: "amount += uint64(caps)"
+        Assignment using operator +=
+           Type: uint64
+           Source: "amount += uint64(caps)"
+          Identifier amount
+             Type: uint64
+             Source: "amount"
+          FunctionCall
+             Type: uint64
+             Source: "uint64(caps)"
+            ElementaryTypeNameExpression uint64
+               Type: type(uint64)
+               Source: "uint64"
+            Identifier caps
+               Type: uint256
+               Source: "caps"
+      Return
+         Gas costs: 8
+         Source: "return amount"
+        Identifier amount
+           Type: uint64
+           Source: "amount"
+  FunctionDefinition "producedDiamondCaps" - public - const
+     Source: "function producedDiamondCaps() public view returns (uint64) {\r\n        return uint64(packedProducedCaps >> 192);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint64)"
+      VariableDeclaration ""
+         Type: uint64
+         Source: "uint64"
+        ElementaryTypeName uint64
+           Source: "uint64"
+    Block
+       Source: "{\r\n        return uint64(packedProducedCaps >> 192);\r\n    }"
+      Return
+         Gas costs: 285
+         Source: "return uint64(packedProducedCaps >> 192)"
+        FunctionCall
+           Type: uint64
+           Source: "uint64(packedProducedCaps >> 192)"
+          ElementaryTypeNameExpression uint64
+             Type: type(uint64)
+             Source: "uint64"
+          BinaryOperation using operator >>
+             Type: uint256
+             Source: "packedProducedCaps >> 192"
+            Identifier packedProducedCaps
+               Type: uint256
+               Source: "packedProducedCaps"
+            Literal, token: [no token] value: 192
+               Type: int_const 192
+               Source: "192"
+  FunctionDefinition "scannedDiamondCaps" - public - const
+     Source: "function scannedDiamondCaps() public view returns (uint64) {\r\n        return uint64(packedScannedCaps >> 192);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint64)"
+      VariableDeclaration ""
+         Type: uint64
+         Source: "uint64"
+        ElementaryTypeName uint64
+           Source: "uint64"
+    Block
+       Source: "{\r\n        return uint64(packedScannedCaps >> 192);\r\n    }"
+      Return
+         Gas costs: 285
+         Source: "return uint64(packedScannedCaps >> 192)"
+        FunctionCall
+           Type: uint64
+           Source: "uint64(packedScannedCaps >> 192)"
+          ElementaryTypeNameExpression uint64
+             Type: type(uint64)
+             Source: "uint64"
+          BinaryOperation using operator >>
+             Type: uint256
+             Source: "packedScannedCaps >> 192"
+            Identifier packedScannedCaps
+               Type: uint256
+               Source: "packedScannedCaps"
+            Literal, token: [no token] value: 192
+               Type: int_const 192
+               Source: "192"
+  FunctionDefinition "producedGoldCaps" - public - const
+     Source: "function producedGoldCaps() public view returns (uint64) {\r\n        return uint64(packedProducedCaps >> 128);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint64)"
+      VariableDeclaration ""
+         Type: uint64
+         Source: "uint64"
+        ElementaryTypeName uint64
+           Source: "uint64"
+    Block
+       Source: "{\r\n        return uint64(packedProducedCaps >> 128);\r\n    }"
+      Return
+         Gas costs: 285
+         Source: "return uint64(packedProducedCaps >> 128)"
+        FunctionCall
+           Type: uint64
+           Source: "uint64(packedProducedCaps >> 128)"
+          ElementaryTypeNameExpression uint64
+             Type: type(uint64)
+             Source: "uint64"
+          BinaryOperation using operator >>
+             Type: uint256
+             Source: "packedProducedCaps >> 128"
+            Identifier packedProducedCaps
+               Type: uint256
+               Source: "packedProducedCaps"
+            Literal, token: [no token] value: 128
+               Type: int_const 128
+               Source: "128"
+  FunctionDefinition "scannedGoldCaps" - public - const
+     Source: "function scannedGoldCaps() public view returns (uint64) {\r\n        return uint64(packedScannedCaps >> 128);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint64)"
+      VariableDeclaration ""
+         Type: uint64
+         Source: "uint64"
+        ElementaryTypeName uint64
+           Source: "uint64"
+    Block
+       Source: "{\r\n        return uint64(packedScannedCaps >> 128);\r\n    }"
+      Return
+         Gas costs: 285
+         Source: "return uint64(packedScannedCaps >> 128)"
+        FunctionCall
+           Type: uint64
+           Source: "uint64(packedScannedCaps >> 128)"
+          ElementaryTypeNameExpression uint64
+             Type: type(uint64)
+             Source: "uint64"
+          BinaryOperation using operator >>
+             Type: uint256
+             Source: "packedScannedCaps >> 128"
+            Identifier packedScannedCaps
+               Type: uint256
+               Source: "packedScannedCaps"
+            Literal, token: [no token] value: 128
+               Type: int_const 128
+               Source: "128"
+  FunctionDefinition "producedSilverCaps" - public - const
+     Source: "function producedSilverCaps() public view returns (uint64) {\r\n        return uint64(packedProducedCaps >> 64);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint64)"
+      VariableDeclaration ""
+         Type: uint64
+         Source: "uint64"
+        ElementaryTypeName uint64
+           Source: "uint64"
+    Block
+       Source: "{\r\n        return uint64(packedProducedCaps >> 64);\r\n    }"
+      Return
+         Gas costs: 285
+         Source: "return uint64(packedProducedCaps >> 64)"
+        FunctionCall
+           Type: uint64
+           Source: "uint64(packedProducedCaps >> 64)"
+          ElementaryTypeNameExpression uint64
+             Type: type(uint64)
+             Source: "uint64"
+          BinaryOperation using operator >>
+             Type: uint256
+             Source: "packedProducedCaps >> 64"
+            Identifier packedProducedCaps
+               Type: uint256
+               Source: "packedProducedCaps"
+            Literal, token: [no token] value: 64
+               Type: int_const 64
+               Source: "64"
+  FunctionDefinition "scannedSilverCaps" - public - const
+     Source: "function scannedSilverCaps() public view returns (uint64) {\r\n        return uint64(packedScannedCaps >> 64);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint64)"
+      VariableDeclaration ""
+         Type: uint64
+         Source: "uint64"
+        ElementaryTypeName uint64
+           Source: "uint64"
+    Block
+       Source: "{\r\n        return uint64(packedScannedCaps >> 64);\r\n    }"
+      Return
+         Gas costs: 285
+         Source: "return uint64(packedScannedCaps >> 64)"
+        FunctionCall
+           Type: uint64
+           Source: "uint64(packedScannedCaps >> 64)"
+          ElementaryTypeNameExpression uint64
+             Type: type(uint64)
+             Source: "uint64"
+          BinaryOperation using operator >>
+             Type: uint256
+             Source: "packedScannedCaps >> 64"
+            Identifier packedScannedCaps
+               Type: uint256
+               Source: "packedScannedCaps"
+            Literal, token: [no token] value: 64
+               Type: int_const 64
+               Source: "64"
+  FunctionDefinition "producedBronzeCaps" - public - const
+     Source: "function producedBronzeCaps() public view returns (uint64) {\r\n        return uint64(packedProducedCaps);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint64)"
+      VariableDeclaration ""
+         Type: uint64
+         Source: "uint64"
+        ElementaryTypeName uint64
+           Source: "uint64"
+    Block
+       Source: "{\r\n        return uint64(packedProducedCaps);\r\n    }"
+      Return
+         Gas costs: 208
+         Source: "return uint64(packedProducedCaps)"
+        FunctionCall
+           Type: uint64
+           Source: "uint64(packedProducedCaps)"
+          ElementaryTypeNameExpression uint64
+             Type: type(uint64)
+             Source: "uint64"
+          Identifier packedProducedCaps
+             Type: uint256
+             Source: "packedProducedCaps"
+  FunctionDefinition "scannedBronzeCaps" - public - const
+     Source: "function scannedBronzeCaps() public view returns (uint64) {\r\n        return uint64(packedScannedCaps);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint64)"
+      VariableDeclaration ""
+         Type: uint64
+         Source: "uint64"
+        ElementaryTypeName uint64
+           Source: "uint64"
+    Block
+       Source: "{\r\n        return uint64(packedScannedCaps);\r\n    }"
+      Return
+         Gas costs: 208
+         Source: "return uint64(packedScannedCaps)"
+        FunctionCall
+           Type: uint64
+           Source: "uint64(packedScannedCaps)"
+          ElementaryTypeNameExpression uint64
+             Type: type(uint64)
+             Source: "uint64"
+          Identifier packedScannedCaps
+             Type: uint256
+             Source: "packedScannedCaps"
+ContractDefinition "ERC20Beercoin"
+   Source: "contract ERC20Beercoin is ExplorableBeercoin {\r\n    event Transfer(address indexed _from, address indexed _to, uint256 _value);\r\n    event Approval(address indexed _owner, address indexed _spender, uint256 _value);\r\n\r\n    mapping (address => uint256) internal balances;\r\n    mapping (address => mapping (address => uint256)) internal allowances;\r\n\r\n    /**\r\n     * Beercoin's name\r\n     */\r\n    function name() public pure returns (string) {\r\n        return \"Beercoin\";\r\n    }\r\n\r\n    /**\r\n     * Beercoin's symbol\r\n     */\r\n    function symbol() public pure returns (string) {\r\n        return \"\ud83c\udf7a\";\r\n    }\r\n\r\n    /**\r\n     * Beercoin's decimal places\r\n     */\r\n    function decimals() public pure returns (uint8) {\r\n        return 18;\r\n    }\r\n\r\n    /**\r\n     * The current total supply of Beercoins\r\n     */\r\n    function totalSupply() public view returns (uint256) {\r\n        uint256 caps = packedScannedCaps;\r\n        uint256 supply = INITIAL_SUPPLY;\r\n        supply += (caps >> 192) * DIAMOND_VALUE;\r\n        supply += ((caps >> 128) & 0xFFFFFFFFFFFFFFFF) * GOLD_VALUE;\r\n        supply += ((caps >> 64) & 0xFFFFFFFFFFFFFFFF) * SILVER_VALUE;\r\n        supply += (caps & 0xFFFFFFFFFFFFFFFF) * BRONZE_VALUE;\r\n        return supply - burntValue;\r\n    }\r\n\r\n    /**\r\n     * Check the balance of a Beercoin user\r\n     *\r\n     * @param _owner the user to check\r\n     */\r\n    function balanceOf(address _owner) public view returns (uint256) {\r\n        return balances[_owner];\r\n    }\r\n\r\n    /**\r\n     * Transfer Beercoins to another user\r\n     *\r\n     * @param _to the address of the recipient\r\n     * @param _value the amount to send\r\n     */\r\n    function transfer(address _to, uint256 _value) public returns (bool) {\r\n        require(_to != 0x0);\r\n\r\n        uint256 balanceFrom = balances[msg.sender];\r\n\r\n        require(_value <= balanceFrom);\r\n\r\n        uint256 oldBalanceTo = balances[_to];\r\n        uint256 newBalanceTo = oldBalanceTo + _value;\r\n\r\n        require(oldBalanceTo <= newBalanceTo);\r\n\r\n        balances[msg.sender] = balanceFrom - _value;\r\n        balances[_to] = newBalanceTo;\r\n\r\n        Transfer(msg.sender, _to, _value);\r\n\r\n        return true;\r\n    }\r\n\r\n    /**\r\n     * Transfer Beercoins from other address if a respective allowance exists\r\n     *\r\n     * @param _from the address of the sender\r\n     * @param _to the address of the recipient\r\n     * @param _value the amount to send\r\n     */\r\n    function transferFrom(address _from, address _to, uint256 _value) public returns (bool) {\r\n        require(_to != 0x0);\r\n\r\n        uint256 balanceFrom = balances[_from];\r\n        uint256 allowanceFrom = allowances[_from][msg.sender];\r\n\r\n        require(_value <= balanceFrom);\r\n        require(_value <= allowanceFrom);\r\n\r\n        uint256 oldBalanceTo = balances[_to];\r\n        uint256 newBalanceTo = oldBalanceTo + _value;\r\n\r\n        require(oldBalanceTo <= newBalanceTo);\r\n\r\n        balances[_from] = balanceFrom - _value;\r\n        balances[_to] = newBalanceTo;\r\n        allowances[_from][msg.sender] = allowanceFrom - _value;\r\n\r\n        Transfer(_from, _to, _value);\r\n\r\n        return true;\r\n    }\r\n\r\n    /**\r\n     * Allow another user to spend a certain amount of Beercoins on your behalf\r\n     *\r\n     * @param _spender the address of the user authorized to spend\r\n     * @param _value the maximum amount that can be spent on your behalf\r\n     */\r\n    function approve(address _spender, uint256 _value) public returns (bool) {\r\n        allowances[msg.sender][_spender] = _value;\r\n        Approval(msg.sender, _spender, _value);\r\n        return true;\r\n    }\r\n\r\n    /**\r\n     * The amount of Beercoins that can be spent by a user on behalf of another\r\n     *\r\n     * @param _owner the address of the user user whose Beercoins are spent\r\n     * @param _spender the address of the user who executes the transaction\r\n     */\r\n    function allowance(address _owner, address _spender) public view returns (uint256) {\r\n        return allowances[_owner][_spender];\r\n    }\r\n}"
+  InheritanceSpecifier
+     Gas costs: 0
+     Source: "ExplorableBeercoin"
+    UserDefinedTypeName "ExplorableBeercoin"
+       Source: "ExplorableBeercoin"
+  EventDefinition "Transfer"
+     Gas costs: 0
+     Source: "event Transfer(address indexed _from, address indexed _to, uint256 _value);"
+    ParameterList
+       Source: "(address indexed _from, address indexed _to, uint256 _value)"
+      VariableDeclaration "_from"
+         Type: address
+         Source: "address indexed _from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address indexed _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  EventDefinition "Approval"
+     Gas costs: 0
+     Source: "event Approval(address indexed _owner, address indexed _spender, uint256 _value);"
+    ParameterList
+       Source: "(address indexed _owner, address indexed _spender, uint256 _value)"
+      VariableDeclaration "_owner"
+         Type: address
+         Source: "address indexed _owner"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_spender"
+         Type: address
+         Source: "address indexed _spender"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  VariableDeclaration "balances"
+     Type: mapping(address => uint256)
+     Gas costs: 0
+     Source: "mapping (address => uint256) internal balances"
+    Mapping
+       Source: "mapping (address => uint256)"
+      ElementaryTypeName address
+         Source: "address"
+      ElementaryTypeName uint256
+         Source: "uint256"
+  VariableDeclaration "allowances"
+     Type: mapping(address => mapping(address => uint256))
+     Gas costs: 0
+     Source: "mapping (address => mapping (address => uint256)) internal allowances"
+    Mapping
+       Source: "mapping (address => mapping (address => uint256))"
+      ElementaryTypeName address
+         Source: "address"
+      Mapping
+         Source: "mapping (address => uint256)"
+        ElementaryTypeName address
+           Source: "address"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  FunctionDefinition "name" - public
+     Source: "function name() public pure returns (string) {\r\n        return \"Beercoin\";\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(string)"
+      VariableDeclaration ""
+         Type: string memory
+         Source: "string"
+        ElementaryTypeName string
+           Source: "string"
+    Block
+       Source: "{\r\n        return \"Beercoin\";\r\n    }"
+      Return
+         Gas costs: 76
+         Source: "return \"Beercoin\""
+        Literal, token: [no token] value: Beercoin
+           Type: literal_string "Beercoin"
+           Source: "\"Beercoin\""
+  FunctionDefinition "symbol" - public
+     Source: "function symbol() public pure returns (string) {\r\n        return \"\ud83c\udf7a\";\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(string)"
+      VariableDeclaration ""
+         Type: string memory
+         Source: "string"
+        ElementaryTypeName string
+           Source: "string"
+    Block
+       Source: "{\r\n        return \"\ud83c\udf7a\";\r\n    }"
+      Return
+         Gas costs: 76
+         Source: "return \"\ud83c\udf7a\""
+        Literal, token: [no token] value: 🍺
+           Type: literal_string "🍺"
+           Source: "\"\ud83c\udf7a\""
+  FunctionDefinition "decimals" - public
+     Source: "function decimals() public pure returns (uint8) {\r\n        return 18;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint8)"
+      VariableDeclaration ""
+         Type: uint8
+         Source: "uint8"
+        ElementaryTypeName uint8
+           Source: "uint8"
+    Block
+       Source: "{\r\n        return 18;\r\n    }"
+      Return
+         Gas costs: 8
+         Source: "return 18"
+        Literal, token: [no token] value: 18
+           Type: int_const 18
+           Source: "18"
+  FunctionDefinition "totalSupply" - public - const
+     Source: "function totalSupply() public view returns (uint256) {\r\n        uint256 caps = packedScannedCaps;\r\n        uint256 supply = INITIAL_SUPPLY;\r\n        supply += (caps >> 192) * DIAMOND_VALUE;\r\n        supply += ((caps >> 128) & 0xFFFFFFFFFFFFFFFF) * GOLD_VALUE;\r\n        supply += ((caps >> 64) & 0xFFFFFFFFFFFFFFFF) * SILVER_VALUE;\r\n        supply += (caps & 0xFFFFFFFFFFFFFFFF) * BRONZE_VALUE;\r\n        return supply - burntValue;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint256)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint256"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{\r\n        uint256 caps = packedScannedCaps;\r\n        uint256 supply = INITIAL_SUPPLY;\r\n        supply += (caps >> 192) * DIAMOND_VALUE;\r\n        supply += ((caps >> 128) & 0xFFFFFFFFFFFFFFFF) * GOLD_VALUE;\r\n        supply += ((caps >> 64) & 0xFFFFFFFFFFFFFFFF) * SILVER_VALUE;\r\n        supply += (caps & 0xFFFFFFFFFFFFFFFF) * BRONZE_VALUE;\r\n        return supply - burntValue;\r\n    }"
+      VariableDeclarationStatement
+         Gas costs: 211
+         Source: "uint256 caps = packedScannedCaps"
+        VariableDeclaration "caps"
+           Type: uint256
+           Source: "uint256 caps"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        Identifier packedScannedCaps
+           Type: uint256
+           Source: "packedScannedCaps"
+      VariableDeclarationStatement
+         Gas costs: 8
+         Source: "uint256 supply = INITIAL_SUPPLY"
+        VariableDeclaration "supply"
+           Type: uint256
+           Source: "uint256 supply"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        Identifier INITIAL_SUPPLY
+           Type: uint256
+           Source: "INITIAL_SUPPLY"
+      ExpressionStatement
+         Gas costs: 96
+         Source: "supply += (caps >> 192) * DIAMOND_VALUE"
+        Assignment using operator +=
+           Type: uint256
+           Source: "supply += (caps >> 192) * DIAMOND_VALUE"
+          Identifier supply
+             Type: uint256
+             Source: "supply"
+          BinaryOperation using operator *
+             Type: uint256
+             Source: "(caps >> 192) * DIAMOND_VALUE"
+            TupleExpression
+               Type: uint256
+               Source: "(caps >> 192)"
+              BinaryOperation using operator >>
+                 Type: uint256
+                 Source: "caps >> 192"
+                Identifier caps
+                   Type: uint256
+                   Source: "caps"
+                Literal, token: [no token] value: 192
+                   Type: int_const 192
+                   Source: "192"
+            Identifier DIAMOND_VALUE
+               Type: uint256
+               Source: "DIAMOND_VALUE"
+      ExpressionStatement
+         Gas costs: 102
+         Source: "supply += ((caps >> 128) & 0xFFFFFFFFFFFFFFFF) * GOLD_VALUE"
+        Assignment using operator +=
+           Type: uint256
+           Source: "supply += ((caps >> 128) & 0xFFFFFFFFFFFFFFFF) * GOLD_VALUE"
+          Identifier supply
+             Type: uint256
+             Source: "supply"
+          BinaryOperation using operator *
+             Type: uint256
+             Source: "((caps >> 128) & 0xFFFFFFFFFFFFFFFF) * GOLD_VALUE"
+            TupleExpression
+               Type: uint256
+               Source: "((caps >> 128) & 0xFFFFFFFFFFFFFFFF)"
+              BinaryOperation using operator &
+                 Type: uint256
+                 Source: "(caps >> 128) & 0xFFFFFFFFFFFFFFFF"
+                TupleExpression
+                   Type: uint256
+                   Source: "(caps >> 128)"
+                  BinaryOperation using operator >>
+                     Type: uint256
+                     Source: "caps >> 128"
+                    Identifier caps
+                       Type: uint256
+                       Source: "caps"
+                    Literal, token: [no token] value: 128
+                       Type: int_const 128
+                       Source: "128"
+                Literal, token: [no token] value: 0xFFFFFFFFFFFFFFFF
+                   Type: int_const 18446744073709551615
+                   Source: "0xFFFFFFFFFFFFFFFF"
+            Identifier GOLD_VALUE
+               Type: uint256
+               Source: "GOLD_VALUE"
+      ExpressionStatement
+         Gas costs: 102
+         Source: "supply += ((caps >> 64) & 0xFFFFFFFFFFFFFFFF) * SILVER_VALUE"
+        Assignment using operator +=
+           Type: uint256
+           Source: "supply += ((caps >> 64) & 0xFFFFFFFFFFFFFFFF) * SILVER_VALUE"
+          Identifier supply
+             Type: uint256
+             Source: "supply"
+          BinaryOperation using operator *
+             Type: uint256
+             Source: "((caps >> 64) & 0xFFFFFFFFFFFFFFFF) * SILVER_VALUE"
+            TupleExpression
+               Type: uint256
+               Source: "((caps >> 64) & 0xFFFFFFFFFFFFFFFF)"
+              BinaryOperation using operator &
+                 Type: uint256
+                 Source: "(caps >> 64) & 0xFFFFFFFFFFFFFFFF"
+                TupleExpression
+                   Type: uint256
+                   Source: "(caps >> 64)"
+                  BinaryOperation using operator >>
+                     Type: uint256
+                     Source: "caps >> 64"
+                    Identifier caps
+                       Type: uint256
+                       Source: "caps"
+                    Literal, token: [no token] value: 64
+                       Type: int_const 64
+                       Source: "64"
+                Literal, token: [no token] value: 0xFFFFFFFFFFFFFFFF
+                   Type: int_const 18446744073709551615
+                   Source: "0xFFFFFFFFFFFFFFFF"
+            Identifier SILVER_VALUE
+               Type: uint256
+               Source: "SILVER_VALUE"
+      ExpressionStatement
+         Gas costs: 25
+         Source: "supply += (caps & 0xFFFFFFFFFFFFFFFF) * BRONZE_VALUE"
+        Assignment using operator +=
+           Type: uint256
+           Source: "supply += (caps & 0xFFFFFFFFFFFFFFFF) * BRONZE_VALUE"
+          Identifier supply
+             Type: uint256
+             Source: "supply"
+          BinaryOperation using operator *
+             Type: uint256
+             Source: "(caps & 0xFFFFFFFFFFFFFFFF) * BRONZE_VALUE"
+            TupleExpression
+               Type: uint256
+               Source: "(caps & 0xFFFFFFFFFFFFFFFF)"
+              BinaryOperation using operator &
+                 Type: uint256
+                 Source: "caps & 0xFFFFFFFFFFFFFFFF"
+                Identifier caps
+                   Type: uint256
+                   Source: "caps"
+                Literal, token: [no token] value: 0xFFFFFFFFFFFFFFFF
+                   Type: int_const 18446744073709551615
+                   Source: "0xFFFFFFFFFFFFFFFF"
+            Identifier BRONZE_VALUE
+               Type: uint256
+               Source: "BRONZE_VALUE"
+      Return
+         Gas costs: 214
+         Source: "return supply - burntValue"
+        BinaryOperation using operator -
+           Type: uint256
+           Source: "supply - burntValue"
+          Identifier supply
+             Type: uint256
+             Source: "supply"
+          Identifier burntValue
+             Type: uint256
+             Source: "burntValue"
+  FunctionDefinition "balanceOf" - public - const
+     Source: "function balanceOf(address _owner) public view returns (uint256) {\r\n        return balances[_owner];\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _owner)"
+      VariableDeclaration "_owner"
+         Type: address
+         Source: "address _owner"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint256)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint256"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{\r\n        return balances[_owner];\r\n    }"
+      Return
+         Gas costs: 304
+         Source: "return balances[_owner]"
+        IndexAccess
+           Type: uint256
+           Source: "balances[_owner]"
+          Identifier balances
+             Type: mapping(address => uint256)
+             Source: "balances"
+          Identifier _owner
+             Type: address
+             Source: "_owner"
+  FunctionDefinition "transfer" - public
+     Source: "function transfer(address _to, uint256 _value) public returns (bool) {\r\n        require(_to != 0x0);\r\n\r\n        uint256 balanceFrom = balances[msg.sender];\r\n\r\n        require(_value <= balanceFrom);\r\n\r\n        uint256 oldBalanceTo = balances[_to];\r\n        uint256 newBalanceTo = oldBalanceTo + _value;\r\n\r\n        require(oldBalanceTo <= newBalanceTo);\r\n\r\n        balances[msg.sender] = balanceFrom - _value;\r\n        balances[_to] = newBalanceTo;\r\n\r\n        Transfer(msg.sender, _to, _value);\r\n\r\n        return true;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _to, uint256 _value)"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool)"
+      VariableDeclaration ""
+         Type: bool
+         Source: "bool"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n        require(_to != 0x0);\r\n\r\n        uint256 balanceFrom = balances[msg.sender];\r\n\r\n        require(_value <= balanceFrom);\r\n\r\n        uint256 oldBalanceTo = balances[_to];\r\n        uint256 newBalanceTo = oldBalanceTo + _value;\r\n\r\n        require(oldBalanceTo <= newBalanceTo);\r\n\r\n        balances[msg.sender] = balanceFrom - _value;\r\n        balances[_to] = newBalanceTo;\r\n\r\n        Transfer(msg.sender, _to, _value);\r\n\r\n        return true;\r\n    }"
+      ExpressionStatement
+         Gas costs: 44
+         Source: "require(_to != 0x0)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(_to != 0x0)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator !=
+             Type: bool
+             Source: "_to != 0x0"
+            Identifier _to
+               Type: address
+               Source: "_to"
+            Literal, token: [no token] value: 0x0
+               Type: int_const 0
+               Source: "0x0"
+      VariableDeclarationStatement
+         Gas costs: 306
+         Source: "uint256 balanceFrom = balances[msg.sender]"
+        VariableDeclaration "balanceFrom"
+           Type: uint256
+           Source: "uint256 balanceFrom"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        IndexAccess
+           Type: uint256
+           Source: "balances[msg.sender]"
+          Identifier balances
+             Type: mapping(address => uint256)
+             Source: "balances"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+      ExpressionStatement
+         Gas costs: 38
+         Source: "require(_value <= balanceFrom)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(_value <= balanceFrom)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator <=
+             Type: bool
+             Source: "_value <= balanceFrom"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+            Identifier balanceFrom
+               Type: uint256
+               Source: "balanceFrom"
+      VariableDeclarationStatement
+         Gas costs: 307
+         Source: "uint256 oldBalanceTo = balances[_to]"
+        VariableDeclaration "oldBalanceTo"
+           Type: uint256
+           Source: "uint256 oldBalanceTo"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        IndexAccess
+           Type: uint256
+           Source: "balances[_to]"
+          Identifier balances
+             Type: mapping(address => uint256)
+             Source: "balances"
+          Identifier _to
+             Type: address
+             Source: "_to"
+      VariableDeclarationStatement
+         Gas costs: 17
+         Source: "uint256 newBalanceTo = oldBalanceTo + _value"
+        VariableDeclaration "newBalanceTo"
+           Type: uint256
+           Source: "uint256 newBalanceTo"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        BinaryOperation using operator +
+           Type: uint256
+           Source: "oldBalanceTo + _value"
+          Identifier oldBalanceTo
+             Type: uint256
+             Source: "oldBalanceTo"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: 38
+         Source: "require(oldBalanceTo <= newBalanceTo)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(oldBalanceTo <= newBalanceTo)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator <=
+             Type: bool
+             Source: "oldBalanceTo <= newBalanceTo"
+            Identifier oldBalanceTo
+               Type: uint256
+               Source: "oldBalanceTo"
+            Identifier newBalanceTo
+               Type: uint256
+               Source: "newBalanceTo"
+      ExpressionStatement
+         Gas costs: 20115
+         Source: "balances[msg.sender] = balanceFrom - _value"
+        Assignment using operator =
+           Type: uint256
+           Source: "balances[msg.sender] = balanceFrom - _value"
+          IndexAccess
+             Type: uint256
+             Source: "balances[msg.sender]"
+            Identifier balances
+               Type: mapping(address => uint256)
+               Source: "balances"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          BinaryOperation using operator -
+             Type: uint256
+             Source: "balanceFrom - _value"
+            Identifier balanceFrom
+               Type: uint256
+               Source: "balanceFrom"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+      ExpressionStatement
+         Gas costs: 20104
+         Source: "balances[_to] = newBalanceTo"
+        Assignment using operator =
+           Type: uint256
+           Source: "balances[_to] = newBalanceTo"
+          IndexAccess
+             Type: uint256
+             Source: "balances[_to]"
+            Identifier balances
+               Type: mapping(address => uint256)
+               Source: "balances"
+            Identifier _to
+               Type: address
+               Source: "_to"
+          Identifier newBalanceTo
+             Type: uint256
+             Source: "newBalanceTo"
+      ExpressionStatement
+         Gas costs: 1837
+         Source: "Transfer(msg.sender, _to, _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "Transfer(msg.sender, _to, _value)"
+          Identifier Transfer
+             Type: function (address,address,uint256)
+             Source: "Transfer"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier _to
+             Type: address
+             Source: "_to"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      Return
+         Gas costs: 8
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+  FunctionDefinition "transferFrom" - public
+     Source: "function transferFrom(address _from, address _to, uint256 _value) public returns (bool) {\r\n        require(_to != 0x0);\r\n\r\n        uint256 balanceFrom = balances[_from];\r\n        uint256 allowanceFrom = allowances[_from][msg.sender];\r\n\r\n        require(_value <= balanceFrom);\r\n        require(_value <= allowanceFrom);\r\n\r\n        uint256 oldBalanceTo = balances[_to];\r\n        uint256 newBalanceTo = oldBalanceTo + _value;\r\n\r\n        require(oldBalanceTo <= newBalanceTo);\r\n\r\n        balances[_from] = balanceFrom - _value;\r\n        balances[_to] = newBalanceTo;\r\n        allowances[_from][msg.sender] = allowanceFrom - _value;\r\n\r\n        Transfer(_from, _to, _value);\r\n\r\n        return true;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _from, address _to, uint256 _value)"
+      VariableDeclaration "_from"
+         Type: address
+         Source: "address _from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool)"
+      VariableDeclaration ""
+         Type: bool
+         Source: "bool"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n        require(_to != 0x0);\r\n\r\n        uint256 balanceFrom = balances[_from];\r\n        uint256 allowanceFrom = allowances[_from][msg.sender];\r\n\r\n        require(_value <= balanceFrom);\r\n        require(_value <= allowanceFrom);\r\n\r\n        uint256 oldBalanceTo = balances[_to];\r\n        uint256 newBalanceTo = oldBalanceTo + _value;\r\n\r\n        require(oldBalanceTo <= newBalanceTo);\r\n\r\n        balances[_from] = balanceFrom - _value;\r\n        balances[_to] = newBalanceTo;\r\n        allowances[_from][msg.sender] = allowanceFrom - _value;\r\n\r\n        Transfer(_from, _to, _value);\r\n\r\n        return true;\r\n    }"
+      ExpressionStatement
+         Gas costs: 44
+         Source: "require(_to != 0x0)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(_to != 0x0)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator !=
+             Type: bool
+             Source: "_to != 0x0"
+            Identifier _to
+               Type: address
+               Source: "_to"
+            Literal, token: [no token] value: 0x0
+               Type: int_const 0
+               Source: "0x0"
+      VariableDeclarationStatement
+         Gas costs: 307
+         Source: "uint256 balanceFrom = balances[_from]"
+        VariableDeclaration "balanceFrom"
+           Type: uint256
+           Source: "uint256 balanceFrom"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        IndexAccess
+           Type: uint256
+           Source: "balances[_from]"
+          Identifier balances
+             Type: mapping(address => uint256)
+             Source: "balances"
+          Identifier _from
+             Type: address
+             Source: "_from"
+      VariableDeclarationStatement
+         Gas costs: 390
+         Source: "uint256 allowanceFrom = allowances[_from][msg.sender]"
+        VariableDeclaration "allowanceFrom"
+           Type: uint256
+           Source: "uint256 allowanceFrom"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        IndexAccess
+           Type: uint256
+           Source: "allowances[_from][msg.sender]"
+          IndexAccess
+             Type: mapping(address => uint256)
+             Source: "allowances[_from]"
+            Identifier allowances
+               Type: mapping(address => mapping(address => uint256))
+               Source: "allowances"
+            Identifier _from
+               Type: address
+               Source: "_from"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+      ExpressionStatement
+         Gas costs: 38
+         Source: "require(_value <= balanceFrom)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(_value <= balanceFrom)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator <=
+             Type: bool
+             Source: "_value <= balanceFrom"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+            Identifier balanceFrom
+               Type: uint256
+               Source: "balanceFrom"
+      ExpressionStatement
+         Gas costs: 38
+         Source: "require(_value <= allowanceFrom)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(_value <= allowanceFrom)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator <=
+             Type: bool
+             Source: "_value <= allowanceFrom"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+            Identifier allowanceFrom
+               Type: uint256
+               Source: "allowanceFrom"
+      VariableDeclarationStatement
+         Gas costs: 307
+         Source: "uint256 oldBalanceTo = balances[_to]"
+        VariableDeclaration "oldBalanceTo"
+           Type: uint256
+           Source: "uint256 oldBalanceTo"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        IndexAccess
+           Type: uint256
+           Source: "balances[_to]"
+          Identifier balances
+             Type: mapping(address => uint256)
+             Source: "balances"
+          Identifier _to
+             Type: address
+             Source: "_to"
+      VariableDeclarationStatement
+         Gas costs: 17
+         Source: "uint256 newBalanceTo = oldBalanceTo + _value"
+        VariableDeclaration "newBalanceTo"
+           Type: uint256
+           Source: "uint256 newBalanceTo"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        BinaryOperation using operator +
+           Type: uint256
+           Source: "oldBalanceTo + _value"
+          Identifier oldBalanceTo
+             Type: uint256
+             Source: "oldBalanceTo"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: 38
+         Source: "require(oldBalanceTo <= newBalanceTo)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(oldBalanceTo <= newBalanceTo)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator <=
+             Type: bool
+             Source: "oldBalanceTo <= newBalanceTo"
+            Identifier oldBalanceTo
+               Type: uint256
+               Source: "oldBalanceTo"
+            Identifier newBalanceTo
+               Type: uint256
+               Source: "newBalanceTo"
+      ExpressionStatement
+         Gas costs: 20116
+         Source: "balances[_from] = balanceFrom - _value"
+        Assignment using operator =
+           Type: uint256
+           Source: "balances[_from] = balanceFrom - _value"
+          IndexAccess
+             Type: uint256
+             Source: "balances[_from]"
+            Identifier balances
+               Type: mapping(address => uint256)
+               Source: "balances"
+            Identifier _from
+               Type: address
+               Source: "_from"
+          BinaryOperation using operator -
+             Type: uint256
+             Source: "balanceFrom - _value"
+            Identifier balanceFrom
+               Type: uint256
+               Source: "balanceFrom"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+      ExpressionStatement
+         Gas costs: 20104
+         Source: "balances[_to] = newBalanceTo"
+        Assignment using operator =
+           Type: uint256
+           Source: "balances[_to] = newBalanceTo"
+          IndexAccess
+             Type: uint256
+             Source: "balances[_to]"
+            Identifier balances
+               Type: mapping(address => uint256)
+               Source: "balances"
+            Identifier _to
+               Type: address
+               Source: "_to"
+          Identifier newBalanceTo
+             Type: uint256
+             Source: "newBalanceTo"
+      ExpressionStatement
+         Gas costs: 20199
+         Source: "allowances[_from][msg.sender] = allowanceFrom - _value"
+        Assignment using operator =
+           Type: uint256
+           Source: "allowances[_from][msg.sender] = allowanceFrom - _value"
+          IndexAccess
+             Type: uint256
+             Source: "allowances[_from][msg.sender]"
+            IndexAccess
+               Type: mapping(address => uint256)
+               Source: "allowances[_from]"
+              Identifier allowances
+                 Type: mapping(address => mapping(address => uint256))
+                 Source: "allowances"
+              Identifier _from
+                 Type: address
+                 Source: "_from"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          BinaryOperation using operator -
+             Type: uint256
+             Source: "allowanceFrom - _value"
+            Identifier allowanceFrom
+               Type: uint256
+               Source: "allowanceFrom"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+      ExpressionStatement
+         Gas costs: 1838
+         Source: "Transfer(_from, _to, _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "Transfer(_from, _to, _value)"
+          Identifier Transfer
+             Type: function (address,address,uint256)
+             Source: "Transfer"
+          Identifier _from
+             Type: address
+             Source: "_from"
+          Identifier _to
+             Type: address
+             Source: "_to"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      Return
+         Gas costs: 8
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+  FunctionDefinition "approve" - public
+     Source: "function approve(address _spender, uint256 _value) public returns (bool) {\r\n        allowances[msg.sender][_spender] = _value;\r\n        Approval(msg.sender, _spender, _value);\r\n        return true;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _spender, uint256 _value)"
+      VariableDeclaration "_spender"
+         Type: address
+         Source: "address _spender"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool)"
+      VariableDeclaration ""
+         Type: bool
+         Source: "bool"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n        allowances[msg.sender][_spender] = _value;\r\n        Approval(msg.sender, _spender, _value);\r\n        return true;\r\n    }"
+      ExpressionStatement
+         Gas costs: 20199
+         Source: "allowances[msg.sender][_spender] = _value"
+        Assignment using operator =
+           Type: uint256
+           Source: "allowances[msg.sender][_spender] = _value"
+          IndexAccess
+             Type: uint256
+             Source: "allowances[msg.sender][_spender]"
+            IndexAccess
+               Type: mapping(address => uint256)
+               Source: "allowances[msg.sender]"
+              Identifier allowances
+                 Type: mapping(address => mapping(address => uint256))
+                 Source: "allowances"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+            Identifier _spender
+               Type: address
+               Source: "_spender"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: 1837
+         Source: "Approval(msg.sender, _spender, _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "Approval(msg.sender, _spender, _value)"
+          Identifier Approval
+             Type: function (address,address,uint256)
+             Source: "Approval"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier _spender
+             Type: address
+             Source: "_spender"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      Return
+         Gas costs: 8
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+  FunctionDefinition "allowance" - public - const
+     Source: "function allowance(address _owner, address _spender) public view returns (uint256) {\r\n        return allowances[_owner][_spender];\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _owner, address _spender)"
+      VariableDeclaration "_owner"
+         Type: address
+         Source: "address _owner"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_spender"
+         Type: address
+         Source: "address _spender"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint256)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint256"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{\r\n        return allowances[_owner][_spender];\r\n    }"
+      Return
+         Gas costs: 394
+         Source: "return allowances[_owner][_spender]"
+        IndexAccess
+           Type: uint256
+           Source: "allowances[_owner][_spender]"
+          IndexAccess
+             Type: mapping(address => uint256)
+             Source: "allowances[_owner]"
+            Identifier allowances
+               Type: mapping(address => mapping(address => uint256))
+               Source: "allowances"
+            Identifier _owner
+               Type: address
+               Source: "_owner"
+          Identifier _spender
+             Type: address
+             Source: "_spender"
+ContractDefinition "MasteredBeercoin"
+   Source: "contract MasteredBeercoin is ERC20Beercoin {\r\n    address internal beercoinMaster;\r\n    mapping (address => bool) internal directDebitAllowances;\r\n\r\n    /**\r\n     * Construct the MasteredBeercoin contract\r\n     * and make the sender the master\r\n     */\r\n    function MasteredBeercoin() public {\r\n        beercoinMaster = msg.sender;\r\n    }\r\n\r\n    /**\r\n     * Restrict to the master only\r\n     */\r\n    modifier onlyMaster {\r\n        require(msg.sender == beercoinMaster);\r\n        _;\r\n    }\r\n\r\n    /**\r\n     * The master of the Beercoin\r\n     */\r\n    function master() public view returns (address) {\r\n        return beercoinMaster;\r\n    }\r\n\r\n    /**\r\n     * Declare a master at another address\r\n     *\r\n     * @param newMaster the new owner's address\r\n     */\r\n    function declareNewMaster(address newMaster) public onlyMaster {\r\n        beercoinMaster = newMaster;\r\n    }\r\n\r\n    /**\r\n     * Allow the master to withdraw Beercoins from your\r\n     * account so you don't have to send Beercoins yourself\r\n     */\r\n    function allowDirectDebit() public {\r\n        directDebitAllowances[msg.sender] = true;\r\n    }\r\n\r\n    /**\r\n     * Forbid the master to withdraw Beercoins from you account\r\n     */\r\n    function forbidDirectDebit() public {\r\n        directDebitAllowances[msg.sender] = false;\r\n    }\r\n\r\n    /**\r\n     * Check whether a user allows direct debits by the master\r\n     *\r\n     * @param user the user to check\r\n     */\r\n    function directDebitAllowance(address user) public view returns (bool) {\r\n        return directDebitAllowances[user];\r\n    }\r\n\r\n    /**\r\n     * Withdraw Beercoins from multiple users\r\n     *\r\n     * Beercoins are only withdrawn this way if and only if\r\n     * a user deliberately wants it to happen by initiating\r\n     * a transaction on a plattform operated by the owner\r\n     *\r\n     * @param users the addresses of the users to take Beercoins from\r\n     * @param values the respective amounts to take\r\n     */\r\n    function debit(address[] users, uint256[] values) public onlyMaster returns (bool) {\r\n        require(users.length == values.length);\r\n\r\n        uint256 oldBalance = balances[msg.sender];\r\n        uint256 newBalance = oldBalance;\r\n\r\n        address currentUser;\r\n        uint256 currentValue;\r\n        uint256 currentBalance;\r\n        for (uint256 i = 0; i < users.length; ++i) {\r\n            currentUser = users[i];\r\n            currentValue = values[i];\r\n            currentBalance = balances[currentUser];\r\n\r\n            require(directDebitAllowances[currentUser]);\r\n            require(currentValue <= currentBalance);\r\n            balances[currentUser] = currentBalance - currentValue;\r\n            \r\n            newBalance += currentValue;\r\n\r\n            Transfer(currentUser, msg.sender, currentValue);\r\n        }\r\n\r\n        require(oldBalance <= newBalance);\r\n        balances[msg.sender] = newBalance;\r\n\r\n        return true;\r\n    }\r\n\r\n    /**\r\n     * Withdraw Beercoins from multiple users\r\n     *\r\n     * Beercoins are only withdrawn this way if and only if\r\n     * a user deliberately wants it to happen by initiating\r\n     * a transaction on a plattform operated by the owner\r\n     *\r\n     * @param users the addresses of the users to take Beercoins from\r\n     * @param value the amount to take from each user\r\n     */\r\n    function debitEqually(address[] users, uint256 value) public onlyMaster returns (bool) {\r\n        uint256 oldBalance = balances[msg.sender];\r\n        uint256 newBalance = oldBalance + (users.length * value);\r\n\r\n        require(oldBalance <= newBalance);\r\n        balances[msg.sender] = newBalance;\r\n\r\n        address currentUser;\r\n        uint256 currentBalance;\r\n        for (uint256 i = 0; i < users.length; ++i) {\r\n            currentUser = users[i];\r\n            currentBalance = balances[currentUser];\r\n\r\n            require(directDebitAllowances[currentUser]);\r\n            require(value <= currentBalance);\r\n            balances[currentUser] = currentBalance - value;\r\n\r\n            Transfer(currentUser, msg.sender, value);\r\n        }\r\n\r\n        return true;\r\n    }\r\n\r\n    /**\r\n     * Send Beercoins to multiple users\r\n     *\r\n     * @param users the addresses of the users to send Beercoins to\r\n     * @param values the respective amounts to send\r\n     */\r\n    function credit(address[] users, uint256[] values) public onlyMaster returns (bool) {\r\n        require(users.length == values.length);\r\n\r\n        uint256 balance = balances[msg.sender];\r\n        uint256 totalValue = 0;\r\n\r\n        address currentUser;\r\n        uint256 currentValue;\r\n        uint256 currentOldBalance;\r\n        uint256 currentNewBalance;\r\n        for (uint256 i = 0; i < users.length; ++i) {\r\n            currentUser = users[i];\r\n            currentValue = values[i];\r\n            currentOldBalance = balances[currentUser];\r\n            currentNewBalance = currentOldBalance + currentValue;\r\n\r\n            require(currentOldBalance <= currentNewBalance);\r\n            balances[currentUser] = currentNewBalance;\r\n\r\n            totalValue += currentValue;\r\n\r\n            Transfer(msg.sender, currentUser, currentValue);\r\n        }\r\n\r\n        require(totalValue <= balance);\r\n        balances[msg.sender] = balance - totalValue;\r\n\r\n        return true;\r\n    }\r\n\r\n    /**\r\n     * Send Beercoins to multiple users\r\n     *\r\n     * @param users the addresses of the users to send Beercoins to\r\n     * @param value the amounts to send to each user\r\n     */\r\n    function creditEqually(address[] users, uint256 value) public onlyMaster returns (bool) {\r\n        uint256 balance = balances[msg.sender];\r\n        uint256 totalValue = users.length * value;\r\n\r\n        require(totalValue <= balance);\r\n        balances[msg.sender] = balance - totalValue;\r\n\r\n        address currentUser;\r\n        uint256 currentOldBalance;\r\n        uint256 currentNewBalance;\r\n        for (uint256 i = 0; i < users.length; ++i) {\r\n            currentUser = users[i];\r\n            currentOldBalance = balances[currentUser];\r\n            currentNewBalance = currentOldBalance + value;\r\n\r\n            require(currentOldBalance <= currentNewBalance);\r\n            balances[currentUser] = currentNewBalance;\r\n\r\n            Transfer(msg.sender, currentUser, value);\r\n        }\r\n\r\n        return true;\r\n    }\r\n}"
+  InheritanceSpecifier
+     Gas costs: 0
+     Source: "ERC20Beercoin"
+    UserDefinedTypeName "ERC20Beercoin"
+       Source: "ERC20Beercoin"
+  VariableDeclaration "beercoinMaster"
+     Type: address
+     Gas costs: 0
+     Source: "address internal beercoinMaster"
+    ElementaryTypeName address
+       Source: "address"
+  VariableDeclaration "directDebitAllowances"
+     Type: mapping(address => bool)
+     Gas costs: 0
+     Source: "mapping (address => bool) internal directDebitAllowances"
+    Mapping
+       Source: "mapping (address => bool)"
+      ElementaryTypeName address
+         Source: "address"
+      ElementaryTypeName bool
+         Source: "bool"
+  FunctionDefinition "MasteredBeercoin" - public
+     Source: "function MasteredBeercoin() public {\r\n        beercoinMaster = msg.sender;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        beercoinMaster = msg.sender;\r\n    }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "beercoinMaster = msg.sender"
+        Assignment using operator =
+           Type: address
+           Source: "beercoinMaster = msg.sender"
+          Identifier beercoinMaster
+             Type: address
+             Source: "beercoinMaster"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+  ModifierDefinition "onlyMaster"
+     Source: "modifier onlyMaster {\r\n        require(msg.sender == beercoinMaster);\r\n        _;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        require(msg.sender == beercoinMaster);\r\n        _;\r\n    }"
+      ExpressionStatement
+         Gas costs: 2256
+         Source: "require(msg.sender == beercoinMaster)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(msg.sender == beercoinMaster)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "msg.sender == beercoinMaster"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Identifier beercoinMaster
+               Type: address
+               Source: "beercoinMaster"
+      PlaceholderStatement
+         Gas costs: 0
+         Source: "_"
+  FunctionDefinition "master" - public - const
+     Source: "function master() public view returns (address) {\r\n        return beercoinMaster;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(address)"
+      VariableDeclaration ""
+         Type: address
+         Source: "address"
+        ElementaryTypeName address
+           Source: "address"
+    Block
+       Source: "{\r\n        return beercoinMaster;\r\n    }"
+      Return
+         Gas costs: 244
+         Source: "return beercoinMaster"
+        Identifier beercoinMaster
+           Type: address
+           Source: "beercoinMaster"
+  FunctionDefinition "declareNewMaster" - public
+     Source: "function declareNewMaster(address newMaster) public onlyMaster {\r\n        beercoinMaster = newMaster;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address newMaster)"
+      VariableDeclaration "newMaster"
+         Type: address
+         Source: "address newMaster"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyMaster"
+       Gas costs: 0
+       Source: "onlyMaster"
+      Identifier onlyMaster
+         Type: modifier ()
+         Source: "onlyMaster"
+    Block
+       Source: "{\r\n        beercoinMaster = newMaster;\r\n    }"
+      ExpressionStatement
+         Gas costs: 20267
+         Source: "beercoinMaster = newMaster"
+        Assignment using operator =
+           Type: address
+           Source: "beercoinMaster = newMaster"
+          Identifier beercoinMaster
+             Type: address
+             Source: "beercoinMaster"
+          Identifier newMaster
+             Type: address
+             Source: "newMaster"
+  FunctionDefinition "allowDirectDebit" - public
+     Source: "function allowDirectDebit() public {\r\n        directDebitAllowances[msg.sender] = true;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        directDebitAllowances[msg.sender] = true;\r\n    }"
+      ExpressionStatement
+         Gas costs: 20362
+         Source: "directDebitAllowances[msg.sender] = true"
+        Assignment using operator =
+           Type: bool
+           Source: "directDebitAllowances[msg.sender] = true"
+          IndexAccess
+             Type: bool
+             Source: "directDebitAllowances[msg.sender]"
+            Identifier directDebitAllowances
+               Type: mapping(address => bool)
+               Source: "directDebitAllowances"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Literal, token: true value: true
+             Type: bool
+             Source: "true"
+  FunctionDefinition "forbidDirectDebit" - public
+     Source: "function forbidDirectDebit() public {\r\n        directDebitAllowances[msg.sender] = false;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        directDebitAllowances[msg.sender] = false;\r\n    }"
+      ExpressionStatement
+         Gas costs: 20362
+         Source: "directDebitAllowances[msg.sender] = false"
+        Assignment using operator =
+           Type: bool
+           Source: "directDebitAllowances[msg.sender] = false"
+          IndexAccess
+             Type: bool
+             Source: "directDebitAllowances[msg.sender]"
+            Identifier directDebitAllowances
+               Type: mapping(address => bool)
+               Source: "directDebitAllowances"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Literal, token: false value: false
+             Type: bool
+             Source: "false"
+  FunctionDefinition "directDebitAllowance" - public - const
+     Source: "function directDebitAllowance(address user) public view returns (bool) {\r\n        return directDebitAllowances[user];\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address user)"
+      VariableDeclaration "user"
+         Type: address
+         Source: "address user"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool)"
+      VariableDeclaration ""
+         Type: bool
+         Source: "bool"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n        return directDebitAllowances[user];\r\n    }"
+      Return
+         Gas costs: 340
+         Source: "return directDebitAllowances[user]"
+        IndexAccess
+           Type: bool
+           Source: "directDebitAllowances[user]"
+          Identifier directDebitAllowances
+             Type: mapping(address => bool)
+             Source: "directDebitAllowances"
+          Identifier user
+             Type: address
+             Source: "user"
+  FunctionDefinition "debit" - public
+     Source: "function debit(address[] users, uint256[] values) public onlyMaster returns (bool) {\r\n        require(users.length == values.length);\r\n\r\n        uint256 oldBalance = balances[msg.sender];\r\n        uint256 newBalance = oldBalance;\r\n\r\n        address currentUser;\r\n        uint256 currentValue;\r\n        uint256 currentBalance;\r\n        for (uint256 i = 0; i < users.length; ++i) {\r\n            currentUser = users[i];\r\n            currentValue = values[i];\r\n            currentBalance = balances[currentUser];\r\n\r\n            require(directDebitAllowances[currentUser]);\r\n            require(currentValue <= currentBalance);\r\n            balances[currentUser] = currentBalance - currentValue;\r\n            \r\n            newBalance += currentValue;\r\n\r\n            Transfer(currentUser, msg.sender, currentValue);\r\n        }\r\n\r\n        require(oldBalance <= newBalance);\r\n        balances[msg.sender] = newBalance;\r\n\r\n        return true;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address[] users, uint256[] values)"
+      VariableDeclaration "users"
+         Type: address[] memory
+         Source: "address[] users"
+        ArrayTypeName
+           Source: "address[]"
+          ElementaryTypeName address
+             Source: "address"
+      VariableDeclaration "values"
+         Type: uint256[] memory
+         Source: "uint256[] values"
+        ArrayTypeName
+           Source: "uint256[]"
+          ElementaryTypeName uint256
+             Source: "uint256"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool)"
+      VariableDeclaration ""
+         Type: bool
+         Source: "bool"
+        ElementaryTypeName bool
+           Source: "bool"
+    ModifierInvocation "onlyMaster"
+       Gas costs: 0
+       Source: "onlyMaster"
+      Identifier onlyMaster
+         Type: modifier ()
+         Source: "onlyMaster"
+    Block
+       Source: "{\r\n        require(users.length == values.length);\r\n\r\n        uint256 oldBalance = balances[msg.sender];\r\n        uint256 newBalance = oldBalance;\r\n\r\n        address currentUser;\r\n        uint256 currentValue;\r\n        uint256 currentBalance;\r\n        for (uint256 i = 0; i < users.length; ++i) {\r\n            currentUser = users[i];\r\n            currentValue = values[i];\r\n            currentBalance = balances[currentUser];\r\n\r\n            require(directDebitAllowances[currentUser]);\r\n            require(currentValue <= currentBalance);\r\n            balances[currentUser] = currentBalance - currentValue;\r\n            \r\n            newBalance += currentValue;\r\n\r\n            Transfer(currentUser, msg.sender, currentValue);\r\n        }\r\n\r\n        require(oldBalance <= newBalance);\r\n        balances[msg.sender] = newBalance;\r\n\r\n        return true;\r\n    }"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "require(users.length == values.length)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(users.length == values.length)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "users.length == values.length"
+            MemberAccess to member length
+               Type: uint256
+               Source: "users.length"
+              Identifier users
+                 Type: address[] memory
+                 Source: "users"
+            MemberAccess to member length
+               Type: uint256
+               Source: "values.length"
+              Identifier values
+                 Type: uint256[] memory
+                 Source: "values"
+      VariableDeclarationStatement
+         Gas costs: 306
+         Source: "uint256 oldBalance = balances[msg.sender]"
+        VariableDeclaration "oldBalance"
+           Type: uint256
+           Source: "uint256 oldBalance"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        IndexAccess
+           Type: uint256
+           Source: "balances[msg.sender]"
+          Identifier balances
+             Type: mapping(address => uint256)
+             Source: "balances"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+      VariableDeclarationStatement
+         Gas costs: 11
+         Source: "uint256 newBalance = oldBalance"
+        VariableDeclaration "newBalance"
+           Type: uint256
+           Source: "uint256 newBalance"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        Identifier oldBalance
+           Type: uint256
+           Source: "oldBalance"
+      VariableDeclarationStatement
+         Gas costs: 3
+         Source: "address currentUser"
+        VariableDeclaration "currentUser"
+           Type: address
+           Source: "address currentUser"
+          ElementaryTypeName address
+             Source: "address"
+      VariableDeclarationStatement
+         Gas costs: 3
+         Source: "uint256 currentValue"
+        VariableDeclaration "currentValue"
+           Type: uint256
+           Source: "uint256 currentValue"
+          ElementaryTypeName uint256
+             Source: "uint256"
+      VariableDeclarationStatement
+         Gas costs: 3
+         Source: "uint256 currentBalance"
+        VariableDeclaration "currentBalance"
+           Type: uint256
+           Source: "uint256 currentBalance"
+          ElementaryTypeName uint256
+             Source: "uint256"
+      ForStatement
+         Source: "for (uint256 i = 0; i < users.length; ++i) {\r\n            currentUser = users[i];\r\n            currentValue = values[i];\r\n            currentBalance = balances[currentUser];\r\n\r\n            require(directDebitAllowances[currentUser]);\r\n            require(currentValue <= currentBalance);\r\n            balances[currentUser] = currentBalance - currentValue;\r\n            \r\n            newBalance += currentValue;\r\n\r\n            Transfer(currentUser, msg.sender, currentValue);\r\n        }"
+        VariableDeclarationStatement
+           Gas costs: 11
+           Source: "uint256 i = 0"
+          VariableDeclaration "i"
+             Type: uint256
+             Source: "uint256 i"
+            ElementaryTypeName uint256
+               Source: "uint256"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        BinaryOperation using operator <
+           Type: bool
+           Gas costs: 27
+           Source: "i < users.length"
+          Identifier i
+             Type: uint256
+             Source: "i"
+          MemberAccess to member length
+             Type: uint256
+             Source: "users.length"
+            Identifier users
+               Type: address[] memory
+               Source: "users"
+        ExpressionStatement
+           Gas costs: 14
+           Source: "++i"
+          UnaryOperation (prefix) ++
+             Type: uint256
+             Source: "++i"
+            Identifier i
+               Type: uint256
+               Source: "i"
+        Block
+           Source: "{\r\n            currentUser = users[i];\r\n            currentValue = values[i];\r\n            currentBalance = balances[currentUser];\r\n\r\n            require(directDebitAllowances[currentUser]);\r\n            require(currentValue <= currentBalance);\r\n            balances[currentUser] = currentBalance - currentValue;\r\n            \r\n            newBalance += currentValue;\r\n\r\n            Transfer(currentUser, msg.sender, currentValue);\r\n        }"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "currentUser = users[i]"
+            Assignment using operator =
+               Type: address
+               Source: "currentUser = users[i]"
+              Identifier currentUser
+                 Type: address
+                 Source: "currentUser"
+              IndexAccess
+                 Type: address
+                 Source: "users[i]"
+                Identifier users
+                   Type: address[] memory
+                   Source: "users"
+                Identifier i
+                   Type: uint256
+                   Source: "i"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "currentValue = values[i]"
+            Assignment using operator =
+               Type: uint256
+               Source: "currentValue = values[i]"
+              Identifier currentValue
+                 Type: uint256
+                 Source: "currentValue"
+              IndexAccess
+                 Type: uint256
+                 Source: "values[i]"
+                Identifier values
+                   Type: uint256[] memory
+                   Source: "values"
+                Identifier i
+                   Type: uint256
+                   Source: "i"
+          ExpressionStatement
+             Gas costs: 304
+             Source: "currentBalance = balances[currentUser]"
+            Assignment using operator =
+               Type: uint256
+               Source: "currentBalance = balances[currentUser]"
+              Identifier currentBalance
+                 Type: uint256
+                 Source: "currentBalance"
+              IndexAccess
+                 Type: uint256
+                 Source: "balances[currentUser]"
+                Identifier balances
+                   Type: mapping(address => uint256)
+                   Source: "balances"
+                Identifier currentUser
+                   Type: address
+                   Source: "currentUser"
+          ExpressionStatement
+             Gas costs: 355
+             Source: "require(directDebitAllowances[currentUser])"
+            FunctionCall
+               Type: tuple()
+               Source: "require(directDebitAllowances[currentUser])"
+              Identifier require
+                 Type: function (bool) pure
+                 Source: "require"
+              IndexAccess
+                 Type: bool
+                 Source: "directDebitAllowances[currentUser]"
+                Identifier directDebitAllowances
+                   Type: mapping(address => bool)
+                   Source: "directDebitAllowances"
+                Identifier currentUser
+                   Type: address
+                   Source: "currentUser"
+          ExpressionStatement
+             Gas costs: 38
+             Source: "require(currentValue <= currentBalance)"
+            FunctionCall
+               Type: tuple()
+               Source: "require(currentValue <= currentBalance)"
+              Identifier require
+                 Type: function (bool) pure
+                 Source: "require"
+              BinaryOperation using operator <=
+                 Type: bool
+                 Source: "currentValue <= currentBalance"
+                Identifier currentValue
+                   Type: uint256
+                   Source: "currentValue"
+                Identifier currentBalance
+                   Type: uint256
+                   Source: "currentBalance"
+          ExpressionStatement
+             Gas costs: 20116
+             Source: "balances[currentUser] = currentBalance - currentValue"
+            Assignment using operator =
+               Type: uint256
+               Source: "balances[currentUser] = currentBalance - currentValue"
+              IndexAccess
+                 Type: uint256
+                 Source: "balances[currentUser]"
+                Identifier balances
+                   Type: mapping(address => uint256)
+                   Source: "balances"
+                Identifier currentUser
+                   Type: address
+                   Source: "currentUser"
+              BinaryOperation using operator -
+                 Type: uint256
+                 Source: "currentBalance - currentValue"
+                Identifier currentBalance
+                   Type: uint256
+                   Source: "currentBalance"
+                Identifier currentValue
+                   Type: uint256
+                   Source: "currentValue"
+          ExpressionStatement
+             Gas costs: 14
+             Source: "newBalance += currentValue"
+            Assignment using operator +=
+               Type: uint256
+               Source: "newBalance += currentValue"
+              Identifier newBalance
+                 Type: uint256
+                 Source: "newBalance"
+              Identifier currentValue
+                 Type: uint256
+                 Source: "currentValue"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "Transfer(currentUser, msg.sender, currentValue)"
+            FunctionCall
+               Type: tuple()
+               Source: "Transfer(currentUser, msg.sender, currentValue)"
+              Identifier Transfer
+                 Type: function (address,address,uint256)
+                 Source: "Transfer"
+              Identifier currentUser
+                 Type: address
+                 Source: "currentUser"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+              Identifier currentValue
+                 Type: uint256
+                 Source: "currentValue"
+      ExpressionStatement
+         Gas costs: 38
+         Source: "require(oldBalance <= newBalance)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(oldBalance <= newBalance)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator <=
+             Type: bool
+             Source: "oldBalance <= newBalance"
+            Identifier oldBalance
+               Type: uint256
+               Source: "oldBalance"
+            Identifier newBalance
+               Type: uint256
+               Source: "newBalance"
+      ExpressionStatement
+         Gas costs: 20109
+         Source: "balances[msg.sender] = newBalance"
+        Assignment using operator =
+           Type: uint256
+           Source: "balances[msg.sender] = newBalance"
+          IndexAccess
+             Type: uint256
+             Source: "balances[msg.sender]"
+            Identifier balances
+               Type: mapping(address => uint256)
+               Source: "balances"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Identifier newBalance
+             Type: uint256
+             Source: "newBalance"
+      Return
+         Gas costs: 8
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+  FunctionDefinition "debitEqually" - public
+     Source: "function debitEqually(address[] users, uint256 value) public onlyMaster returns (bool) {\r\n        uint256 oldBalance = balances[msg.sender];\r\n        uint256 newBalance = oldBalance + (users.length * value);\r\n\r\n        require(oldBalance <= newBalance);\r\n        balances[msg.sender] = newBalance;\r\n\r\n        address currentUser;\r\n        uint256 currentBalance;\r\n        for (uint256 i = 0; i < users.length; ++i) {\r\n            currentUser = users[i];\r\n            currentBalance = balances[currentUser];\r\n\r\n            require(directDebitAllowances[currentUser]);\r\n            require(value <= currentBalance);\r\n            balances[currentUser] = currentBalance - value;\r\n\r\n            Transfer(currentUser, msg.sender, value);\r\n        }\r\n\r\n        return true;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address[] users, uint256 value)"
+      VariableDeclaration "users"
+         Type: address[] memory
+         Source: "address[] users"
+        ArrayTypeName
+           Source: "address[]"
+          ElementaryTypeName address
+             Source: "address"
+      VariableDeclaration "value"
+         Type: uint256
+         Source: "uint256 value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool)"
+      VariableDeclaration ""
+         Type: bool
+         Source: "bool"
+        ElementaryTypeName bool
+           Source: "bool"
+    ModifierInvocation "onlyMaster"
+       Gas costs: 0
+       Source: "onlyMaster"
+      Identifier onlyMaster
+         Type: modifier ()
+         Source: "onlyMaster"
+    Block
+       Source: "{\r\n        uint256 oldBalance = balances[msg.sender];\r\n        uint256 newBalance = oldBalance + (users.length * value);\r\n\r\n        require(oldBalance <= newBalance);\r\n        balances[msg.sender] = newBalance;\r\n\r\n        address currentUser;\r\n        uint256 currentBalance;\r\n        for (uint256 i = 0; i < users.length; ++i) {\r\n            currentUser = users[i];\r\n            currentBalance = balances[currentUser];\r\n\r\n            require(directDebitAllowances[currentUser]);\r\n            require(value <= currentBalance);\r\n            balances[currentUser] = currentBalance - value;\r\n\r\n            Transfer(currentUser, msg.sender, value);\r\n        }\r\n\r\n        return true;\r\n    }"
+      VariableDeclarationStatement
+         Gas costs: 306
+         Source: "uint256 oldBalance = balances[msg.sender]"
+        VariableDeclaration "oldBalance"
+           Type: uint256
+           Source: "uint256 oldBalance"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        IndexAccess
+           Type: uint256
+           Source: "balances[msg.sender]"
+          Identifier balances
+             Type: mapping(address => uint256)
+             Source: "balances"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+      VariableDeclarationStatement
+         Gas costs: 37
+         Source: "uint256 newBalance = oldBalance + (users.length * value)"
+        VariableDeclaration "newBalance"
+           Type: uint256
+           Source: "uint256 newBalance"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        BinaryOperation using operator +
+           Type: uint256
+           Source: "oldBalance + (users.length * value)"
+          Identifier oldBalance
+             Type: uint256
+             Source: "oldBalance"
+          TupleExpression
+             Type: uint256
+             Source: "(users.length * value)"
+            BinaryOperation using operator *
+               Type: uint256
+               Source: "users.length * value"
+              MemberAccess to member length
+                 Type: uint256
+                 Source: "users.length"
+                Identifier users
+                   Type: address[] memory
+                   Source: "users"
+              Identifier value
+                 Type: uint256
+                 Source: "value"
+      ExpressionStatement
+         Gas costs: 38
+         Source: "require(oldBalance <= newBalance)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(oldBalance <= newBalance)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator <=
+             Type: bool
+             Source: "oldBalance <= newBalance"
+            Identifier oldBalance
+               Type: uint256
+               Source: "oldBalance"
+            Identifier newBalance
+               Type: uint256
+               Source: "newBalance"
+      ExpressionStatement
+         Gas costs: 20109
+         Source: "balances[msg.sender] = newBalance"
+        Assignment using operator =
+           Type: uint256
+           Source: "balances[msg.sender] = newBalance"
+          IndexAccess
+             Type: uint256
+             Source: "balances[msg.sender]"
+            Identifier balances
+               Type: mapping(address => uint256)
+               Source: "balances"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Identifier newBalance
+             Type: uint256
+             Source: "newBalance"
+      VariableDeclarationStatement
+         Gas costs: 3
+         Source: "address currentUser"
+        VariableDeclaration "currentUser"
+           Type: address
+           Source: "address currentUser"
+          ElementaryTypeName address
+             Source: "address"
+      VariableDeclarationStatement
+         Gas costs: 3
+         Source: "uint256 currentBalance"
+        VariableDeclaration "currentBalance"
+           Type: uint256
+           Source: "uint256 currentBalance"
+          ElementaryTypeName uint256
+             Source: "uint256"
+      ForStatement
+         Source: "for (uint256 i = 0; i < users.length; ++i) {\r\n            currentUser = users[i];\r\n            currentBalance = balances[currentUser];\r\n\r\n            require(directDebitAllowances[currentUser]);\r\n            require(value <= currentBalance);\r\n            balances[currentUser] = currentBalance - value;\r\n\r\n            Transfer(currentUser, msg.sender, value);\r\n        }"
+        VariableDeclarationStatement
+           Gas costs: 11
+           Source: "uint256 i = 0"
+          VariableDeclaration "i"
+             Type: uint256
+             Source: "uint256 i"
+            ElementaryTypeName uint256
+               Source: "uint256"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        BinaryOperation using operator <
+           Type: bool
+           Gas costs: 27
+           Source: "i < users.length"
+          Identifier i
+             Type: uint256
+             Source: "i"
+          MemberAccess to member length
+             Type: uint256
+             Source: "users.length"
+            Identifier users
+               Type: address[] memory
+               Source: "users"
+        ExpressionStatement
+           Gas costs: 14
+           Source: "++i"
+          UnaryOperation (prefix) ++
+             Type: uint256
+             Source: "++i"
+            Identifier i
+               Type: uint256
+               Source: "i"
+        Block
+           Source: "{\r\n            currentUser = users[i];\r\n            currentBalance = balances[currentUser];\r\n\r\n            require(directDebitAllowances[currentUser]);\r\n            require(value <= currentBalance);\r\n            balances[currentUser] = currentBalance - value;\r\n\r\n            Transfer(currentUser, msg.sender, value);\r\n        }"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "currentUser = users[i]"
+            Assignment using operator =
+               Type: address
+               Source: "currentUser = users[i]"
+              Identifier currentUser
+                 Type: address
+                 Source: "currentUser"
+              IndexAccess
+                 Type: address
+                 Source: "users[i]"
+                Identifier users
+                   Type: address[] memory
+                   Source: "users"
+                Identifier i
+                   Type: uint256
+                   Source: "i"
+          ExpressionStatement
+             Gas costs: 304
+             Source: "currentBalance = balances[currentUser]"
+            Assignment using operator =
+               Type: uint256
+               Source: "currentBalance = balances[currentUser]"
+              Identifier currentBalance
+                 Type: uint256
+                 Source: "currentBalance"
+              IndexAccess
+                 Type: uint256
+                 Source: "balances[currentUser]"
+                Identifier balances
+                   Type: mapping(address => uint256)
+                   Source: "balances"
+                Identifier currentUser
+                   Type: address
+                   Source: "currentUser"
+          ExpressionStatement
+             Gas costs: 355
+             Source: "require(directDebitAllowances[currentUser])"
+            FunctionCall
+               Type: tuple()
+               Source: "require(directDebitAllowances[currentUser])"
+              Identifier require
+                 Type: function (bool) pure
+                 Source: "require"
+              IndexAccess
+                 Type: bool
+                 Source: "directDebitAllowances[currentUser]"
+                Identifier directDebitAllowances
+                   Type: mapping(address => bool)
+                   Source: "directDebitAllowances"
+                Identifier currentUser
+                   Type: address
+                   Source: "currentUser"
+          ExpressionStatement
+             Gas costs: 38
+             Source: "require(value <= currentBalance)"
+            FunctionCall
+               Type: tuple()
+               Source: "require(value <= currentBalance)"
+              Identifier require
+                 Type: function (bool) pure
+                 Source: "require"
+              BinaryOperation using operator <=
+                 Type: bool
+                 Source: "value <= currentBalance"
+                Identifier value
+                   Type: uint256
+                   Source: "value"
+                Identifier currentBalance
+                   Type: uint256
+                   Source: "currentBalance"
+          ExpressionStatement
+             Gas costs: 20116
+             Source: "balances[currentUser] = currentBalance - value"
+            Assignment using operator =
+               Type: uint256
+               Source: "balances[currentUser] = currentBalance - value"
+              IndexAccess
+                 Type: uint256
+                 Source: "balances[currentUser]"
+                Identifier balances
+                   Type: mapping(address => uint256)
+                   Source: "balances"
+                Identifier currentUser
+                   Type: address
+                   Source: "currentUser"
+              BinaryOperation using operator -
+                 Type: uint256
+                 Source: "currentBalance - value"
+                Identifier currentBalance
+                   Type: uint256
+                   Source: "currentBalance"
+                Identifier value
+                   Type: uint256
+                   Source: "value"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "Transfer(currentUser, msg.sender, value)"
+            FunctionCall
+               Type: tuple()
+               Source: "Transfer(currentUser, msg.sender, value)"
+              Identifier Transfer
+                 Type: function (address,address,uint256)
+                 Source: "Transfer"
+              Identifier currentUser
+                 Type: address
+                 Source: "currentUser"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+              Identifier value
+                 Type: uint256
+                 Source: "value"
+      Return
+         Gas costs: 8
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+  FunctionDefinition "credit" - public
+     Source: "function credit(address[] users, uint256[] values) public onlyMaster returns (bool) {\r\n        require(users.length == values.length);\r\n\r\n        uint256 balance = balances[msg.sender];\r\n        uint256 totalValue = 0;\r\n\r\n        address currentUser;\r\n        uint256 currentValue;\r\n        uint256 currentOldBalance;\r\n        uint256 currentNewBalance;\r\n        for (uint256 i = 0; i < users.length; ++i) {\r\n            currentUser = users[i];\r\n            currentValue = values[i];\r\n            currentOldBalance = balances[currentUser];\r\n            currentNewBalance = currentOldBalance + currentValue;\r\n\r\n            require(currentOldBalance <= currentNewBalance);\r\n            balances[currentUser] = currentNewBalance;\r\n\r\n            totalValue += currentValue;\r\n\r\n            Transfer(msg.sender, currentUser, currentValue);\r\n        }\r\n\r\n        require(totalValue <= balance);\r\n        balances[msg.sender] = balance - totalValue;\r\n\r\n        return true;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address[] users, uint256[] values)"
+      VariableDeclaration "users"
+         Type: address[] memory
+         Source: "address[] users"
+        ArrayTypeName
+           Source: "address[]"
+          ElementaryTypeName address
+             Source: "address"
+      VariableDeclaration "values"
+         Type: uint256[] memory
+         Source: "uint256[] values"
+        ArrayTypeName
+           Source: "uint256[]"
+          ElementaryTypeName uint256
+             Source: "uint256"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool)"
+      VariableDeclaration ""
+         Type: bool
+         Source: "bool"
+        ElementaryTypeName bool
+           Source: "bool"
+    ModifierInvocation "onlyMaster"
+       Gas costs: 0
+       Source: "onlyMaster"
+      Identifier onlyMaster
+         Type: modifier ()
+         Source: "onlyMaster"
+    Block
+       Source: "{\r\n        require(users.length == values.length);\r\n\r\n        uint256 balance = balances[msg.sender];\r\n        uint256 totalValue = 0;\r\n\r\n        address currentUser;\r\n        uint256 currentValue;\r\n        uint256 currentOldBalance;\r\n        uint256 currentNewBalance;\r\n        for (uint256 i = 0; i < users.length; ++i) {\r\n            currentUser = users[i];\r\n            currentValue = values[i];\r\n            currentOldBalance = balances[currentUser];\r\n            currentNewBalance = currentOldBalance + currentValue;\r\n\r\n            require(currentOldBalance <= currentNewBalance);\r\n            balances[currentUser] = currentNewBalance;\r\n\r\n            totalValue += currentValue;\r\n\r\n            Transfer(msg.sender, currentUser, currentValue);\r\n        }\r\n\r\n        require(totalValue <= balance);\r\n        balances[msg.sender] = balance - totalValue;\r\n\r\n        return true;\r\n    }"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "require(users.length == values.length)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(users.length == values.length)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "users.length == values.length"
+            MemberAccess to member length
+               Type: uint256
+               Source: "users.length"
+              Identifier users
+                 Type: address[] memory
+                 Source: "users"
+            MemberAccess to member length
+               Type: uint256
+               Source: "values.length"
+              Identifier values
+                 Type: uint256[] memory
+                 Source: "values"
+      VariableDeclarationStatement
+         Gas costs: 306
+         Source: "uint256 balance = balances[msg.sender]"
+        VariableDeclaration "balance"
+           Type: uint256
+           Source: "uint256 balance"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        IndexAccess
+           Type: uint256
+           Source: "balances[msg.sender]"
+          Identifier balances
+             Type: mapping(address => uint256)
+             Source: "balances"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+      VariableDeclarationStatement
+         Gas costs: 11
+         Source: "uint256 totalValue = 0"
+        VariableDeclaration "totalValue"
+           Type: uint256
+           Source: "uint256 totalValue"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        Literal, token: [no token] value: 0
+           Type: int_const 0
+           Source: "0"
+      VariableDeclarationStatement
+         Gas costs: 3
+         Source: "address currentUser"
+        VariableDeclaration "currentUser"
+           Type: address
+           Source: "address currentUser"
+          ElementaryTypeName address
+             Source: "address"
+      VariableDeclarationStatement
+         Gas costs: 3
+         Source: "uint256 currentValue"
+        VariableDeclaration "currentValue"
+           Type: uint256
+           Source: "uint256 currentValue"
+          ElementaryTypeName uint256
+             Source: "uint256"
+      VariableDeclarationStatement
+         Gas costs: 3
+         Source: "uint256 currentOldBalance"
+        VariableDeclaration "currentOldBalance"
+           Type: uint256
+           Source: "uint256 currentOldBalance"
+          ElementaryTypeName uint256
+             Source: "uint256"
+      VariableDeclarationStatement
+         Gas costs: 3
+         Source: "uint256 currentNewBalance"
+        VariableDeclaration "currentNewBalance"
+           Type: uint256
+           Source: "uint256 currentNewBalance"
+          ElementaryTypeName uint256
+             Source: "uint256"
+      ForStatement
+         Source: "for (uint256 i = 0; i < users.length; ++i) {\r\n            currentUser = users[i];\r\n            currentValue = values[i];\r\n            currentOldBalance = balances[currentUser];\r\n            currentNewBalance = currentOldBalance + currentValue;\r\n\r\n            require(currentOldBalance <= currentNewBalance);\r\n            balances[currentUser] = currentNewBalance;\r\n\r\n            totalValue += currentValue;\r\n\r\n            Transfer(msg.sender, currentUser, currentValue);\r\n        }"
+        VariableDeclarationStatement
+           Gas costs: 11
+           Source: "uint256 i = 0"
+          VariableDeclaration "i"
+             Type: uint256
+             Source: "uint256 i"
+            ElementaryTypeName uint256
+               Source: "uint256"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        BinaryOperation using operator <
+           Type: bool
+           Gas costs: 27
+           Source: "i < users.length"
+          Identifier i
+             Type: uint256
+             Source: "i"
+          MemberAccess to member length
+             Type: uint256
+             Source: "users.length"
+            Identifier users
+               Type: address[] memory
+               Source: "users"
+        ExpressionStatement
+           Gas costs: 14
+           Source: "++i"
+          UnaryOperation (prefix) ++
+             Type: uint256
+             Source: "++i"
+            Identifier i
+               Type: uint256
+               Source: "i"
+        Block
+           Source: "{\r\n            currentUser = users[i];\r\n            currentValue = values[i];\r\n            currentOldBalance = balances[currentUser];\r\n            currentNewBalance = currentOldBalance + currentValue;\r\n\r\n            require(currentOldBalance <= currentNewBalance);\r\n            balances[currentUser] = currentNewBalance;\r\n\r\n            totalValue += currentValue;\r\n\r\n            Transfer(msg.sender, currentUser, currentValue);\r\n        }"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "currentUser = users[i]"
+            Assignment using operator =
+               Type: address
+               Source: "currentUser = users[i]"
+              Identifier currentUser
+                 Type: address
+                 Source: "currentUser"
+              IndexAccess
+                 Type: address
+                 Source: "users[i]"
+                Identifier users
+                   Type: address[] memory
+                   Source: "users"
+                Identifier i
+                   Type: uint256
+                   Source: "i"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "currentValue = values[i]"
+            Assignment using operator =
+               Type: uint256
+               Source: "currentValue = values[i]"
+              Identifier currentValue
+                 Type: uint256
+                 Source: "currentValue"
+              IndexAccess
+                 Type: uint256
+                 Source: "values[i]"
+                Identifier values
+                   Type: uint256[] memory
+                   Source: "values"
+                Identifier i
+                   Type: uint256
+                   Source: "i"
+          ExpressionStatement
+             Gas costs: 304
+             Source: "currentOldBalance = balances[currentUser]"
+            Assignment using operator =
+               Type: uint256
+               Source: "currentOldBalance = balances[currentUser]"
+              Identifier currentOldBalance
+                 Type: uint256
+                 Source: "currentOldBalance"
+              IndexAccess
+                 Type: uint256
+                 Source: "balances[currentUser]"
+                Identifier balances
+                   Type: mapping(address => uint256)
+                   Source: "balances"
+                Identifier currentUser
+                   Type: address
+                   Source: "currentUser"
+          ExpressionStatement
+             Gas costs: 14
+             Source: "currentNewBalance = currentOldBalance + currentValue"
+            Assignment using operator =
+               Type: uint256
+               Source: "currentNewBalance = currentOldBalance + currentValue"
+              Identifier currentNewBalance
+                 Type: uint256
+                 Source: "currentNewBalance"
+              BinaryOperation using operator +
+                 Type: uint256
+                 Source: "currentOldBalance + currentValue"
+                Identifier currentOldBalance
+                   Type: uint256
+                   Source: "currentOldBalance"
+                Identifier currentValue
+                   Type: uint256
+                   Source: "currentValue"
+          ExpressionStatement
+             Gas costs: 38
+             Source: "require(currentOldBalance <= currentNewBalance)"
+            FunctionCall
+               Type: tuple()
+               Source: "require(currentOldBalance <= currentNewBalance)"
+              Identifier require
+                 Type: function (bool) pure
+                 Source: "require"
+              BinaryOperation using operator <=
+                 Type: bool
+                 Source: "currentOldBalance <= currentNewBalance"
+                Identifier currentOldBalance
+                   Type: uint256
+                   Source: "currentOldBalance"
+                Identifier currentNewBalance
+                   Type: uint256
+                   Source: "currentNewBalance"
+          ExpressionStatement
+             Gas costs: 20110
+             Source: "balances[currentUser] = currentNewBalance"
+            Assignment using operator =
+               Type: uint256
+               Source: "balances[currentUser] = currentNewBalance"
+              IndexAccess
+                 Type: uint256
+                 Source: "balances[currentUser]"
+                Identifier balances
+                   Type: mapping(address => uint256)
+                   Source: "balances"
+                Identifier currentUser
+                   Type: address
+                   Source: "currentUser"
+              Identifier currentNewBalance
+                 Type: uint256
+                 Source: "currentNewBalance"
+          ExpressionStatement
+             Gas costs: 14
+             Source: "totalValue += currentValue"
+            Assignment using operator +=
+               Type: uint256
+               Source: "totalValue += currentValue"
+              Identifier totalValue
+                 Type: uint256
+                 Source: "totalValue"
+              Identifier currentValue
+                 Type: uint256
+                 Source: "currentValue"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "Transfer(msg.sender, currentUser, currentValue)"
+            FunctionCall
+               Type: tuple()
+               Source: "Transfer(msg.sender, currentUser, currentValue)"
+              Identifier Transfer
+                 Type: function (address,address,uint256)
+                 Source: "Transfer"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+              Identifier currentUser
+                 Type: address
+                 Source: "currentUser"
+              Identifier currentValue
+                 Type: uint256
+                 Source: "currentValue"
+      ExpressionStatement
+         Gas costs: 38
+         Source: "require(totalValue <= balance)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(totalValue <= balance)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator <=
+             Type: bool
+             Source: "totalValue <= balance"
+            Identifier totalValue
+               Type: uint256
+               Source: "totalValue"
+            Identifier balance
+               Type: uint256
+               Source: "balance"
+      ExpressionStatement
+         Gas costs: 20115
+         Source: "balances[msg.sender] = balance - totalValue"
+        Assignment using operator =
+           Type: uint256
+           Source: "balances[msg.sender] = balance - totalValue"
+          IndexAccess
+             Type: uint256
+             Source: "balances[msg.sender]"
+            Identifier balances
+               Type: mapping(address => uint256)
+               Source: "balances"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          BinaryOperation using operator -
+             Type: uint256
+             Source: "balance - totalValue"
+            Identifier balance
+               Type: uint256
+               Source: "balance"
+            Identifier totalValue
+               Type: uint256
+               Source: "totalValue"
+      Return
+         Gas costs: 8
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+  FunctionDefinition "creditEqually" - public
+     Source: "function creditEqually(address[] users, uint256 value) public onlyMaster returns (bool) {\r\n        uint256 balance = balances[msg.sender];\r\n        uint256 totalValue = users.length * value;\r\n\r\n        require(totalValue <= balance);\r\n        balances[msg.sender] = balance - totalValue;\r\n\r\n        address currentUser;\r\n        uint256 currentOldBalance;\r\n        uint256 currentNewBalance;\r\n        for (uint256 i = 0; i < users.length; ++i) {\r\n            currentUser = users[i];\r\n            currentOldBalance = balances[currentUser];\r\n            currentNewBalance = currentOldBalance + value;\r\n\r\n            require(currentOldBalance <= currentNewBalance);\r\n            balances[currentUser] = currentNewBalance;\r\n\r\n            Transfer(msg.sender, currentUser, value);\r\n        }\r\n\r\n        return true;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address[] users, uint256 value)"
+      VariableDeclaration "users"
+         Type: address[] memory
+         Source: "address[] users"
+        ArrayTypeName
+           Source: "address[]"
+          ElementaryTypeName address
+             Source: "address"
+      VariableDeclaration "value"
+         Type: uint256
+         Source: "uint256 value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool)"
+      VariableDeclaration ""
+         Type: bool
+         Source: "bool"
+        ElementaryTypeName bool
+           Source: "bool"
+    ModifierInvocation "onlyMaster"
+       Gas costs: 0
+       Source: "onlyMaster"
+      Identifier onlyMaster
+         Type: modifier ()
+         Source: "onlyMaster"
+    Block
+       Source: "{\r\n        uint256 balance = balances[msg.sender];\r\n        uint256 totalValue = users.length * value;\r\n\r\n        require(totalValue <= balance);\r\n        balances[msg.sender] = balance - totalValue;\r\n\r\n        address currentUser;\r\n        uint256 currentOldBalance;\r\n        uint256 currentNewBalance;\r\n        for (uint256 i = 0; i < users.length; ++i) {\r\n            currentUser = users[i];\r\n            currentOldBalance = balances[currentUser];\r\n            currentNewBalance = currentOldBalance + value;\r\n\r\n            require(currentOldBalance <= currentNewBalance);\r\n            balances[currentUser] = currentNewBalance;\r\n\r\n            Transfer(msg.sender, currentUser, value);\r\n        }\r\n\r\n        return true;\r\n    }"
+      VariableDeclarationStatement
+         Gas costs: 306
+         Source: "uint256 balance = balances[msg.sender]"
+        VariableDeclaration "balance"
+           Type: uint256
+           Source: "uint256 balance"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        IndexAccess
+           Type: uint256
+           Source: "balances[msg.sender]"
+          Identifier balances
+             Type: mapping(address => uint256)
+             Source: "balances"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+      VariableDeclarationStatement
+         Gas costs: 31
+         Source: "uint256 totalValue = users.length * value"
+        VariableDeclaration "totalValue"
+           Type: uint256
+           Source: "uint256 totalValue"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        BinaryOperation using operator *
+           Type: uint256
+           Source: "users.length * value"
+          MemberAccess to member length
+             Type: uint256
+             Source: "users.length"
+            Identifier users
+               Type: address[] memory
+               Source: "users"
+          Identifier value
+             Type: uint256
+             Source: "value"
+      ExpressionStatement
+         Gas costs: 38
+         Source: "require(totalValue <= balance)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(totalValue <= balance)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator <=
+             Type: bool
+             Source: "totalValue <= balance"
+            Identifier totalValue
+               Type: uint256
+               Source: "totalValue"
+            Identifier balance
+               Type: uint256
+               Source: "balance"
+      ExpressionStatement
+         Gas costs: 20115
+         Source: "balances[msg.sender] = balance - totalValue"
+        Assignment using operator =
+           Type: uint256
+           Source: "balances[msg.sender] = balance - totalValue"
+          IndexAccess
+             Type: uint256
+             Source: "balances[msg.sender]"
+            Identifier balances
+               Type: mapping(address => uint256)
+               Source: "balances"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          BinaryOperation using operator -
+             Type: uint256
+             Source: "balance - totalValue"
+            Identifier balance
+               Type: uint256
+               Source: "balance"
+            Identifier totalValue
+               Type: uint256
+               Source: "totalValue"
+      VariableDeclarationStatement
+         Gas costs: 3
+         Source: "address currentUser"
+        VariableDeclaration "currentUser"
+           Type: address
+           Source: "address currentUser"
+          ElementaryTypeName address
+             Source: "address"
+      VariableDeclarationStatement
+         Gas costs: 3
+         Source: "uint256 currentOldBalance"
+        VariableDeclaration "currentOldBalance"
+           Type: uint256
+           Source: "uint256 currentOldBalance"
+          ElementaryTypeName uint256
+             Source: "uint256"
+      VariableDeclarationStatement
+         Gas costs: 3
+         Source: "uint256 currentNewBalance"
+        VariableDeclaration "currentNewBalance"
+           Type: uint256
+           Source: "uint256 currentNewBalance"
+          ElementaryTypeName uint256
+             Source: "uint256"
+      ForStatement
+         Source: "for (uint256 i = 0; i < users.length; ++i) {\r\n            currentUser = users[i];\r\n            currentOldBalance = balances[currentUser];\r\n            currentNewBalance = currentOldBalance + value;\r\n\r\n            require(currentOldBalance <= currentNewBalance);\r\n            balances[currentUser] = currentNewBalance;\r\n\r\n            Transfer(msg.sender, currentUser, value);\r\n        }"
+        VariableDeclarationStatement
+           Gas costs: 11
+           Source: "uint256 i = 0"
+          VariableDeclaration "i"
+             Type: uint256
+             Source: "uint256 i"
+            ElementaryTypeName uint256
+               Source: "uint256"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        BinaryOperation using operator <
+           Type: bool
+           Gas costs: 27
+           Source: "i < users.length"
+          Identifier i
+             Type: uint256
+             Source: "i"
+          MemberAccess to member length
+             Type: uint256
+             Source: "users.length"
+            Identifier users
+               Type: address[] memory
+               Source: "users"
+        ExpressionStatement
+           Gas costs: 14
+           Source: "++i"
+          UnaryOperation (prefix) ++
+             Type: uint256
+             Source: "++i"
+            Identifier i
+               Type: uint256
+               Source: "i"
+        Block
+           Source: "{\r\n            currentUser = users[i];\r\n            currentOldBalance = balances[currentUser];\r\n            currentNewBalance = currentOldBalance + value;\r\n\r\n            require(currentOldBalance <= currentNewBalance);\r\n            balances[currentUser] = currentNewBalance;\r\n\r\n            Transfer(msg.sender, currentUser, value);\r\n        }"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "currentUser = users[i]"
+            Assignment using operator =
+               Type: address
+               Source: "currentUser = users[i]"
+              Identifier currentUser
+                 Type: address
+                 Source: "currentUser"
+              IndexAccess
+                 Type: address
+                 Source: "users[i]"
+                Identifier users
+                   Type: address[] memory
+                   Source: "users"
+                Identifier i
+                   Type: uint256
+                   Source: "i"
+          ExpressionStatement
+             Gas costs: 304
+             Source: "currentOldBalance = balances[currentUser]"
+            Assignment using operator =
+               Type: uint256
+               Source: "currentOldBalance = balances[currentUser]"
+              Identifier currentOldBalance
+                 Type: uint256
+                 Source: "currentOldBalance"
+              IndexAccess
+                 Type: uint256
+                 Source: "balances[currentUser]"
+                Identifier balances
+                   Type: mapping(address => uint256)
+                   Source: "balances"
+                Identifier currentUser
+                   Type: address
+                   Source: "currentUser"
+          ExpressionStatement
+             Gas costs: 14
+             Source: "currentNewBalance = currentOldBalance + value"
+            Assignment using operator =
+               Type: uint256
+               Source: "currentNewBalance = currentOldBalance + value"
+              Identifier currentNewBalance
+                 Type: uint256
+                 Source: "currentNewBalance"
+              BinaryOperation using operator +
+                 Type: uint256
+                 Source: "currentOldBalance + value"
+                Identifier currentOldBalance
+                   Type: uint256
+                   Source: "currentOldBalance"
+                Identifier value
+                   Type: uint256
+                   Source: "value"
+          ExpressionStatement
+             Gas costs: 38
+             Source: "require(currentOldBalance <= currentNewBalance)"
+            FunctionCall
+               Type: tuple()
+               Source: "require(currentOldBalance <= currentNewBalance)"
+              Identifier require
+                 Type: function (bool) pure
+                 Source: "require"
+              BinaryOperation using operator <=
+                 Type: bool
+                 Source: "currentOldBalance <= currentNewBalance"
+                Identifier currentOldBalance
+                   Type: uint256
+                   Source: "currentOldBalance"
+                Identifier currentNewBalance
+                   Type: uint256
+                   Source: "currentNewBalance"
+          ExpressionStatement
+             Gas costs: 20110
+             Source: "balances[currentUser] = currentNewBalance"
+            Assignment using operator =
+               Type: uint256
+               Source: "balances[currentUser] = currentNewBalance"
+              IndexAccess
+                 Type: uint256
+                 Source: "balances[currentUser]"
+                Identifier balances
+                   Type: mapping(address => uint256)
+                   Source: "balances"
+                Identifier currentUser
+                   Type: address
+                   Source: "currentUser"
+              Identifier currentNewBalance
+                 Type: uint256
+                 Source: "currentNewBalance"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "Transfer(msg.sender, currentUser, value)"
+            FunctionCall
+               Type: tuple()
+               Source: "Transfer(msg.sender, currentUser, value)"
+              Identifier Transfer
+                 Type: function (address,address,uint256)
+                 Source: "Transfer"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+              Identifier currentUser
+                 Type: address
+                 Source: "currentUser"
+              Identifier value
+                 Type: uint256
+                 Source: "value"
+      Return
+         Gas costs: 8
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+ContractDefinition "Beercoin"
+   Source: "contract Beercoin is MasteredBeercoin {\r\n    event Produce(uint256 newCaps);\r\n    event Scan(address[] users, uint256[] caps);\r\n    event Burn(uint256 value);\r\n\r\n    /**\r\n     * Construct the Beercoin contract and\r\n     * assign the initial supply to the creator\r\n     */\r\n    function Beercoin() public {\r\n        balances[msg.sender] = INITIAL_SUPPLY;\r\n    }\r\n\r\n    /**\r\n     * Increase the amounts of produced diamond, gold, silver, and\r\n     * bronze bottle caps in respect to their occurrence probabilities\r\n     *\r\n     * This function is called if and only if a brewery has actually\r\n     * ordered codes to produce the specified amount of bottle caps\r\n     *\r\n     * @param numberOfCaps the number of bottle caps to be produced\r\n     */\r\n    function produce(uint64 numberOfCaps) public onlyMaster returns (bool) {\r\n        require(numberOfCaps <= producibleCaps);\r\n\r\n        uint256 producedCaps = packedProducedCaps;\r\n\r\n        uint64 targetTotalCaps = numberOfCaps;\r\n        targetTotalCaps += uint64(producedCaps >> 192);\r\n        targetTotalCaps += uint64(producedCaps >> 128);\r\n        targetTotalCaps += uint64(producedCaps >> 64);\r\n        targetTotalCaps += uint64(producedCaps);\r\n\r\n        uint64 targetDiamondCaps = (targetTotalCaps - (targetTotalCaps % 10000)) / 10000;\r\n        uint64 targetGoldCaps = ((targetTotalCaps - (targetTotalCaps % 1000)) / 1000) - targetDiamondCaps;\r\n        uint64 targetSilverCaps = ((targetTotalCaps - (targetTotalCaps % 10)) / 10) - targetDiamondCaps - targetGoldCaps;\r\n        uint64 targetBronzeCaps = targetTotalCaps - targetDiamondCaps - targetGoldCaps - targetSilverCaps;\r\n\r\n        uint256 targetProducedCaps = 0;\r\n        targetProducedCaps |= uint256(targetDiamondCaps) << 192;\r\n        targetProducedCaps |= uint256(targetGoldCaps) << 128;\r\n        targetProducedCaps |= uint256(targetSilverCaps) << 64;\r\n        targetProducedCaps |= uint256(targetBronzeCaps);\r\n\r\n        producibleCaps -= numberOfCaps;\r\n        packedProducedCaps = targetProducedCaps;\r\n\r\n        Produce(targetProducedCaps - producedCaps);\r\n\r\n        return true;\r\n    }\r\n\r\n    /**\r\n     * Approve scans of multiple users and grant Beercoins\r\n     *\r\n     * This function is called periodically to mass-transfer Beercoins to\r\n     * multiple users if and only if each of them has scanned codes that\r\n     * our server has never verified before for the same or another user\r\n     *\r\n     * @param users the addresses of the users who scanned valid codes\r\n     * @param caps the amounts of caps the users have scanned as single 256-bit values\r\n     */\r\n    function scan(address[] users, uint256[] caps) public onlyMaster returns (bool) {\r\n        require(users.length == caps.length);\r\n\r\n        uint256 scannedCaps = packedScannedCaps;\r\n\r\n        uint256 currentCaps;\r\n        uint256 capsValue;\r\n        for (uint256 i = 0; i < users.length; ++i) {\r\n            currentCaps = caps[i];\r\n\r\n            capsValue = DIAMOND_VALUE * (currentCaps >> 192);\r\n            capsValue += GOLD_VALUE * ((currentCaps >> 128) & 0xFFFFFFFFFFFFFFFF);\r\n            capsValue += SILVER_VALUE * ((currentCaps >> 64) & 0xFFFFFFFFFFFFFFFF);\r\n            capsValue += BRONZE_VALUE * (currentCaps & 0xFFFFFFFFFFFFFFFF);\r\n\r\n            balances[users[i]] += capsValue;\r\n            scannedCaps += currentCaps;\r\n        }\r\n\r\n        require(scannedCaps <= packedProducedCaps);\r\n        packedScannedCaps = scannedCaps;\r\n\r\n        Scan(users, caps);\r\n\r\n        return true;\r\n    }\r\n\r\n    /**\r\n     * Remove Beercoins from the system irreversibly\r\n     *\r\n     * @param value the amount of Beercoins to burn\r\n     */\r\n    function burn(uint256 value) public onlyMaster returns (bool) {\r\n        uint256 balance = balances[msg.sender];\r\n        require(value <= balance);\r\n\r\n        balances[msg.sender] = balance - value;\r\n        burntValue += value;\r\n\r\n        Burn(value);\r\n\r\n        return true;\r\n    }\r\n}"
+  InheritanceSpecifier
+     Gas costs: 0
+     Source: "MasteredBeercoin"
+    UserDefinedTypeName "MasteredBeercoin"
+       Source: "MasteredBeercoin"
+  EventDefinition "Produce"
+     Gas costs: 0
+     Source: "event Produce(uint256 newCaps);"
+    ParameterList
+       Source: "(uint256 newCaps)"
+      VariableDeclaration "newCaps"
+         Type: uint256
+         Source: "uint256 newCaps"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  EventDefinition "Scan"
+     Gas costs: 0
+     Source: "event Scan(address[] users, uint256[] caps);"
+    ParameterList
+       Source: "(address[] users, uint256[] caps)"
+      VariableDeclaration "users"
+         Type: address[] memory
+         Source: "address[] users"
+        ArrayTypeName
+           Source: "address[]"
+          ElementaryTypeName address
+             Source: "address"
+      VariableDeclaration "caps"
+         Type: uint256[] memory
+         Source: "uint256[] caps"
+        ArrayTypeName
+           Source: "uint256[]"
+          ElementaryTypeName uint256
+             Source: "uint256"
+  EventDefinition "Burn"
+     Gas costs: 0
+     Source: "event Burn(uint256 value);"
+    ParameterList
+       Source: "(uint256 value)"
+      VariableDeclaration "value"
+         Type: uint256
+         Source: "uint256 value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  FunctionDefinition "Beercoin" - public
+     Source: "function Beercoin() public {\r\n        balances[msg.sender] = INITIAL_SUPPLY;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        balances[msg.sender] = INITIAL_SUPPLY;\r\n    }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "balances[msg.sender] = INITIAL_SUPPLY"
+        Assignment using operator =
+           Type: uint256
+           Source: "balances[msg.sender] = INITIAL_SUPPLY"
+          IndexAccess
+             Type: uint256
+             Source: "balances[msg.sender]"
+            Identifier balances
+               Type: mapping(address => uint256)
+               Source: "balances"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Identifier INITIAL_SUPPLY
+             Type: uint256
+             Source: "INITIAL_SUPPLY"
+  FunctionDefinition "produce" - public
+     Source: "function produce(uint64 numberOfCaps) public onlyMaster returns (bool) {\r\n        require(numberOfCaps <= producibleCaps);\r\n\r\n        uint256 producedCaps = packedProducedCaps;\r\n\r\n        uint64 targetTotalCaps = numberOfCaps;\r\n        targetTotalCaps += uint64(producedCaps >> 192);\r\n        targetTotalCaps += uint64(producedCaps >> 128);\r\n        targetTotalCaps += uint64(producedCaps >> 64);\r\n        targetTotalCaps += uint64(producedCaps);\r\n\r\n        uint64 targetDiamondCaps = (targetTotalCaps - (targetTotalCaps % 10000)) / 10000;\r\n        uint64 targetGoldCaps = ((targetTotalCaps - (targetTotalCaps % 1000)) / 1000) - targetDiamondCaps;\r\n        uint64 targetSilverCaps = ((targetTotalCaps - (targetTotalCaps % 10)) / 10) - targetDiamondCaps - targetGoldCaps;\r\n        uint64 targetBronzeCaps = targetTotalCaps - targetDiamondCaps - targetGoldCaps - targetSilverCaps;\r\n\r\n        uint256 targetProducedCaps = 0;\r\n        targetProducedCaps |= uint256(targetDiamondCaps) << 192;\r\n        targetProducedCaps |= uint256(targetGoldCaps) << 128;\r\n        targetProducedCaps |= uint256(targetSilverCaps) << 64;\r\n        targetProducedCaps |= uint256(targetBronzeCaps);\r\n\r\n        producibleCaps -= numberOfCaps;\r\n        packedProducedCaps = targetProducedCaps;\r\n\r\n        Produce(targetProducedCaps - producedCaps);\r\n\r\n        return true;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint64 numberOfCaps)"
+      VariableDeclaration "numberOfCaps"
+         Type: uint64
+         Source: "uint64 numberOfCaps"
+        ElementaryTypeName uint64
+           Source: "uint64"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool)"
+      VariableDeclaration ""
+         Type: bool
+         Source: "bool"
+        ElementaryTypeName bool
+           Source: "bool"
+    ModifierInvocation "onlyMaster"
+       Gas costs: 0
+       Source: "onlyMaster"
+      Identifier onlyMaster
+         Type: modifier ()
+         Source: "onlyMaster"
+    Block
+       Source: "{\r\n        require(numberOfCaps <= producibleCaps);\r\n\r\n        uint256 producedCaps = packedProducedCaps;\r\n\r\n        uint64 targetTotalCaps = numberOfCaps;\r\n        targetTotalCaps += uint64(producedCaps >> 192);\r\n        targetTotalCaps += uint64(producedCaps >> 128);\r\n        targetTotalCaps += uint64(producedCaps >> 64);\r\n        targetTotalCaps += uint64(producedCaps);\r\n\r\n        uint64 targetDiamondCaps = (targetTotalCaps - (targetTotalCaps % 10000)) / 10000;\r\n        uint64 targetGoldCaps = ((targetTotalCaps - (targetTotalCaps % 1000)) / 1000) - targetDiamondCaps;\r\n        uint64 targetSilverCaps = ((targetTotalCaps - (targetTotalCaps % 10)) / 10) - targetDiamondCaps - targetGoldCaps;\r\n        uint64 targetBronzeCaps = targetTotalCaps - targetDiamondCaps - targetGoldCaps - targetSilverCaps;\r\n\r\n        uint256 targetProducedCaps = 0;\r\n        targetProducedCaps |= uint256(targetDiamondCaps) << 192;\r\n        targetProducedCaps |= uint256(targetGoldCaps) << 128;\r\n        targetProducedCaps |= uint256(targetSilverCaps) << 64;\r\n        targetProducedCaps |= uint256(targetBronzeCaps);\r\n\r\n        producibleCaps -= numberOfCaps;\r\n        packedProducedCaps = targetProducedCaps;\r\n\r\n        Produce(targetProducedCaps - producedCaps);\r\n\r\n        return true;\r\n    }"
+      ExpressionStatement
+         Gas costs: 286
+         Source: "require(numberOfCaps <= producibleCaps)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(numberOfCaps <= producibleCaps)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator <=
+             Type: bool
+             Source: "numberOfCaps <= producibleCaps"
+            Identifier numberOfCaps
+               Type: uint64
+               Source: "numberOfCaps"
+            Identifier producibleCaps
+               Type: uint64
+               Source: "producibleCaps"
+      VariableDeclarationStatement
+         Gas costs: 211
+         Source: "uint256 producedCaps = packedProducedCaps"
+        VariableDeclaration "producedCaps"
+           Type: uint256
+           Source: "uint256 producedCaps"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        Identifier packedProducedCaps
+           Type: uint256
+           Source: "packedProducedCaps"
+      VariableDeclarationStatement
+         Gas costs: 11
+         Source: "uint64 targetTotalCaps = numberOfCaps"
+        VariableDeclaration "targetTotalCaps"
+           Type: uint64
+           Source: "uint64 targetTotalCaps"
+          ElementaryTypeName uint64
+             Source: "uint64"
+        Identifier numberOfCaps
+           Type: uint64
+           Source: "numberOfCaps"
+      ExpressionStatement
+         Gas costs: 91
+         Source: "targetTotalCaps += uint64(producedCaps >> 192)"
+        Assignment using operator +=
+           Type: uint64
+           Source: "targetTotalCaps += uint64(producedCaps >> 192)"
+          Identifier targetTotalCaps
+             Type: uint64
+             Source: "targetTotalCaps"
+          FunctionCall
+             Type: uint64
+             Source: "uint64(producedCaps >> 192)"
+            ElementaryTypeNameExpression uint64
+               Type: type(uint64)
+               Source: "uint64"
+            BinaryOperation using operator >>
+               Type: uint256
+               Source: "producedCaps >> 192"
+              Identifier producedCaps
+                 Type: uint256
+                 Source: "producedCaps"
+              Literal, token: [no token] value: 192
+                 Type: int_const 192
+                 Source: "192"
+      ExpressionStatement
+         Gas costs: 91
+         Source: "targetTotalCaps += uint64(producedCaps >> 128)"
+        Assignment using operator +=
+           Type: uint64
+           Source: "targetTotalCaps += uint64(producedCaps >> 128)"
+          Identifier targetTotalCaps
+             Type: uint64
+             Source: "targetTotalCaps"
+          FunctionCall
+             Type: uint64
+             Source: "uint64(producedCaps >> 128)"
+            ElementaryTypeNameExpression uint64
+               Type: type(uint64)
+               Source: "uint64"
+            BinaryOperation using operator >>
+               Type: uint256
+               Source: "producedCaps >> 128"
+              Identifier producedCaps
+                 Type: uint256
+                 Source: "producedCaps"
+              Literal, token: [no token] value: 128
+                 Type: int_const 128
+                 Source: "128"
+      ExpressionStatement
+         Gas costs: 91
+         Source: "targetTotalCaps += uint64(producedCaps >> 64)"
+        Assignment using operator +=
+           Type: uint64
+           Source: "targetTotalCaps += uint64(producedCaps >> 64)"
+          Identifier targetTotalCaps
+             Type: uint64
+             Source: "targetTotalCaps"
+          FunctionCall
+             Type: uint64
+             Source: "uint64(producedCaps >> 64)"
+            ElementaryTypeNameExpression uint64
+               Type: type(uint64)
+               Source: "uint64"
+            BinaryOperation using operator >>
+               Type: uint256
+               Source: "producedCaps >> 64"
+              Identifier producedCaps
+                 Type: uint256
+                 Source: "producedCaps"
+              Literal, token: [no token] value: 64
+                 Type: int_const 64
+                 Source: "64"
+      ExpressionStatement
+         Gas costs: 14
+         Source: "targetTotalCaps += uint64(producedCaps)"
+        Assignment using operator +=
+           Type: uint64
+           Source: "targetTotalCaps += uint64(producedCaps)"
+          Identifier targetTotalCaps
+             Type: uint64
+             Source: "targetTotalCaps"
+          FunctionCall
+             Type: uint64
+             Source: "uint64(producedCaps)"
+            ElementaryTypeNameExpression uint64
+               Type: type(uint64)
+               Source: "uint64"
+            Identifier producedCaps
+               Type: uint256
+               Source: "producedCaps"
+      VariableDeclarationStatement
+         Gas costs: 91
+         Source: "uint64 targetDiamondCaps = (targetTotalCaps - (targetTotalCaps % 10000)) / 10000"
+        VariableDeclaration "targetDiamondCaps"
+           Type: uint64
+           Source: "uint64 targetDiamondCaps"
+          ElementaryTypeName uint64
+             Source: "uint64"
+        BinaryOperation using operator /
+           Type: uint64
+           Source: "(targetTotalCaps - (targetTotalCaps % 10000)) / 10000"
+          TupleExpression
+             Type: uint64
+             Source: "(targetTotalCaps - (targetTotalCaps % 10000))"
+            BinaryOperation using operator -
+               Type: uint64
+               Source: "targetTotalCaps - (targetTotalCaps % 10000)"
+              Identifier targetTotalCaps
+                 Type: uint64
+                 Source: "targetTotalCaps"
+              TupleExpression
+                 Type: uint64
+                 Source: "(targetTotalCaps % 10000)"
+                BinaryOperation using operator %
+                   Type: uint64
+                   Source: "targetTotalCaps % 10000"
+                  Identifier targetTotalCaps
+                     Type: uint64
+                     Source: "targetTotalCaps"
+                  Literal, token: [no token] value: 10000
+                     Type: int_const 10000
+                     Source: "10000"
+          Literal, token: [no token] value: 10000
+             Type: int_const 10000
+             Source: "10000"
+      VariableDeclarationStatement
+         Gas costs: 97
+         Source: "uint64 targetGoldCaps = ((targetTotalCaps - (targetTotalCaps % 1000)) / 1000) - targetDiamondCaps"
+        VariableDeclaration "targetGoldCaps"
+           Type: uint64
+           Source: "uint64 targetGoldCaps"
+          ElementaryTypeName uint64
+             Source: "uint64"
+        BinaryOperation using operator -
+           Type: uint64
+           Source: "((targetTotalCaps - (targetTotalCaps % 1000)) / 1000) - targetDiamondCaps"
+          TupleExpression
+             Type: uint64
+             Source: "((targetTotalCaps - (targetTotalCaps % 1000)) / 1000)"
+            BinaryOperation using operator /
+               Type: uint64
+               Source: "(targetTotalCaps - (targetTotalCaps % 1000)) / 1000"
+              TupleExpression
+                 Type: uint64
+                 Source: "(targetTotalCaps - (targetTotalCaps % 1000))"
+                BinaryOperation using operator -
+                   Type: uint64
+                   Source: "targetTotalCaps - (targetTotalCaps % 1000)"
+                  Identifier targetTotalCaps
+                     Type: uint64
+                     Source: "targetTotalCaps"
+                  TupleExpression
+                     Type: uint64
+                     Source: "(targetTotalCaps % 1000)"
+                    BinaryOperation using operator %
+                       Type: uint64
+                       Source: "targetTotalCaps % 1000"
+                      Identifier targetTotalCaps
+                         Type: uint64
+                         Source: "targetTotalCaps"
+                      Literal, token: [no token] value: 1000
+                         Type: int_const 1000
+                         Source: "1000"
+              Literal, token: [no token] value: 1000
+                 Type: int_const 1000
+                 Source: "1000"
+          Identifier targetDiamondCaps
+             Type: uint64
+             Source: "targetDiamondCaps"
+      VariableDeclarationStatement
+         Gas costs: 103
+         Source: "uint64 targetSilverCaps = ((targetTotalCaps - (targetTotalCaps % 10)) / 10) - targetDiamondCaps - targetGoldCaps"
+        VariableDeclaration "targetSilverCaps"
+           Type: uint64
+           Source: "uint64 targetSilverCaps"
+          ElementaryTypeName uint64
+             Source: "uint64"
+        BinaryOperation using operator -
+           Type: uint64
+           Source: "((targetTotalCaps - (targetTotalCaps % 10)) / 10) - targetDiamondCaps - targetGoldCaps"
+          BinaryOperation using operator -
+             Type: uint64
+             Source: "((targetTotalCaps - (targetTotalCaps % 10)) / 10) - targetDiamondCaps"
+            TupleExpression
+               Type: uint64
+               Source: "((targetTotalCaps - (targetTotalCaps % 10)) / 10)"
+              BinaryOperation using operator /
+                 Type: uint64
+                 Source: "(targetTotalCaps - (targetTotalCaps % 10)) / 10"
+                TupleExpression
+                   Type: uint64
+                   Source: "(targetTotalCaps - (targetTotalCaps % 10))"
+                  BinaryOperation using operator -
+                     Type: uint64
+                     Source: "targetTotalCaps - (targetTotalCaps % 10)"
+                    Identifier targetTotalCaps
+                       Type: uint64
+                       Source: "targetTotalCaps"
+                    TupleExpression
+                       Type: uint64
+                       Source: "(targetTotalCaps % 10)"
+                      BinaryOperation using operator %
+                         Type: uint64
+                         Source: "targetTotalCaps % 10"
+                        Identifier targetTotalCaps
+                           Type: uint64
+                           Source: "targetTotalCaps"
+                        Literal, token: [no token] value: 10
+                           Type: int_const 10
+                           Source: "10"
+                Literal, token: [no token] value: 10
+                   Type: int_const 10
+                   Source: "10"
+            Identifier targetDiamondCaps
+               Type: uint64
+               Source: "targetDiamondCaps"
+          Identifier targetGoldCaps
+             Type: uint64
+             Source: "targetGoldCaps"
+      VariableDeclarationStatement
+         Gas costs: 29
+         Source: "uint64 targetBronzeCaps = targetTotalCaps - targetDiamondCaps - targetGoldCaps - targetSilverCaps"
+        VariableDeclaration "targetBronzeCaps"
+           Type: uint64
+           Source: "uint64 targetBronzeCaps"
+          ElementaryTypeName uint64
+             Source: "uint64"
+        BinaryOperation using operator -
+           Type: uint64
+           Source: "targetTotalCaps - targetDiamondCaps - targetGoldCaps - targetSilverCaps"
+          BinaryOperation using operator -
+             Type: uint64
+             Source: "targetTotalCaps - targetDiamondCaps - targetGoldCaps"
+            BinaryOperation using operator -
+               Type: uint64
+               Source: "targetTotalCaps - targetDiamondCaps"
+              Identifier targetTotalCaps
+                 Type: uint64
+                 Source: "targetTotalCaps"
+              Identifier targetDiamondCaps
+                 Type: uint64
+                 Source: "targetDiamondCaps"
+            Identifier targetGoldCaps
+               Type: uint64
+               Source: "targetGoldCaps"
+          Identifier targetSilverCaps
+             Type: uint64
+             Source: "targetSilverCaps"
+      VariableDeclarationStatement
+         Gas costs: 11
+         Source: "uint256 targetProducedCaps = 0"
+        VariableDeclaration "targetProducedCaps"
+           Type: uint256
+           Source: "uint256 targetProducedCaps"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        Literal, token: [no token] value: 0
+           Type: int_const 0
+           Source: "0"
+      ExpressionStatement
+         Gas costs: 94
+         Source: "targetProducedCaps |= uint256(targetDiamondCaps) << 192"
+        Assignment using operator |=
+           Type: uint256
+           Source: "targetProducedCaps |= uint256(targetDiamondCaps) << 192"
+          Identifier targetProducedCaps
+             Type: uint256
+             Source: "targetProducedCaps"
+          BinaryOperation using operator <<
+             Type: uint256
+             Source: "uint256(targetDiamondCaps) << 192"
+            FunctionCall
+               Type: uint256
+               Source: "uint256(targetDiamondCaps)"
+              ElementaryTypeNameExpression uint256
+                 Type: type(uint256)
+                 Source: "uint256"
+              Identifier targetDiamondCaps
+                 Type: uint64
+                 Source: "targetDiamondCaps"
+            Literal, token: [no token] value: 192
+               Type: int_const 192
+               Source: "192"
+      ExpressionStatement
+         Gas costs: 94
+         Source: "targetProducedCaps |= uint256(targetGoldCaps) << 128"
+        Assignment using operator |=
+           Type: uint256
+           Source: "targetProducedCaps |= uint256(targetGoldCaps) << 128"
+          Identifier targetProducedCaps
+             Type: uint256
+             Source: "targetProducedCaps"
+          BinaryOperation using operator <<
+             Type: uint256
+             Source: "uint256(targetGoldCaps) << 128"
+            FunctionCall
+               Type: uint256
+               Source: "uint256(targetGoldCaps)"
+              ElementaryTypeNameExpression uint256
+                 Type: type(uint256)
+                 Source: "uint256"
+              Identifier targetGoldCaps
+                 Type: uint64
+                 Source: "targetGoldCaps"
+            Literal, token: [no token] value: 128
+               Type: int_const 128
+               Source: "128"
+      ExpressionStatement
+         Gas costs: 94
+         Source: "targetProducedCaps |= uint256(targetSilverCaps) << 64"
+        Assignment using operator |=
+           Type: uint256
+           Source: "targetProducedCaps |= uint256(targetSilverCaps) << 64"
+          Identifier targetProducedCaps
+             Type: uint256
+             Source: "targetProducedCaps"
+          BinaryOperation using operator <<
+             Type: uint256
+             Source: "uint256(targetSilverCaps) << 64"
+            FunctionCall
+               Type: uint256
+               Source: "uint256(targetSilverCaps)"
+              ElementaryTypeNameExpression uint256
+                 Type: type(uint256)
+                 Source: "uint256"
+              Identifier targetSilverCaps
+                 Type: uint64
+                 Source: "targetSilverCaps"
+            Literal, token: [no token] value: 64
+               Type: int_const 64
+               Source: "64"
+      ExpressionStatement
+         Gas costs: 20
+         Source: "targetProducedCaps |= uint256(targetBronzeCaps)"
+        Assignment using operator |=
+           Type: uint256
+           Source: "targetProducedCaps |= uint256(targetBronzeCaps)"
+          Identifier targetProducedCaps
+             Type: uint256
+             Source: "targetProducedCaps"
+          FunctionCall
+             Type: uint256
+             Source: "uint256(targetBronzeCaps)"
+            ElementaryTypeNameExpression uint256
+               Type: type(uint256)
+               Source: "uint256"
+            Identifier targetBronzeCaps
+               Type: uint64
+               Source: "targetBronzeCaps"
+      ExpressionStatement
+         Gas costs: 20517
+         Source: "producibleCaps -= numberOfCaps"
+        Assignment using operator -=
+           Type: uint64
+           Source: "producibleCaps -= numberOfCaps"
+          Identifier producibleCaps
+             Type: uint64
+             Source: "producibleCaps"
+          Identifier numberOfCaps
+             Type: uint64
+             Source: "numberOfCaps"
+      ExpressionStatement
+         Gas costs: 20014
+         Source: "packedProducedCaps = targetProducedCaps"
+        Assignment using operator =
+           Type: uint256
+           Source: "packedProducedCaps = targetProducedCaps"
+          Identifier packedProducedCaps
+             Type: uint256
+             Source: "packedProducedCaps"
+          Identifier targetProducedCaps
+             Type: uint256
+             Source: "targetProducedCaps"
+      ExpressionStatement
+         Gas costs: 1082
+         Source: "Produce(targetProducedCaps - producedCaps)"
+        FunctionCall
+           Type: tuple()
+           Source: "Produce(targetProducedCaps - producedCaps)"
+          Identifier Produce
+             Type: function (uint256)
+             Source: "Produce"
+          BinaryOperation using operator -
+             Type: uint256
+             Source: "targetProducedCaps - producedCaps"
+            Identifier targetProducedCaps
+               Type: uint256
+               Source: "targetProducedCaps"
+            Identifier producedCaps
+               Type: uint256
+               Source: "producedCaps"
+      Return
+         Gas costs: 8
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+  FunctionDefinition "scan" - public
+     Source: "function scan(address[] users, uint256[] caps) public onlyMaster returns (bool) {\r\n        require(users.length == caps.length);\r\n\r\n        uint256 scannedCaps = packedScannedCaps;\r\n\r\n        uint256 currentCaps;\r\n        uint256 capsValue;\r\n        for (uint256 i = 0; i < users.length; ++i) {\r\n            currentCaps = caps[i];\r\n\r\n            capsValue = DIAMOND_VALUE * (currentCaps >> 192);\r\n            capsValue += GOLD_VALUE * ((currentCaps >> 128) & 0xFFFFFFFFFFFFFFFF);\r\n            capsValue += SILVER_VALUE * ((currentCaps >> 64) & 0xFFFFFFFFFFFFFFFF);\r\n            capsValue += BRONZE_VALUE * (currentCaps & 0xFFFFFFFFFFFFFFFF);\r\n\r\n            balances[users[i]] += capsValue;\r\n            scannedCaps += currentCaps;\r\n        }\r\n\r\n        require(scannedCaps <= packedProducedCaps);\r\n        packedScannedCaps = scannedCaps;\r\n\r\n        Scan(users, caps);\r\n\r\n        return true;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address[] users, uint256[] caps)"
+      VariableDeclaration "users"
+         Type: address[] memory
+         Source: "address[] users"
+        ArrayTypeName
+           Source: "address[]"
+          ElementaryTypeName address
+             Source: "address"
+      VariableDeclaration "caps"
+         Type: uint256[] memory
+         Source: "uint256[] caps"
+        ArrayTypeName
+           Source: "uint256[]"
+          ElementaryTypeName uint256
+             Source: "uint256"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool)"
+      VariableDeclaration ""
+         Type: bool
+         Source: "bool"
+        ElementaryTypeName bool
+           Source: "bool"
+    ModifierInvocation "onlyMaster"
+       Gas costs: 0
+       Source: "onlyMaster"
+      Identifier onlyMaster
+         Type: modifier ()
+         Source: "onlyMaster"
+    Block
+       Source: "{\r\n        require(users.length == caps.length);\r\n\r\n        uint256 scannedCaps = packedScannedCaps;\r\n\r\n        uint256 currentCaps;\r\n        uint256 capsValue;\r\n        for (uint256 i = 0; i < users.length; ++i) {\r\n            currentCaps = caps[i];\r\n\r\n            capsValue = DIAMOND_VALUE * (currentCaps >> 192);\r\n            capsValue += GOLD_VALUE * ((currentCaps >> 128) & 0xFFFFFFFFFFFFFFFF);\r\n            capsValue += SILVER_VALUE * ((currentCaps >> 64) & 0xFFFFFFFFFFFFFFFF);\r\n            capsValue += BRONZE_VALUE * (currentCaps & 0xFFFFFFFFFFFFFFFF);\r\n\r\n            balances[users[i]] += capsValue;\r\n            scannedCaps += currentCaps;\r\n        }\r\n\r\n        require(scannedCaps <= packedProducedCaps);\r\n        packedScannedCaps = scannedCaps;\r\n\r\n        Scan(users, caps);\r\n\r\n        return true;\r\n    }"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "require(users.length == caps.length)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(users.length == caps.length)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "users.length == caps.length"
+            MemberAccess to member length
+               Type: uint256
+               Source: "users.length"
+              Identifier users
+                 Type: address[] memory
+                 Source: "users"
+            MemberAccess to member length
+               Type: uint256
+               Source: "caps.length"
+              Identifier caps
+                 Type: uint256[] memory
+                 Source: "caps"
+      VariableDeclarationStatement
+         Gas costs: 211
+         Source: "uint256 scannedCaps = packedScannedCaps"
+        VariableDeclaration "scannedCaps"
+           Type: uint256
+           Source: "uint256 scannedCaps"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        Identifier packedScannedCaps
+           Type: uint256
+           Source: "packedScannedCaps"
+      VariableDeclarationStatement
+         Gas costs: 3
+         Source: "uint256 currentCaps"
+        VariableDeclaration "currentCaps"
+           Type: uint256
+           Source: "uint256 currentCaps"
+          ElementaryTypeName uint256
+             Source: "uint256"
+      VariableDeclarationStatement
+         Gas costs: 3
+         Source: "uint256 capsValue"
+        VariableDeclaration "capsValue"
+           Type: uint256
+           Source: "uint256 capsValue"
+          ElementaryTypeName uint256
+             Source: "uint256"
+      ForStatement
+         Source: "for (uint256 i = 0; i < users.length; ++i) {\r\n            currentCaps = caps[i];\r\n\r\n            capsValue = DIAMOND_VALUE * (currentCaps >> 192);\r\n            capsValue += GOLD_VALUE * ((currentCaps >> 128) & 0xFFFFFFFFFFFFFFFF);\r\n            capsValue += SILVER_VALUE * ((currentCaps >> 64) & 0xFFFFFFFFFFFFFFFF);\r\n            capsValue += BRONZE_VALUE * (currentCaps & 0xFFFFFFFFFFFFFFFF);\r\n\r\n            balances[users[i]] += capsValue;\r\n            scannedCaps += currentCaps;\r\n        }"
+        VariableDeclarationStatement
+           Gas costs: 11
+           Source: "uint256 i = 0"
+          VariableDeclaration "i"
+             Type: uint256
+             Source: "uint256 i"
+            ElementaryTypeName uint256
+               Source: "uint256"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        BinaryOperation using operator <
+           Type: bool
+           Gas costs: 27
+           Source: "i < users.length"
+          Identifier i
+             Type: uint256
+             Source: "i"
+          MemberAccess to member length
+             Type: uint256
+             Source: "users.length"
+            Identifier users
+               Type: address[] memory
+               Source: "users"
+        ExpressionStatement
+           Gas costs: 14
+           Source: "++i"
+          UnaryOperation (prefix) ++
+             Type: uint256
+             Source: "++i"
+            Identifier i
+               Type: uint256
+               Source: "i"
+        Block
+           Source: "{\r\n            currentCaps = caps[i];\r\n\r\n            capsValue = DIAMOND_VALUE * (currentCaps >> 192);\r\n            capsValue += GOLD_VALUE * ((currentCaps >> 128) & 0xFFFFFFFFFFFFFFFF);\r\n            capsValue += SILVER_VALUE * ((currentCaps >> 64) & 0xFFFFFFFFFFFFFFFF);\r\n            capsValue += BRONZE_VALUE * (currentCaps & 0xFFFFFFFFFFFFFFFF);\r\n\r\n            balances[users[i]] += capsValue;\r\n            scannedCaps += currentCaps;\r\n        }"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "currentCaps = caps[i]"
+            Assignment using operator =
+               Type: uint256
+               Source: "currentCaps = caps[i]"
+              Identifier currentCaps
+                 Type: uint256
+                 Source: "currentCaps"
+              IndexAccess
+                 Type: uint256
+                 Source: "caps[i]"
+                Identifier caps
+                   Type: uint256[] memory
+                   Source: "caps"
+                Identifier i
+                   Type: uint256
+                   Source: "i"
+          ExpressionStatement
+             Gas costs: 90
+             Source: "capsValue = DIAMOND_VALUE * (currentCaps >> 192)"
+            Assignment using operator =
+               Type: uint256
+               Source: "capsValue = DIAMOND_VALUE * (currentCaps >> 192)"
+              Identifier capsValue
+                 Type: uint256
+                 Source: "capsValue"
+              BinaryOperation using operator *
+                 Type: uint256
+                 Source: "DIAMOND_VALUE * (currentCaps >> 192)"
+                Identifier DIAMOND_VALUE
+                   Type: uint256
+                   Source: "DIAMOND_VALUE"
+                TupleExpression
+                   Type: uint256
+                   Source: "(currentCaps >> 192)"
+                  BinaryOperation using operator >>
+                     Type: uint256
+                     Source: "currentCaps >> 192"
+                    Identifier currentCaps
+                       Type: uint256
+                       Source: "currentCaps"
+                    Literal, token: [no token] value: 192
+                       Type: int_const 192
+                       Source: "192"
+          ExpressionStatement
+             Gas costs: 102
+             Source: "capsValue += GOLD_VALUE * ((currentCaps >> 128) & 0xFFFFFFFFFFFFFFFF)"
+            Assignment using operator +=
+               Type: uint256
+               Source: "capsValue += GOLD_VALUE * ((currentCaps >> 128) & 0xFFFFFFFFFFFFFFFF)"
+              Identifier capsValue
+                 Type: uint256
+                 Source: "capsValue"
+              BinaryOperation using operator *
+                 Type: uint256
+                 Source: "GOLD_VALUE * ((currentCaps >> 128) & 0xFFFFFFFFFFFFFFFF)"
+                Identifier GOLD_VALUE
+                   Type: uint256
+                   Source: "GOLD_VALUE"
+                TupleExpression
+                   Type: uint256
+                   Source: "((currentCaps >> 128) & 0xFFFFFFFFFFFFFFFF)"
+                  BinaryOperation using operator &
+                     Type: uint256
+                     Source: "(currentCaps >> 128) & 0xFFFFFFFFFFFFFFFF"
+                    TupleExpression
+                       Type: uint256
+                       Source: "(currentCaps >> 128)"
+                      BinaryOperation using operator >>
+                         Type: uint256
+                         Source: "currentCaps >> 128"
+                        Identifier currentCaps
+                           Type: uint256
+                           Source: "currentCaps"
+                        Literal, token: [no token] value: 128
+                           Type: int_const 128
+                           Source: "128"
+                    Literal, token: [no token] value: 0xFFFFFFFFFFFFFFFF
+                       Type: int_const 18446744073709551615
+                       Source: "0xFFFFFFFFFFFFFFFF"
+          ExpressionStatement
+             Gas costs: 102
+             Source: "capsValue += SILVER_VALUE * ((currentCaps >> 64) & 0xFFFFFFFFFFFFFFFF)"
+            Assignment using operator +=
+               Type: uint256
+               Source: "capsValue += SILVER_VALUE * ((currentCaps >> 64) & 0xFFFFFFFFFFFFFFFF)"
+              Identifier capsValue
+                 Type: uint256
+                 Source: "capsValue"
+              BinaryOperation using operator *
+                 Type: uint256
+                 Source: "SILVER_VALUE * ((currentCaps >> 64) & 0xFFFFFFFFFFFFFFFF)"
+                Identifier SILVER_VALUE
+                   Type: uint256
+                   Source: "SILVER_VALUE"
+                TupleExpression
+                   Type: uint256
+                   Source: "((currentCaps >> 64) & 0xFFFFFFFFFFFFFFFF)"
+                  BinaryOperation using operator &
+                     Type: uint256
+                     Source: "(currentCaps >> 64) & 0xFFFFFFFFFFFFFFFF"
+                    TupleExpression
+                       Type: uint256
+                       Source: "(currentCaps >> 64)"
+                      BinaryOperation using operator >>
+                         Type: uint256
+                         Source: "currentCaps >> 64"
+                        Identifier currentCaps
+                           Type: uint256
+                           Source: "currentCaps"
+                        Literal, token: [no token] value: 64
+                           Type: int_const 64
+                           Source: "64"
+                    Literal, token: [no token] value: 0xFFFFFFFFFFFFFFFF
+                       Type: int_const 18446744073709551615
+                       Source: "0xFFFFFFFFFFFFFFFF"
+          ExpressionStatement
+             Gas costs: 25
+             Source: "capsValue += BRONZE_VALUE * (currentCaps & 0xFFFFFFFFFFFFFFFF)"
+            Assignment using operator +=
+               Type: uint256
+               Source: "capsValue += BRONZE_VALUE * (currentCaps & 0xFFFFFFFFFFFFFFFF)"
+              Identifier capsValue
+                 Type: uint256
+                 Source: "capsValue"
+              BinaryOperation using operator *
+                 Type: uint256
+                 Source: "BRONZE_VALUE * (currentCaps & 0xFFFFFFFFFFFFFFFF)"
+                Identifier BRONZE_VALUE
+                   Type: uint256
+                   Source: "BRONZE_VALUE"
+                TupleExpression
+                   Type: uint256
+                   Source: "(currentCaps & 0xFFFFFFFFFFFFFFFF)"
+                  BinaryOperation using operator &
+                     Type: uint256
+                     Source: "currentCaps & 0xFFFFFFFFFFFFFFFF"
+                    Identifier currentCaps
+                       Type: uint256
+                       Source: "currentCaps"
+                    Literal, token: [no token] value: 0xFFFFFFFFFFFFFFFF
+                       Type: int_const 18446744073709551615
+                       Source: "0xFFFFFFFFFFFFFFFF"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "balances[users[i]] += capsValue"
+            Assignment using operator +=
+               Type: uint256
+               Source: "balances[users[i]] += capsValue"
+              IndexAccess
+                 Type: uint256
+                 Source: "balances[users[i]]"
+                Identifier balances
+                   Type: mapping(address => uint256)
+                   Source: "balances"
+                IndexAccess
+                   Type: address
+                   Source: "users[i]"
+                  Identifier users
+                     Type: address[] memory
+                     Source: "users"
+                  Identifier i
+                     Type: uint256
+                     Source: "i"
+              Identifier capsValue
+                 Type: uint256
+                 Source: "capsValue"
+          ExpressionStatement
+             Gas costs: 14
+             Source: "scannedCaps += currentCaps"
+            Assignment using operator +=
+               Type: uint256
+               Source: "scannedCaps += currentCaps"
+              Identifier scannedCaps
+                 Type: uint256
+                 Source: "scannedCaps"
+              Identifier currentCaps
+                 Type: uint256
+                 Source: "currentCaps"
+      ExpressionStatement
+         Gas costs: 238
+         Source: "require(scannedCaps <= packedProducedCaps)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(scannedCaps <= packedProducedCaps)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator <=
+             Type: bool
+             Source: "scannedCaps <= packedProducedCaps"
+            Identifier scannedCaps
+               Type: uint256
+               Source: "scannedCaps"
+            Identifier packedProducedCaps
+               Type: uint256
+               Source: "packedProducedCaps"
+      ExpressionStatement
+         Gas costs: 20014
+         Source: "packedScannedCaps = scannedCaps"
+        Assignment using operator =
+           Type: uint256
+           Source: "packedScannedCaps = scannedCaps"
+          Identifier packedScannedCaps
+             Type: uint256
+             Source: "packedScannedCaps"
+          Identifier scannedCaps
+             Type: uint256
+             Source: "scannedCaps"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "Scan(users, caps)"
+        FunctionCall
+           Type: tuple()
+           Source: "Scan(users, caps)"
+          Identifier Scan
+             Type: function (address[] memory,uint256[] memory)
+             Source: "Scan"
+          Identifier users
+             Type: address[] memory
+             Source: "users"
+          Identifier caps
+             Type: uint256[] memory
+             Source: "caps"
+      Return
+         Gas costs: 8
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+  FunctionDefinition "burn" - public
+     Source: "function burn(uint256 value) public onlyMaster returns (bool) {\r\n        uint256 balance = balances[msg.sender];\r\n        require(value <= balance);\r\n\r\n        balances[msg.sender] = balance - value;\r\n        burntValue += value;\r\n\r\n        Burn(value);\r\n\r\n        return true;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 value)"
+      VariableDeclaration "value"
+         Type: uint256
+         Source: "uint256 value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool)"
+      VariableDeclaration ""
+         Type: bool
+         Source: "bool"
+        ElementaryTypeName bool
+           Source: "bool"
+    ModifierInvocation "onlyMaster"
+       Gas costs: 0
+       Source: "onlyMaster"
+      Identifier onlyMaster
+         Type: modifier ()
+         Source: "onlyMaster"
+    Block
+       Source: "{\r\n        uint256 balance = balances[msg.sender];\r\n        require(value <= balance);\r\n\r\n        balances[msg.sender] = balance - value;\r\n        burntValue += value;\r\n\r\n        Burn(value);\r\n\r\n        return true;\r\n    }"
+      VariableDeclarationStatement
+         Gas costs: 306
+         Source: "uint256 balance = balances[msg.sender]"
+        VariableDeclaration "balance"
+           Type: uint256
+           Source: "uint256 balance"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        IndexAccess
+           Type: uint256
+           Source: "balances[msg.sender]"
+          Identifier balances
+             Type: mapping(address => uint256)
+             Source: "balances"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+      ExpressionStatement
+         Gas costs: 38
+         Source: "require(value <= balance)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(value <= balance)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator <=
+             Type: bool
+             Source: "value <= balance"
+            Identifier value
+               Type: uint256
+               Source: "value"
+            Identifier balance
+               Type: uint256
+               Source: "balance"
+      ExpressionStatement
+         Gas costs: 20115
+         Source: "balances[msg.sender] = balance - value"
+        Assignment using operator =
+           Type: uint256
+           Source: "balances[msg.sender] = balance - value"
+          IndexAccess
+             Type: uint256
+             Source: "balances[msg.sender]"
+            Identifier balances
+               Type: mapping(address => uint256)
+               Source: "balances"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          BinaryOperation using operator -
+             Type: uint256
+             Source: "balance - value"
+            Identifier balance
+               Type: uint256
+               Source: "balance"
+            Identifier value
+               Type: uint256
+               Source: "value"
+      ExpressionStatement
+         Gas costs: 20233
+         Source: "burntValue += value"
+        Assignment using operator +=
+           Type: uint256
+           Source: "burntValue += value"
+          Identifier burntValue
+             Type: uint256
+             Source: "burntValue"
+          Identifier value
+             Type: uint256
+             Source: "value"
+      ExpressionStatement
+         Gas costs: 1070
+         Source: "Burn(value)"
+        FunctionCall
+           Type: tuple()
+           Source: "Burn(value)"
+          Identifier Burn
+             Type: function (uint256)
+             Source: "Burn"
+          Identifier value
+             Type: uint256
+             Source: "value"
+      Return
+         Gas costs: 8
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"

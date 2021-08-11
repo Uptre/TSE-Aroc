@@ -1,0 +1,1945 @@
+Syntax trees:
+
+
+======= /home/fabric/ArocRevision/Aroc/osirisData/contractSrc/0x95c2906debbb9203ff7007f26c2f00a936c77b5d.sol =======
+PragmaDirective
+   Gas costs: 0
+   Source: "pragma solidity ^0.4.6;"
+ContractDefinition "RES"
+   Source: "contract RES { \r\n\r\n    /* Public variables of the token */\r\n    string public name;\r\n    string public symbol;\r\n    uint8 public decimals;\r\n    \r\n    uint public totalSupply;\r\n    \r\n    /* This creates an array with all balances */\r\n    mapping (address => uint256) public balanceOf;\r\n    \r\n    /* This generates a public event on the blockchain that will notify clients */\r\n    event Transfer(address indexed from, address indexed to, uint256 value);\r\n    \r\n\r\n    /* Bought or sold */\r\n\r\n    event Bought(address from, uint amount);\r\n    event Sold(address from, uint amount);\r\n    event BoughtViaJohan(address from, uint amount);\r\n\r\n    /* Initializes contract with name, symbol and decimals */\r\n\r\n    function RES() {\r\n        name = \"RES\";     \r\n        symbol = \"RES\";\r\n        decimals = 18;\r\n    }\r\n\r\n}"
+  VariableDeclaration "name"
+     Type: string storage ref
+     Gas costs: [???]
+     Source: "string public name"
+    ElementaryTypeName string
+       Source: "string"
+  VariableDeclaration "symbol"
+     Type: string storage ref
+     Gas costs: [???]
+     Source: "string public symbol"
+    ElementaryTypeName string
+       Source: "string"
+  VariableDeclaration "decimals"
+     Type: uint8
+     Gas costs: [???]
+     Source: "uint8 public decimals"
+    ElementaryTypeName uint8
+       Source: "uint8"
+  VariableDeclaration "totalSupply"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint public totalSupply"
+    ElementaryTypeName uint
+       Source: "uint"
+  VariableDeclaration "balanceOf"
+     Type: mapping(address => uint256)
+     Gas costs: [???]
+     Source: "mapping (address => uint256) public balanceOf"
+    Mapping
+       Source: "mapping (address => uint256)"
+      ElementaryTypeName address
+         Source: "address"
+      ElementaryTypeName uint256
+         Source: "uint256"
+  EventDefinition "Transfer"
+     Gas costs: 0
+     Source: "event Transfer(address indexed from, address indexed to, uint256 value);"
+    ParameterList
+       Source: "(address indexed from, address indexed to, uint256 value)"
+      VariableDeclaration "from"
+         Type: address
+         Source: "address indexed from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "to"
+         Type: address
+         Source: "address indexed to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "value"
+         Type: uint256
+         Source: "uint256 value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  EventDefinition "Bought"
+     Gas costs: 0
+     Source: "event Bought(address from, uint amount);"
+    ParameterList
+       Source: "(address from, uint amount)"
+      VariableDeclaration "from"
+         Type: address
+         Source: "address from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "amount"
+         Type: uint256
+         Source: "uint amount"
+        ElementaryTypeName uint
+           Source: "uint"
+  EventDefinition "Sold"
+     Gas costs: 0
+     Source: "event Sold(address from, uint amount);"
+    ParameterList
+       Source: "(address from, uint amount)"
+      VariableDeclaration "from"
+         Type: address
+         Source: "address from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "amount"
+         Type: uint256
+         Source: "uint amount"
+        ElementaryTypeName uint
+           Source: "uint"
+  EventDefinition "BoughtViaJohan"
+     Gas costs: 0
+     Source: "event BoughtViaJohan(address from, uint amount);"
+    ParameterList
+       Source: "(address from, uint amount)"
+      VariableDeclaration "from"
+         Type: address
+         Source: "address from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "amount"
+         Type: uint256
+         Source: "uint amount"
+        ElementaryTypeName uint
+           Source: "uint"
+  FunctionDefinition "RES" - public
+     Source: "function RES() {\r\n        name = \"RES\";     \r\n        symbol = \"RES\";\r\n        decimals = 18;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        name = \"RES\";     \r\n        symbol = \"RES\";\r\n        decimals = 18;\r\n    }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "name = \"RES\""
+        Assignment using operator =
+           Type: string storage ref
+           Source: "name = \"RES\""
+          Identifier name
+             Type: string storage ref
+             Source: "name"
+          Literal, token: [no token] value: RES
+             Type: literal_string "RES"
+             Source: "\"RES\""
+      ExpressionStatement
+         Gas costs: 0
+         Source: "symbol = \"RES\""
+        Assignment using operator =
+           Type: string storage ref
+           Source: "symbol = \"RES\""
+          Identifier symbol
+             Type: string storage ref
+             Source: "symbol"
+          Literal, token: [no token] value: RES
+             Type: literal_string "RES"
+             Source: "\"RES\""
+      ExpressionStatement
+         Gas costs: 0
+         Source: "decimals = 18"
+        Assignment using operator =
+           Type: uint8
+           Source: "decimals = 18"
+          Identifier decimals
+             Type: uint8
+             Source: "decimals"
+          Literal, token: [no token] value: 18
+             Type: int_const 18
+             Source: "18"
+ContractDefinition "SwarmRedistribution"
+   Source: "contract SwarmRedistribution is RES {\r\n    \r\n    address public JohanNygren;\r\n    bool public campaignOpen;    \r\n\r\n    struct dividendPathway {\r\n      address from;\r\n      uint amount;\r\n      uint timeStamp;\r\n    }\r\n\r\n    mapping(address => dividendPathway[]) public dividendPathways;\r\n    \r\n    mapping(address => uint256) public totalBasicIncome;\r\n\r\n    uint taxRate;\r\n\r\n    struct Node {\r\n      address node;\r\n      address parent;\r\n      uint index;\r\n    }\r\n    \r\n    /* Generate a swarm tree */\r\n    Node[] swarmTree;\r\n    \r\n    mapping(address => bool) inSwarmTree;\r\n    \r\n    bool JohanInSwarm;\r\n\r\n    event Swarm(address indexed leaf, address indexed node, uint256 share);\r\n\r\n    function SwarmRedistribution() {\r\n      \r\n    /* Tax-rate in parts per thousand */\r\n    taxRate = 20;\r\n    JohanNygren = 0x948176CB42B65d835Ee4324914B104B66fB93B52;\r\n    campaignOpen = true;\r\n    \r\n    }\r\n    \r\n    modifier onlyJohan {\r\n      if(msg.sender != JohanNygren) throw;\r\n      _;\r\n    }\r\n\r\n    modifier isOpen {\r\n      if(campaignOpen != true) throw;\r\n      _;\r\n    }\r\n    \r\n    function closeCampaign() onlyJohan {\r\n        campaignOpen = false;\r\n    }\r\n\r\n    function buy() isOpen public payable {\r\n      balanceOf[msg.sender] += msg.value;\r\n      totalSupply += msg.value;\r\n      Bought(msg.sender, msg.value);\r\n    }  \r\n\r\n    function buyViaJohan() isOpen public payable {\r\n      balanceOf[msg.sender] += msg.value;\r\n      totalSupply += msg.value;  \r\n\r\n      /* Create the dividend pathway */\r\n      dividendPathways[msg.sender].push(dividendPathway({\r\n                                      from: JohanNygren, \r\n                                      amount:  msg.value,\r\n                                      timeStamp: now\r\n                                    }));\r\n\r\n      BoughtViaJohan(msg.sender, msg.value);\r\n    }\r\n\r\n    function sell(uint256 _value) public {\r\n      if(balanceOf[msg.sender] < _value) throw;\r\n      balanceOf[msg.sender] -= _value;\r\n    \r\n      if (!msg.sender.send(_value)) throw;\r\n\r\n      totalSupply -= _value;\r\n      Sold(msg.sender, _value);\r\n\r\n    }\r\n\r\n    /* Send coins */\r\n    function transfer(address _to, uint256 _value) isOpen {\r\n        /* reject transaction to self to prevent dividend pathway loops*/\r\n        if(_to == msg.sender) throw;\r\n        \r\n        /* if the sender doenst have enough balance then stop */\r\n        if (balanceOf[msg.sender] < _value) throw;\r\n        if (balanceOf[_to] + _value < balanceOf[_to]) throw;\r\n        \r\n        /* Calculate tax */\r\n        uint256 taxCollected = _value * taxRate / 1000;\r\n        uint256 sentAmount;\r\n\r\n        /* Create the dividend pathway */\r\n        dividendPathways[_to].push(dividendPathway({\r\n                                        from: msg.sender, \r\n                                        amount:  _value,\r\n                                        timeStamp: now\r\n                                      }));\r\n        \r\n        if(swarmRedistribution(_to, taxCollected) == true) {\r\n          sentAmount = _value;\r\n        }\r\n        else {\r\n          /* Return tax */\r\n          sentAmount = _value - taxCollected;\r\n        }\r\n        \r\n          /* Add and subtract new balances */\r\n\r\n          balanceOf[msg.sender] -= sentAmount;\r\n          balanceOf[_to] += _value - taxCollected;\r\n        \r\n\r\n        /* Notifiy anyone listening that this transfer took place */\r\n        Transfer(msg.sender, _to, sentAmount);\r\n    }\r\n\r\n    function swarmRedistribution(address _to, uint256 _taxCollected) internal returns (bool) {\r\n           iterateThroughSwarm(_to, now);\r\n           if(swarmTree.length != 0) {\r\n           return doSwarm(_to, _taxCollected);\r\n           }\r\n           else return false;\r\n      }\r\n\r\n    function iterateThroughSwarm(address _node, uint _timeStamp) internal {\r\n      if(dividendPathways[_node].length != 0) {\r\n        for(uint i = 0; i < dividendPathways[_node].length; i++) {\r\n          if(inSwarmTree[dividendPathways[_node][i].from] == false) { \r\n            \r\n            uint timeStamp = dividendPathways[_node][i].timeStamp;\r\n            if(timeStamp <= _timeStamp) {\r\n                \r\n              if(dividendPathways[_node][i].from == JohanNygren) JohanInSwarm = true;\r\n    \r\n                Node memory node = Node({\r\n                            node: dividendPathways[_node][i].from, \r\n                            parent: _node,\r\n                            index: i\r\n                          });\r\n                          \r\n                  swarmTree.push(node);\r\n                  inSwarmTree[node.node] = true;\r\n                  iterateThroughSwarm(node.node, timeStamp);\r\n              }\r\n          }\r\n        }\r\n      }\r\n    }\r\n\r\n    function doSwarm(address _leaf, uint256 _taxCollected) internal returns (bool) {\r\n      \r\n      uint256 share;\r\n      if(JohanInSwarm) share = _taxCollected;\r\n      else share = 0;\r\n    \r\n      for(uint i = 0; i < swarmTree.length; i++) {\r\n        \r\n        address node = swarmTree[i].node;\r\n        address parent = swarmTree[i].parent;\r\n        uint index = swarmTree[i].index;\r\n        \r\n        bool isJohan;\r\n        if(node == JohanNygren) isJohan = true;\r\n\r\n        if(isJohan) {\r\n          balanceOf[swarmTree[i].node] += share;\r\n        totalBasicIncome[node] += share;\r\n        }\r\n          \r\n        if(dividendPathways[parent][index].amount - _taxCollected > 0) {\r\n          dividendPathways[parent][index].amount -= _taxCollected; \r\n        }\r\n        else removeDividendPathway(parent, index);\r\n        \r\n        inSwarmTree[node] = false;\r\n        \r\n        /* Notifiy anyone listening that this swarm took place */\r\n        if(isJohan) Swarm(_leaf, swarmTree[i].node, share);\r\n      }\r\n      delete swarmTree;\r\n      bool JohanWasInSwarm = JohanInSwarm;\r\n      delete JohanInSwarm;\r\n\r\n      if(!JohanWasInSwarm) return false;\r\n      return true;\r\n    }\r\n    \r\n    function removeDividendPathway(address node, uint index) internal {\r\n                delete dividendPathways[node][index];\r\n                for (uint i = index; i < dividendPathways[node].length - 1; i++) {\r\n                        dividendPathways[node][i] = dividendPathways[node][i + 1];\r\n                }\r\n                dividendPathways[node].length--;\r\n        }\r\n\r\n}"
+  InheritanceSpecifier
+     Gas costs: 0
+     Source: "RES"
+    UserDefinedTypeName "RES"
+       Source: "RES"
+  VariableDeclaration "JohanNygren"
+     Type: address
+     Gas costs: [???]
+     Source: "address public JohanNygren"
+    ElementaryTypeName address
+       Source: "address"
+  VariableDeclaration "campaignOpen"
+     Type: bool
+     Gas costs: [???]
+     Source: "bool public campaignOpen"
+    ElementaryTypeName bool
+       Source: "bool"
+  StructDefinition "dividendPathway"
+     Gas costs: 0
+     Source: "struct dividendPathway {\r\n      address from;\r\n      uint amount;\r\n      uint timeStamp;\r\n    }"
+    VariableDeclaration "from"
+       Type: address
+       Source: "address from"
+      ElementaryTypeName address
+         Source: "address"
+    VariableDeclaration "amount"
+       Type: uint256
+       Source: "uint amount"
+      ElementaryTypeName uint
+         Source: "uint"
+    VariableDeclaration "timeStamp"
+       Type: uint256
+       Source: "uint timeStamp"
+      ElementaryTypeName uint
+         Source: "uint"
+  VariableDeclaration "dividendPathways"
+     Type: mapping(address => struct SwarmRedistribution.dividendPathway storage ref[] storage ref)
+     Gas costs: [???]
+     Source: "mapping(address => dividendPathway[]) public dividendPathways"
+    Mapping
+       Source: "mapping(address => dividendPathway[])"
+      ElementaryTypeName address
+         Source: "address"
+      ArrayTypeName
+         Source: "dividendPathway[]"
+        UserDefinedTypeName "dividendPathway"
+           Source: "dividendPathway"
+  VariableDeclaration "totalBasicIncome"
+     Type: mapping(address => uint256)
+     Gas costs: [???]
+     Source: "mapping(address => uint256) public totalBasicIncome"
+    Mapping
+       Source: "mapping(address => uint256)"
+      ElementaryTypeName address
+         Source: "address"
+      ElementaryTypeName uint256
+         Source: "uint256"
+  VariableDeclaration "taxRate"
+     Type: uint256
+     Gas costs: 0
+     Source: "uint taxRate"
+    ElementaryTypeName uint
+       Source: "uint"
+  StructDefinition "Node"
+     Gas costs: 0
+     Source: "struct Node {\r\n      address node;\r\n      address parent;\r\n      uint index;\r\n    }"
+    VariableDeclaration "node"
+       Type: address
+       Source: "address node"
+      ElementaryTypeName address
+         Source: "address"
+    VariableDeclaration "parent"
+       Type: address
+       Source: "address parent"
+      ElementaryTypeName address
+         Source: "address"
+    VariableDeclaration "index"
+       Type: uint256
+       Source: "uint index"
+      ElementaryTypeName uint
+         Source: "uint"
+  VariableDeclaration "swarmTree"
+     Type: struct SwarmRedistribution.Node storage ref[] storage ref
+     Gas costs: 0
+     Source: "Node[] swarmTree"
+    ArrayTypeName
+       Source: "Node[]"
+      UserDefinedTypeName "Node"
+         Source: "Node"
+  VariableDeclaration "inSwarmTree"
+     Type: mapping(address => bool)
+     Gas costs: 0
+     Source: "mapping(address => bool) inSwarmTree"
+    Mapping
+       Source: "mapping(address => bool)"
+      ElementaryTypeName address
+         Source: "address"
+      ElementaryTypeName bool
+         Source: "bool"
+  VariableDeclaration "JohanInSwarm"
+     Type: bool
+     Gas costs: 0
+     Source: "bool JohanInSwarm"
+    ElementaryTypeName bool
+       Source: "bool"
+  EventDefinition "Swarm"
+     Gas costs: 0
+     Source: "event Swarm(address indexed leaf, address indexed node, uint256 share);"
+    ParameterList
+       Source: "(address indexed leaf, address indexed node, uint256 share)"
+      VariableDeclaration "leaf"
+         Type: address
+         Source: "address indexed leaf"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "node"
+         Type: address
+         Source: "address indexed node"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "share"
+         Type: uint256
+         Source: "uint256 share"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  FunctionDefinition "SwarmRedistribution" - public
+     Source: "function SwarmRedistribution() {\r\n      \r\n    /* Tax-rate in parts per thousand */\r\n    taxRate = 20;\r\n    JohanNygren = 0x948176CB42B65d835Ee4324914B104B66fB93B52;\r\n    campaignOpen = true;\r\n    \r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n      \r\n    /* Tax-rate in parts per thousand */\r\n    taxRate = 20;\r\n    JohanNygren = 0x948176CB42B65d835Ee4324914B104B66fB93B52;\r\n    campaignOpen = true;\r\n    \r\n    }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "taxRate = 20"
+        Assignment using operator =
+           Type: uint256
+           Source: "taxRate = 20"
+          Identifier taxRate
+             Type: uint256
+             Source: "taxRate"
+          Literal, token: [no token] value: 20
+             Type: int_const 20
+             Source: "20"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "JohanNygren = 0x948176CB42B65d835Ee4324914B104B66fB93B52"
+        Assignment using operator =
+           Type: address
+           Source: "JohanNygren = 0x948176CB42B65d835Ee4324914B104B66fB93B52"
+          Identifier JohanNygren
+             Type: address
+             Source: "JohanNygren"
+          Literal, token: [no token] value: 0x948176CB42B65d835Ee4324914B104B66fB93B52
+             Type: address
+             Source: "0x948176CB42B65d835Ee4324914B104B66fB93B52"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "campaignOpen = true"
+        Assignment using operator =
+           Type: bool
+           Source: "campaignOpen = true"
+          Identifier campaignOpen
+             Type: bool
+             Source: "campaignOpen"
+          Literal, token: true value: true
+             Type: bool
+             Source: "true"
+  ModifierDefinition "onlyJohan"
+     Source: "modifier onlyJohan {\r\n      if(msg.sender != JohanNygren) throw;\r\n      _;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n      if(msg.sender != JohanNygren) throw;\r\n      _;\r\n    }"
+      IfStatement
+         Source: "if(msg.sender != JohanNygren) throw"
+        BinaryOperation using operator !=
+           Type: bool
+           Gas costs: 259
+           Source: "msg.sender != JohanNygren"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier JohanNygren
+             Type: address
+             Source: "JohanNygren"
+        Throw
+           Gas costs: 6
+           Source: "throw"
+      PlaceholderStatement
+         Gas costs: 0
+         Source: "_"
+  ModifierDefinition "isOpen"
+     Source: "modifier isOpen {\r\n      if(campaignOpen != true) throw;\r\n      _;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n      if(campaignOpen != true) throw;\r\n      _;\r\n    }"
+      IfStatement
+         Source: "if(campaignOpen != true) throw"
+        BinaryOperation using operator !=
+           Type: bool
+           Gas costs: 930
+           Source: "campaignOpen != true"
+          Identifier campaignOpen
+             Type: bool
+             Source: "campaignOpen"
+          Literal, token: true value: true
+             Type: bool
+             Source: "true"
+        Throw
+           Gas costs: 18
+           Source: "throw"
+      PlaceholderStatement
+         Gas costs: 0
+         Source: "_"
+  FunctionDefinition "closeCampaign" - public
+     Source: "function closeCampaign() onlyJohan {\r\n        campaignOpen = false;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyJohan"
+       Gas costs: 0
+       Source: "onlyJohan"
+      Identifier onlyJohan
+         Type: modifier ()
+         Source: "onlyJohan"
+    Block
+       Source: "{\r\n        campaignOpen = false;\r\n    }"
+      ExpressionStatement
+         Gas costs: 20317
+         Source: "campaignOpen = false"
+        Assignment using operator =
+           Type: bool
+           Source: "campaignOpen = false"
+          Identifier campaignOpen
+             Type: bool
+             Source: "campaignOpen"
+          Literal, token: false value: false
+             Type: bool
+             Source: "false"
+  FunctionDefinition "buy" - public
+     Source: "function buy() isOpen public payable {\r\n      balanceOf[msg.sender] += msg.value;\r\n      totalSupply += msg.value;\r\n      Bought(msg.sender, msg.value);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "isOpen"
+       Gas costs: 0
+       Source: "isOpen"
+      Identifier isOpen
+         Type: modifier ()
+         Source: "isOpen"
+    Block
+       Source: "{\r\n      balanceOf[msg.sender] += msg.value;\r\n      totalSupply += msg.value;\r\n      Bought(msg.sender, msg.value);\r\n    }"
+      ExpressionStatement
+         Gas costs: 20327
+         Source: "balanceOf[msg.sender] += msg.value"
+        Assignment using operator +=
+           Type: uint256
+           Source: "balanceOf[msg.sender] += msg.value"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[msg.sender]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          MemberAccess to member value
+             Type: uint256
+             Source: "msg.value"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+      ExpressionStatement
+         Gas costs: 20232
+         Source: "totalSupply += msg.value"
+        Assignment using operator +=
+           Type: uint256
+           Source: "totalSupply += msg.value"
+          Identifier totalSupply
+             Type: uint256
+             Source: "totalSupply"
+          MemberAccess to member value
+             Type: uint256
+             Source: "msg.value"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "Bought(msg.sender, msg.value)"
+        FunctionCall
+           Type: tuple()
+           Source: "Bought(msg.sender, msg.value)"
+          Identifier Bought
+             Type: function (address,uint256)
+             Source: "Bought"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          MemberAccess to member value
+             Type: uint256
+             Source: "msg.value"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+  FunctionDefinition "buyViaJohan" - public
+     Source: "function buyViaJohan() isOpen public payable {\r\n      balanceOf[msg.sender] += msg.value;\r\n      totalSupply += msg.value;  \r\n\r\n      /* Create the dividend pathway */\r\n      dividendPathways[msg.sender].push(dividendPathway({\r\n                                      from: JohanNygren, \r\n                                      amount:  msg.value,\r\n                                      timeStamp: now\r\n                                    }));\r\n\r\n      BoughtViaJohan(msg.sender, msg.value);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "isOpen"
+       Gas costs: 0
+       Source: "isOpen"
+      Identifier isOpen
+         Type: modifier ()
+         Source: "isOpen"
+    Block
+       Source: "{\r\n      balanceOf[msg.sender] += msg.value;\r\n      totalSupply += msg.value;  \r\n\r\n      /* Create the dividend pathway */\r\n      dividendPathways[msg.sender].push(dividendPathway({\r\n                                      from: JohanNygren, \r\n                                      amount:  msg.value,\r\n                                      timeStamp: now\r\n                                    }));\r\n\r\n      BoughtViaJohan(msg.sender, msg.value);\r\n    }"
+      ExpressionStatement
+         Gas costs: 20327
+         Source: "balanceOf[msg.sender] += msg.value"
+        Assignment using operator +=
+           Type: uint256
+           Source: "balanceOf[msg.sender] += msg.value"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[msg.sender]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          MemberAccess to member value
+             Type: uint256
+             Source: "msg.value"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+      ExpressionStatement
+         Gas costs: 20232
+         Source: "totalSupply += msg.value"
+        Assignment using operator +=
+           Type: uint256
+           Source: "totalSupply += msg.value"
+          Identifier totalSupply
+             Type: uint256
+             Source: "totalSupply"
+          MemberAccess to member value
+             Type: uint256
+             Source: "msg.value"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "dividendPathways[msg.sender].push(dividendPathway({\r\n                                      from: JohanNygren, \r\n                                      amount:  msg.value,\r\n                                      timeStamp: now\r\n                                    }))"
+        FunctionCall
+           Type: uint256
+           Source: "dividendPathways[msg.sender].push(dividendPathway({\r\n                                      from: JohanNygren, \r\n                                      amount:  msg.value,\r\n                                      timeStamp: now\r\n                                    }))"
+          MemberAccess to member push
+             Type: function (struct SwarmRedistribution.dividendPathway storage ref) returns (uint256)
+             Source: "dividendPathways[msg.sender].push"
+            IndexAccess
+               Type: struct SwarmRedistribution.dividendPathway storage ref[] storage ref
+               Source: "dividendPathways[msg.sender]"
+              Identifier dividendPathways
+                 Type: mapping(address => struct SwarmRedistribution.dividendPathway storage ref[] storage ref)
+                 Source: "dividendPathways"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+          FunctionCall
+             Type: struct SwarmRedistribution.dividendPathway memory
+             Source: "dividendPathway({\r\n                                      from: JohanNygren, \r\n                                      amount:  msg.value,\r\n                                      timeStamp: now\r\n                                    })"
+            Identifier dividendPathway
+               Type: type(struct SwarmRedistribution.dividendPathway storage pointer)
+               Source: "dividendPathway"
+            Identifier JohanNygren
+               Type: address
+               Source: "JohanNygren"
+            MemberAccess to member value
+               Type: uint256
+               Source: "msg.value"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Identifier now
+               Type: uint256
+               Source: "now"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "BoughtViaJohan(msg.sender, msg.value)"
+        FunctionCall
+           Type: tuple()
+           Source: "BoughtViaJohan(msg.sender, msg.value)"
+          Identifier BoughtViaJohan
+             Type: function (address,uint256)
+             Source: "BoughtViaJohan"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          MemberAccess to member value
+             Type: uint256
+             Source: "msg.value"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+  FunctionDefinition "sell" - public
+     Source: "function sell(uint256 _value) public {\r\n      if(balanceOf[msg.sender] < _value) throw;\r\n      balanceOf[msg.sender] -= _value;\r\n    \r\n      if (!msg.sender.send(_value)) throw;\r\n\r\n      totalSupply -= _value;\r\n      Sold(msg.sender, _value);\r\n\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 _value)"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n      if(balanceOf[msg.sender] < _value) throw;\r\n      balanceOf[msg.sender] -= _value;\r\n    \r\n      if (!msg.sender.send(_value)) throw;\r\n\r\n      totalSupply -= _value;\r\n      Sold(msg.sender, _value);\r\n\r\n    }"
+      IfStatement
+         Source: "if(balanceOf[msg.sender] < _value) throw"
+        BinaryOperation using operator <
+           Type: bool
+           Gas costs: 304
+           Source: "balanceOf[msg.sender] < _value"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[msg.sender]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+        Throw
+           Gas costs: 6
+           Source: "throw"
+      ExpressionStatement
+         Gas costs: 20328
+         Source: "balanceOf[msg.sender] -= _value"
+        Assignment using operator -=
+           Type: uint256
+           Source: "balanceOf[msg.sender] -= _value"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[msg.sender]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      IfStatement
+         Source: "if (!msg.sender.send(_value)) throw"
+        UnaryOperation (prefix) !
+           Type: bool
+           Gas costs: [???]
+           Source: "!msg.sender.send(_value)"
+          FunctionCall
+             Type: bool
+             Source: "msg.sender.send(_value)"
+            MemberAccess to member send
+               Type: function (uint256) returns (bool)
+               Source: "msg.sender.send"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+        Throw
+           Gas costs: 6
+           Source: "throw"
+      ExpressionStatement
+         Gas costs: 20233
+         Source: "totalSupply -= _value"
+        Assignment using operator -=
+           Type: uint256
+           Source: "totalSupply -= _value"
+          Identifier totalSupply
+             Type: uint256
+             Source: "totalSupply"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "Sold(msg.sender, _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "Sold(msg.sender, _value)"
+          Identifier Sold
+             Type: function (address,uint256)
+             Source: "Sold"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+  FunctionDefinition "transfer" - public
+     Source: "function transfer(address _to, uint256 _value) isOpen {\r\n        /* reject transaction to self to prevent dividend pathway loops*/\r\n        if(_to == msg.sender) throw;\r\n        \r\n        /* if the sender doenst have enough balance then stop */\r\n        if (balanceOf[msg.sender] < _value) throw;\r\n        if (balanceOf[_to] + _value < balanceOf[_to]) throw;\r\n        \r\n        /* Calculate tax */\r\n        uint256 taxCollected = _value * taxRate / 1000;\r\n        uint256 sentAmount;\r\n\r\n        /* Create the dividend pathway */\r\n        dividendPathways[_to].push(dividendPathway({\r\n                                        from: msg.sender, \r\n                                        amount:  _value,\r\n                                        timeStamp: now\r\n                                      }));\r\n        \r\n        if(swarmRedistribution(_to, taxCollected) == true) {\r\n          sentAmount = _value;\r\n        }\r\n        else {\r\n          /* Return tax */\r\n          sentAmount = _value - taxCollected;\r\n        }\r\n        \r\n          /* Add and subtract new balances */\r\n\r\n          balanceOf[msg.sender] -= sentAmount;\r\n          balanceOf[_to] += _value - taxCollected;\r\n        \r\n\r\n        /* Notifiy anyone listening that this transfer took place */\r\n        Transfer(msg.sender, _to, sentAmount);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _to, uint256 _value)"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "isOpen"
+       Gas costs: 0
+       Source: "isOpen"
+      Identifier isOpen
+         Type: modifier ()
+         Source: "isOpen"
+    Block
+       Source: "{\r\n        /* reject transaction to self to prevent dividend pathway loops*/\r\n        if(_to == msg.sender) throw;\r\n        \r\n        /* if the sender doenst have enough balance then stop */\r\n        if (balanceOf[msg.sender] < _value) throw;\r\n        if (balanceOf[_to] + _value < balanceOf[_to]) throw;\r\n        \r\n        /* Calculate tax */\r\n        uint256 taxCollected = _value * taxRate / 1000;\r\n        uint256 sentAmount;\r\n\r\n        /* Create the dividend pathway */\r\n        dividendPathways[_to].push(dividendPathway({\r\n                                        from: msg.sender, \r\n                                        amount:  _value,\r\n                                        timeStamp: now\r\n                                      }));\r\n        \r\n        if(swarmRedistribution(_to, taxCollected) == true) {\r\n          sentAmount = _value;\r\n        }\r\n        else {\r\n          /* Return tax */\r\n          sentAmount = _value - taxCollected;\r\n        }\r\n        \r\n          /* Add and subtract new balances */\r\n\r\n          balanceOf[msg.sender] -= sentAmount;\r\n          balanceOf[_to] += _value - taxCollected;\r\n        \r\n\r\n        /* Notifiy anyone listening that this transfer took place */\r\n        Transfer(msg.sender, _to, sentAmount);\r\n    }"
+      IfStatement
+         Source: "if(_to == msg.sender) throw"
+        BinaryOperation using operator ==
+           Type: bool
+           Gas costs: 20
+           Source: "_to == msg.sender"
+          Identifier _to
+             Type: address
+             Source: "_to"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+        Throw
+           Gas costs: 6
+           Source: "throw"
+      IfStatement
+         Source: "if (balanceOf[msg.sender] < _value) throw"
+        BinaryOperation using operator <
+           Type: bool
+           Gas costs: 304
+           Source: "balanceOf[msg.sender] < _value"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[msg.sender]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+        Throw
+           Gas costs: 6
+           Source: "throw"
+      IfStatement
+         Source: "if (balanceOf[_to] + _value < balanceOf[_to]) throw"
+        BinaryOperation using operator <
+           Type: bool
+           Gas costs: 601
+           Source: "balanceOf[_to] + _value < balanceOf[_to]"
+          BinaryOperation using operator +
+             Type: uint256
+             Source: "balanceOf[_to] + _value"
+            IndexAccess
+               Type: uint256
+               Source: "balanceOf[_to]"
+              Identifier balanceOf
+                 Type: mapping(address => uint256)
+                 Source: "balanceOf"
+              Identifier _to
+                 Type: address
+                 Source: "_to"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[_to]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            Identifier _to
+               Type: address
+               Source: "_to"
+        Throw
+           Gas costs: 6
+           Source: "throw"
+      VariableDeclarationStatement
+         Gas costs: 250
+         Source: "uint256 taxCollected = _value * taxRate / 1000"
+        VariableDeclaration "taxCollected"
+           Type: uint256
+           Source: "uint256 taxCollected"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        BinaryOperation using operator /
+           Type: uint256
+           Source: "_value * taxRate / 1000"
+          BinaryOperation using operator *
+             Type: uint256
+             Source: "_value * taxRate"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+            Identifier taxRate
+               Type: uint256
+               Source: "taxRate"
+          Literal, token: [no token] value: 1000
+             Type: int_const 1000
+             Source: "1000"
+      VariableDeclarationStatement
+         Gas costs: 3
+         Source: "uint256 sentAmount"
+        VariableDeclaration "sentAmount"
+           Type: uint256
+           Source: "uint256 sentAmount"
+          ElementaryTypeName uint256
+             Source: "uint256"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "dividendPathways[_to].push(dividendPathway({\r\n                                        from: msg.sender, \r\n                                        amount:  _value,\r\n                                        timeStamp: now\r\n                                      }))"
+        FunctionCall
+           Type: uint256
+           Source: "dividendPathways[_to].push(dividendPathway({\r\n                                        from: msg.sender, \r\n                                        amount:  _value,\r\n                                        timeStamp: now\r\n                                      }))"
+          MemberAccess to member push
+             Type: function (struct SwarmRedistribution.dividendPathway storage ref) returns (uint256)
+             Source: "dividendPathways[_to].push"
+            IndexAccess
+               Type: struct SwarmRedistribution.dividendPathway storage ref[] storage ref
+               Source: "dividendPathways[_to]"
+              Identifier dividendPathways
+                 Type: mapping(address => struct SwarmRedistribution.dividendPathway storage ref[] storage ref)
+                 Source: "dividendPathways"
+              Identifier _to
+                 Type: address
+                 Source: "_to"
+          FunctionCall
+             Type: struct SwarmRedistribution.dividendPathway memory
+             Source: "dividendPathway({\r\n                                        from: msg.sender, \r\n                                        amount:  _value,\r\n                                        timeStamp: now\r\n                                      })"
+            Identifier dividendPathway
+               Type: type(struct SwarmRedistribution.dividendPathway storage pointer)
+               Source: "dividendPathway"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+            Identifier now
+               Type: uint256
+               Source: "now"
+      IfStatement
+         Source: "if(swarmRedistribution(_to, taxCollected) == true) {\r\n          sentAmount = _value;\r\n        }\r\n        else {\r\n          /* Return tax */\r\n          sentAmount = _value - taxCollected;\r\n        }"
+        BinaryOperation using operator ==
+           Type: bool
+           Gas costs: 28
+           Source: "swarmRedistribution(_to, taxCollected) == true"
+          FunctionCall
+             Type: bool
+             Source: "swarmRedistribution(_to, taxCollected)"
+            Identifier swarmRedistribution
+               Type: function (address,uint256) returns (bool)
+               Source: "swarmRedistribution"
+            Identifier _to
+               Type: address
+               Source: "_to"
+            Identifier taxCollected
+               Type: uint256
+               Source: "taxCollected"
+          Literal, token: true value: true
+             Type: bool
+             Source: "true"
+        Block
+           Source: "{\r\n          sentAmount = _value;\r\n        }"
+          ExpressionStatement
+             Gas costs: 8
+             Source: "sentAmount = _value"
+            Assignment using operator =
+               Type: uint256
+               Source: "sentAmount = _value"
+              Identifier sentAmount
+                 Type: uint256
+                 Source: "sentAmount"
+              Identifier _value
+                 Type: uint256
+                 Source: "_value"
+        Block
+           Source: "{\r\n          /* Return tax */\r\n          sentAmount = _value - taxCollected;\r\n        }"
+          ExpressionStatement
+             Gas costs: 14
+             Source: "sentAmount = _value - taxCollected"
+            Assignment using operator =
+               Type: uint256
+               Source: "sentAmount = _value - taxCollected"
+              Identifier sentAmount
+                 Type: uint256
+                 Source: "sentAmount"
+              BinaryOperation using operator -
+                 Type: uint256
+                 Source: "_value - taxCollected"
+                Identifier _value
+                   Type: uint256
+                   Source: "_value"
+                Identifier taxCollected
+                   Type: uint256
+                   Source: "taxCollected"
+      ExpressionStatement
+         Gas costs: 20328
+         Source: "balanceOf[msg.sender] -= sentAmount"
+        Assignment using operator -=
+           Type: uint256
+           Source: "balanceOf[msg.sender] -= sentAmount"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[msg.sender]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Identifier sentAmount
+             Type: uint256
+             Source: "sentAmount"
+      ExpressionStatement
+         Gas costs: 20329
+         Source: "balanceOf[_to] += _value - taxCollected"
+        Assignment using operator +=
+           Type: uint256
+           Source: "balanceOf[_to] += _value - taxCollected"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[_to]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            Identifier _to
+               Type: address
+               Source: "_to"
+          BinaryOperation using operator -
+             Type: uint256
+             Source: "_value - taxCollected"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+            Identifier taxCollected
+               Type: uint256
+               Source: "taxCollected"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "Transfer(msg.sender, _to, sentAmount)"
+        FunctionCall
+           Type: tuple()
+           Source: "Transfer(msg.sender, _to, sentAmount)"
+          Identifier Transfer
+             Type: function (address,address,uint256)
+             Source: "Transfer"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier _to
+             Type: address
+             Source: "_to"
+          Identifier sentAmount
+             Type: uint256
+             Source: "sentAmount"
+  FunctionDefinition "swarmRedistribution"
+     Source: "function swarmRedistribution(address _to, uint256 _taxCollected) internal returns (bool) {\r\n           iterateThroughSwarm(_to, now);\r\n           if(swarmTree.length != 0) {\r\n           return doSwarm(_to, _taxCollected);\r\n           }\r\n           else return false;\r\n      }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _to, uint256 _taxCollected)"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_taxCollected"
+         Type: uint256
+         Source: "uint256 _taxCollected"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool)"
+      VariableDeclaration ""
+         Type: bool
+         Source: "bool"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n           iterateThroughSwarm(_to, now);\r\n           if(swarmTree.length != 0) {\r\n           return doSwarm(_to, _taxCollected);\r\n           }\r\n           else return false;\r\n      }"
+      ExpressionStatement
+         Gas costs: 9
+         Source: "iterateThroughSwarm(_to, now)"
+        FunctionCall
+           Type: tuple()
+           Source: "iterateThroughSwarm(_to, now)"
+          Identifier iterateThroughSwarm
+             Type: function (address,uint256)
+             Source: "iterateThroughSwarm"
+          Identifier _to
+             Type: address
+             Source: "_to"
+          Identifier now
+             Type: uint256
+             Source: "now"
+      IfStatement
+         Source: "if(swarmTree.length != 0) {\r\n           return doSwarm(_to, _taxCollected);\r\n           }\r\n           else return false"
+        BinaryOperation using operator !=
+           Type: bool
+           Gas costs: 220
+           Source: "swarmTree.length != 0"
+          MemberAccess to member length
+             Type: uint256
+             Source: "swarmTree.length"
+            Identifier swarmTree
+               Type: struct SwarmRedistribution.Node storage ref[] storage ref
+               Source: "swarmTree"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        Block
+           Source: "{\r\n           return doSwarm(_to, _taxCollected);\r\n           }"
+          Return
+             Gas costs: 26
+             Source: "return doSwarm(_to, _taxCollected)"
+            FunctionCall
+               Type: bool
+               Source: "doSwarm(_to, _taxCollected)"
+              Identifier doSwarm
+                 Type: function (address,uint256) returns (bool)
+                 Source: "doSwarm"
+              Identifier _to
+                 Type: address
+                 Source: "_to"
+              Identifier _taxCollected
+                 Type: uint256
+                 Source: "_taxCollected"
+        Return
+           Gas costs: 8
+           Source: "return false"
+          Literal, token: false value: false
+             Type: bool
+             Source: "false"
+  FunctionDefinition "iterateThroughSwarm"
+     Source: "function iterateThroughSwarm(address _node, uint _timeStamp) internal {\r\n      if(dividendPathways[_node].length != 0) {\r\n        for(uint i = 0; i < dividendPathways[_node].length; i++) {\r\n          if(inSwarmTree[dividendPathways[_node][i].from] == false) { \r\n            \r\n            uint timeStamp = dividendPathways[_node][i].timeStamp;\r\n            if(timeStamp <= _timeStamp) {\r\n                \r\n              if(dividendPathways[_node][i].from == JohanNygren) JohanInSwarm = true;\r\n    \r\n                Node memory node = Node({\r\n                            node: dividendPathways[_node][i].from, \r\n                            parent: _node,\r\n                            index: i\r\n                          });\r\n                          \r\n                  swarmTree.push(node);\r\n                  inSwarmTree[node.node] = true;\r\n                  iterateThroughSwarm(node.node, timeStamp);\r\n              }\r\n          }\r\n        }\r\n      }\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _node, uint _timeStamp)"
+      VariableDeclaration "_node"
+         Type: address
+         Source: "address _node"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_timeStamp"
+         Type: uint256
+         Source: "uint _timeStamp"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n      if(dividendPathways[_node].length != 0) {\r\n        for(uint i = 0; i < dividendPathways[_node].length; i++) {\r\n          if(inSwarmTree[dividendPathways[_node][i].from] == false) { \r\n            \r\n            uint timeStamp = dividendPathways[_node][i].timeStamp;\r\n            if(timeStamp <= _timeStamp) {\r\n                \r\n              if(dividendPathways[_node][i].from == JohanNygren) JohanInSwarm = true;\r\n    \r\n                Node memory node = Node({\r\n                            node: dividendPathways[_node][i].from, \r\n                            parent: _node,\r\n                            index: i\r\n                          });\r\n                          \r\n                  swarmTree.push(node);\r\n                  inSwarmTree[node.node] = true;\r\n                  iterateThroughSwarm(node.node, timeStamp);\r\n              }\r\n          }\r\n        }\r\n      }\r\n    }"
+      IfStatement
+         Source: "if(dividendPathways[_node].length != 0) {\r\n        for(uint i = 0; i < dividendPathways[_node].length; i++) {\r\n          if(inSwarmTree[dividendPathways[_node][i].from] == false) { \r\n            \r\n            uint timeStamp = dividendPathways[_node][i].timeStamp;\r\n            if(timeStamp <= _timeStamp) {\r\n                \r\n              if(dividendPathways[_node][i].from == JohanNygren) JohanInSwarm = true;\r\n    \r\n                Node memory node = Node({\r\n                            node: dividendPathways[_node][i].from, \r\n                            parent: _node,\r\n                            index: i\r\n                          });\r\n                          \r\n                  swarmTree.push(node);\r\n                  inSwarmTree[node.node] = true;\r\n                  iterateThroughSwarm(node.node, timeStamp);\r\n              }\r\n          }\r\n        }\r\n      }"
+        BinaryOperation using operator !=
+           Type: bool
+           Gas costs: 316
+           Source: "dividendPathways[_node].length != 0"
+          MemberAccess to member length
+             Type: uint256
+             Source: "dividendPathways[_node].length"
+            IndexAccess
+               Type: struct SwarmRedistribution.dividendPathway storage ref[] storage ref
+               Source: "dividendPathways[_node]"
+              Identifier dividendPathways
+                 Type: mapping(address => struct SwarmRedistribution.dividendPathway storage ref[] storage ref)
+                 Source: "dividendPathways"
+              Identifier _node
+                 Type: address
+                 Source: "_node"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        Block
+           Source: "{\r\n        for(uint i = 0; i < dividendPathways[_node].length; i++) {\r\n          if(inSwarmTree[dividendPathways[_node][i].from] == false) { \r\n            \r\n            uint timeStamp = dividendPathways[_node][i].timeStamp;\r\n            if(timeStamp <= _timeStamp) {\r\n                \r\n              if(dividendPathways[_node][i].from == JohanNygren) JohanInSwarm = true;\r\n    \r\n                Node memory node = Node({\r\n                            node: dividendPathways[_node][i].from, \r\n                            parent: _node,\r\n                            index: i\r\n                          });\r\n                          \r\n                  swarmTree.push(node);\r\n                  inSwarmTree[node.node] = true;\r\n                  iterateThroughSwarm(node.node, timeStamp);\r\n              }\r\n          }\r\n        }\r\n      }"
+          ForStatement
+             Source: "for(uint i = 0; i < dividendPathways[_node].length; i++) {\r\n          if(inSwarmTree[dividendPathways[_node][i].from] == false) { \r\n            \r\n            uint timeStamp = dividendPathways[_node][i].timeStamp;\r\n            if(timeStamp <= _timeStamp) {\r\n                \r\n              if(dividendPathways[_node][i].from == JohanNygren) JohanInSwarm = true;\r\n    \r\n                Node memory node = Node({\r\n                            node: dividendPathways[_node][i].from, \r\n                            parent: _node,\r\n                            index: i\r\n                          });\r\n                          \r\n                  swarmTree.push(node);\r\n                  inSwarmTree[node.node] = true;\r\n                  iterateThroughSwarm(node.node, timeStamp);\r\n              }\r\n          }\r\n        }"
+            VariableDeclarationStatement
+               Gas costs: 11
+               Source: "uint i = 0"
+              VariableDeclaration "i"
+                 Type: uint256
+                 Source: "uint i"
+                ElementaryTypeName uint
+                   Source: "uint"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+            BinaryOperation using operator <
+               Type: bool
+               Gas costs: 313
+               Source: "i < dividendPathways[_node].length"
+              Identifier i
+                 Type: uint256
+                 Source: "i"
+              MemberAccess to member length
+                 Type: uint256
+                 Source: "dividendPathways[_node].length"
+                IndexAccess
+                   Type: struct SwarmRedistribution.dividendPathway storage ref[] storage ref
+                   Source: "dividendPathways[_node]"
+                  Identifier dividendPathways
+                     Type: mapping(address => struct SwarmRedistribution.dividendPathway storage ref[] storage ref)
+                     Source: "dividendPathways"
+                  Identifier _node
+                     Type: address
+                     Source: "_node"
+            ExpressionStatement
+               Gas costs: 19
+               Source: "i++"
+              UnaryOperation (postfix) ++
+                 Type: uint256
+                 Source: "i++"
+                Identifier i
+                   Type: uint256
+                   Source: "i"
+            Block
+               Source: "{\r\n          if(inSwarmTree[dividendPathways[_node][i].from] == false) { \r\n            \r\n            uint timeStamp = dividendPathways[_node][i].timeStamp;\r\n            if(timeStamp <= _timeStamp) {\r\n                \r\n              if(dividendPathways[_node][i].from == JohanNygren) JohanInSwarm = true;\r\n    \r\n                Node memory node = Node({\r\n                            node: dividendPathways[_node][i].from, \r\n                            parent: _node,\r\n                            index: i\r\n                          });\r\n                          \r\n                  swarmTree.push(node);\r\n                  inSwarmTree[node.node] = true;\r\n                  iterateThroughSwarm(node.node, timeStamp);\r\n              }\r\n          }\r\n        }"
+              IfStatement
+                 Source: "if(inSwarmTree[dividendPathways[_node][i].from] == false) { \r\n            \r\n            uint timeStamp = dividendPathways[_node][i].timeStamp;\r\n            if(timeStamp <= _timeStamp) {\r\n                \r\n              if(dividendPathways[_node][i].from == JohanNygren) JohanInSwarm = true;\r\n    \r\n                Node memory node = Node({\r\n                            node: dividendPathways[_node][i].from, \r\n                            parent: _node,\r\n                            index: i\r\n                          });\r\n                          \r\n                  swarmTree.push(node);\r\n                  inSwarmTree[node.node] = true;\r\n                  iterateThroughSwarm(node.node, timeStamp);\r\n              }\r\n          }"
+                BinaryOperation using operator ==
+                   Type: bool
+                   Gas costs: [???]
+                   Source: "inSwarmTree[dividendPathways[_node][i].from] == false"
+                  IndexAccess
+                     Type: bool
+                     Source: "inSwarmTree[dividendPathways[_node][i].from]"
+                    Identifier inSwarmTree
+                       Type: mapping(address => bool)
+                       Source: "inSwarmTree"
+                    MemberAccess to member from
+                       Type: address
+                       Source: "dividendPathways[_node][i].from"
+                      IndexAccess
+                         Type: struct SwarmRedistribution.dividendPathway storage ref
+                         Source: "dividendPathways[_node][i]"
+                        IndexAccess
+                           Type: struct SwarmRedistribution.dividendPathway storage ref[] storage ref
+                           Source: "dividendPathways[_node]"
+                          Identifier dividendPathways
+                             Type: mapping(address => struct SwarmRedistribution.dividendPathway storage ref[] storage ref)
+                             Source: "dividendPathways"
+                          Identifier _node
+                             Type: address
+                             Source: "_node"
+                        Identifier i
+                           Type: uint256
+                           Source: "i"
+                  Literal, token: false value: false
+                     Type: bool
+                     Source: "false"
+                Block
+                   Source: "{ \r\n            \r\n            uint timeStamp = dividendPathways[_node][i].timeStamp;\r\n            if(timeStamp <= _timeStamp) {\r\n                \r\n              if(dividendPathways[_node][i].from == JohanNygren) JohanInSwarm = true;\r\n    \r\n                Node memory node = Node({\r\n                            node: dividendPathways[_node][i].from, \r\n                            parent: _node,\r\n                            index: i\r\n                          });\r\n                          \r\n                  swarmTree.push(node);\r\n                  inSwarmTree[node.node] = true;\r\n                  iterateThroughSwarm(node.node, timeStamp);\r\n              }\r\n          }"
+                  VariableDeclarationStatement
+                     Gas costs: 613
+                     Source: "uint timeStamp = dividendPathways[_node][i].timeStamp"
+                    VariableDeclaration "timeStamp"
+                       Type: uint256
+                       Source: "uint timeStamp"
+                      ElementaryTypeName uint
+                         Source: "uint"
+                    MemberAccess to member timeStamp
+                       Type: uint256
+                       Source: "dividendPathways[_node][i].timeStamp"
+                      IndexAccess
+                         Type: struct SwarmRedistribution.dividendPathway storage ref
+                         Source: "dividendPathways[_node][i]"
+                        IndexAccess
+                           Type: struct SwarmRedistribution.dividendPathway storage ref[] storage ref
+                           Source: "dividendPathways[_node]"
+                          Identifier dividendPathways
+                             Type: mapping(address => struct SwarmRedistribution.dividendPathway storage ref[] storage ref)
+                             Source: "dividendPathways"
+                          Identifier _node
+                             Type: address
+                             Source: "_node"
+                        Identifier i
+                           Type: uint256
+                           Source: "i"
+                  IfStatement
+                     Source: "if(timeStamp <= _timeStamp) {\r\n                \r\n              if(dividendPathways[_node][i].from == JohanNygren) JohanInSwarm = true;\r\n    \r\n                Node memory node = Node({\r\n                            node: dividendPathways[_node][i].from, \r\n                            parent: _node,\r\n                            index: i\r\n                          });\r\n                          \r\n                  swarmTree.push(node);\r\n                  inSwarmTree[node.node] = true;\r\n                  iterateThroughSwarm(node.node, timeStamp);\r\n              }"
+                    BinaryOperation using operator <=
+                       Type: bool
+                       Gas costs: 12
+                       Source: "timeStamp <= _timeStamp"
+                      Identifier timeStamp
+                         Type: uint256
+                         Source: "timeStamp"
+                      Identifier _timeStamp
+                         Type: uint256
+                         Source: "_timeStamp"
+                    Block
+                       Source: "{\r\n                \r\n              if(dividendPathways[_node][i].from == JohanNygren) JohanInSwarm = true;\r\n    \r\n                Node memory node = Node({\r\n                            node: dividendPathways[_node][i].from, \r\n                            parent: _node,\r\n                            index: i\r\n                          });\r\n                          \r\n                  swarmTree.push(node);\r\n                  inSwarmTree[node.node] = true;\r\n                  iterateThroughSwarm(node.node, timeStamp);\r\n              }"
+                      IfStatement
+                         Source: "if(dividendPathways[_node][i].from == JohanNygren) JohanInSwarm = true"
+                        BinaryOperation using operator ==
+                           Type: bool
+                           Gas costs: 895
+                           Source: "dividendPathways[_node][i].from == JohanNygren"
+                          MemberAccess to member from
+                             Type: address
+                             Source: "dividendPathways[_node][i].from"
+                            IndexAccess
+                               Type: struct SwarmRedistribution.dividendPathway storage ref
+                               Source: "dividendPathways[_node][i]"
+                              IndexAccess
+                                 Type: struct SwarmRedistribution.dividendPathway storage ref[] storage ref
+                                 Source: "dividendPathways[_node]"
+                                Identifier dividendPathways
+                                   Type: mapping(address => struct SwarmRedistribution.dividendPathway storage ref[] storage ref)
+                                   Source: "dividendPathways"
+                                Identifier _node
+                                   Type: address
+                                   Source: "_node"
+                              Identifier i
+                                 Type: uint256
+                                 Source: "i"
+                          Identifier JohanNygren
+                             Type: address
+                             Source: "JohanNygren"
+                        ExpressionStatement
+                           Gas costs: 20267
+                           Source: "JohanInSwarm = true"
+                          Assignment using operator =
+                             Type: bool
+                             Source: "JohanInSwarm = true"
+                            Identifier JohanInSwarm
+                               Type: bool
+                               Source: "JohanInSwarm"
+                            Literal, token: true value: true
+                               Type: bool
+                               Source: "true"
+                      VariableDeclarationStatement
+                         Gas costs: [???]
+                         Source: "Node memory node = Node({\r\n                            node: dividendPathways[_node][i].from, \r\n                            parent: _node,\r\n                            index: i\r\n                          })"
+                        VariableDeclaration "node"
+                           Type: struct SwarmRedistribution.Node memory
+                           Source: "Node memory node"
+                          UserDefinedTypeName "Node"
+                             Source: "Node"
+                        FunctionCall
+                           Type: struct SwarmRedistribution.Node memory
+                           Source: "Node({\r\n                            node: dividendPathways[_node][i].from, \r\n                            parent: _node,\r\n                            index: i\r\n                          })"
+                          Identifier Node
+                             Type: type(struct SwarmRedistribution.Node storage pointer)
+                             Source: "Node"
+                          MemberAccess to member from
+                             Type: address
+                             Source: "dividendPathways[_node][i].from"
+                            IndexAccess
+                               Type: struct SwarmRedistribution.dividendPathway storage ref
+                               Source: "dividendPathways[_node][i]"
+                              IndexAccess
+                                 Type: struct SwarmRedistribution.dividendPathway storage ref[] storage ref
+                                 Source: "dividendPathways[_node]"
+                                Identifier dividendPathways
+                                   Type: mapping(address => struct SwarmRedistribution.dividendPathway storage ref[] storage ref)
+                                   Source: "dividendPathways"
+                                Identifier _node
+                                   Type: address
+                                   Source: "_node"
+                              Identifier i
+                                 Type: uint256
+                                 Source: "i"
+                          Identifier _node
+                             Type: address
+                             Source: "_node"
+                          Identifier i
+                             Type: uint256
+                             Source: "i"
+                      ExpressionStatement
+                         Gas costs: [???]
+                         Source: "swarmTree.push(node)"
+                        FunctionCall
+                           Type: uint256
+                           Source: "swarmTree.push(node)"
+                          MemberAccess to member push
+                             Type: function (struct SwarmRedistribution.Node storage ref) returns (uint256)
+                             Source: "swarmTree.push"
+                            Identifier swarmTree
+                               Type: struct SwarmRedistribution.Node storage ref[] storage ref
+                               Source: "swarmTree"
+                          Identifier node
+                             Type: struct SwarmRedistribution.Node memory
+                             Source: "node"
+                      ExpressionStatement
+                         Gas costs: [???]
+                         Source: "inSwarmTree[node.node] = true"
+                        Assignment using operator =
+                           Type: bool
+                           Source: "inSwarmTree[node.node] = true"
+                          IndexAccess
+                             Type: bool
+                             Source: "inSwarmTree[node.node]"
+                            Identifier inSwarmTree
+                               Type: mapping(address => bool)
+                               Source: "inSwarmTree"
+                            MemberAccess to member node
+                               Type: address
+                               Source: "node.node"
+                              Identifier node
+                                 Type: struct SwarmRedistribution.Node memory
+                                 Source: "node"
+                          Literal, token: true value: true
+                             Type: bool
+                             Source: "true"
+                      ExpressionStatement
+                         Gas costs: [???]
+                         Source: "iterateThroughSwarm(node.node, timeStamp)"
+                        FunctionCall
+                           Type: tuple()
+                           Source: "iterateThroughSwarm(node.node, timeStamp)"
+                          Identifier iterateThroughSwarm
+                             Type: function (address,uint256)
+                             Source: "iterateThroughSwarm"
+                          MemberAccess to member node
+                             Type: address
+                             Source: "node.node"
+                            Identifier node
+                               Type: struct SwarmRedistribution.Node memory
+                               Source: "node"
+                          Identifier timeStamp
+                             Type: uint256
+                             Source: "timeStamp"
+  FunctionDefinition "doSwarm"
+     Source: "function doSwarm(address _leaf, uint256 _taxCollected) internal returns (bool) {\r\n      \r\n      uint256 share;\r\n      if(JohanInSwarm) share = _taxCollected;\r\n      else share = 0;\r\n    \r\n      for(uint i = 0; i < swarmTree.length; i++) {\r\n        \r\n        address node = swarmTree[i].node;\r\n        address parent = swarmTree[i].parent;\r\n        uint index = swarmTree[i].index;\r\n        \r\n        bool isJohan;\r\n        if(node == JohanNygren) isJohan = true;\r\n\r\n        if(isJohan) {\r\n          balanceOf[swarmTree[i].node] += share;\r\n        totalBasicIncome[node] += share;\r\n        }\r\n          \r\n        if(dividendPathways[parent][index].amount - _taxCollected > 0) {\r\n          dividendPathways[parent][index].amount -= _taxCollected; \r\n        }\r\n        else removeDividendPathway(parent, index);\r\n        \r\n        inSwarmTree[node] = false;\r\n        \r\n        /* Notifiy anyone listening that this swarm took place */\r\n        if(isJohan) Swarm(_leaf, swarmTree[i].node, share);\r\n      }\r\n      delete swarmTree;\r\n      bool JohanWasInSwarm = JohanInSwarm;\r\n      delete JohanInSwarm;\r\n\r\n      if(!JohanWasInSwarm) return false;\r\n      return true;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _leaf, uint256 _taxCollected)"
+      VariableDeclaration "_leaf"
+         Type: address
+         Source: "address _leaf"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_taxCollected"
+         Type: uint256
+         Source: "uint256 _taxCollected"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool)"
+      VariableDeclaration ""
+         Type: bool
+         Source: "bool"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n      \r\n      uint256 share;\r\n      if(JohanInSwarm) share = _taxCollected;\r\n      else share = 0;\r\n    \r\n      for(uint i = 0; i < swarmTree.length; i++) {\r\n        \r\n        address node = swarmTree[i].node;\r\n        address parent = swarmTree[i].parent;\r\n        uint index = swarmTree[i].index;\r\n        \r\n        bool isJohan;\r\n        if(node == JohanNygren) isJohan = true;\r\n\r\n        if(isJohan) {\r\n          balanceOf[swarmTree[i].node] += share;\r\n        totalBasicIncome[node] += share;\r\n        }\r\n          \r\n        if(dividendPathways[parent][index].amount - _taxCollected > 0) {\r\n          dividendPathways[parent][index].amount -= _taxCollected; \r\n        }\r\n        else removeDividendPathway(parent, index);\r\n        \r\n        inSwarmTree[node] = false;\r\n        \r\n        /* Notifiy anyone listening that this swarm took place */\r\n        if(isJohan) Swarm(_leaf, swarmTree[i].node, share);\r\n      }\r\n      delete swarmTree;\r\n      bool JohanWasInSwarm = JohanInSwarm;\r\n      delete JohanInSwarm;\r\n\r\n      if(!JohanWasInSwarm) return false;\r\n      return true;\r\n    }"
+      VariableDeclarationStatement
+         Gas costs: 3
+         Source: "uint256 share"
+        VariableDeclaration "share"
+           Type: uint256
+           Source: "uint256 share"
+          ElementaryTypeName uint256
+             Source: "uint256"
+      IfStatement
+         Source: "if(JohanInSwarm) share = _taxCollected;\r\n      else share = 0"
+        Identifier JohanInSwarm
+           Type: bool
+           Gas costs: 239
+           Source: "JohanInSwarm"
+        ExpressionStatement
+           Gas costs: 8
+           Source: "share = _taxCollected"
+          Assignment using operator =
+             Type: uint256
+             Source: "share = _taxCollected"
+            Identifier share
+               Type: uint256
+               Source: "share"
+            Identifier _taxCollected
+               Type: uint256
+               Source: "_taxCollected"
+        ExpressionStatement
+           Gas costs: 8
+           Source: "share = 0"
+          Assignment using operator =
+             Type: uint256
+             Source: "share = 0"
+            Identifier share
+               Type: uint256
+               Source: "share"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+      ForStatement
+         Source: "for(uint i = 0; i < swarmTree.length; i++) {\r\n        \r\n        address node = swarmTree[i].node;\r\n        address parent = swarmTree[i].parent;\r\n        uint index = swarmTree[i].index;\r\n        \r\n        bool isJohan;\r\n        if(node == JohanNygren) isJohan = true;\r\n\r\n        if(isJohan) {\r\n          balanceOf[swarmTree[i].node] += share;\r\n        totalBasicIncome[node] += share;\r\n        }\r\n          \r\n        if(dividendPathways[parent][index].amount - _taxCollected > 0) {\r\n          dividendPathways[parent][index].amount -= _taxCollected; \r\n        }\r\n        else removeDividendPathway(parent, index);\r\n        \r\n        inSwarmTree[node] = false;\r\n        \r\n        /* Notifiy anyone listening that this swarm took place */\r\n        if(isJohan) Swarm(_leaf, swarmTree[i].node, share);\r\n      }"
+        VariableDeclarationStatement
+           Gas costs: 11
+           Source: "uint i = 0"
+          VariableDeclaration "i"
+             Type: uint256
+             Source: "uint i"
+            ElementaryTypeName uint
+               Source: "uint"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        BinaryOperation using operator <
+           Type: bool
+           Gas costs: 217
+           Source: "i < swarmTree.length"
+          Identifier i
+             Type: uint256
+             Source: "i"
+          MemberAccess to member length
+             Type: uint256
+             Source: "swarmTree.length"
+            Identifier swarmTree
+               Type: struct SwarmRedistribution.Node storage ref[] storage ref
+               Source: "swarmTree"
+        ExpressionStatement
+           Gas costs: 19
+           Source: "i++"
+          UnaryOperation (postfix) ++
+             Type: uint256
+             Source: "i++"
+            Identifier i
+               Type: uint256
+               Source: "i"
+        Block
+           Source: "{\r\n        \r\n        address node = swarmTree[i].node;\r\n        address parent = swarmTree[i].parent;\r\n        uint index = swarmTree[i].index;\r\n        \r\n        bool isJohan;\r\n        if(node == JohanNygren) isJohan = true;\r\n\r\n        if(isJohan) {\r\n          balanceOf[swarmTree[i].node] += share;\r\n        totalBasicIncome[node] += share;\r\n        }\r\n          \r\n        if(dividendPathways[parent][index].amount - _taxCollected > 0) {\r\n          dividendPathways[parent][index].amount -= _taxCollected; \r\n        }\r\n        else removeDividendPathway(parent, index);\r\n        \r\n        inSwarmTree[node] = false;\r\n        \r\n        /* Notifiy anyone listening that this swarm took place */\r\n        if(isJohan) Swarm(_leaf, swarmTree[i].node, share);\r\n      }"
+          VariableDeclarationStatement
+             Gas costs: 553
+             Source: "address node = swarmTree[i].node"
+            VariableDeclaration "node"
+               Type: address
+               Source: "address node"
+              ElementaryTypeName address
+                 Source: "address"
+            MemberAccess to member node
+               Type: address
+               Source: "swarmTree[i].node"
+              IndexAccess
+                 Type: struct SwarmRedistribution.Node storage ref
+                 Source: "swarmTree[i]"
+                Identifier swarmTree
+                   Type: struct SwarmRedistribution.Node storage ref[] storage ref
+                   Source: "swarmTree"
+                Identifier i
+                   Type: uint256
+                   Source: "i"
+          VariableDeclarationStatement
+             Gas costs: 553
+             Source: "address parent = swarmTree[i].parent"
+            VariableDeclaration "parent"
+               Type: address
+               Source: "address parent"
+              ElementaryTypeName address
+                 Source: "address"
+            MemberAccess to member parent
+               Type: address
+               Source: "swarmTree[i].parent"
+              IndexAccess
+                 Type: struct SwarmRedistribution.Node storage ref
+                 Source: "swarmTree[i]"
+                Identifier swarmTree
+                   Type: struct SwarmRedistribution.Node storage ref[] storage ref
+                   Source: "swarmTree"
+                Identifier i
+                   Type: uint256
+                   Source: "i"
+          VariableDeclarationStatement
+             Gas costs: 517
+             Source: "uint index = swarmTree[i].index"
+            VariableDeclaration "index"
+               Type: uint256
+               Source: "uint index"
+              ElementaryTypeName uint
+                 Source: "uint"
+            MemberAccess to member index
+               Type: uint256
+               Source: "swarmTree[i].index"
+              IndexAccess
+                 Type: struct SwarmRedistribution.Node storage ref
+                 Source: "swarmTree[i]"
+                Identifier swarmTree
+                   Type: struct SwarmRedistribution.Node storage ref[] storage ref
+                   Source: "swarmTree"
+                Identifier i
+                   Type: uint256
+                   Source: "i"
+          VariableDeclarationStatement
+             Gas costs: 3
+             Source: "bool isJohan"
+            VariableDeclaration "isJohan"
+               Type: bool
+               Source: "bool isJohan"
+              ElementaryTypeName bool
+                 Source: "bool"
+          IfStatement
+             Source: "if(node == JohanNygren) isJohan = true"
+            BinaryOperation using operator ==
+               Type: bool
+               Gas costs: 257
+               Source: "node == JohanNygren"
+              Identifier node
+                 Type: address
+                 Source: "node"
+              Identifier JohanNygren
+                 Type: address
+                 Source: "JohanNygren"
+            ExpressionStatement
+               Gas costs: 8
+               Source: "isJohan = true"
+              Assignment using operator =
+                 Type: bool
+                 Source: "isJohan = true"
+                Identifier isJohan
+                   Type: bool
+                   Source: "isJohan"
+                Literal, token: true value: true
+                   Type: bool
+                   Source: "true"
+          IfStatement
+             Source: "if(isJohan) {\r\n          balanceOf[swarmTree[i].node] += share;\r\n        totalBasicIncome[node] += share;\r\n        }"
+            Identifier isJohan
+               Type: bool
+               Gas costs: 3
+               Source: "isJohan"
+            Block
+               Source: "{\r\n          balanceOf[swarmTree[i].node] += share;\r\n        totalBasicIncome[node] += share;\r\n        }"
+              ExpressionStatement
+                 Gas costs: [???]
+                 Source: "balanceOf[swarmTree[i].node] += share"
+                Assignment using operator +=
+                   Type: uint256
+                   Source: "balanceOf[swarmTree[i].node] += share"
+                  IndexAccess
+                     Type: uint256
+                     Source: "balanceOf[swarmTree[i].node]"
+                    Identifier balanceOf
+                       Type: mapping(address => uint256)
+                       Source: "balanceOf"
+                    MemberAccess to member node
+                       Type: address
+                       Source: "swarmTree[i].node"
+                      IndexAccess
+                         Type: struct SwarmRedistribution.Node storage ref
+                         Source: "swarmTree[i]"
+                        Identifier swarmTree
+                           Type: struct SwarmRedistribution.Node storage ref[] storage ref
+                           Source: "swarmTree"
+                        Identifier i
+                           Type: uint256
+                           Source: "i"
+                  Identifier share
+                     Type: uint256
+                     Source: "share"
+              ExpressionStatement
+                 Gas costs: 20326
+                 Source: "totalBasicIncome[node] += share"
+                Assignment using operator +=
+                   Type: uint256
+                   Source: "totalBasicIncome[node] += share"
+                  IndexAccess
+                     Type: uint256
+                     Source: "totalBasicIncome[node]"
+                    Identifier totalBasicIncome
+                       Type: mapping(address => uint256)
+                       Source: "totalBasicIncome"
+                    Identifier node
+                       Type: address
+                       Source: "node"
+                  Identifier share
+                     Type: uint256
+                     Source: "share"
+          IfStatement
+             Source: "if(dividendPathways[parent][index].amount - _taxCollected > 0) {\r\n          dividendPathways[parent][index].amount -= _taxCollected; \r\n        }\r\n        else removeDividendPathway(parent, index)"
+            BinaryOperation using operator >
+               Type: bool
+               Gas costs: 617
+               Source: "dividendPathways[parent][index].amount - _taxCollected > 0"
+              BinaryOperation using operator -
+                 Type: uint256
+                 Source: "dividendPathways[parent][index].amount - _taxCollected"
+                MemberAccess to member amount
+                   Type: uint256
+                   Source: "dividendPathways[parent][index].amount"
+                  IndexAccess
+                     Type: struct SwarmRedistribution.dividendPathway storage ref
+                     Source: "dividendPathways[parent][index]"
+                    IndexAccess
+                       Type: struct SwarmRedistribution.dividendPathway storage ref[] storage ref
+                       Source: "dividendPathways[parent]"
+                      Identifier dividendPathways
+                         Type: mapping(address => struct SwarmRedistribution.dividendPathway storage ref[] storage ref)
+                         Source: "dividendPathways"
+                      Identifier parent
+                         Type: address
+                         Source: "parent"
+                    Identifier index
+                       Type: uint256
+                       Source: "index"
+                Identifier _taxCollected
+                   Type: uint256
+                   Source: "_taxCollected"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+            Block
+               Source: "{\r\n          dividendPathways[parent][index].amount -= _taxCollected; \r\n        }"
+              ExpressionStatement
+                 Gas costs: 20635
+                 Source: "dividendPathways[parent][index].amount -= _taxCollected"
+                Assignment using operator -=
+                   Type: uint256
+                   Source: "dividendPathways[parent][index].amount -= _taxCollected"
+                  MemberAccess to member amount
+                     Type: uint256
+                     Source: "dividendPathways[parent][index].amount"
+                    IndexAccess
+                       Type: struct SwarmRedistribution.dividendPathway storage ref
+                       Source: "dividendPathways[parent][index]"
+                      IndexAccess
+                         Type: struct SwarmRedistribution.dividendPathway storage ref[] storage ref
+                         Source: "dividendPathways[parent]"
+                        Identifier dividendPathways
+                           Type: mapping(address => struct SwarmRedistribution.dividendPathway storage ref[] storage ref)
+                           Source: "dividendPathways"
+                        Identifier parent
+                           Type: address
+                           Source: "parent"
+                      Identifier index
+                         Type: uint256
+                         Source: "index"
+                  Identifier _taxCollected
+                     Type: uint256
+                     Source: "_taxCollected"
+            ExpressionStatement
+               Gas costs: 10
+               Source: "removeDividendPathway(parent, index)"
+              FunctionCall
+                 Type: tuple()
+                 Source: "removeDividendPathway(parent, index)"
+                Identifier removeDividendPathway
+                   Type: function (address,uint256)
+                   Source: "removeDividendPathway"
+                Identifier parent
+                   Type: address
+                   Source: "parent"
+                Identifier index
+                   Type: uint256
+                   Source: "index"
+          ExpressionStatement
+             Gas costs: 20363
+             Source: "inSwarmTree[node] = false"
+            Assignment using operator =
+               Type: bool
+               Source: "inSwarmTree[node] = false"
+              IndexAccess
+                 Type: bool
+                 Source: "inSwarmTree[node]"
+                Identifier inSwarmTree
+                   Type: mapping(address => bool)
+                   Source: "inSwarmTree"
+                Identifier node
+                   Type: address
+                   Source: "node"
+              Literal, token: false value: false
+                 Type: bool
+                 Source: "false"
+          IfStatement
+             Source: "if(isJohan) Swarm(_leaf, swarmTree[i].node, share)"
+            Identifier isJohan
+               Type: bool
+               Gas costs: 3
+               Source: "isJohan"
+            ExpressionStatement
+               Gas costs: [???]
+               Source: "Swarm(_leaf, swarmTree[i].node, share)"
+              FunctionCall
+                 Type: tuple()
+                 Source: "Swarm(_leaf, swarmTree[i].node, share)"
+                Identifier Swarm
+                   Type: function (address,address,uint256)
+                   Source: "Swarm"
+                Identifier _leaf
+                   Type: address
+                   Source: "_leaf"
+                MemberAccess to member node
+                   Type: address
+                   Source: "swarmTree[i].node"
+                  IndexAccess
+                     Type: struct SwarmRedistribution.Node storage ref
+                     Source: "swarmTree[i]"
+                    Identifier swarmTree
+                       Type: struct SwarmRedistribution.Node storage ref[] storage ref
+                       Source: "swarmTree"
+                    Identifier i
+                       Type: uint256
+                       Source: "i"
+                Identifier share
+                   Type: uint256
+                   Source: "share"
+      ExpressionStatement
+         Gas costs: 16
+         Source: "delete swarmTree"
+        UnaryOperation (prefix) delete
+           Type: tuple()
+           Source: "delete swarmTree"
+          Identifier swarmTree
+             Type: struct SwarmRedistribution.Node storage ref[] storage ref
+             Source: "swarmTree"
+      VariableDeclarationStatement
+         Gas costs: 247
+         Source: "bool JohanWasInSwarm = JohanInSwarm"
+        VariableDeclaration "JohanWasInSwarm"
+           Type: bool
+           Source: "bool JohanWasInSwarm"
+          ElementaryTypeName bool
+             Source: "bool"
+        Identifier JohanInSwarm
+           Type: bool
+           Source: "JohanInSwarm"
+      ExpressionStatement
+         Gas costs: 20242
+         Source: "delete JohanInSwarm"
+        UnaryOperation (prefix) delete
+           Type: tuple()
+           Source: "delete JohanInSwarm"
+          Identifier JohanInSwarm
+             Type: bool
+             Source: "JohanInSwarm"
+      IfStatement
+         Source: "if(!JohanWasInSwarm) return false"
+        UnaryOperation (prefix) !
+           Type: bool
+           Gas costs: 6
+           Source: "!JohanWasInSwarm"
+          Identifier JohanWasInSwarm
+             Type: bool
+             Source: "JohanWasInSwarm"
+        Return
+           Gas costs: 19
+           Source: "return false"
+          Literal, token: false value: false
+             Type: bool
+             Source: "false"
+      Return
+         Gas costs: 8
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+  FunctionDefinition "removeDividendPathway"
+     Source: "function removeDividendPathway(address node, uint index) internal {\r\n                delete dividendPathways[node][index];\r\n                for (uint i = index; i < dividendPathways[node].length - 1; i++) {\r\n                        dividendPathways[node][i] = dividendPathways[node][i + 1];\r\n                }\r\n                dividendPathways[node].length--;\r\n        }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address node, uint index)"
+      VariableDeclaration "node"
+         Type: address
+         Source: "address node"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "index"
+         Type: uint256
+         Source: "uint index"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n                delete dividendPathways[node][index];\r\n                for (uint i = index; i < dividendPathways[node].length - 1; i++) {\r\n                        dividendPathways[node][i] = dividendPathways[node][i + 1];\r\n                }\r\n                dividendPathways[node].length--;\r\n        }"
+      ExpressionStatement
+         Gas costs: 30684
+         Source: "delete dividendPathways[node][index]"
+        UnaryOperation (prefix) delete
+           Type: tuple()
+           Source: "delete dividendPathways[node][index]"
+          IndexAccess
+             Type: struct SwarmRedistribution.dividendPathway storage ref
+             Source: "dividendPathways[node][index]"
+            IndexAccess
+               Type: struct SwarmRedistribution.dividendPathway storage ref[] storage ref
+               Source: "dividendPathways[node]"
+              Identifier dividendPathways
+                 Type: mapping(address => struct SwarmRedistribution.dividendPathway storage ref[] storage ref)
+                 Source: "dividendPathways"
+              Identifier node
+                 Type: address
+                 Source: "node"
+            Identifier index
+               Type: uint256
+               Source: "index"
+      ForStatement
+         Source: "for (uint i = index; i < dividendPathways[node].length - 1; i++) {\r\n                        dividendPathways[node][i] = dividendPathways[node][i + 1];\r\n                }"
+        VariableDeclarationStatement
+           Gas costs: 11
+           Source: "uint i = index"
+          VariableDeclaration "i"
+             Type: uint256
+             Source: "uint i"
+            ElementaryTypeName uint
+               Source: "uint"
+          Identifier index
+             Type: uint256
+             Source: "index"
+        BinaryOperation using operator <
+           Type: bool
+           Gas costs: 319
+           Source: "i < dividendPathways[node].length - 1"
+          Identifier i
+             Type: uint256
+             Source: "i"
+          BinaryOperation using operator -
+             Type: uint256
+             Source: "dividendPathways[node].length - 1"
+            MemberAccess to member length
+               Type: uint256
+               Source: "dividendPathways[node].length"
+              IndexAccess
+                 Type: struct SwarmRedistribution.dividendPathway storage ref[] storage ref
+                 Source: "dividendPathways[node]"
+                Identifier dividendPathways
+                   Type: mapping(address => struct SwarmRedistribution.dividendPathway storage ref[] storage ref)
+                   Source: "dividendPathways"
+                Identifier node
+                   Type: address
+                   Source: "node"
+            Literal, token: [no token] value: 1
+               Type: int_const 1
+               Source: "1"
+        ExpressionStatement
+           Gas costs: 19
+           Source: "i++"
+          UnaryOperation (postfix) ++
+             Type: uint256
+             Source: "i++"
+            Identifier i
+               Type: uint256
+               Source: "i"
+        Block
+           Source: "{\r\n                        dividendPathways[node][i] = dividendPathways[node][i + 1];\r\n                }"
+          ExpressionStatement
+             Gas costs: 61759
+             Source: "dividendPathways[node][i] = dividendPathways[node][i + 1]"
+            Assignment using operator =
+               Type: struct SwarmRedistribution.dividendPathway storage ref
+               Source: "dividendPathways[node][i] = dividendPathways[node][i + 1]"
+              IndexAccess
+                 Type: struct SwarmRedistribution.dividendPathway storage ref
+                 Source: "dividendPathways[node][i]"
+                IndexAccess
+                   Type: struct SwarmRedistribution.dividendPathway storage ref[] storage ref
+                   Source: "dividendPathways[node]"
+                  Identifier dividendPathways
+                     Type: mapping(address => struct SwarmRedistribution.dividendPathway storage ref[] storage ref)
+                     Source: "dividendPathways"
+                  Identifier node
+                     Type: address
+                     Source: "node"
+                Identifier i
+                   Type: uint256
+                   Source: "i"
+              IndexAccess
+                 Type: struct SwarmRedistribution.dividendPathway storage ref
+                 Source: "dividendPathways[node][i + 1]"
+                IndexAccess
+                   Type: struct SwarmRedistribution.dividendPathway storage ref[] storage ref
+                   Source: "dividendPathways[node]"
+                  Identifier dividendPathways
+                     Type: mapping(address => struct SwarmRedistribution.dividendPathway storage ref[] storage ref)
+                     Source: "dividendPathways"
+                  Identifier node
+                     Type: address
+                     Source: "node"
+                BinaryOperation using operator +
+                   Type: uint256
+                   Source: "i + 1"
+                  Identifier i
+                     Type: uint256
+                     Source: "i"
+                  Literal, token: [no token] value: 1
+                     Type: int_const 1
+                     Source: "1"
+      ExpressionStatement
+         Gas costs: 332
+         Source: "dividendPathways[node].length--"
+        UnaryOperation (postfix) --
+           Type: uint256
+           Source: "dividendPathways[node].length--"
+          MemberAccess to member length
+             Type: uint256
+             Source: "dividendPathways[node].length"
+            IndexAccess
+               Type: struct SwarmRedistribution.dividendPathway storage ref[] storage ref
+               Source: "dividendPathways[node]"
+              Identifier dividendPathways
+                 Type: mapping(address => struct SwarmRedistribution.dividendPathway storage ref[] storage ref)
+                 Source: "dividendPathways"
+              Identifier node
+                 Type: address
+                 Source: "node"

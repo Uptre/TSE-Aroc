@@ -1,0 +1,20 @@
+{"EthTermDeposits":{
+ "execution_paths": "16", 
+ "callstack": false, 
+ "reentrancy": false, 
+ "modulo": false, 
+ "division": false, 
+ "execution_time": "6.29319214821", 
+ "signedness": false, 
+ "evm_code_coverage": "99.8", 
+ "underflow": false, 
+ "time_dependency": "\n../contractSrc/0x8b2c66d91f5751b905fa801668c9b61ae3975282.sol:EthTermDeposits:39:6\ndepositEndTime[owner] > 0 &&\r\n^\n../contractSrc/0x8b2c66d91f5751b905fa801668c9b61ae3975282.sol:EthTermDeposits:39:3\nif(depositEndTime[owner] > 0 &&\r\n^", 
+ "assertion_failure": false, 
+ "timeout": false, 
+ "dead_code": [
+  "STOP "
+ ], 
+ "overflow": "\n../contractSrc/0x8b2c66d91f5751b905fa801668c9b61ae3975282.sol:EthTermDeposits:23:16\nblock.timestamp + numberOfWeeks * 1 weeks\n^\n../contractSrc/0x8b2c66d91f5751b905fa801668c9b61ae3975282.sol:EthTermDeposits:26:12\ndepositEndTime[owner] + numberOfWeeks * 1 weeks\n^\n../contractSrc/0x8b2c66d91f5751b905fa801668c9b61ae3975282.sol:EthTermDeposits:29:3\ndeposits[owner] += amount\n^", 
+ "money_concurrency": "\nFlow 1:\n../contractSrc/0x8b2c66d91f5751b905fa801668c9b61ae3975282.sol:EthTermDeposits:44:4\nmsg.sender.transfer(amount)\n^\nFlow 2:\n../contractSrc/0x8b2c66d91f5751b905fa801668c9b61ae3975282.sol:EthTermDeposits:44:4\nmsg.sender.transfer(amount)\n^", 
+ "truncation": "\n../contractSrc/0x8b2c66d91f5751b905fa801668c9b61ae3975282.sol:EthTermDeposits:20:2\nfunction Deposit(uint8 numberOfWeeks) payable returns(bool){\r\n^"
+}}

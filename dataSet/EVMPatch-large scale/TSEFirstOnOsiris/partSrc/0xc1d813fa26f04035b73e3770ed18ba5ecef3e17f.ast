@@ -1,0 +1,3101 @@
+Syntax trees:
+
+
+======= /home/fabric/ArocRevision/Aroc/osirisData/contractSrc/0xc1d813fa26f04035b73e3770ed18ba5ecef3e17f.sol =======
+PragmaDirective
+   Source: "pragma solidity ^0.4.13;"
+ContractDefinition "SafeMath"
+   Source: "contract SafeMath {\r\n    /**\r\n        constructor\r\n    */\r\n    function SafeMath() {\r\n    }\r\n\r\n    /**\r\n        @dev returns the sum of _x and _y, asserts if the calculation overflows\r\n\r\n        @param _x   value 1\r\n        @param _y   value 2\r\n\r\n        @return sum\r\n    */\r\n    function safeAdd(uint256 _x, uint256 _y) internal returns (uint256) {\r\n        uint256 z = _x + _y;\r\n        assert(z >= _x);\r\n        return z;\r\n    }\r\n\r\n    /**\r\n        @dev returns the difference of _x minus _y, asserts if the subtraction results in a negative number\r\n\r\n        @param _x   minuend\r\n        @param _y   subtrahend\r\n\r\n        @return difference\r\n    */\r\n    function safeSub(uint256 _x, uint256 _y) internal returns (uint256) {\r\n        assert(_x >= _y);\r\n        return _x - _y;\r\n    }\r\n\r\n    /**\r\n        @dev returns the product of multiplying _x by _y, asserts if the calculation overflows\r\n\r\n        @param _x   factor 1\r\n        @param _y   factor 2\r\n\r\n        @return product\r\n    */\r\n    function safeMul(uint256 _x, uint256 _y) internal returns (uint256) {\r\n        uint256 z = _x * _y;\r\n        assert(_x == 0 || z / _x == _y);\r\n        return z;\r\n    }\r\n}"
+  FunctionDefinition "SafeMath" - public
+     Source: "function SafeMath() {\r\n    }"
+    ParameterList
+       Source: "()"
+    ParameterList
+       Source: ""
+    Block
+       Source: "{\r\n    }"
+  FunctionDefinition "safeAdd"
+     Source: "function safeAdd(uint256 _x, uint256 _y) internal returns (uint256) {\r\n        uint256 z = _x + _y;\r\n        assert(z >= _x);\r\n        return z;\r\n    }"
+    ParameterList
+       Source: "(uint256 _x, uint256 _y)"
+      VariableDeclaration "_x"
+         Type: uint256
+         Source: "uint256 _x"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "_y"
+         Type: uint256
+         Source: "uint256 _y"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Source: "(uint256)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint256"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{\r\n        uint256 z = _x + _y;\r\n        assert(z >= _x);\r\n        return z;\r\n    }"
+      VariableDeclarationStatement
+         Source: "uint256 z = _x + _y"
+        VariableDeclaration "z"
+           Type: uint256
+           Source: "uint256 z"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        BinaryOperation using operator +
+           Type: uint256
+           Source: "_x + _y"
+          Identifier _x
+             Type: uint256
+             Source: "_x"
+          Identifier _y
+             Type: uint256
+             Source: "_y"
+      ExpressionStatement
+         Source: "assert(z >= _x)"
+        FunctionCall
+           Type: tuple()
+           Source: "assert(z >= _x)"
+          Identifier assert
+             Type: function (bool) pure
+             Source: "assert"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "z >= _x"
+            Identifier z
+               Type: uint256
+               Source: "z"
+            Identifier _x
+               Type: uint256
+               Source: "_x"
+      Return
+         Source: "return z"
+        Identifier z
+           Type: uint256
+           Source: "z"
+  FunctionDefinition "safeSub"
+     Source: "function safeSub(uint256 _x, uint256 _y) internal returns (uint256) {\r\n        assert(_x >= _y);\r\n        return _x - _y;\r\n    }"
+    ParameterList
+       Source: "(uint256 _x, uint256 _y)"
+      VariableDeclaration "_x"
+         Type: uint256
+         Source: "uint256 _x"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "_y"
+         Type: uint256
+         Source: "uint256 _y"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Source: "(uint256)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint256"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{\r\n        assert(_x >= _y);\r\n        return _x - _y;\r\n    }"
+      ExpressionStatement
+         Source: "assert(_x >= _y)"
+        FunctionCall
+           Type: tuple()
+           Source: "assert(_x >= _y)"
+          Identifier assert
+             Type: function (bool) pure
+             Source: "assert"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "_x >= _y"
+            Identifier _x
+               Type: uint256
+               Source: "_x"
+            Identifier _y
+               Type: uint256
+               Source: "_y"
+      Return
+         Source: "return _x - _y"
+        BinaryOperation using operator -
+           Type: uint256
+           Source: "_x - _y"
+          Identifier _x
+             Type: uint256
+             Source: "_x"
+          Identifier _y
+             Type: uint256
+             Source: "_y"
+  FunctionDefinition "safeMul"
+     Source: "function safeMul(uint256 _x, uint256 _y) internal returns (uint256) {\r\n        uint256 z = _x * _y;\r\n        assert(_x == 0 || z / _x == _y);\r\n        return z;\r\n    }"
+    ParameterList
+       Source: "(uint256 _x, uint256 _y)"
+      VariableDeclaration "_x"
+         Type: uint256
+         Source: "uint256 _x"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "_y"
+         Type: uint256
+         Source: "uint256 _y"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Source: "(uint256)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint256"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{\r\n        uint256 z = _x * _y;\r\n        assert(_x == 0 || z / _x == _y);\r\n        return z;\r\n    }"
+      VariableDeclarationStatement
+         Source: "uint256 z = _x * _y"
+        VariableDeclaration "z"
+           Type: uint256
+           Source: "uint256 z"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        BinaryOperation using operator *
+           Type: uint256
+           Source: "_x * _y"
+          Identifier _x
+             Type: uint256
+             Source: "_x"
+          Identifier _y
+             Type: uint256
+             Source: "_y"
+      ExpressionStatement
+         Source: "assert(_x == 0 || z / _x == _y)"
+        FunctionCall
+           Type: tuple()
+           Source: "assert(_x == 0 || z / _x == _y)"
+          Identifier assert
+             Type: function (bool) pure
+             Source: "assert"
+          BinaryOperation using operator ||
+             Type: bool
+             Source: "_x == 0 || z / _x == _y"
+            BinaryOperation using operator ==
+               Type: bool
+               Source: "_x == 0"
+              Identifier _x
+                 Type: uint256
+                 Source: "_x"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+            BinaryOperation using operator ==
+               Type: bool
+               Source: "z / _x == _y"
+              BinaryOperation using operator /
+                 Type: uint256
+                 Source: "z / _x"
+                Identifier z
+                   Type: uint256
+                   Source: "z"
+                Identifier _x
+                   Type: uint256
+                   Source: "_x"
+              Identifier _y
+                 Type: uint256
+                 Source: "_y"
+      Return
+         Source: "return z"
+        Identifier z
+           Type: uint256
+           Source: "z"
+ContractDefinition "IOwned"
+   Source: "contract IOwned {\r\n    // this function isn't abstract since the compiler emits automatically generated getter functions as external\r\n    function owner() public constant returns (address owner) { owner; }\r\n\r\n    function transferOwnership(address _newOwner) public;\r\n    function acceptOwnership() public;\r\n}"
+  FunctionDefinition "owner" - public - const
+     Source: "function owner() public constant returns (address owner) { owner; }"
+    ParameterList
+       Source: "()"
+    ParameterList
+       Source: "(address owner)"
+      VariableDeclaration "owner"
+         Type: address
+         Source: "address owner"
+        ElementaryTypeName address
+           Source: "address"
+    Block
+       Source: "{ owner; }"
+      ExpressionStatement
+         Source: "owner"
+        Identifier owner
+           Type: address
+           Source: "owner"
+  FunctionDefinition "transferOwnership" - public
+     Source: "function transferOwnership(address _newOwner) public;"
+    ParameterList
+       Source: "(address _newOwner)"
+      VariableDeclaration "_newOwner"
+         Type: address
+         Source: "address _newOwner"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Source: ""
+  FunctionDefinition "acceptOwnership" - public
+     Source: "function acceptOwnership() public;"
+    ParameterList
+       Source: "()"
+    ParameterList
+       Source: ""
+ContractDefinition "Owned"
+   Source: "contract Owned is IOwned {\r\n    address public owner;\r\n    address public newOwner;\r\n\r\n    event OwnerUpdate(address _prevOwner, address _newOwner);\r\n\r\n    /**\r\n        @dev constructor\r\n    */\r\n    function Owned() {\r\n        owner = msg.sender;\r\n    }\r\n\r\n    // allows execution by the owner only\r\n    modifier ownerOnly {\r\n        assert(msg.sender == owner);\r\n        _;\r\n    }\r\n\r\n    /**\r\n        @dev allows transferring the contract ownership\r\n        the new owner still need to accept the transfer\r\n        can only be called by the contract owner\r\n\r\n        @param _newOwner    new contract owner\r\n    */\r\n    function transferOwnership(address _newOwner) public ownerOnly {\r\n        require(_newOwner != owner);\r\n        newOwner = _newOwner;\r\n    }\r\n\r\n    /**\r\n        @dev used by a new owner to accept an ownership transfer\r\n    */\r\n    function acceptOwnership() public {\r\n        require(msg.sender == newOwner);\r\n        OwnerUpdate(owner, newOwner);\r\n        owner = newOwner;\r\n        newOwner = 0x0;\r\n    }\r\n}"
+  InheritanceSpecifier
+     Source: "IOwned"
+    UserDefinedTypeName "IOwned"
+       Source: "IOwned"
+  VariableDeclaration "owner"
+     Type: address
+     Source: "address public owner"
+    ElementaryTypeName address
+       Source: "address"
+  VariableDeclaration "newOwner"
+     Type: address
+     Source: "address public newOwner"
+    ElementaryTypeName address
+       Source: "address"
+  EventDefinition "OwnerUpdate"
+     Source: "event OwnerUpdate(address _prevOwner, address _newOwner);"
+    ParameterList
+       Source: "(address _prevOwner, address _newOwner)"
+      VariableDeclaration "_prevOwner"
+         Type: address
+         Source: "address _prevOwner"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_newOwner"
+         Type: address
+         Source: "address _newOwner"
+        ElementaryTypeName address
+           Source: "address"
+  FunctionDefinition "Owned" - public
+     Source: "function Owned() {\r\n        owner = msg.sender;\r\n    }"
+    ParameterList
+       Source: "()"
+    ParameterList
+       Source: ""
+    Block
+       Source: "{\r\n        owner = msg.sender;\r\n    }"
+      ExpressionStatement
+         Source: "owner = msg.sender"
+        Assignment using operator =
+           Type: address
+           Source: "owner = msg.sender"
+          Identifier owner
+             Type: address
+             Source: "owner"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+  ModifierDefinition "ownerOnly"
+     Source: "modifier ownerOnly {\r\n        assert(msg.sender == owner);\r\n        _;\r\n    }"
+    ParameterList
+       Source: ""
+    Block
+       Source: "{\r\n        assert(msg.sender == owner);\r\n        _;\r\n    }"
+      ExpressionStatement
+         Source: "assert(msg.sender == owner)"
+        FunctionCall
+           Type: tuple()
+           Source: "assert(msg.sender == owner)"
+          Identifier assert
+             Type: function (bool) pure
+             Source: "assert"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "msg.sender == owner"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Identifier owner
+               Type: address
+               Source: "owner"
+      PlaceholderStatement
+         Source: "_"
+  FunctionDefinition "transferOwnership" - public
+     Source: "function transferOwnership(address _newOwner) public ownerOnly {\r\n        require(_newOwner != owner);\r\n        newOwner = _newOwner;\r\n    }"
+    ParameterList
+       Source: "(address _newOwner)"
+      VariableDeclaration "_newOwner"
+         Type: address
+         Source: "address _newOwner"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Source: ""
+    ModifierInvocation "ownerOnly"
+       Source: "ownerOnly"
+      Identifier ownerOnly
+         Type: modifier ()
+         Source: "ownerOnly"
+    Block
+       Source: "{\r\n        require(_newOwner != owner);\r\n        newOwner = _newOwner;\r\n    }"
+      ExpressionStatement
+         Source: "require(_newOwner != owner)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(_newOwner != owner)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator !=
+             Type: bool
+             Source: "_newOwner != owner"
+            Identifier _newOwner
+               Type: address
+               Source: "_newOwner"
+            Identifier owner
+               Type: address
+               Source: "owner"
+      ExpressionStatement
+         Source: "newOwner = _newOwner"
+        Assignment using operator =
+           Type: address
+           Source: "newOwner = _newOwner"
+          Identifier newOwner
+             Type: address
+             Source: "newOwner"
+          Identifier _newOwner
+             Type: address
+             Source: "_newOwner"
+  FunctionDefinition "acceptOwnership" - public
+     Source: "function acceptOwnership() public {\r\n        require(msg.sender == newOwner);\r\n        OwnerUpdate(owner, newOwner);\r\n        owner = newOwner;\r\n        newOwner = 0x0;\r\n    }"
+    ParameterList
+       Source: "()"
+    ParameterList
+       Source: ""
+    Block
+       Source: "{\r\n        require(msg.sender == newOwner);\r\n        OwnerUpdate(owner, newOwner);\r\n        owner = newOwner;\r\n        newOwner = 0x0;\r\n    }"
+      ExpressionStatement
+         Source: "require(msg.sender == newOwner)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(msg.sender == newOwner)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "msg.sender == newOwner"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Identifier newOwner
+               Type: address
+               Source: "newOwner"
+      ExpressionStatement
+         Source: "OwnerUpdate(owner, newOwner)"
+        FunctionCall
+           Type: tuple()
+           Source: "OwnerUpdate(owner, newOwner)"
+          Identifier OwnerUpdate
+             Type: function (address,address)
+             Source: "OwnerUpdate"
+          Identifier owner
+             Type: address
+             Source: "owner"
+          Identifier newOwner
+             Type: address
+             Source: "newOwner"
+      ExpressionStatement
+         Source: "owner = newOwner"
+        Assignment using operator =
+           Type: address
+           Source: "owner = newOwner"
+          Identifier owner
+             Type: address
+             Source: "owner"
+          Identifier newOwner
+             Type: address
+             Source: "newOwner"
+      ExpressionStatement
+         Source: "newOwner = 0x0"
+        Assignment using operator =
+           Type: address
+           Source: "newOwner = 0x0"
+          Identifier newOwner
+             Type: address
+             Source: "newOwner"
+          Literal, token: [no token] value: 0x0
+             Type: int_const 0
+             Source: "0x0"
+ContractDefinition "ITokenHolder"
+   Source: "contract ITokenHolder is IOwned {\r\n    function withdrawTokens(IERC20Token _token, address _to, uint256 _amount) public;\r\n}"
+  InheritanceSpecifier
+     Source: "IOwned"
+    UserDefinedTypeName "IOwned"
+       Source: "IOwned"
+  FunctionDefinition "withdrawTokens" - public
+     Source: "function withdrawTokens(IERC20Token _token, address _to, uint256 _amount) public;"
+    ParameterList
+       Source: "(IERC20Token _token, address _to, uint256 _amount)"
+      VariableDeclaration "_token"
+         Type: contract IERC20Token
+         Source: "IERC20Token _token"
+        UserDefinedTypeName "IERC20Token"
+           Source: "IERC20Token"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_amount"
+         Type: uint256
+         Source: "uint256 _amount"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Source: ""
+ContractDefinition "TokenHolder"
+   Source: "contract TokenHolder is ITokenHolder, Owned {\r\n    /**\r\n        @dev constructor\r\n    */\r\n    function TokenHolder() {\r\n    }\r\n\r\n    // validates an address - currently only checks that it isn't null\r\n    modifier validAddress(address _address) {\r\n        require(_address != 0x0);\r\n        _;\r\n    }\r\n    // since v0.4.12 of compiler we need this \r\n    modifier validAddressForSecond(address _address) {\r\n        require(_address != 0x0);\r\n        _;\r\n    }\r\n\r\n    // verifies that the address is different than this contract address\r\n    modifier notThis(address _address) {\r\n        require(_address != address(this));\r\n        _;\r\n    }\r\n\r\n    /**\r\n        @dev withdraws tokens held by the contract and sends them to an account\r\n        can only be called by the owner\r\n\r\n        @param _token   ERC20 token contract address\r\n        @param _to      account to receive the new amount\r\n        @param _amount  amount to withdraw\r\n    */\r\n    function withdrawTokens(IERC20Token _token, address _to, uint256 _amount)\r\n        public\r\n        ownerOnly\r\n        validAddress(_token)\r\n        validAddressForSecond(_to)\r\n        notThis(_to)\r\n    {\r\n        assert(_token.transfer(_to, _amount));\r\n    }\r\n}"
+  InheritanceSpecifier
+     Source: "ITokenHolder"
+    UserDefinedTypeName "ITokenHolder"
+       Source: "ITokenHolder"
+  InheritanceSpecifier
+     Source: "Owned"
+    UserDefinedTypeName "Owned"
+       Source: "Owned"
+  FunctionDefinition "TokenHolder" - public
+     Source: "function TokenHolder() {\r\n    }"
+    ParameterList
+       Source: "()"
+    ParameterList
+       Source: ""
+    Block
+       Source: "{\r\n    }"
+  ModifierDefinition "validAddress"
+     Source: "modifier validAddress(address _address) {\r\n        require(_address != 0x0);\r\n        _;\r\n    }"
+    ParameterList
+       Source: "(address _address)"
+      VariableDeclaration "_address"
+         Type: address
+         Source: "address _address"
+        ElementaryTypeName address
+           Source: "address"
+    Block
+       Source: "{\r\n        require(_address != 0x0);\r\n        _;\r\n    }"
+      ExpressionStatement
+         Source: "require(_address != 0x0)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(_address != 0x0)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator !=
+             Type: bool
+             Source: "_address != 0x0"
+            Identifier _address
+               Type: address
+               Source: "_address"
+            Literal, token: [no token] value: 0x0
+               Type: int_const 0
+               Source: "0x0"
+      PlaceholderStatement
+         Source: "_"
+  ModifierDefinition "validAddressForSecond"
+     Source: "modifier validAddressForSecond(address _address) {\r\n        require(_address != 0x0);\r\n        _;\r\n    }"
+    ParameterList
+       Source: "(address _address)"
+      VariableDeclaration "_address"
+         Type: address
+         Source: "address _address"
+        ElementaryTypeName address
+           Source: "address"
+    Block
+       Source: "{\r\n        require(_address != 0x0);\r\n        _;\r\n    }"
+      ExpressionStatement
+         Source: "require(_address != 0x0)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(_address != 0x0)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator !=
+             Type: bool
+             Source: "_address != 0x0"
+            Identifier _address
+               Type: address
+               Source: "_address"
+            Literal, token: [no token] value: 0x0
+               Type: int_const 0
+               Source: "0x0"
+      PlaceholderStatement
+         Source: "_"
+  ModifierDefinition "notThis"
+     Source: "modifier notThis(address _address) {\r\n        require(_address != address(this));\r\n        _;\r\n    }"
+    ParameterList
+       Source: "(address _address)"
+      VariableDeclaration "_address"
+         Type: address
+         Source: "address _address"
+        ElementaryTypeName address
+           Source: "address"
+    Block
+       Source: "{\r\n        require(_address != address(this));\r\n        _;\r\n    }"
+      ExpressionStatement
+         Source: "require(_address != address(this))"
+        FunctionCall
+           Type: tuple()
+           Source: "require(_address != address(this))"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator !=
+             Type: bool
+             Source: "_address != address(this)"
+            Identifier _address
+               Type: address
+               Source: "_address"
+            FunctionCall
+               Type: address
+               Source: "address(this)"
+              ElementaryTypeNameExpression address
+                 Type: type(address)
+                 Source: "address"
+              Identifier this
+                 Type: contract TokenHolder
+                 Source: "this"
+      PlaceholderStatement
+         Source: "_"
+  FunctionDefinition "withdrawTokens" - public
+     Source: "function withdrawTokens(IERC20Token _token, address _to, uint256 _amount)\r\n        public\r\n        ownerOnly\r\n        validAddress(_token)\r\n        validAddressForSecond(_to)\r\n        notThis(_to)\r\n    {\r\n        assert(_token.transfer(_to, _amount));\r\n    }"
+    ParameterList
+       Source: "(IERC20Token _token, address _to, uint256 _amount)"
+      VariableDeclaration "_token"
+         Type: contract IERC20Token
+         Source: "IERC20Token _token"
+        UserDefinedTypeName "IERC20Token"
+           Source: "IERC20Token"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_amount"
+         Type: uint256
+         Source: "uint256 _amount"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Source: ""
+    ModifierInvocation "ownerOnly"
+       Source: "ownerOnly"
+      Identifier ownerOnly
+         Type: modifier ()
+         Source: "ownerOnly"
+    ModifierInvocation "validAddress"
+       Source: "validAddress(_token)"
+      Identifier validAddress
+         Type: modifier (address)
+         Source: "validAddress"
+      Identifier _token
+         Type: contract IERC20Token
+         Source: "_token"
+    ModifierInvocation "validAddressForSecond"
+       Source: "validAddressForSecond(_to)"
+      Identifier validAddressForSecond
+         Type: modifier (address)
+         Source: "validAddressForSecond"
+      Identifier _to
+         Type: address
+         Source: "_to"
+    ModifierInvocation "notThis"
+       Source: "notThis(_to)"
+      Identifier notThis
+         Type: modifier (address)
+         Source: "notThis"
+      Identifier _to
+         Type: address
+         Source: "_to"
+    Block
+       Source: "{\r\n        assert(_token.transfer(_to, _amount));\r\n    }"
+      ExpressionStatement
+         Source: "assert(_token.transfer(_to, _amount))"
+        FunctionCall
+           Type: tuple()
+           Source: "assert(_token.transfer(_to, _amount))"
+          Identifier assert
+             Type: function (bool) pure
+             Source: "assert"
+          FunctionCall
+             Type: bool
+             Source: "_token.transfer(_to, _amount)"
+            MemberAccess to member transfer
+               Type: function (address,uint256) external returns (bool)
+               Source: "_token.transfer"
+              Identifier _token
+                 Type: contract IERC20Token
+                 Source: "_token"
+            Identifier _to
+               Type: address
+               Source: "_to"
+            Identifier _amount
+               Type: uint256
+               Source: "_amount"
+ContractDefinition "IERC20Token"
+   Source: "contract IERC20Token {\r\n    // these functions aren't abstract since the compiler emits automatically generated getter functions as external\r\n    function name() public constant returns (string name) { name; }\r\n    function symbol() public constant returns (string symbol) { symbol; }\r\n    function decimals() public constant returns (uint8 decimals) { decimals; }\r\n    function totalSupply() public constant returns (uint256 totalSupply) { totalSupply; }\r\n    function balanceOf(address _owner) public constant returns (uint256 balance) { _owner; balance; }\r\n    function allowance(address _owner, address _spender) public constant returns (uint256 remaining) { _owner; _spender; remaining; }\r\n    function transfer(address _to, uint256 _value) public returns (bool success);\r\n    function transferFrom(address _from, address _to, uint256 _value) public returns (bool success);\r\n    function approve(address _spender, uint256 _value) public returns (bool success);\r\n}"
+  FunctionDefinition "name" - public - const
+     Source: "function name() public constant returns (string name) { name; }"
+    ParameterList
+       Source: "()"
+    ParameterList
+       Source: "(string name)"
+      VariableDeclaration "name"
+         Type: string memory
+         Source: "string name"
+        ElementaryTypeName string
+           Source: "string"
+    Block
+       Source: "{ name; }"
+      ExpressionStatement
+         Source: "name"
+        Identifier name
+           Type: string memory
+           Source: "name"
+  FunctionDefinition "symbol" - public - const
+     Source: "function symbol() public constant returns (string symbol) { symbol; }"
+    ParameterList
+       Source: "()"
+    ParameterList
+       Source: "(string symbol)"
+      VariableDeclaration "symbol"
+         Type: string memory
+         Source: "string symbol"
+        ElementaryTypeName string
+           Source: "string"
+    Block
+       Source: "{ symbol; }"
+      ExpressionStatement
+         Source: "symbol"
+        Identifier symbol
+           Type: string memory
+           Source: "symbol"
+  FunctionDefinition "decimals" - public - const
+     Source: "function decimals() public constant returns (uint8 decimals) { decimals; }"
+    ParameterList
+       Source: "()"
+    ParameterList
+       Source: "(uint8 decimals)"
+      VariableDeclaration "decimals"
+         Type: uint8
+         Source: "uint8 decimals"
+        ElementaryTypeName uint8
+           Source: "uint8"
+    Block
+       Source: "{ decimals; }"
+      ExpressionStatement
+         Source: "decimals"
+        Identifier decimals
+           Type: uint8
+           Source: "decimals"
+  FunctionDefinition "totalSupply" - public - const
+     Source: "function totalSupply() public constant returns (uint256 totalSupply) { totalSupply; }"
+    ParameterList
+       Source: "()"
+    ParameterList
+       Source: "(uint256 totalSupply)"
+      VariableDeclaration "totalSupply"
+         Type: uint256
+         Source: "uint256 totalSupply"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{ totalSupply; }"
+      ExpressionStatement
+         Source: "totalSupply"
+        Identifier totalSupply
+           Type: uint256
+           Source: "totalSupply"
+  FunctionDefinition "balanceOf" - public - const
+     Source: "function balanceOf(address _owner) public constant returns (uint256 balance) { _owner; balance; }"
+    ParameterList
+       Source: "(address _owner)"
+      VariableDeclaration "_owner"
+         Type: address
+         Source: "address _owner"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Source: "(uint256 balance)"
+      VariableDeclaration "balance"
+         Type: uint256
+         Source: "uint256 balance"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{ _owner; balance; }"
+      ExpressionStatement
+         Source: "_owner"
+        Identifier _owner
+           Type: address
+           Source: "_owner"
+      ExpressionStatement
+         Source: "balance"
+        Identifier balance
+           Type: uint256
+           Source: "balance"
+  FunctionDefinition "allowance" - public - const
+     Source: "function allowance(address _owner, address _spender) public constant returns (uint256 remaining) { _owner; _spender; remaining; }"
+    ParameterList
+       Source: "(address _owner, address _spender)"
+      VariableDeclaration "_owner"
+         Type: address
+         Source: "address _owner"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_spender"
+         Type: address
+         Source: "address _spender"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Source: "(uint256 remaining)"
+      VariableDeclaration "remaining"
+         Type: uint256
+         Source: "uint256 remaining"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{ _owner; _spender; remaining; }"
+      ExpressionStatement
+         Source: "_owner"
+        Identifier _owner
+           Type: address
+           Source: "_owner"
+      ExpressionStatement
+         Source: "_spender"
+        Identifier _spender
+           Type: address
+           Source: "_spender"
+      ExpressionStatement
+         Source: "remaining"
+        Identifier remaining
+           Type: uint256
+           Source: "remaining"
+  FunctionDefinition "transfer" - public
+     Source: "function transfer(address _to, uint256 _value) public returns (bool success);"
+    ParameterList
+       Source: "(address _to, uint256 _value)"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+  FunctionDefinition "transferFrom" - public
+     Source: "function transferFrom(address _from, address _to, uint256 _value) public returns (bool success);"
+    ParameterList
+       Source: "(address _from, address _to, uint256 _value)"
+      VariableDeclaration "_from"
+         Type: address
+         Source: "address _from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+  FunctionDefinition "approve" - public
+     Source: "function approve(address _spender, uint256 _value) public returns (bool success);"
+    ParameterList
+       Source: "(address _spender, uint256 _value)"
+      VariableDeclaration "_spender"
+         Type: address
+         Source: "address _spender"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+ContractDefinition "ERC20Token"
+   Source: "contract ERC20Token is IERC20Token, SafeMath {\r\n    string public standard = 'Token 0.1';\r\n    string public name = 'Z1Coin';\r\n    string public symbol = 'Z1C';\r\n    uint8 public decimals = 8;\r\n    uint256 public totalSupply = 0;\r\n    mapping (address => uint256) public balanceOf;\r\n    mapping (address => mapping (address => uint256)) public allowance;\r\n\r\n    event Transfer(address indexed _from, address indexed _to, uint256 _value);\r\n    event Approval(address indexed _owner, address indexed _spender, uint256 _value);\r\n\r\n    /**\r\n        @dev constructor\r\n\r\n        @param _name        token name\r\n        @param _symbol      token symbol\r\n        @param _decimals    decimal points, for display purposes\r\n    */\r\n    function ERC20Token(string _name, string _symbol, uint8 _decimals) {\r\n        require(bytes(_name).length > 0 && bytes(_symbol).length > 0); // validate input\r\n\r\n        name = _name;\r\n        symbol = _symbol;\r\n        decimals = _decimals;\r\n    }\r\n\r\n    // validates an address - currently only checks that it isn't null\r\n    modifier validAddress(address _address) {\r\n        require(_address != 0x0);\r\n        _;\r\n    }\r\n    \r\n    // since v0.4.12 compiler we need this \r\n    modifier validAddressForSecond(address _address) {\r\n        require(_address != 0x0);\r\n        _;\r\n    }\r\n\r\n    /**\r\n        @dev send coins\r\n        throws on any error rather then return a false flag to minimize user errors\r\n\r\n        @param _to      target address\r\n        @param _value   transfer amount\r\n\r\n        @return true if the transfer was successful, false if it wasn't\r\n    */\r\n    function transfer(address _to, uint256 _value)\r\n        public\r\n        validAddress(_to)\r\n        returns (bool success)\r\n    {\r\n        balanceOf[msg.sender] = safeSub(balanceOf[msg.sender], _value);\r\n        balanceOf[_to] = safeAdd(balanceOf[_to], _value);\r\n        Transfer(msg.sender, _to, _value);\r\n        return true;\r\n    }\r\n\r\n    /**\r\n        @dev an account/contract attempts to get the coins\r\n        throws on any error rather then return a false flag to minimize user errors\r\n\r\n        @param _from    source address\r\n        @param _to      target address\r\n        @param _value   transfer amount\r\n\r\n        @return true if the transfer was successful, false if it wasn't\r\n    */\r\n    function transferFrom(address _from, address _to, uint256 _value)\r\n        public\r\n        validAddress(_from)\r\n        validAddressForSecond(_to)\r\n        returns (bool success)\r\n    {\r\n        allowance[_from][msg.sender] = safeSub(allowance[_from][msg.sender], _value);\r\n        balanceOf[_from] = safeSub(balanceOf[_from], _value);\r\n        balanceOf[_to] = safeAdd(balanceOf[_to], _value);\r\n        Transfer(_from, _to, _value);\r\n        return true;\r\n    }\r\n\r\n    /**\r\n        @dev allow another account/contract to spend some tokens on your behalf\r\n        throws on any error rather then return a false flag to minimize user errors\r\n\r\n        also, to minimize the risk of the approve/transferFrom attack vector\r\n        (see https://docs.google.com/document/d/1YLPtQxZu1UAvO9cZ1O2RPXBbT0mooh4DYKjA_jp-RLM/), approve has to be called twice\r\n        in 2 separate transactions - once to change the allowance to 0 and secondly to change it to the new allowance value\r\n\r\n        @param _spender approved address\r\n        @param _value   allowance amount\r\n\r\n        @return true if the approval was successful, false if it wasn't\r\n    */\r\n    function approve(address _spender, uint256 _value)\r\n        public\r\n        validAddress(_spender)\r\n        returns (bool success)\r\n    {\r\n        // if the allowance isn't 0, it can only be updated to 0 to prevent an allowance change immediately after withdrawal\r\n        require(_value == 0 || allowance[msg.sender][_spender] == 0);\r\n\r\n        allowance[msg.sender][_spender] = _value;\r\n        Approval(msg.sender, _spender, _value);\r\n        return true;\r\n    }\r\n}"
+  InheritanceSpecifier
+     Source: "IERC20Token"
+    UserDefinedTypeName "IERC20Token"
+       Source: "IERC20Token"
+  InheritanceSpecifier
+     Source: "SafeMath"
+    UserDefinedTypeName "SafeMath"
+       Source: "SafeMath"
+  VariableDeclaration "standard"
+     Type: string storage ref
+     Source: "string public standard = 'Token 0.1'"
+    ElementaryTypeName string
+       Source: "string"
+    Literal, token: [no token] value: Token 0.1
+       Type: literal_string "Token 0.1"
+       Source: "'Token 0.1'"
+  VariableDeclaration "name"
+     Type: string storage ref
+     Source: "string public name = 'Z1Coin'"
+    ElementaryTypeName string
+       Source: "string"
+    Literal, token: [no token] value: Z1Coin
+       Type: literal_string "Z1Coin"
+       Source: "'Z1Coin'"
+  VariableDeclaration "symbol"
+     Type: string storage ref
+     Source: "string public symbol = 'Z1C'"
+    ElementaryTypeName string
+       Source: "string"
+    Literal, token: [no token] value: Z1C
+       Type: literal_string "Z1C"
+       Source: "'Z1C'"
+  VariableDeclaration "decimals"
+     Type: uint8
+     Source: "uint8 public decimals = 8"
+    ElementaryTypeName uint8
+       Source: "uint8"
+    Literal, token: [no token] value: 8
+       Type: int_const 8
+       Source: "8"
+  VariableDeclaration "totalSupply"
+     Type: uint256
+     Source: "uint256 public totalSupply = 0"
+    ElementaryTypeName uint256
+       Source: "uint256"
+    Literal, token: [no token] value: 0
+       Type: int_const 0
+       Source: "0"
+  VariableDeclaration "balanceOf"
+     Type: mapping(address => uint256)
+     Source: "mapping (address => uint256) public balanceOf"
+    Mapping
+       Source: "mapping (address => uint256)"
+      ElementaryTypeName address
+         Source: "address"
+      ElementaryTypeName uint256
+         Source: "uint256"
+  VariableDeclaration "allowance"
+     Type: mapping(address => mapping(address => uint256))
+     Source: "mapping (address => mapping (address => uint256)) public allowance"
+    Mapping
+       Source: "mapping (address => mapping (address => uint256))"
+      ElementaryTypeName address
+         Source: "address"
+      Mapping
+         Source: "mapping (address => uint256)"
+        ElementaryTypeName address
+           Source: "address"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  EventDefinition "Transfer"
+     Source: "event Transfer(address indexed _from, address indexed _to, uint256 _value);"
+    ParameterList
+       Source: "(address indexed _from, address indexed _to, uint256 _value)"
+      VariableDeclaration "_from"
+         Type: address
+         Source: "address indexed _from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address indexed _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  EventDefinition "Approval"
+     Source: "event Approval(address indexed _owner, address indexed _spender, uint256 _value);"
+    ParameterList
+       Source: "(address indexed _owner, address indexed _spender, uint256 _value)"
+      VariableDeclaration "_owner"
+         Type: address
+         Source: "address indexed _owner"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_spender"
+         Type: address
+         Source: "address indexed _spender"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  FunctionDefinition "ERC20Token" - public
+     Source: "function ERC20Token(string _name, string _symbol, uint8 _decimals) {\r\n        require(bytes(_name).length > 0 && bytes(_symbol).length > 0); // validate input\r\n\r\n        name = _name;\r\n        symbol = _symbol;\r\n        decimals = _decimals;\r\n    }"
+    ParameterList
+       Source: "(string _name, string _symbol, uint8 _decimals)"
+      VariableDeclaration "_name"
+         Type: string memory
+         Source: "string _name"
+        ElementaryTypeName string
+           Source: "string"
+      VariableDeclaration "_symbol"
+         Type: string memory
+         Source: "string _symbol"
+        ElementaryTypeName string
+           Source: "string"
+      VariableDeclaration "_decimals"
+         Type: uint8
+         Source: "uint8 _decimals"
+        ElementaryTypeName uint8
+           Source: "uint8"
+    ParameterList
+       Source: ""
+    Block
+       Source: "{\r\n        require(bytes(_name).length > 0 && bytes(_symbol).length > 0); // validate input\r\n\r\n        name = _name;\r\n        symbol = _symbol;\r\n        decimals = _decimals;\r\n    }"
+      ExpressionStatement
+         Source: "require(bytes(_name).length > 0 && bytes(_symbol).length > 0)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(bytes(_name).length > 0 && bytes(_symbol).length > 0)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator &&
+             Type: bool
+             Source: "bytes(_name).length > 0 && bytes(_symbol).length > 0"
+            BinaryOperation using operator >
+               Type: bool
+               Source: "bytes(_name).length > 0"
+              MemberAccess to member length
+                 Type: uint256
+                 Source: "bytes(_name).length"
+                FunctionCall
+                   Type: bytes memory
+                   Source: "bytes(_name)"
+                  ElementaryTypeNameExpression bytes
+                     Type: type(bytes storage pointer)
+                     Source: "bytes"
+                  Identifier _name
+                     Type: string memory
+                     Source: "_name"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+            BinaryOperation using operator >
+               Type: bool
+               Source: "bytes(_symbol).length > 0"
+              MemberAccess to member length
+                 Type: uint256
+                 Source: "bytes(_symbol).length"
+                FunctionCall
+                   Type: bytes memory
+                   Source: "bytes(_symbol)"
+                  ElementaryTypeNameExpression bytes
+                     Type: type(bytes storage pointer)
+                     Source: "bytes"
+                  Identifier _symbol
+                     Type: string memory
+                     Source: "_symbol"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+      ExpressionStatement
+         Source: "name = _name"
+        Assignment using operator =
+           Type: string storage ref
+           Source: "name = _name"
+          Identifier name
+             Type: string storage ref
+             Source: "name"
+          Identifier _name
+             Type: string memory
+             Source: "_name"
+      ExpressionStatement
+         Source: "symbol = _symbol"
+        Assignment using operator =
+           Type: string storage ref
+           Source: "symbol = _symbol"
+          Identifier symbol
+             Type: string storage ref
+             Source: "symbol"
+          Identifier _symbol
+             Type: string memory
+             Source: "_symbol"
+      ExpressionStatement
+         Source: "decimals = _decimals"
+        Assignment using operator =
+           Type: uint8
+           Source: "decimals = _decimals"
+          Identifier decimals
+             Type: uint8
+             Source: "decimals"
+          Identifier _decimals
+             Type: uint8
+             Source: "_decimals"
+  ModifierDefinition "validAddress"
+     Source: "modifier validAddress(address _address) {\r\n        require(_address != 0x0);\r\n        _;\r\n    }"
+    ParameterList
+       Source: "(address _address)"
+      VariableDeclaration "_address"
+         Type: address
+         Source: "address _address"
+        ElementaryTypeName address
+           Source: "address"
+    Block
+       Source: "{\r\n        require(_address != 0x0);\r\n        _;\r\n    }"
+      ExpressionStatement
+         Source: "require(_address != 0x0)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(_address != 0x0)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator !=
+             Type: bool
+             Source: "_address != 0x0"
+            Identifier _address
+               Type: address
+               Source: "_address"
+            Literal, token: [no token] value: 0x0
+               Type: int_const 0
+               Source: "0x0"
+      PlaceholderStatement
+         Source: "_"
+  ModifierDefinition "validAddressForSecond"
+     Source: "modifier validAddressForSecond(address _address) {\r\n        require(_address != 0x0);\r\n        _;\r\n    }"
+    ParameterList
+       Source: "(address _address)"
+      VariableDeclaration "_address"
+         Type: address
+         Source: "address _address"
+        ElementaryTypeName address
+           Source: "address"
+    Block
+       Source: "{\r\n        require(_address != 0x0);\r\n        _;\r\n    }"
+      ExpressionStatement
+         Source: "require(_address != 0x0)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(_address != 0x0)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator !=
+             Type: bool
+             Source: "_address != 0x0"
+            Identifier _address
+               Type: address
+               Source: "_address"
+            Literal, token: [no token] value: 0x0
+               Type: int_const 0
+               Source: "0x0"
+      PlaceholderStatement
+         Source: "_"
+  FunctionDefinition "transfer" - public
+     Source: "function transfer(address _to, uint256 _value)\r\n        public\r\n        validAddress(_to)\r\n        returns (bool success)\r\n    {\r\n        balanceOf[msg.sender] = safeSub(balanceOf[msg.sender], _value);\r\n        balanceOf[_to] = safeAdd(balanceOf[_to], _value);\r\n        Transfer(msg.sender, _to, _value);\r\n        return true;\r\n    }"
+    ParameterList
+       Source: "(address _to, uint256 _value)"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+    ModifierInvocation "validAddress"
+       Source: "validAddress(_to)"
+      Identifier validAddress
+         Type: modifier (address)
+         Source: "validAddress"
+      Identifier _to
+         Type: address
+         Source: "_to"
+    Block
+       Source: "{\r\n        balanceOf[msg.sender] = safeSub(balanceOf[msg.sender], _value);\r\n        balanceOf[_to] = safeAdd(balanceOf[_to], _value);\r\n        Transfer(msg.sender, _to, _value);\r\n        return true;\r\n    }"
+      ExpressionStatement
+         Source: "balanceOf[msg.sender] = safeSub(balanceOf[msg.sender], _value)"
+        Assignment using operator =
+           Type: uint256
+           Source: "balanceOf[msg.sender] = safeSub(balanceOf[msg.sender], _value)"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[msg.sender]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          FunctionCall
+             Type: uint256
+             Source: "safeSub(balanceOf[msg.sender], _value)"
+            Identifier safeSub
+               Type: function (uint256,uint256) returns (uint256)
+               Source: "safeSub"
+            IndexAccess
+               Type: uint256
+               Source: "balanceOf[msg.sender]"
+              Identifier balanceOf
+                 Type: mapping(address => uint256)
+                 Source: "balanceOf"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+      ExpressionStatement
+         Source: "balanceOf[_to] = safeAdd(balanceOf[_to], _value)"
+        Assignment using operator =
+           Type: uint256
+           Source: "balanceOf[_to] = safeAdd(balanceOf[_to], _value)"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[_to]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            Identifier _to
+               Type: address
+               Source: "_to"
+          FunctionCall
+             Type: uint256
+             Source: "safeAdd(balanceOf[_to], _value)"
+            Identifier safeAdd
+               Type: function (uint256,uint256) returns (uint256)
+               Source: "safeAdd"
+            IndexAccess
+               Type: uint256
+               Source: "balanceOf[_to]"
+              Identifier balanceOf
+                 Type: mapping(address => uint256)
+                 Source: "balanceOf"
+              Identifier _to
+                 Type: address
+                 Source: "_to"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+      ExpressionStatement
+         Source: "Transfer(msg.sender, _to, _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "Transfer(msg.sender, _to, _value)"
+          Identifier Transfer
+             Type: function (address,address,uint256)
+             Source: "Transfer"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier _to
+             Type: address
+             Source: "_to"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      Return
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+  FunctionDefinition "transferFrom" - public
+     Source: "function transferFrom(address _from, address _to, uint256 _value)\r\n        public\r\n        validAddress(_from)\r\n        validAddressForSecond(_to)\r\n        returns (bool success)\r\n    {\r\n        allowance[_from][msg.sender] = safeSub(allowance[_from][msg.sender], _value);\r\n        balanceOf[_from] = safeSub(balanceOf[_from], _value);\r\n        balanceOf[_to] = safeAdd(balanceOf[_to], _value);\r\n        Transfer(_from, _to, _value);\r\n        return true;\r\n    }"
+    ParameterList
+       Source: "(address _from, address _to, uint256 _value)"
+      VariableDeclaration "_from"
+         Type: address
+         Source: "address _from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+    ModifierInvocation "validAddress"
+       Source: "validAddress(_from)"
+      Identifier validAddress
+         Type: modifier (address)
+         Source: "validAddress"
+      Identifier _from
+         Type: address
+         Source: "_from"
+    ModifierInvocation "validAddressForSecond"
+       Source: "validAddressForSecond(_to)"
+      Identifier validAddressForSecond
+         Type: modifier (address)
+         Source: "validAddressForSecond"
+      Identifier _to
+         Type: address
+         Source: "_to"
+    Block
+       Source: "{\r\n        allowance[_from][msg.sender] = safeSub(allowance[_from][msg.sender], _value);\r\n        balanceOf[_from] = safeSub(balanceOf[_from], _value);\r\n        balanceOf[_to] = safeAdd(balanceOf[_to], _value);\r\n        Transfer(_from, _to, _value);\r\n        return true;\r\n    }"
+      ExpressionStatement
+         Source: "allowance[_from][msg.sender] = safeSub(allowance[_from][msg.sender], _value)"
+        Assignment using operator =
+           Type: uint256
+           Source: "allowance[_from][msg.sender] = safeSub(allowance[_from][msg.sender], _value)"
+          IndexAccess
+             Type: uint256
+             Source: "allowance[_from][msg.sender]"
+            IndexAccess
+               Type: mapping(address => uint256)
+               Source: "allowance[_from]"
+              Identifier allowance
+                 Type: mapping(address => mapping(address => uint256))
+                 Source: "allowance"
+              Identifier _from
+                 Type: address
+                 Source: "_from"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          FunctionCall
+             Type: uint256
+             Source: "safeSub(allowance[_from][msg.sender], _value)"
+            Identifier safeSub
+               Type: function (uint256,uint256) returns (uint256)
+               Source: "safeSub"
+            IndexAccess
+               Type: uint256
+               Source: "allowance[_from][msg.sender]"
+              IndexAccess
+                 Type: mapping(address => uint256)
+                 Source: "allowance[_from]"
+                Identifier allowance
+                   Type: mapping(address => mapping(address => uint256))
+                   Source: "allowance"
+                Identifier _from
+                   Type: address
+                   Source: "_from"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+      ExpressionStatement
+         Source: "balanceOf[_from] = safeSub(balanceOf[_from], _value)"
+        Assignment using operator =
+           Type: uint256
+           Source: "balanceOf[_from] = safeSub(balanceOf[_from], _value)"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[_from]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            Identifier _from
+               Type: address
+               Source: "_from"
+          FunctionCall
+             Type: uint256
+             Source: "safeSub(balanceOf[_from], _value)"
+            Identifier safeSub
+               Type: function (uint256,uint256) returns (uint256)
+               Source: "safeSub"
+            IndexAccess
+               Type: uint256
+               Source: "balanceOf[_from]"
+              Identifier balanceOf
+                 Type: mapping(address => uint256)
+                 Source: "balanceOf"
+              Identifier _from
+                 Type: address
+                 Source: "_from"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+      ExpressionStatement
+         Source: "balanceOf[_to] = safeAdd(balanceOf[_to], _value)"
+        Assignment using operator =
+           Type: uint256
+           Source: "balanceOf[_to] = safeAdd(balanceOf[_to], _value)"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[_to]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            Identifier _to
+               Type: address
+               Source: "_to"
+          FunctionCall
+             Type: uint256
+             Source: "safeAdd(balanceOf[_to], _value)"
+            Identifier safeAdd
+               Type: function (uint256,uint256) returns (uint256)
+               Source: "safeAdd"
+            IndexAccess
+               Type: uint256
+               Source: "balanceOf[_to]"
+              Identifier balanceOf
+                 Type: mapping(address => uint256)
+                 Source: "balanceOf"
+              Identifier _to
+                 Type: address
+                 Source: "_to"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+      ExpressionStatement
+         Source: "Transfer(_from, _to, _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "Transfer(_from, _to, _value)"
+          Identifier Transfer
+             Type: function (address,address,uint256)
+             Source: "Transfer"
+          Identifier _from
+             Type: address
+             Source: "_from"
+          Identifier _to
+             Type: address
+             Source: "_to"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      Return
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+  FunctionDefinition "approve" - public
+     Source: "function approve(address _spender, uint256 _value)\r\n        public\r\n        validAddress(_spender)\r\n        returns (bool success)\r\n    {\r\n        // if the allowance isn't 0, it can only be updated to 0 to prevent an allowance change immediately after withdrawal\r\n        require(_value == 0 || allowance[msg.sender][_spender] == 0);\r\n\r\n        allowance[msg.sender][_spender] = _value;\r\n        Approval(msg.sender, _spender, _value);\r\n        return true;\r\n    }"
+    ParameterList
+       Source: "(address _spender, uint256 _value)"
+      VariableDeclaration "_spender"
+         Type: address
+         Source: "address _spender"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+    ModifierInvocation "validAddress"
+       Source: "validAddress(_spender)"
+      Identifier validAddress
+         Type: modifier (address)
+         Source: "validAddress"
+      Identifier _spender
+         Type: address
+         Source: "_spender"
+    Block
+       Source: "{\r\n        // if the allowance isn't 0, it can only be updated to 0 to prevent an allowance change immediately after withdrawal\r\n        require(_value == 0 || allowance[msg.sender][_spender] == 0);\r\n\r\n        allowance[msg.sender][_spender] = _value;\r\n        Approval(msg.sender, _spender, _value);\r\n        return true;\r\n    }"
+      ExpressionStatement
+         Source: "require(_value == 0 || allowance[msg.sender][_spender] == 0)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(_value == 0 || allowance[msg.sender][_spender] == 0)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ||
+             Type: bool
+             Source: "_value == 0 || allowance[msg.sender][_spender] == 0"
+            BinaryOperation using operator ==
+               Type: bool
+               Source: "_value == 0"
+              Identifier _value
+                 Type: uint256
+                 Source: "_value"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+            BinaryOperation using operator ==
+               Type: bool
+               Source: "allowance[msg.sender][_spender] == 0"
+              IndexAccess
+                 Type: uint256
+                 Source: "allowance[msg.sender][_spender]"
+                IndexAccess
+                   Type: mapping(address => uint256)
+                   Source: "allowance[msg.sender]"
+                  Identifier allowance
+                     Type: mapping(address => mapping(address => uint256))
+                     Source: "allowance"
+                  MemberAccess to member sender
+                     Type: address
+                     Source: "msg.sender"
+                    Identifier msg
+                       Type: msg
+                       Source: "msg"
+                Identifier _spender
+                   Type: address
+                   Source: "_spender"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+      ExpressionStatement
+         Source: "allowance[msg.sender][_spender] = _value"
+        Assignment using operator =
+           Type: uint256
+           Source: "allowance[msg.sender][_spender] = _value"
+          IndexAccess
+             Type: uint256
+             Source: "allowance[msg.sender][_spender]"
+            IndexAccess
+               Type: mapping(address => uint256)
+               Source: "allowance[msg.sender]"
+              Identifier allowance
+                 Type: mapping(address => mapping(address => uint256))
+                 Source: "allowance"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+            Identifier _spender
+               Type: address
+               Source: "_spender"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Source: "Approval(msg.sender, _spender, _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "Approval(msg.sender, _spender, _value)"
+          Identifier Approval
+             Type: function (address,address,uint256)
+             Source: "Approval"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier _spender
+             Type: address
+             Source: "_spender"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      Return
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+ContractDefinition "IZ1Coin"
+   Source: "contract IZ1Coin is ITokenHolder, IERC20Token {\r\n    function disableTransfers(bool _disable) public;\r\n    function issue(address _to, uint256 _amount) public;\r\n    function destroy(address _from, uint256 _amount) public;\r\n}"
+  InheritanceSpecifier
+     Source: "ITokenHolder"
+    UserDefinedTypeName "ITokenHolder"
+       Source: "ITokenHolder"
+  InheritanceSpecifier
+     Source: "IERC20Token"
+    UserDefinedTypeName "IERC20Token"
+       Source: "IERC20Token"
+  FunctionDefinition "disableTransfers" - public
+     Source: "function disableTransfers(bool _disable) public;"
+    ParameterList
+       Source: "(bool _disable)"
+      VariableDeclaration "_disable"
+         Type: bool
+         Source: "bool _disable"
+        ElementaryTypeName bool
+           Source: "bool"
+    ParameterList
+       Source: ""
+  FunctionDefinition "issue" - public
+     Source: "function issue(address _to, uint256 _amount) public;"
+    ParameterList
+       Source: "(address _to, uint256 _amount)"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_amount"
+         Type: uint256
+         Source: "uint256 _amount"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Source: ""
+  FunctionDefinition "destroy" - public
+     Source: "function destroy(address _from, uint256 _amount) public;"
+    ParameterList
+       Source: "(address _from, uint256 _amount)"
+      VariableDeclaration "_from"
+         Type: address
+         Source: "address _from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_amount"
+         Type: uint256
+         Source: "uint256 _amount"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Source: ""
+ContractDefinition "Z1Coin"
+   Source: "contract Z1Coin is IZ1Coin, ERC20Token, Owned, TokenHolder {\r\n    string public version = '0.2';\r\n\r\n    bool public transfersEnabled = true;    // true if transfer/transferFrom are enabled, false if not\r\n    uint public MiningRewardPerETHBlock = 5;  // define amount of reaward in Z1Coin, for miner that found last block in Ethereum BlockChain\r\n    uint public lastBlockRewarded;\r\n    \r\n    // triggered when a Z1Coin token is deployed - the _token address is defined for forward compatibility, in case we want to trigger the event from a factory\r\n    event Z1CoinGenesis(address _token);\r\n    // triggered when the total supply is increased\r\n    event Issuance(uint256 _amount);\r\n    // triggered when the total supply is decreased\r\n    event Destruction(uint256 _amount);\r\n    // triggered when the amount of reaward for mining are changesd\r\n    event MiningRewardChanged(uint256 _amount);\r\n    // triggered when miner get a reward\r\n    event MiningRewardSent(address indexed _from, address indexed _to, uint256 _value);\r\n\r\n    /**\r\n        @dev constructor\r\n\r\n        @param _name       token name\r\n        @param _symbol     token short symbol, 1-6 characters\r\n        @param _decimals   for display purposes only\r\n    */\r\n    function Z1Coin(string _name, string _symbol, uint8 _decimals)\r\n        ERC20Token(_name, _symbol, _decimals)\r\n    {\r\n        require(bytes(_symbol).length <= 6); // validate input\r\n        Z1CoinGenesis(address(this));\r\n    }\r\n\r\n    // allows execution only when transfers aren't disabled\r\n    modifier transfersAllowed {\r\n        assert(transfersEnabled);\r\n        _;\r\n    }\r\n\r\n    /**\r\n        @dev disables/enables transfers\r\n        can only be called by the contract owner\r\n\r\n        @param _disable    true to disable transfers, false to enable them\r\n    */\r\n    function disableTransfers(bool _disable) public ownerOnly {\r\n        transfersEnabled = !_disable;\r\n    }\r\n\r\n    /**\r\n        @dev anyone who finds a block on ethereum would also get a reward in \r\n        Z1Coin, given that anyone calls the reward function on that block\r\n    */\r\n    function TransferMinersReward() {\r\n        require(lastBlockRewarded < block.number);\r\n        lastBlockRewarded = block.number;\r\n        totalSupply = safeAdd(totalSupply, MiningRewardPerETHBlock);\r\n        balanceOf[block.coinbase] = safeAdd(balanceOf[block.coinbase], MiningRewardPerETHBlock);\r\n        MiningRewardSent(this, block.coinbase, MiningRewardPerETHBlock);\r\n    }\r\n    \r\n    /**\r\n        @dev change miners reward\r\n        can only be called by the contract owner\r\n\r\n        @param _amount    amount to increase the supply by\r\n    */\r\n    function ChangeMiningReward(uint256 _amount) public ownerOnly {\r\n        MiningRewardPerETHBlock = _amount;\r\n        MiningRewardChanged(_amount);\r\n    }\r\n    \r\n    /**\r\n        @dev increases the token supply and sends the new tokens to an account\r\n        can only be called by the contract owner\r\n\r\n        @param _to         account to receive the new amount\r\n        @param _amount     amount to increase the supply by\r\n    */\r\n    function issue(address _to, uint256 _amount)\r\n        public\r\n        ownerOnly\r\n        validAddress(_to)\r\n        notThis(_to)\r\n    {\r\n        totalSupply = safeAdd(totalSupply, _amount);\r\n        balanceOf[_to] = safeAdd(balanceOf[_to], _amount);\r\n\r\n        Issuance(_amount);\r\n        Transfer(this, _to, _amount);\r\n    }\r\n\r\n    /**\r\n        @dev removes tokens from an account and decreases the token supply\r\n        can only be called by the contract owner\r\n\r\n        @param _from       account to remove the amount from\r\n        @param _amount     amount to decrease the supply by\r\n    */\r\n    function destroy(address _from, uint256 _amount)\r\n        public\r\n        ownerOnly\r\n    {\r\n        balanceOf[_from] = safeSub(balanceOf[_from], _amount);\r\n        totalSupply = safeSub(totalSupply, _amount);\r\n\r\n        Transfer(_from, this, _amount);\r\n        Destruction(_amount);\r\n    }\r\n\r\n    // ERC20 standard method overrides with some extra functionality\r\n\r\n    /**\r\n        @dev send coins\r\n        throws on any error rather then return a false flag to minimize user errors\r\n        note that when transferring to the smart token's address, the coins are actually destroyed\r\n\r\n        @param _to      target address\r\n        @param _value   transfer amount\r\n\r\n        @return true if the transfer was successful, false if it wasn't\r\n    */\r\n    function transfer(address _to, uint256 _value) public transfersAllowed returns (bool success) {\r\n        assert(super.transfer(_to, _value));\r\n\r\n        // transferring to the contract address destroys tokens\r\n        if (_to == address(this)) {\r\n            balanceOf[_to] -= _value;\r\n            totalSupply -= _value;\r\n            Destruction(_value);\r\n        }\r\n\r\n        return true;\r\n    }\r\n\r\n    /**\r\n        @dev an account/contract attempts to get the coins\r\n        throws on any error rather then return a false flag to minimize user errors\r\n        note that when transferring to the smart token's address, the coins are actually destroyed\r\n\r\n        @param _from    source address\r\n        @param _to      target address\r\n        @param _value   transfer amount\r\n\r\n        @return true if the transfer was successful, false if it wasn't\r\n    */\r\n    function transferFrom(address _from, address _to, uint256 _value) public transfersAllowed returns (bool success) {\r\n        assert(super.transferFrom(_from, _to, _value));\r\n\r\n        // transferring to the contract address destroys tokens\r\n        if (_to == address(this)) {\r\n            balanceOf[_to] -= _value;\r\n            totalSupply -= _value;\r\n            Destruction(_value);\r\n        }\r\n\r\n        return true;\r\n    }\r\n}"
+  InheritanceSpecifier
+     Source: "IZ1Coin"
+    UserDefinedTypeName "IZ1Coin"
+       Source: "IZ1Coin"
+  InheritanceSpecifier
+     Source: "ERC20Token"
+    UserDefinedTypeName "ERC20Token"
+       Source: "ERC20Token"
+  InheritanceSpecifier
+     Source: "Owned"
+    UserDefinedTypeName "Owned"
+       Source: "Owned"
+  InheritanceSpecifier
+     Source: "TokenHolder"
+    UserDefinedTypeName "TokenHolder"
+       Source: "TokenHolder"
+  VariableDeclaration "version"
+     Type: string storage ref
+     Source: "string public version = '0.2'"
+    ElementaryTypeName string
+       Source: "string"
+    Literal, token: [no token] value: 0.2
+       Type: literal_string "0.2"
+       Source: "'0.2'"
+  VariableDeclaration "transfersEnabled"
+     Type: bool
+     Source: "bool public transfersEnabled = true"
+    ElementaryTypeName bool
+       Source: "bool"
+    Literal, token: true value: true
+       Type: bool
+       Source: "true"
+  VariableDeclaration "MiningRewardPerETHBlock"
+     Type: uint256
+     Source: "uint public MiningRewardPerETHBlock = 5"
+    ElementaryTypeName uint
+       Source: "uint"
+    Literal, token: [no token] value: 5
+       Type: int_const 5
+       Source: "5"
+  VariableDeclaration "lastBlockRewarded"
+     Type: uint256
+     Source: "uint public lastBlockRewarded"
+    ElementaryTypeName uint
+       Source: "uint"
+  EventDefinition "Z1CoinGenesis"
+     Source: "event Z1CoinGenesis(address _token);"
+    ParameterList
+       Source: "(address _token)"
+      VariableDeclaration "_token"
+         Type: address
+         Source: "address _token"
+        ElementaryTypeName address
+           Source: "address"
+  EventDefinition "Issuance"
+     Source: "event Issuance(uint256 _amount);"
+    ParameterList
+       Source: "(uint256 _amount)"
+      VariableDeclaration "_amount"
+         Type: uint256
+         Source: "uint256 _amount"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  EventDefinition "Destruction"
+     Source: "event Destruction(uint256 _amount);"
+    ParameterList
+       Source: "(uint256 _amount)"
+      VariableDeclaration "_amount"
+         Type: uint256
+         Source: "uint256 _amount"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  EventDefinition "MiningRewardChanged"
+     Source: "event MiningRewardChanged(uint256 _amount);"
+    ParameterList
+       Source: "(uint256 _amount)"
+      VariableDeclaration "_amount"
+         Type: uint256
+         Source: "uint256 _amount"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  EventDefinition "MiningRewardSent"
+     Source: "event MiningRewardSent(address indexed _from, address indexed _to, uint256 _value);"
+    ParameterList
+       Source: "(address indexed _from, address indexed _to, uint256 _value)"
+      VariableDeclaration "_from"
+         Type: address
+         Source: "address indexed _from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address indexed _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  FunctionDefinition "Z1Coin" - public
+     Source: "function Z1Coin(string _name, string _symbol, uint8 _decimals)\r\n        ERC20Token(_name, _symbol, _decimals)\r\n    {\r\n        require(bytes(_symbol).length <= 6); // validate input\r\n        Z1CoinGenesis(address(this));\r\n    }"
+    ParameterList
+       Source: "(string _name, string _symbol, uint8 _decimals)"
+      VariableDeclaration "_name"
+         Type: string memory
+         Source: "string _name"
+        ElementaryTypeName string
+           Source: "string"
+      VariableDeclaration "_symbol"
+         Type: string memory
+         Source: "string _symbol"
+        ElementaryTypeName string
+           Source: "string"
+      VariableDeclaration "_decimals"
+         Type: uint8
+         Source: "uint8 _decimals"
+        ElementaryTypeName uint8
+           Source: "uint8"
+    ParameterList
+       Source: ""
+    ModifierInvocation "ERC20Token"
+       Source: "ERC20Token(_name, _symbol, _decimals)"
+      Identifier ERC20Token
+         Type: type(contract ERC20Token)
+         Source: "ERC20Token"
+      Identifier _name
+         Type: string memory
+         Source: "_name"
+      Identifier _symbol
+         Type: string memory
+         Source: "_symbol"
+      Identifier _decimals
+         Type: uint8
+         Source: "_decimals"
+    Block
+       Source: "{\r\n        require(bytes(_symbol).length <= 6); // validate input\r\n        Z1CoinGenesis(address(this));\r\n    }"
+      ExpressionStatement
+         Source: "require(bytes(_symbol).length <= 6)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(bytes(_symbol).length <= 6)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator <=
+             Type: bool
+             Source: "bytes(_symbol).length <= 6"
+            MemberAccess to member length
+               Type: uint256
+               Source: "bytes(_symbol).length"
+              FunctionCall
+                 Type: bytes memory
+                 Source: "bytes(_symbol)"
+                ElementaryTypeNameExpression bytes
+                   Type: type(bytes storage pointer)
+                   Source: "bytes"
+                Identifier _symbol
+                   Type: string memory
+                   Source: "_symbol"
+            Literal, token: [no token] value: 6
+               Type: int_const 6
+               Source: "6"
+      ExpressionStatement
+         Source: "Z1CoinGenesis(address(this))"
+        FunctionCall
+           Type: tuple()
+           Source: "Z1CoinGenesis(address(this))"
+          Identifier Z1CoinGenesis
+             Type: function (address)
+             Source: "Z1CoinGenesis"
+          FunctionCall
+             Type: address
+             Source: "address(this)"
+            ElementaryTypeNameExpression address
+               Type: type(address)
+               Source: "address"
+            Identifier this
+               Type: contract Z1Coin
+               Source: "this"
+  ModifierDefinition "transfersAllowed"
+     Source: "modifier transfersAllowed {\r\n        assert(transfersEnabled);\r\n        _;\r\n    }"
+    ParameterList
+       Source: ""
+    Block
+       Source: "{\r\n        assert(transfersEnabled);\r\n        _;\r\n    }"
+      ExpressionStatement
+         Source: "assert(transfersEnabled)"
+        FunctionCall
+           Type: tuple()
+           Source: "assert(transfersEnabled)"
+          Identifier assert
+             Type: function (bool) pure
+             Source: "assert"
+          Identifier transfersEnabled
+             Type: bool
+             Source: "transfersEnabled"
+      PlaceholderStatement
+         Source: "_"
+  FunctionDefinition "disableTransfers" - public
+     Source: "function disableTransfers(bool _disable) public ownerOnly {\r\n        transfersEnabled = !_disable;\r\n    }"
+    ParameterList
+       Source: "(bool _disable)"
+      VariableDeclaration "_disable"
+         Type: bool
+         Source: "bool _disable"
+        ElementaryTypeName bool
+           Source: "bool"
+    ParameterList
+       Source: ""
+    ModifierInvocation "ownerOnly"
+       Source: "ownerOnly"
+      Identifier ownerOnly
+         Type: modifier ()
+         Source: "ownerOnly"
+    Block
+       Source: "{\r\n        transfersEnabled = !_disable;\r\n    }"
+      ExpressionStatement
+         Source: "transfersEnabled = !_disable"
+        Assignment using operator =
+           Type: bool
+           Source: "transfersEnabled = !_disable"
+          Identifier transfersEnabled
+             Type: bool
+             Source: "transfersEnabled"
+          UnaryOperation (prefix) !
+             Type: bool
+             Source: "!_disable"
+            Identifier _disable
+               Type: bool
+               Source: "_disable"
+  FunctionDefinition "TransferMinersReward" - public
+     Source: "function TransferMinersReward() {\r\n        require(lastBlockRewarded < block.number);\r\n        lastBlockRewarded = block.number;\r\n        totalSupply = safeAdd(totalSupply, MiningRewardPerETHBlock);\r\n        balanceOf[block.coinbase] = safeAdd(balanceOf[block.coinbase], MiningRewardPerETHBlock);\r\n        MiningRewardSent(this, block.coinbase, MiningRewardPerETHBlock);\r\n    }"
+    ParameterList
+       Source: "()"
+    ParameterList
+       Source: ""
+    Block
+       Source: "{\r\n        require(lastBlockRewarded < block.number);\r\n        lastBlockRewarded = block.number;\r\n        totalSupply = safeAdd(totalSupply, MiningRewardPerETHBlock);\r\n        balanceOf[block.coinbase] = safeAdd(balanceOf[block.coinbase], MiningRewardPerETHBlock);\r\n        MiningRewardSent(this, block.coinbase, MiningRewardPerETHBlock);\r\n    }"
+      ExpressionStatement
+         Source: "require(lastBlockRewarded < block.number)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(lastBlockRewarded < block.number)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator <
+             Type: bool
+             Source: "lastBlockRewarded < block.number"
+            Identifier lastBlockRewarded
+               Type: uint256
+               Source: "lastBlockRewarded"
+            MemberAccess to member number
+               Type: uint256
+               Source: "block.number"
+              Identifier block
+                 Type: block
+                 Source: "block"
+      ExpressionStatement
+         Source: "lastBlockRewarded = block.number"
+        Assignment using operator =
+           Type: uint256
+           Source: "lastBlockRewarded = block.number"
+          Identifier lastBlockRewarded
+             Type: uint256
+             Source: "lastBlockRewarded"
+          MemberAccess to member number
+             Type: uint256
+             Source: "block.number"
+            Identifier block
+               Type: block
+               Source: "block"
+      ExpressionStatement
+         Source: "totalSupply = safeAdd(totalSupply, MiningRewardPerETHBlock)"
+        Assignment using operator =
+           Type: uint256
+           Source: "totalSupply = safeAdd(totalSupply, MiningRewardPerETHBlock)"
+          Identifier totalSupply
+             Type: uint256
+             Source: "totalSupply"
+          FunctionCall
+             Type: uint256
+             Source: "safeAdd(totalSupply, MiningRewardPerETHBlock)"
+            Identifier safeAdd
+               Type: function (uint256,uint256) returns (uint256)
+               Source: "safeAdd"
+            Identifier totalSupply
+               Type: uint256
+               Source: "totalSupply"
+            Identifier MiningRewardPerETHBlock
+               Type: uint256
+               Source: "MiningRewardPerETHBlock"
+      ExpressionStatement
+         Source: "balanceOf[block.coinbase] = safeAdd(balanceOf[block.coinbase], MiningRewardPerETHBlock)"
+        Assignment using operator =
+           Type: uint256
+           Source: "balanceOf[block.coinbase] = safeAdd(balanceOf[block.coinbase], MiningRewardPerETHBlock)"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[block.coinbase]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            MemberAccess to member coinbase
+               Type: address
+               Source: "block.coinbase"
+              Identifier block
+                 Type: block
+                 Source: "block"
+          FunctionCall
+             Type: uint256
+             Source: "safeAdd(balanceOf[block.coinbase], MiningRewardPerETHBlock)"
+            Identifier safeAdd
+               Type: function (uint256,uint256) returns (uint256)
+               Source: "safeAdd"
+            IndexAccess
+               Type: uint256
+               Source: "balanceOf[block.coinbase]"
+              Identifier balanceOf
+                 Type: mapping(address => uint256)
+                 Source: "balanceOf"
+              MemberAccess to member coinbase
+                 Type: address
+                 Source: "block.coinbase"
+                Identifier block
+                   Type: block
+                   Source: "block"
+            Identifier MiningRewardPerETHBlock
+               Type: uint256
+               Source: "MiningRewardPerETHBlock"
+      ExpressionStatement
+         Source: "MiningRewardSent(this, block.coinbase, MiningRewardPerETHBlock)"
+        FunctionCall
+           Type: tuple()
+           Source: "MiningRewardSent(this, block.coinbase, MiningRewardPerETHBlock)"
+          Identifier MiningRewardSent
+             Type: function (address,address,uint256)
+             Source: "MiningRewardSent"
+          Identifier this
+             Type: contract Z1Coin
+             Source: "this"
+          MemberAccess to member coinbase
+             Type: address
+             Source: "block.coinbase"
+            Identifier block
+               Type: block
+               Source: "block"
+          Identifier MiningRewardPerETHBlock
+             Type: uint256
+             Source: "MiningRewardPerETHBlock"
+  FunctionDefinition "ChangeMiningReward" - public
+     Source: "function ChangeMiningReward(uint256 _amount) public ownerOnly {\r\n        MiningRewardPerETHBlock = _amount;\r\n        MiningRewardChanged(_amount);\r\n    }"
+    ParameterList
+       Source: "(uint256 _amount)"
+      VariableDeclaration "_amount"
+         Type: uint256
+         Source: "uint256 _amount"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Source: ""
+    ModifierInvocation "ownerOnly"
+       Source: "ownerOnly"
+      Identifier ownerOnly
+         Type: modifier ()
+         Source: "ownerOnly"
+    Block
+       Source: "{\r\n        MiningRewardPerETHBlock = _amount;\r\n        MiningRewardChanged(_amount);\r\n    }"
+      ExpressionStatement
+         Source: "MiningRewardPerETHBlock = _amount"
+        Assignment using operator =
+           Type: uint256
+           Source: "MiningRewardPerETHBlock = _amount"
+          Identifier MiningRewardPerETHBlock
+             Type: uint256
+             Source: "MiningRewardPerETHBlock"
+          Identifier _amount
+             Type: uint256
+             Source: "_amount"
+      ExpressionStatement
+         Source: "MiningRewardChanged(_amount)"
+        FunctionCall
+           Type: tuple()
+           Source: "MiningRewardChanged(_amount)"
+          Identifier MiningRewardChanged
+             Type: function (uint256)
+             Source: "MiningRewardChanged"
+          Identifier _amount
+             Type: uint256
+             Source: "_amount"
+  FunctionDefinition "issue" - public
+     Source: "function issue(address _to, uint256 _amount)\r\n        public\r\n        ownerOnly\r\n        validAddress(_to)\r\n        notThis(_to)\r\n    {\r\n        totalSupply = safeAdd(totalSupply, _amount);\r\n        balanceOf[_to] = safeAdd(balanceOf[_to], _amount);\r\n\r\n        Issuance(_amount);\r\n        Transfer(this, _to, _amount);\r\n    }"
+    ParameterList
+       Source: "(address _to, uint256 _amount)"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_amount"
+         Type: uint256
+         Source: "uint256 _amount"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Source: ""
+    ModifierInvocation "ownerOnly"
+       Source: "ownerOnly"
+      Identifier ownerOnly
+         Type: modifier ()
+         Source: "ownerOnly"
+    ModifierInvocation "validAddress"
+       Source: "validAddress(_to)"
+      Identifier validAddress
+         Type: modifier (address)
+         Source: "validAddress"
+      Identifier _to
+         Type: address
+         Source: "_to"
+    ModifierInvocation "notThis"
+       Source: "notThis(_to)"
+      Identifier notThis
+         Type: modifier (address)
+         Source: "notThis"
+      Identifier _to
+         Type: address
+         Source: "_to"
+    Block
+       Source: "{\r\n        totalSupply = safeAdd(totalSupply, _amount);\r\n        balanceOf[_to] = safeAdd(balanceOf[_to], _amount);\r\n\r\n        Issuance(_amount);\r\n        Transfer(this, _to, _amount);\r\n    }"
+      ExpressionStatement
+         Source: "totalSupply = safeAdd(totalSupply, _amount)"
+        Assignment using operator =
+           Type: uint256
+           Source: "totalSupply = safeAdd(totalSupply, _amount)"
+          Identifier totalSupply
+             Type: uint256
+             Source: "totalSupply"
+          FunctionCall
+             Type: uint256
+             Source: "safeAdd(totalSupply, _amount)"
+            Identifier safeAdd
+               Type: function (uint256,uint256) returns (uint256)
+               Source: "safeAdd"
+            Identifier totalSupply
+               Type: uint256
+               Source: "totalSupply"
+            Identifier _amount
+               Type: uint256
+               Source: "_amount"
+      ExpressionStatement
+         Source: "balanceOf[_to] = safeAdd(balanceOf[_to], _amount)"
+        Assignment using operator =
+           Type: uint256
+           Source: "balanceOf[_to] = safeAdd(balanceOf[_to], _amount)"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[_to]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            Identifier _to
+               Type: address
+               Source: "_to"
+          FunctionCall
+             Type: uint256
+             Source: "safeAdd(balanceOf[_to], _amount)"
+            Identifier safeAdd
+               Type: function (uint256,uint256) returns (uint256)
+               Source: "safeAdd"
+            IndexAccess
+               Type: uint256
+               Source: "balanceOf[_to]"
+              Identifier balanceOf
+                 Type: mapping(address => uint256)
+                 Source: "balanceOf"
+              Identifier _to
+                 Type: address
+                 Source: "_to"
+            Identifier _amount
+               Type: uint256
+               Source: "_amount"
+      ExpressionStatement
+         Source: "Issuance(_amount)"
+        FunctionCall
+           Type: tuple()
+           Source: "Issuance(_amount)"
+          Identifier Issuance
+             Type: function (uint256)
+             Source: "Issuance"
+          Identifier _amount
+             Type: uint256
+             Source: "_amount"
+      ExpressionStatement
+         Source: "Transfer(this, _to, _amount)"
+        FunctionCall
+           Type: tuple()
+           Source: "Transfer(this, _to, _amount)"
+          Identifier Transfer
+             Type: function (address,address,uint256)
+             Source: "Transfer"
+          Identifier this
+             Type: contract Z1Coin
+             Source: "this"
+          Identifier _to
+             Type: address
+             Source: "_to"
+          Identifier _amount
+             Type: uint256
+             Source: "_amount"
+  FunctionDefinition "destroy" - public
+     Source: "function destroy(address _from, uint256 _amount)\r\n        public\r\n        ownerOnly\r\n    {\r\n        balanceOf[_from] = safeSub(balanceOf[_from], _amount);\r\n        totalSupply = safeSub(totalSupply, _amount);\r\n\r\n        Transfer(_from, this, _amount);\r\n        Destruction(_amount);\r\n    }"
+    ParameterList
+       Source: "(address _from, uint256 _amount)"
+      VariableDeclaration "_from"
+         Type: address
+         Source: "address _from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_amount"
+         Type: uint256
+         Source: "uint256 _amount"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Source: ""
+    ModifierInvocation "ownerOnly"
+       Source: "ownerOnly"
+      Identifier ownerOnly
+         Type: modifier ()
+         Source: "ownerOnly"
+    Block
+       Source: "{\r\n        balanceOf[_from] = safeSub(balanceOf[_from], _amount);\r\n        totalSupply = safeSub(totalSupply, _amount);\r\n\r\n        Transfer(_from, this, _amount);\r\n        Destruction(_amount);\r\n    }"
+      ExpressionStatement
+         Source: "balanceOf[_from] = safeSub(balanceOf[_from], _amount)"
+        Assignment using operator =
+           Type: uint256
+           Source: "balanceOf[_from] = safeSub(balanceOf[_from], _amount)"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[_from]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            Identifier _from
+               Type: address
+               Source: "_from"
+          FunctionCall
+             Type: uint256
+             Source: "safeSub(balanceOf[_from], _amount)"
+            Identifier safeSub
+               Type: function (uint256,uint256) returns (uint256)
+               Source: "safeSub"
+            IndexAccess
+               Type: uint256
+               Source: "balanceOf[_from]"
+              Identifier balanceOf
+                 Type: mapping(address => uint256)
+                 Source: "balanceOf"
+              Identifier _from
+                 Type: address
+                 Source: "_from"
+            Identifier _amount
+               Type: uint256
+               Source: "_amount"
+      ExpressionStatement
+         Source: "totalSupply = safeSub(totalSupply, _amount)"
+        Assignment using operator =
+           Type: uint256
+           Source: "totalSupply = safeSub(totalSupply, _amount)"
+          Identifier totalSupply
+             Type: uint256
+             Source: "totalSupply"
+          FunctionCall
+             Type: uint256
+             Source: "safeSub(totalSupply, _amount)"
+            Identifier safeSub
+               Type: function (uint256,uint256) returns (uint256)
+               Source: "safeSub"
+            Identifier totalSupply
+               Type: uint256
+               Source: "totalSupply"
+            Identifier _amount
+               Type: uint256
+               Source: "_amount"
+      ExpressionStatement
+         Source: "Transfer(_from, this, _amount)"
+        FunctionCall
+           Type: tuple()
+           Source: "Transfer(_from, this, _amount)"
+          Identifier Transfer
+             Type: function (address,address,uint256)
+             Source: "Transfer"
+          Identifier _from
+             Type: address
+             Source: "_from"
+          Identifier this
+             Type: contract Z1Coin
+             Source: "this"
+          Identifier _amount
+             Type: uint256
+             Source: "_amount"
+      ExpressionStatement
+         Source: "Destruction(_amount)"
+        FunctionCall
+           Type: tuple()
+           Source: "Destruction(_amount)"
+          Identifier Destruction
+             Type: function (uint256)
+             Source: "Destruction"
+          Identifier _amount
+             Type: uint256
+             Source: "_amount"
+  FunctionDefinition "transfer" - public
+     Source: "function transfer(address _to, uint256 _value) public transfersAllowed returns (bool success) {\r\n        assert(super.transfer(_to, _value));\r\n\r\n        // transferring to the contract address destroys tokens\r\n        if (_to == address(this)) {\r\n            balanceOf[_to] -= _value;\r\n            totalSupply -= _value;\r\n            Destruction(_value);\r\n        }\r\n\r\n        return true;\r\n    }"
+    ParameterList
+       Source: "(address _to, uint256 _value)"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+    ModifierInvocation "transfersAllowed"
+       Source: "transfersAllowed"
+      Identifier transfersAllowed
+         Type: modifier ()
+         Source: "transfersAllowed"
+    Block
+       Source: "{\r\n        assert(super.transfer(_to, _value));\r\n\r\n        // transferring to the contract address destroys tokens\r\n        if (_to == address(this)) {\r\n            balanceOf[_to] -= _value;\r\n            totalSupply -= _value;\r\n            Destruction(_value);\r\n        }\r\n\r\n        return true;\r\n    }"
+      ExpressionStatement
+         Source: "assert(super.transfer(_to, _value))"
+        FunctionCall
+           Type: tuple()
+           Source: "assert(super.transfer(_to, _value))"
+          Identifier assert
+             Type: function (bool) pure
+             Source: "assert"
+          FunctionCall
+             Type: bool
+             Source: "super.transfer(_to, _value)"
+            MemberAccess to member transfer
+               Type: function (address,uint256) returns (bool)
+               Source: "super.transfer"
+              Identifier super
+                 Type: contract super Z1Coin
+                 Source: "super"
+            Identifier _to
+               Type: address
+               Source: "_to"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+      IfStatement
+         Source: "if (_to == address(this)) {\r\n            balanceOf[_to] -= _value;\r\n            totalSupply -= _value;\r\n            Destruction(_value);\r\n        }"
+        BinaryOperation using operator ==
+           Type: bool
+           Source: "_to == address(this)"
+          Identifier _to
+             Type: address
+             Source: "_to"
+          FunctionCall
+             Type: address
+             Source: "address(this)"
+            ElementaryTypeNameExpression address
+               Type: type(address)
+               Source: "address"
+            Identifier this
+               Type: contract Z1Coin
+               Source: "this"
+        Block
+           Source: "{\r\n            balanceOf[_to] -= _value;\r\n            totalSupply -= _value;\r\n            Destruction(_value);\r\n        }"
+          ExpressionStatement
+             Source: "balanceOf[_to] -= _value"
+            Assignment using operator -=
+               Type: uint256
+               Source: "balanceOf[_to] -= _value"
+              IndexAccess
+                 Type: uint256
+                 Source: "balanceOf[_to]"
+                Identifier balanceOf
+                   Type: mapping(address => uint256)
+                   Source: "balanceOf"
+                Identifier _to
+                   Type: address
+                   Source: "_to"
+              Identifier _value
+                 Type: uint256
+                 Source: "_value"
+          ExpressionStatement
+             Source: "totalSupply -= _value"
+            Assignment using operator -=
+               Type: uint256
+               Source: "totalSupply -= _value"
+              Identifier totalSupply
+                 Type: uint256
+                 Source: "totalSupply"
+              Identifier _value
+                 Type: uint256
+                 Source: "_value"
+          ExpressionStatement
+             Source: "Destruction(_value)"
+            FunctionCall
+               Type: tuple()
+               Source: "Destruction(_value)"
+              Identifier Destruction
+                 Type: function (uint256)
+                 Source: "Destruction"
+              Identifier _value
+                 Type: uint256
+                 Source: "_value"
+      Return
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+  FunctionDefinition "transferFrom" - public
+     Source: "function transferFrom(address _from, address _to, uint256 _value) public transfersAllowed returns (bool success) {\r\n        assert(super.transferFrom(_from, _to, _value));\r\n\r\n        // transferring to the contract address destroys tokens\r\n        if (_to == address(this)) {\r\n            balanceOf[_to] -= _value;\r\n            totalSupply -= _value;\r\n            Destruction(_value);\r\n        }\r\n\r\n        return true;\r\n    }"
+    ParameterList
+       Source: "(address _from, address _to, uint256 _value)"
+      VariableDeclaration "_from"
+         Type: address
+         Source: "address _from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+    ModifierInvocation "transfersAllowed"
+       Source: "transfersAllowed"
+      Identifier transfersAllowed
+         Type: modifier ()
+         Source: "transfersAllowed"
+    Block
+       Source: "{\r\n        assert(super.transferFrom(_from, _to, _value));\r\n\r\n        // transferring to the contract address destroys tokens\r\n        if (_to == address(this)) {\r\n            balanceOf[_to] -= _value;\r\n            totalSupply -= _value;\r\n            Destruction(_value);\r\n        }\r\n\r\n        return true;\r\n    }"
+      ExpressionStatement
+         Source: "assert(super.transferFrom(_from, _to, _value))"
+        FunctionCall
+           Type: tuple()
+           Source: "assert(super.transferFrom(_from, _to, _value))"
+          Identifier assert
+             Type: function (bool) pure
+             Source: "assert"
+          FunctionCall
+             Type: bool
+             Source: "super.transferFrom(_from, _to, _value)"
+            MemberAccess to member transferFrom
+               Type: function (address,address,uint256) returns (bool)
+               Source: "super.transferFrom"
+              Identifier super
+                 Type: contract super Z1Coin
+                 Source: "super"
+            Identifier _from
+               Type: address
+               Source: "_from"
+            Identifier _to
+               Type: address
+               Source: "_to"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+      IfStatement
+         Source: "if (_to == address(this)) {\r\n            balanceOf[_to] -= _value;\r\n            totalSupply -= _value;\r\n            Destruction(_value);\r\n        }"
+        BinaryOperation using operator ==
+           Type: bool
+           Source: "_to == address(this)"
+          Identifier _to
+             Type: address
+             Source: "_to"
+          FunctionCall
+             Type: address
+             Source: "address(this)"
+            ElementaryTypeNameExpression address
+               Type: type(address)
+               Source: "address"
+            Identifier this
+               Type: contract Z1Coin
+               Source: "this"
+        Block
+           Source: "{\r\n            balanceOf[_to] -= _value;\r\n            totalSupply -= _value;\r\n            Destruction(_value);\r\n        }"
+          ExpressionStatement
+             Source: "balanceOf[_to] -= _value"
+            Assignment using operator -=
+               Type: uint256
+               Source: "balanceOf[_to] -= _value"
+              IndexAccess
+                 Type: uint256
+                 Source: "balanceOf[_to]"
+                Identifier balanceOf
+                   Type: mapping(address => uint256)
+                   Source: "balanceOf"
+                Identifier _to
+                   Type: address
+                   Source: "_to"
+              Identifier _value
+                 Type: uint256
+                 Source: "_value"
+          ExpressionStatement
+             Source: "totalSupply -= _value"
+            Assignment using operator -=
+               Type: uint256
+               Source: "totalSupply -= _value"
+              Identifier totalSupply
+                 Type: uint256
+                 Source: "totalSupply"
+              Identifier _value
+                 Type: uint256
+                 Source: "_value"
+          ExpressionStatement
+             Source: "Destruction(_value)"
+            FunctionCall
+               Type: tuple()
+               Source: "Destruction(_value)"
+              Identifier Destruction
+                 Type: function (uint256)
+                 Source: "Destruction"
+              Identifier _value
+                 Type: uint256
+                 Source: "_value"
+      Return
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+ContractDefinition "UpgradeAgent"
+   Source: "contract UpgradeAgent {\r\n\r\n  uint public originalSupply;\r\n\r\n  /** Interface marker */\r\n  function isUpgradeAgent() public constant returns (bool) {\r\n    return true;\r\n  }\r\n\r\n  function upgradeFrom(address _from, uint256 _value) public;\r\n\r\n}"
+  VariableDeclaration "originalSupply"
+     Type: uint256
+     Source: "uint public originalSupply"
+    ElementaryTypeName uint
+       Source: "uint"
+  FunctionDefinition "isUpgradeAgent" - public - const
+     Source: "function isUpgradeAgent() public constant returns (bool) {\r\n    return true;\r\n  }"
+    ParameterList
+       Source: "()"
+    ParameterList
+       Source: "(bool)"
+      VariableDeclaration ""
+         Type: bool
+         Source: "bool"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n    return true;\r\n  }"
+      Return
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+  FunctionDefinition "upgradeFrom" - public
+     Source: "function upgradeFrom(address _from, uint256 _value) public;"
+    ParameterList
+       Source: "(address _from, uint256 _value)"
+      VariableDeclaration "_from"
+         Type: address
+         Source: "address _from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Source: ""
+ContractDefinition "UpgradeableToken"
+   Source: "contract UpgradeableToken is Z1Coin {\r\n\r\n  /** Contract / person who can set the upgrade path. This can be the same as team multisig wallet, as what it is with its default value. */\r\n  address public upgradeMaster;\r\n\r\n  /** The next contract where the tokens will be migrated. */\r\n  UpgradeAgent public upgradeAgent;\r\n\r\n  /** How many tokens we have upgraded by now. */\r\n  uint256 public totalUpgraded;\r\n\r\n  /**\r\n   * Upgrade states.\r\n   *\r\n   * - NotAllowed: The child contract has not reached a condition where the upgrade can bgun\r\n   * - WaitingForAgent: Token allows upgrade, but we don't have a new agent yet\r\n   * - ReadyToUpgrade: The agent is set, but not a single token has been upgraded yet\r\n   * - Upgrading: Upgrade agent is set and the balance holders can upgrade their tokens\r\n   *\r\n   */\r\n  enum UpgradeState {Unknown, NotAllowed, WaitingForAgent, ReadyToUpgrade, Upgrading}\r\n\r\n  /**\r\n   * Somebody has upgraded some of his tokens.\r\n   */\r\n  event Upgrade(address indexed _from, address indexed _to, uint256 _value);\r\n\r\n  /**\r\n   * New upgrade agent available.\r\n   */\r\n  event UpgradeAgentSet(address agent);\r\n\r\n  /**\r\n   * Do not allow construction without upgrade master set.\r\n   */\r\n  function UpgradeableToken(address _upgradeMaster) {\r\n    upgradeMaster = _upgradeMaster;\r\n  }\r\n\r\n  /**\r\n   * Allow the token holder to upgrade some of their tokens to a new contract.\r\n   */\r\n  function upgrade(uint256 value) public {\r\n\r\n      UpgradeState state = getUpgradeState();\r\n      require(state == UpgradeState.ReadyToUpgrade || state == UpgradeState.Upgrading);\r\n      // Validate input value.\r\n      require(value != 0);\r\n\r\n      balanceOf[msg.sender] = safeSub(balanceOf[msg.sender], value);\r\n\r\n      // Take tokens out from circulation\r\n      totalSupply = safeSub(totalSupply, value);\r\n      totalUpgraded = safeAdd(totalUpgraded, value);\r\n\r\n      // Upgrade agent reissues the tokens\r\n      upgradeAgent.upgradeFrom(msg.sender, value);\r\n      Upgrade(msg.sender, upgradeAgent, value);\r\n  }\r\n\r\n  /**\r\n   * Set an upgrade agent that handles\r\n   */\r\n  function setUpgradeAgent(address agent) external {\r\n\r\n      require(canUpgrade());\r\n\r\n      require(agent != 0x0);\r\n      // Only a master can designate the next agent\r\n      require(msg.sender == upgradeMaster);\r\n      // Upgrade has already begun for an agent\r\n      require(getUpgradeState() != UpgradeState.Upgrading);\r\n\r\n      upgradeAgent = UpgradeAgent(agent);\r\n\r\n      // Bad interface\r\n      require(upgradeAgent.isUpgradeAgent());\r\n      // Make sure that token supplies match in source and target\r\n      require(upgradeAgent.originalSupply() == totalSupply);\r\n\r\n      UpgradeAgentSet(upgradeAgent);\r\n  }\r\n\r\n  /**\r\n   * Get the state of the token upgrade.\r\n   */\r\n  function getUpgradeState() public constant returns(UpgradeState) {\r\n    if(!canUpgrade()) return UpgradeState.NotAllowed;\r\n    else if(address(upgradeAgent) == 0x00) return UpgradeState.WaitingForAgent;\r\n    else if(totalUpgraded == 0) return UpgradeState.ReadyToUpgrade;\r\n    else return UpgradeState.Upgrading;\r\n  }\r\n\r\n  /**\r\n   * Change the upgrade master.\r\n   *\r\n   * This allows us to set a new owner for the upgrade mechanism.\r\n   */\r\n  function setUpgradeMaster(address master) public {\r\n      require(master != 0x0);\r\n      require(msg.sender == upgradeMaster);\r\n      upgradeMaster = master;\r\n  }\r\n\r\n  /**\r\n   * Child contract can enable to provide the condition when the upgrade can begun.\r\n   */\r\n  function canUpgrade() public constant returns(bool) {\r\n     return true;\r\n  }\r\n\r\n}"
+  InheritanceSpecifier
+     Source: "Z1Coin"
+    UserDefinedTypeName "Z1Coin"
+       Source: "Z1Coin"
+  VariableDeclaration "upgradeMaster"
+     Type: address
+     Source: "address public upgradeMaster"
+    ElementaryTypeName address
+       Source: "address"
+  VariableDeclaration "upgradeAgent"
+     Type: contract UpgradeAgent
+     Source: "UpgradeAgent public upgradeAgent"
+    UserDefinedTypeName "UpgradeAgent"
+       Source: "UpgradeAgent"
+  VariableDeclaration "totalUpgraded"
+     Type: uint256
+     Source: "uint256 public totalUpgraded"
+    ElementaryTypeName uint256
+       Source: "uint256"
+  EnumDefinition "UpgradeState"
+    EnumValue "Unknown"
+    EnumValue "NotAllowed"
+    EnumValue "WaitingForAgent"
+    EnumValue "ReadyToUpgrade"
+    EnumValue "Upgrading"
+  EventDefinition "Upgrade"
+     Source: "event Upgrade(address indexed _from, address indexed _to, uint256 _value);"
+    ParameterList
+       Source: "(address indexed _from, address indexed _to, uint256 _value)"
+      VariableDeclaration "_from"
+         Type: address
+         Source: "address indexed _from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address indexed _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  EventDefinition "UpgradeAgentSet"
+     Source: "event UpgradeAgentSet(address agent);"
+    ParameterList
+       Source: "(address agent)"
+      VariableDeclaration "agent"
+         Type: address
+         Source: "address agent"
+        ElementaryTypeName address
+           Source: "address"
+  FunctionDefinition "UpgradeableToken" - public
+     Source: "function UpgradeableToken(address _upgradeMaster) {\r\n    upgradeMaster = _upgradeMaster;\r\n  }"
+    ParameterList
+       Source: "(address _upgradeMaster)"
+      VariableDeclaration "_upgradeMaster"
+         Type: address
+         Source: "address _upgradeMaster"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Source: ""
+    Block
+       Source: "{\r\n    upgradeMaster = _upgradeMaster;\r\n  }"
+      ExpressionStatement
+         Source: "upgradeMaster = _upgradeMaster"
+        Assignment using operator =
+           Type: address
+           Source: "upgradeMaster = _upgradeMaster"
+          Identifier upgradeMaster
+             Type: address
+             Source: "upgradeMaster"
+          Identifier _upgradeMaster
+             Type: address
+             Source: "_upgradeMaster"
+  FunctionDefinition "upgrade" - public
+     Source: "function upgrade(uint256 value) public {\r\n\r\n      UpgradeState state = getUpgradeState();\r\n      require(state == UpgradeState.ReadyToUpgrade || state == UpgradeState.Upgrading);\r\n      // Validate input value.\r\n      require(value != 0);\r\n\r\n      balanceOf[msg.sender] = safeSub(balanceOf[msg.sender], value);\r\n\r\n      // Take tokens out from circulation\r\n      totalSupply = safeSub(totalSupply, value);\r\n      totalUpgraded = safeAdd(totalUpgraded, value);\r\n\r\n      // Upgrade agent reissues the tokens\r\n      upgradeAgent.upgradeFrom(msg.sender, value);\r\n      Upgrade(msg.sender, upgradeAgent, value);\r\n  }"
+    ParameterList
+       Source: "(uint256 value)"
+      VariableDeclaration "value"
+         Type: uint256
+         Source: "uint256 value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Source: ""
+    Block
+       Source: "{\r\n\r\n      UpgradeState state = getUpgradeState();\r\n      require(state == UpgradeState.ReadyToUpgrade || state == UpgradeState.Upgrading);\r\n      // Validate input value.\r\n      require(value != 0);\r\n\r\n      balanceOf[msg.sender] = safeSub(balanceOf[msg.sender], value);\r\n\r\n      // Take tokens out from circulation\r\n      totalSupply = safeSub(totalSupply, value);\r\n      totalUpgraded = safeAdd(totalUpgraded, value);\r\n\r\n      // Upgrade agent reissues the tokens\r\n      upgradeAgent.upgradeFrom(msg.sender, value);\r\n      Upgrade(msg.sender, upgradeAgent, value);\r\n  }"
+      VariableDeclarationStatement
+         Source: "UpgradeState state = getUpgradeState()"
+        VariableDeclaration "state"
+           Type: enum UpgradeableToken.UpgradeState
+           Source: "UpgradeState state"
+          UserDefinedTypeName "UpgradeState"
+             Source: "UpgradeState"
+        FunctionCall
+           Type: enum UpgradeableToken.UpgradeState
+           Source: "getUpgradeState()"
+          Identifier getUpgradeState
+             Type: function () view returns (enum UpgradeableToken.UpgradeState)
+             Source: "getUpgradeState"
+      ExpressionStatement
+         Source: "require(state == UpgradeState.ReadyToUpgrade || state == UpgradeState.Upgrading)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(state == UpgradeState.ReadyToUpgrade || state == UpgradeState.Upgrading)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ||
+             Type: bool
+             Source: "state == UpgradeState.ReadyToUpgrade || state == UpgradeState.Upgrading"
+            BinaryOperation using operator ==
+               Type: bool
+               Source: "state == UpgradeState.ReadyToUpgrade"
+              Identifier state
+                 Type: enum UpgradeableToken.UpgradeState
+                 Source: "state"
+              MemberAccess to member ReadyToUpgrade
+                 Type: enum UpgradeableToken.UpgradeState
+                 Source: "UpgradeState.ReadyToUpgrade"
+                Identifier UpgradeState
+                   Type: type(enum UpgradeableToken.UpgradeState)
+                   Source: "UpgradeState"
+            BinaryOperation using operator ==
+               Type: bool
+               Source: "state == UpgradeState.Upgrading"
+              Identifier state
+                 Type: enum UpgradeableToken.UpgradeState
+                 Source: "state"
+              MemberAccess to member Upgrading
+                 Type: enum UpgradeableToken.UpgradeState
+                 Source: "UpgradeState.Upgrading"
+                Identifier UpgradeState
+                   Type: type(enum UpgradeableToken.UpgradeState)
+                   Source: "UpgradeState"
+      ExpressionStatement
+         Source: "require(value != 0)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(value != 0)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator !=
+             Type: bool
+             Source: "value != 0"
+            Identifier value
+               Type: uint256
+               Source: "value"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+      ExpressionStatement
+         Source: "balanceOf[msg.sender] = safeSub(balanceOf[msg.sender], value)"
+        Assignment using operator =
+           Type: uint256
+           Source: "balanceOf[msg.sender] = safeSub(balanceOf[msg.sender], value)"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[msg.sender]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          FunctionCall
+             Type: uint256
+             Source: "safeSub(balanceOf[msg.sender], value)"
+            Identifier safeSub
+               Type: function (uint256,uint256) returns (uint256)
+               Source: "safeSub"
+            IndexAccess
+               Type: uint256
+               Source: "balanceOf[msg.sender]"
+              Identifier balanceOf
+                 Type: mapping(address => uint256)
+                 Source: "balanceOf"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+            Identifier value
+               Type: uint256
+               Source: "value"
+      ExpressionStatement
+         Source: "totalSupply = safeSub(totalSupply, value)"
+        Assignment using operator =
+           Type: uint256
+           Source: "totalSupply = safeSub(totalSupply, value)"
+          Identifier totalSupply
+             Type: uint256
+             Source: "totalSupply"
+          FunctionCall
+             Type: uint256
+             Source: "safeSub(totalSupply, value)"
+            Identifier safeSub
+               Type: function (uint256,uint256) returns (uint256)
+               Source: "safeSub"
+            Identifier totalSupply
+               Type: uint256
+               Source: "totalSupply"
+            Identifier value
+               Type: uint256
+               Source: "value"
+      ExpressionStatement
+         Source: "totalUpgraded = safeAdd(totalUpgraded, value)"
+        Assignment using operator =
+           Type: uint256
+           Source: "totalUpgraded = safeAdd(totalUpgraded, value)"
+          Identifier totalUpgraded
+             Type: uint256
+             Source: "totalUpgraded"
+          FunctionCall
+             Type: uint256
+             Source: "safeAdd(totalUpgraded, value)"
+            Identifier safeAdd
+               Type: function (uint256,uint256) returns (uint256)
+               Source: "safeAdd"
+            Identifier totalUpgraded
+               Type: uint256
+               Source: "totalUpgraded"
+            Identifier value
+               Type: uint256
+               Source: "value"
+      ExpressionStatement
+         Source: "upgradeAgent.upgradeFrom(msg.sender, value)"
+        FunctionCall
+           Type: tuple()
+           Source: "upgradeAgent.upgradeFrom(msg.sender, value)"
+          MemberAccess to member upgradeFrom
+             Type: function (address,uint256) external
+             Source: "upgradeAgent.upgradeFrom"
+            Identifier upgradeAgent
+               Type: contract UpgradeAgent
+               Source: "upgradeAgent"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier value
+             Type: uint256
+             Source: "value"
+      ExpressionStatement
+         Source: "Upgrade(msg.sender, upgradeAgent, value)"
+        FunctionCall
+           Type: tuple()
+           Source: "Upgrade(msg.sender, upgradeAgent, value)"
+          Identifier Upgrade
+             Type: function (address,address,uint256)
+             Source: "Upgrade"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier upgradeAgent
+             Type: contract UpgradeAgent
+             Source: "upgradeAgent"
+          Identifier value
+             Type: uint256
+             Source: "value"
+  FunctionDefinition "setUpgradeAgent" - public
+     Source: "function setUpgradeAgent(address agent) external {\r\n\r\n      require(canUpgrade());\r\n\r\n      require(agent != 0x0);\r\n      // Only a master can designate the next agent\r\n      require(msg.sender == upgradeMaster);\r\n      // Upgrade has already begun for an agent\r\n      require(getUpgradeState() != UpgradeState.Upgrading);\r\n\r\n      upgradeAgent = UpgradeAgent(agent);\r\n\r\n      // Bad interface\r\n      require(upgradeAgent.isUpgradeAgent());\r\n      // Make sure that token supplies match in source and target\r\n      require(upgradeAgent.originalSupply() == totalSupply);\r\n\r\n      UpgradeAgentSet(upgradeAgent);\r\n  }"
+    ParameterList
+       Source: "(address agent)"
+      VariableDeclaration "agent"
+         Type: address
+         Source: "address agent"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Source: ""
+    Block
+       Source: "{\r\n\r\n      require(canUpgrade());\r\n\r\n      require(agent != 0x0);\r\n      // Only a master can designate the next agent\r\n      require(msg.sender == upgradeMaster);\r\n      // Upgrade has already begun for an agent\r\n      require(getUpgradeState() != UpgradeState.Upgrading);\r\n\r\n      upgradeAgent = UpgradeAgent(agent);\r\n\r\n      // Bad interface\r\n      require(upgradeAgent.isUpgradeAgent());\r\n      // Make sure that token supplies match in source and target\r\n      require(upgradeAgent.originalSupply() == totalSupply);\r\n\r\n      UpgradeAgentSet(upgradeAgent);\r\n  }"
+      ExpressionStatement
+         Source: "require(canUpgrade())"
+        FunctionCall
+           Type: tuple()
+           Source: "require(canUpgrade())"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          FunctionCall
+             Type: bool
+             Source: "canUpgrade()"
+            Identifier canUpgrade
+               Type: function () view returns (bool)
+               Source: "canUpgrade"
+      ExpressionStatement
+         Source: "require(agent != 0x0)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(agent != 0x0)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator !=
+             Type: bool
+             Source: "agent != 0x0"
+            Identifier agent
+               Type: address
+               Source: "agent"
+            Literal, token: [no token] value: 0x0
+               Type: int_const 0
+               Source: "0x0"
+      ExpressionStatement
+         Source: "require(msg.sender == upgradeMaster)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(msg.sender == upgradeMaster)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "msg.sender == upgradeMaster"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Identifier upgradeMaster
+               Type: address
+               Source: "upgradeMaster"
+      ExpressionStatement
+         Source: "require(getUpgradeState() != UpgradeState.Upgrading)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(getUpgradeState() != UpgradeState.Upgrading)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator !=
+             Type: bool
+             Source: "getUpgradeState() != UpgradeState.Upgrading"
+            FunctionCall
+               Type: enum UpgradeableToken.UpgradeState
+               Source: "getUpgradeState()"
+              Identifier getUpgradeState
+                 Type: function () view returns (enum UpgradeableToken.UpgradeState)
+                 Source: "getUpgradeState"
+            MemberAccess to member Upgrading
+               Type: enum UpgradeableToken.UpgradeState
+               Source: "UpgradeState.Upgrading"
+              Identifier UpgradeState
+                 Type: type(enum UpgradeableToken.UpgradeState)
+                 Source: "UpgradeState"
+      ExpressionStatement
+         Source: "upgradeAgent = UpgradeAgent(agent)"
+        Assignment using operator =
+           Type: contract UpgradeAgent
+           Source: "upgradeAgent = UpgradeAgent(agent)"
+          Identifier upgradeAgent
+             Type: contract UpgradeAgent
+             Source: "upgradeAgent"
+          FunctionCall
+             Type: contract UpgradeAgent
+             Source: "UpgradeAgent(agent)"
+            Identifier UpgradeAgent
+               Type: type(contract UpgradeAgent)
+               Source: "UpgradeAgent"
+            Identifier agent
+               Type: address
+               Source: "agent"
+      ExpressionStatement
+         Source: "require(upgradeAgent.isUpgradeAgent())"
+        FunctionCall
+           Type: tuple()
+           Source: "require(upgradeAgent.isUpgradeAgent())"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          FunctionCall
+             Type: bool
+             Source: "upgradeAgent.isUpgradeAgent()"
+            MemberAccess to member isUpgradeAgent
+               Type: function () view external returns (bool)
+               Source: "upgradeAgent.isUpgradeAgent"
+              Identifier upgradeAgent
+                 Type: contract UpgradeAgent
+                 Source: "upgradeAgent"
+      ExpressionStatement
+         Source: "require(upgradeAgent.originalSupply() == totalSupply)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(upgradeAgent.originalSupply() == totalSupply)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "upgradeAgent.originalSupply() == totalSupply"
+            FunctionCall
+               Type: uint256
+               Source: "upgradeAgent.originalSupply()"
+              MemberAccess to member originalSupply
+                 Type: function () view external returns (uint256)
+                 Source: "upgradeAgent.originalSupply"
+                Identifier upgradeAgent
+                   Type: contract UpgradeAgent
+                   Source: "upgradeAgent"
+            Identifier totalSupply
+               Type: uint256
+               Source: "totalSupply"
+      ExpressionStatement
+         Source: "UpgradeAgentSet(upgradeAgent)"
+        FunctionCall
+           Type: tuple()
+           Source: "UpgradeAgentSet(upgradeAgent)"
+          Identifier UpgradeAgentSet
+             Type: function (address)
+             Source: "UpgradeAgentSet"
+          Identifier upgradeAgent
+             Type: contract UpgradeAgent
+             Source: "upgradeAgent"
+  FunctionDefinition "getUpgradeState" - public - const
+     Source: "function getUpgradeState() public constant returns(UpgradeState) {\r\n    if(!canUpgrade()) return UpgradeState.NotAllowed;\r\n    else if(address(upgradeAgent) == 0x00) return UpgradeState.WaitingForAgent;\r\n    else if(totalUpgraded == 0) return UpgradeState.ReadyToUpgrade;\r\n    else return UpgradeState.Upgrading;\r\n  }"
+    ParameterList
+       Source: "()"
+    ParameterList
+       Source: "(UpgradeState)"
+      VariableDeclaration ""
+         Type: enum UpgradeableToken.UpgradeState
+         Source: "UpgradeState"
+        UserDefinedTypeName "UpgradeState"
+           Source: "UpgradeState"
+    Block
+       Source: "{\r\n    if(!canUpgrade()) return UpgradeState.NotAllowed;\r\n    else if(address(upgradeAgent) == 0x00) return UpgradeState.WaitingForAgent;\r\n    else if(totalUpgraded == 0) return UpgradeState.ReadyToUpgrade;\r\n    else return UpgradeState.Upgrading;\r\n  }"
+      IfStatement
+         Source: "if(!canUpgrade()) return UpgradeState.NotAllowed;\r\n    else if(address(upgradeAgent) == 0x00) return UpgradeState.WaitingForAgent;\r\n    else if(totalUpgraded == 0) return UpgradeState.ReadyToUpgrade;\r\n    else return UpgradeState.Upgrading"
+        UnaryOperation (prefix) !
+           Type: bool
+           Source: "!canUpgrade()"
+          FunctionCall
+             Type: bool
+             Source: "canUpgrade()"
+            Identifier canUpgrade
+               Type: function () view returns (bool)
+               Source: "canUpgrade"
+        Return
+           Source: "return UpgradeState.NotAllowed"
+          MemberAccess to member NotAllowed
+             Type: enum UpgradeableToken.UpgradeState
+             Source: "UpgradeState.NotAllowed"
+            Identifier UpgradeState
+               Type: type(enum UpgradeableToken.UpgradeState)
+               Source: "UpgradeState"
+        IfStatement
+           Source: "if(address(upgradeAgent) == 0x00) return UpgradeState.WaitingForAgent;\r\n    else if(totalUpgraded == 0) return UpgradeState.ReadyToUpgrade;\r\n    else return UpgradeState.Upgrading"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "address(upgradeAgent) == 0x00"
+            FunctionCall
+               Type: address
+               Source: "address(upgradeAgent)"
+              ElementaryTypeNameExpression address
+                 Type: type(address)
+                 Source: "address"
+              Identifier upgradeAgent
+                 Type: contract UpgradeAgent
+                 Source: "upgradeAgent"
+            Literal, token: [no token] value: 0x00
+               Type: int_const 0
+               Source: "0x00"
+          Return
+             Source: "return UpgradeState.WaitingForAgent"
+            MemberAccess to member WaitingForAgent
+               Type: enum UpgradeableToken.UpgradeState
+               Source: "UpgradeState.WaitingForAgent"
+              Identifier UpgradeState
+                 Type: type(enum UpgradeableToken.UpgradeState)
+                 Source: "UpgradeState"
+          IfStatement
+             Source: "if(totalUpgraded == 0) return UpgradeState.ReadyToUpgrade;\r\n    else return UpgradeState.Upgrading"
+            BinaryOperation using operator ==
+               Type: bool
+               Source: "totalUpgraded == 0"
+              Identifier totalUpgraded
+                 Type: uint256
+                 Source: "totalUpgraded"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+            Return
+               Source: "return UpgradeState.ReadyToUpgrade"
+              MemberAccess to member ReadyToUpgrade
+                 Type: enum UpgradeableToken.UpgradeState
+                 Source: "UpgradeState.ReadyToUpgrade"
+                Identifier UpgradeState
+                   Type: type(enum UpgradeableToken.UpgradeState)
+                   Source: "UpgradeState"
+            Return
+               Source: "return UpgradeState.Upgrading"
+              MemberAccess to member Upgrading
+                 Type: enum UpgradeableToken.UpgradeState
+                 Source: "UpgradeState.Upgrading"
+                Identifier UpgradeState
+                   Type: type(enum UpgradeableToken.UpgradeState)
+                   Source: "UpgradeState"
+  FunctionDefinition "setUpgradeMaster" - public
+     Source: "function setUpgradeMaster(address master) public {\r\n      require(master != 0x0);\r\n      require(msg.sender == upgradeMaster);\r\n      upgradeMaster = master;\r\n  }"
+    ParameterList
+       Source: "(address master)"
+      VariableDeclaration "master"
+         Type: address
+         Source: "address master"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Source: ""
+    Block
+       Source: "{\r\n      require(master != 0x0);\r\n      require(msg.sender == upgradeMaster);\r\n      upgradeMaster = master;\r\n  }"
+      ExpressionStatement
+         Source: "require(master != 0x0)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(master != 0x0)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator !=
+             Type: bool
+             Source: "master != 0x0"
+            Identifier master
+               Type: address
+               Source: "master"
+            Literal, token: [no token] value: 0x0
+               Type: int_const 0
+               Source: "0x0"
+      ExpressionStatement
+         Source: "require(msg.sender == upgradeMaster)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(msg.sender == upgradeMaster)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "msg.sender == upgradeMaster"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Identifier upgradeMaster
+               Type: address
+               Source: "upgradeMaster"
+      ExpressionStatement
+         Source: "upgradeMaster = master"
+        Assignment using operator =
+           Type: address
+           Source: "upgradeMaster = master"
+          Identifier upgradeMaster
+             Type: address
+             Source: "upgradeMaster"
+          Identifier master
+             Type: address
+             Source: "master"
+  FunctionDefinition "canUpgrade" - public - const
+     Source: "function canUpgrade() public constant returns(bool) {\r\n     return true;\r\n  }"
+    ParameterList
+       Source: "()"
+    ParameterList
+       Source: "(bool)"
+      VariableDeclaration ""
+         Type: bool
+         Source: "bool"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n     return true;\r\n  }"
+      Return
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"

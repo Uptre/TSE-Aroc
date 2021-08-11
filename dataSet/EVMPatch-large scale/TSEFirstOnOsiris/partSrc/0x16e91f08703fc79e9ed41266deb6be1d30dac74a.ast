@@ -1,0 +1,624 @@
+Syntax trees:
+
+
+======= /home/fabric/ArocRevision/Aroc/osirisData/contractSrc/0x16e91f08703fc79e9ed41266deb6be1d30dac74a.sol =======
+PragmaDirective
+   Gas costs: 0
+   Source: "pragma solidity ^0.4.15;"
+ContractDefinition "MyOwned"
+   Source: "contract MyOwned {\r\n    address public owner;\r\n    function MyOwned() public { owner = msg.sender; }\r\n    modifier onlyOwner { require(msg.sender == owner ); _; }\r\n    function transferOwnership(address newOwner) onlyOwner public { owner = newOwner; }\r\n}"
+  VariableDeclaration "owner"
+     Type: address
+     Gas costs: 335
+     Source: "address public owner"
+    ElementaryTypeName address
+       Source: "address"
+  FunctionDefinition "MyOwned" - public
+     Source: "function MyOwned() public { owner = msg.sender; }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{ owner = msg.sender; }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "owner = msg.sender"
+        Assignment using operator =
+           Type: address
+           Source: "owner = msg.sender"
+          Identifier owner
+             Type: address
+             Source: "owner"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+  ModifierDefinition "onlyOwner"
+     Source: "modifier onlyOwner { require(msg.sender == owner ); _; }"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{ require(msg.sender == owner ); _; }"
+      ExpressionStatement
+         Gas costs: 846
+         Source: "require(msg.sender == owner )"
+        FunctionCall
+           Type: tuple()
+           Source: "require(msg.sender == owner )"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "msg.sender == owner"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Identifier owner
+               Type: address
+               Source: "owner"
+      PlaceholderStatement
+         Gas costs: 0
+         Source: "_"
+  FunctionDefinition "transferOwnership" - public
+     Source: "function transferOwnership(address newOwner) onlyOwner public { owner = newOwner; }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address newOwner)"
+      VariableDeclaration "newOwner"
+         Type: address
+         Source: "address newOwner"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{ owner = newOwner; }"
+      ExpressionStatement
+         Gas costs: 20267
+         Source: "owner = newOwner"
+        Assignment using operator =
+           Type: address
+           Source: "owner = newOwner"
+          Identifier owner
+             Type: address
+             Source: "owner"
+          Identifier newOwner
+             Type: address
+             Source: "newOwner"
+ContractDefinition "recipient"
+   Gas costs: 0
+   Source: "interface recipient { \r\n    function receiveApproval(address _from, uint256 _value, address _token, bytes _extraData) public; \r\n}"
+  FunctionDefinition "receiveApproval" - public
+     Source: "function receiveApproval(address _from, uint256 _value, address _token, bytes _extraData) public;"
+    ParameterList
+       Source: "(address _from, uint256 _value, address _token, bytes _extraData)"
+      VariableDeclaration "_from"
+         Type: address
+         Source: "address _from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "_token"
+         Type: address
+         Source: "address _token"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_extraData"
+         Type: bytes memory
+         Source: "bytes _extraData"
+        ElementaryTypeName bytes
+           Source: "bytes"
+    ParameterList
+       Source: ""
+ContractDefinition "MyToken"
+   Source: "contract MyToken is MyOwned {   \r\n    string public name;\r\n    string public symbol;\r\n    uint8 public decimals;\r\n    uint256 public totalSupply;\r\n    \r\n    mapping (address => uint256) public balanceOf;\r\n    mapping (address => bool) public frozenAccount;\r\n    event FrozenFunds(address target,bool frozen);\r\n    event Transfer(address indexed from,address indexed to,uint256 value);\r\n    \r\n\r\n    function MyToken(uint256 initialSupply,string tokenName,string tokenSymbol,uint8 decimalUnits){\r\n        balanceOf[msg.sender] = initialSupply;\r\n        totalSupply = initialSupply;\r\n        name = tokenName;\r\n        symbol = tokenSymbol;\r\n        decimals = decimalUnits;\r\n    }\r\n\r\n    function freezeAccount(address target,bool freeze) onlyOwner {\r\n        frozenAccount[target] = freeze;\r\n        FrozenFunds(target, freeze);\r\n    }\r\n\r\n    function transfer(address _to, uint256 _value){\r\n        require(!frozenAccount[msg.sender]);\r\n        require (balanceOf[msg.sender] >= _value);\r\n        require (balanceOf[_to] + _value >= balanceOf[_to]);\r\n        balanceOf[msg.sender] -= _value;\r\n        balanceOf[_to] += _value;\r\n        Transfer(msg.sender, _to, _value);\r\n    }\r\n        function mintToken(address target, uint256 mintedAmount) onlyOwner {\r\n        balanceOf[target] += mintedAmount;\r\n        Transfer(0, this, mintedAmount);\r\n        Transfer(this, target, mintedAmount);\r\n    }\r\n}"
+  InheritanceSpecifier
+     Gas costs: 0
+     Source: "MyOwned"
+    UserDefinedTypeName "MyOwned"
+       Source: "MyOwned"
+  VariableDeclaration "name"
+     Type: string storage ref
+     Gas costs: [???]
+     Source: "string public name"
+    ElementaryTypeName string
+       Source: "string"
+  VariableDeclaration "symbol"
+     Type: string storage ref
+     Gas costs: [???]
+     Source: "string public symbol"
+    ElementaryTypeName string
+       Source: "string"
+  VariableDeclaration "decimals"
+     Type: uint8
+     Gas costs: 335
+     Source: "uint8 public decimals"
+    ElementaryTypeName uint8
+       Source: "uint8"
+  VariableDeclaration "totalSupply"
+     Type: uint256
+     Gas costs: 287
+     Source: "uint256 public totalSupply"
+    ElementaryTypeName uint256
+       Source: "uint256"
+  VariableDeclaration "balanceOf"
+     Type: mapping(address => uint256)
+     Gas costs: 431
+     Source: "mapping (address => uint256) public balanceOf"
+    Mapping
+       Source: "mapping (address => uint256)"
+      ElementaryTypeName address
+         Source: "address"
+      ElementaryTypeName uint256
+         Source: "uint256"
+  VariableDeclaration "frozenAccount"
+     Type: mapping(address => bool)
+     Gas costs: 468
+     Source: "mapping (address => bool) public frozenAccount"
+    Mapping
+       Source: "mapping (address => bool)"
+      ElementaryTypeName address
+         Source: "address"
+      ElementaryTypeName bool
+         Source: "bool"
+  EventDefinition "FrozenFunds"
+     Gas costs: 0
+     Source: "event FrozenFunds(address target,bool frozen);"
+    ParameterList
+       Source: "(address target,bool frozen)"
+      VariableDeclaration "target"
+         Type: address
+         Source: "address target"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "frozen"
+         Type: bool
+         Source: "bool frozen"
+        ElementaryTypeName bool
+           Source: "bool"
+  EventDefinition "Transfer"
+     Gas costs: 0
+     Source: "event Transfer(address indexed from,address indexed to,uint256 value);"
+    ParameterList
+       Source: "(address indexed from,address indexed to,uint256 value)"
+      VariableDeclaration "from"
+         Type: address
+         Source: "address indexed from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "to"
+         Type: address
+         Source: "address indexed to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "value"
+         Type: uint256
+         Source: "uint256 value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  FunctionDefinition "MyToken" - public
+     Source: "function MyToken(uint256 initialSupply,string tokenName,string tokenSymbol,uint8 decimalUnits){\r\n        balanceOf[msg.sender] = initialSupply;\r\n        totalSupply = initialSupply;\r\n        name = tokenName;\r\n        symbol = tokenSymbol;\r\n        decimals = decimalUnits;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 initialSupply,string tokenName,string tokenSymbol,uint8 decimalUnits)"
+      VariableDeclaration "initialSupply"
+         Type: uint256
+         Source: "uint256 initialSupply"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "tokenName"
+         Type: string memory
+         Source: "string tokenName"
+        ElementaryTypeName string
+           Source: "string"
+      VariableDeclaration "tokenSymbol"
+         Type: string memory
+         Source: "string tokenSymbol"
+        ElementaryTypeName string
+           Source: "string"
+      VariableDeclaration "decimalUnits"
+         Type: uint8
+         Source: "uint8 decimalUnits"
+        ElementaryTypeName uint8
+           Source: "uint8"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        balanceOf[msg.sender] = initialSupply;\r\n        totalSupply = initialSupply;\r\n        name = tokenName;\r\n        symbol = tokenSymbol;\r\n        decimals = decimalUnits;\r\n    }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "balanceOf[msg.sender] = initialSupply"
+        Assignment using operator =
+           Type: uint256
+           Source: "balanceOf[msg.sender] = initialSupply"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[msg.sender]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Identifier initialSupply
+             Type: uint256
+             Source: "initialSupply"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "totalSupply = initialSupply"
+        Assignment using operator =
+           Type: uint256
+           Source: "totalSupply = initialSupply"
+          Identifier totalSupply
+             Type: uint256
+             Source: "totalSupply"
+          Identifier initialSupply
+             Type: uint256
+             Source: "initialSupply"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "name = tokenName"
+        Assignment using operator =
+           Type: string storage ref
+           Source: "name = tokenName"
+          Identifier name
+             Type: string storage ref
+             Source: "name"
+          Identifier tokenName
+             Type: string memory
+             Source: "tokenName"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "symbol = tokenSymbol"
+        Assignment using operator =
+           Type: string storage ref
+           Source: "symbol = tokenSymbol"
+          Identifier symbol
+             Type: string storage ref
+             Source: "symbol"
+          Identifier tokenSymbol
+             Type: string memory
+             Source: "tokenSymbol"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "decimals = decimalUnits"
+        Assignment using operator =
+           Type: uint8
+           Source: "decimals = decimalUnits"
+          Identifier decimals
+             Type: uint8
+             Source: "decimals"
+          Identifier decimalUnits
+             Type: uint8
+             Source: "decimalUnits"
+  FunctionDefinition "freezeAccount" - public
+     Source: "function freezeAccount(address target,bool freeze) onlyOwner {\r\n        frozenAccount[target] = freeze;\r\n        FrozenFunds(target, freeze);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address target,bool freeze)"
+      VariableDeclaration "target"
+         Type: address
+         Source: "address target"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "freeze"
+         Type: bool
+         Source: "bool freeze"
+        ElementaryTypeName bool
+           Source: "bool"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n        frozenAccount[target] = freeze;\r\n        FrozenFunds(target, freeze);\r\n    }"
+      ExpressionStatement
+         Gas costs: 20363
+         Source: "frozenAccount[target] = freeze"
+        Assignment using operator =
+           Type: bool
+           Source: "frozenAccount[target] = freeze"
+          IndexAccess
+             Type: bool
+             Source: "frozenAccount[target]"
+            Identifier frozenAccount
+               Type: mapping(address => bool)
+               Source: "frozenAccount"
+            Identifier target
+               Type: address
+               Source: "target"
+          Identifier freeze
+             Type: bool
+             Source: "freeze"
+      ExpressionStatement
+         Gas costs: 1373
+         Source: "FrozenFunds(target, freeze)"
+        FunctionCall
+           Type: tuple()
+           Source: "FrozenFunds(target, freeze)"
+          Identifier FrozenFunds
+             Type: function (address,bool)
+             Source: "FrozenFunds"
+          Identifier target
+             Type: address
+             Source: "target"
+          Identifier freeze
+             Type: bool
+             Source: "freeze"
+  FunctionDefinition "transfer" - public
+     Source: "function transfer(address _to, uint256 _value){\r\n        require(!frozenAccount[msg.sender]);\r\n        require (balanceOf[msg.sender] >= _value);\r\n        require (balanceOf[_to] + _value >= balanceOf[_to]);\r\n        balanceOf[msg.sender] -= _value;\r\n        balanceOf[_to] += _value;\r\n        Transfer(msg.sender, _to, _value);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _to, uint256 _value)"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        require(!frozenAccount[msg.sender]);\r\n        require (balanceOf[msg.sender] >= _value);\r\n        require (balanceOf[_to] + _value >= balanceOf[_to]);\r\n        balanceOf[msg.sender] -= _value;\r\n        balanceOf[_to] += _value;\r\n        Transfer(msg.sender, _to, _value);\r\n    }"
+      ExpressionStatement
+         Gas costs: 363
+         Source: "require(!frozenAccount[msg.sender])"
+        FunctionCall
+           Type: tuple()
+           Source: "require(!frozenAccount[msg.sender])"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          UnaryOperation (prefix) !
+             Type: bool
+             Source: "!frozenAccount[msg.sender]"
+            IndexAccess
+               Type: bool
+               Source: "frozenAccount[msg.sender]"
+              Identifier frozenAccount
+                 Type: mapping(address => bool)
+                 Source: "frozenAccount"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+      ExpressionStatement
+         Gas costs: 333
+         Source: "require (balanceOf[msg.sender] >= _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "require (balanceOf[msg.sender] >= _value)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "balanceOf[msg.sender] >= _value"
+            IndexAccess
+               Type: uint256
+               Source: "balanceOf[msg.sender]"
+              Identifier balanceOf
+                 Type: mapping(address => uint256)
+                 Source: "balanceOf"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+      ExpressionStatement
+         Gas costs: 630
+         Source: "require (balanceOf[_to] + _value >= balanceOf[_to])"
+        FunctionCall
+           Type: tuple()
+           Source: "require (balanceOf[_to] + _value >= balanceOf[_to])"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "balanceOf[_to] + _value >= balanceOf[_to]"
+            BinaryOperation using operator +
+               Type: uint256
+               Source: "balanceOf[_to] + _value"
+              IndexAccess
+                 Type: uint256
+                 Source: "balanceOf[_to]"
+                Identifier balanceOf
+                   Type: mapping(address => uint256)
+                   Source: "balanceOf"
+                Identifier _to
+                   Type: address
+                   Source: "_to"
+              Identifier _value
+                 Type: uint256
+                 Source: "_value"
+            IndexAccess
+               Type: uint256
+               Source: "balanceOf[_to]"
+              Identifier balanceOf
+                 Type: mapping(address => uint256)
+                 Source: "balanceOf"
+              Identifier _to
+                 Type: address
+                 Source: "_to"
+      ExpressionStatement
+         Gas costs: 20328
+         Source: "balanceOf[msg.sender] -= _value"
+        Assignment using operator -=
+           Type: uint256
+           Source: "balanceOf[msg.sender] -= _value"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[msg.sender]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: 20323
+         Source: "balanceOf[_to] += _value"
+        Assignment using operator +=
+           Type: uint256
+           Source: "balanceOf[_to] += _value"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[_to]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            Identifier _to
+               Type: address
+               Source: "_to"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: 1837
+         Source: "Transfer(msg.sender, _to, _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "Transfer(msg.sender, _to, _value)"
+          Identifier Transfer
+             Type: function (address,address,uint256)
+             Source: "Transfer"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier _to
+             Type: address
+             Source: "_to"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+  FunctionDefinition "mintToken" - public
+     Source: "function mintToken(address target, uint256 mintedAmount) onlyOwner {\r\n        balanceOf[target] += mintedAmount;\r\n        Transfer(0, this, mintedAmount);\r\n        Transfer(this, target, mintedAmount);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address target, uint256 mintedAmount)"
+      VariableDeclaration "target"
+         Type: address
+         Source: "address target"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "mintedAmount"
+         Type: uint256
+         Source: "uint256 mintedAmount"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n        balanceOf[target] += mintedAmount;\r\n        Transfer(0, this, mintedAmount);\r\n        Transfer(this, target, mintedAmount);\r\n    }"
+      ExpressionStatement
+         Gas costs: 20329
+         Source: "balanceOf[target] += mintedAmount"
+        Assignment using operator +=
+           Type: uint256
+           Source: "balanceOf[target] += mintedAmount"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[target]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            Identifier target
+               Type: address
+               Source: "target"
+          Identifier mintedAmount
+             Type: uint256
+             Source: "mintedAmount"
+      ExpressionStatement
+         Gas costs: 1831
+         Source: "Transfer(0, this, mintedAmount)"
+        FunctionCall
+           Type: tuple()
+           Source: "Transfer(0, this, mintedAmount)"
+          Identifier Transfer
+             Type: function (address,address,uint256)
+             Source: "Transfer"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+          Identifier this
+             Type: contract MyToken
+             Source: "this"
+          Identifier mintedAmount
+             Type: uint256
+             Source: "mintedAmount"
+      ExpressionStatement
+         Gas costs: 1828
+         Source: "Transfer(this, target, mintedAmount)"
+        FunctionCall
+           Type: tuple()
+           Source: "Transfer(this, target, mintedAmount)"
+          Identifier Transfer
+             Type: function (address,address,uint256)
+             Source: "Transfer"
+          Identifier this
+             Type: contract MyToken
+             Source: "this"
+          Identifier target
+             Type: address
+             Source: "target"
+          Identifier mintedAmount
+             Type: uint256
+             Source: "mintedAmount"

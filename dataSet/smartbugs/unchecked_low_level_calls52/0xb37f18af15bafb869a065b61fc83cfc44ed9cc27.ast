@@ -1,0 +1,200 @@
+Syntax trees:
+
+
+======= /home/fabric/ArocRevision/Aroc/dataSet/smartbugs-21-7-13/unchecked_low_level_calls52/0xb37f18af15bafb869a065b61fc83cfc44ed9cc27.sol =======
+PragmaDirective
+   Gas costs: 0
+   Source: "pragma solidity ^0.4.24;"
+ContractDefinition "SimpleWallet"
+   Source: "contract SimpleWallet {\r\n    address public owner = msg.sender;\r\n    uint public depositsCount;\r\n    \r\n    modifier onlyOwner {\r\n        require(msg.sender == owner);\r\n        _;\r\n    }\r\n    \r\n    function() public payable {\r\n        depositsCount++;\r\n    }\r\n    \r\n    function withdrawAll() public onlyOwner {\r\n        withdraw(address(this).balance);\r\n    }\r\n    \r\n    function withdraw(uint _value) public onlyOwner {\r\n        msg.sender.transfer(_value);\r\n    }\r\n    \r\n    function sendMoney(address _target, uint _value) public onlyOwner {\r\n        // <yes> <report> UNCHECKED_LL_CALLS\r\n        _target.call.value(_value)();\r\n    }\r\n}"
+  VariableDeclaration "owner"
+     Type: address
+     Gas costs: [???]
+     Source: "address public owner = msg.sender"
+    ElementaryTypeName address
+       Source: "address"
+    MemberAccess to member sender
+       Type: address
+       Source: "msg.sender"
+      Identifier msg
+         Type: msg
+         Source: "msg"
+  VariableDeclaration "depositsCount"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint public depositsCount"
+    ElementaryTypeName uint
+       Source: "uint"
+  ModifierDefinition "onlyOwner"
+     Source: "modifier onlyOwner {\r\n        require(msg.sender == owner);\r\n        _;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        require(msg.sender == owner);\r\n        _;\r\n    }"
+      ExpressionStatement
+         Gas costs: 846
+         Source: "require(msg.sender == owner)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(msg.sender == owner)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "msg.sender == owner"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Identifier owner
+               Type: address
+               Source: "owner"
+      PlaceholderStatement
+         Gas costs: 0
+         Source: "_"
+  FunctionDefinition "" - public
+     Source: "function() public payable {\r\n        depositsCount++;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        depositsCount++;\r\n    }"
+      ExpressionStatement
+         Gas costs: 20237
+         Source: "depositsCount++"
+        UnaryOperation (postfix) ++
+           Type: uint256
+           Source: "depositsCount++"
+          Identifier depositsCount
+             Type: uint256
+             Source: "depositsCount"
+  FunctionDefinition "withdrawAll" - public
+     Source: "function withdrawAll() public onlyOwner {\r\n        withdraw(address(this).balance);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n        withdraw(address(this).balance);\r\n    }"
+      ExpressionStatement
+         Gas costs: 423
+         Source: "withdraw(address(this).balance)"
+        FunctionCall
+           Type: tuple()
+           Source: "withdraw(address(this).balance)"
+          Identifier withdraw
+             Type: function (uint256)
+             Source: "withdraw"
+          MemberAccess to member balance
+             Type: uint256
+             Source: "address(this).balance"
+            FunctionCall
+               Type: address
+               Source: "address(this)"
+              ElementaryTypeNameExpression address
+                 Type: type(address)
+                 Source: "address"
+              Identifier this
+                 Type: contract SimpleWallet
+                 Source: "this"
+  FunctionDefinition "withdraw" - public
+     Source: "function withdraw(uint _value) public onlyOwner {\r\n        msg.sender.transfer(_value);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint _value)"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint _value"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n        msg.sender.transfer(_value);\r\n    }"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "msg.sender.transfer(_value)"
+        FunctionCall
+           Type: tuple()
+           Source: "msg.sender.transfer(_value)"
+          MemberAccess to member transfer
+             Type: function (uint256)
+             Source: "msg.sender.transfer"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+  FunctionDefinition "sendMoney" - public
+     Source: "function sendMoney(address _target, uint _value) public onlyOwner {\r\n        // <yes> <report> UNCHECKED_LL_CALLS\r\n        _target.call.value(_value)();\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _target, uint _value)"
+      VariableDeclaration "_target"
+         Type: address
+         Source: "address _target"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint _value"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n        // <yes> <report> UNCHECKED_LL_CALLS\r\n        _target.call.value(_value)();\r\n    }"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "_target.call.value(_value)()"
+        FunctionCall
+           Type: bool
+           Source: "_target.call.value(_value)()"
+          FunctionCall
+             Type: function () payable returns (bool)
+             Source: "_target.call.value(_value)"
+            MemberAccess to member value
+               Type: function (uint256) returns (function () payable returns (bool))
+               Source: "_target.call.value"
+              MemberAccess to member call
+                 Type: function () payable returns (bool)
+                 Source: "_target.call"
+                Identifier _target
+                   Type: address
+                   Source: "_target"
+            Identifier _value
+               Type: uint256
+               Source: "_value"

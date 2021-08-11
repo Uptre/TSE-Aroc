@@ -1,0 +1,58 @@
+digraph CFG {
+nd_0 [shape="box",style="rounded",labelloc=l, label="[0]
+investment()"];
+nd_1 [shape="diamond",labelloc=l, label="[1]
+uint amount = msg.value;
+"];
+nd_2 [shape="diamond",labelloc=l, label="[2]
+amount == 0"];
+nd_3 [shape="diamond",labelloc=l, label="[3]
+throw;"];
+nd_4 [shape="box",style="rounded",labelloc=l, label="[4]
+balanceOf[msg.sender] += amount;
+totalRaised += amount;
+currentBalance += amount;
+uint tokenAmount = getCurrentExchangeRate(amount);
+exchangeToken.generateTokens(msg.sender, tokenAmount);
+totalTokensIssued += tokenAmount;
+issuedTokenBalance += tokenAmount;
+FundTransfer(msg.sender, amount, true);
+checkIfFundingCompleteOrExpired();
+return balanceOf[msg.sender];
+"];
+nd_5 [shape="diamond",labelloc=l, label="[5]
+block.number <= thirdExchangeRatePeriod"];
+nd_6 [shape="box",style="rounded",labelloc=l, label="[6]
+return thirdTokenExchangeRate * amount / 1 ether;
+"];
+nd_7 [shape="diamond",labelloc=l, label="[7]
+block.number <= fourthExchangeRatePeriod"];
+nd_8 [shape="box",style="rounded",labelloc=l, label="[8]
+return fourthTokenExchangeRate * amount / 1 ether;
+"];
+nd_9 [shape="diamond",labelloc=l, label="[9]
+block.number <= endBlockNumber"];
+nd_10 [shape="box",style="rounded",labelloc=l, label="[10]
+return finalTokenExchangeRate * amount / 1 ether;
+"];
+nd_11 [shape="box",style="rounded",labelloc=l, label="[11]
+return finalTokenExchangeRate * amount / 1 ether;
+"];
+    nd_0 -> nd_1;
+    nd_1 -> nd_2[label="True"];
+    nd_2 -> nd_3[label="True"];
+    nd_3 -> nd_4[label="True"];
+    nd_5 -> nd_6[label="True"];
+    nd_7 -> nd_8[label="True"];
+    nd_9 -> nd_10[label="True"];
+    nd_1 -> nd_3[label="False"];
+    nd_3 -> nd_5[label="False"];
+    nd_5 -> nd_7[label="False"];
+    nd_7 -> nd_9[label="False"];
+    nd_2 -> nd_11[label="False"];
+nd_4 -> nd_11;
+nd_6 -> nd_11;
+nd_8 -> nd_11;
+    nd_9 -> nd_11[label="False"];
+nd_10 -> nd_11;
+}

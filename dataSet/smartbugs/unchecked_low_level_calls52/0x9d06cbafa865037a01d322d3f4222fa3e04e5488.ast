@@ -1,0 +1,504 @@
+Syntax trees:
+
+
+======= /home/fabric/ArocRevision/Aroc/dataSet/smartbugs-21-7-13/unchecked_low_level_calls52/0x9d06cbafa865037a01d322d3f4222fa3e04e5488.sol =======
+PragmaDirective
+   Gas costs: 0
+   Source: "pragma solidity ^0.4.23;"
+ContractDefinition "Delta"
+   Source: "contract Delta {     \r\n\r\n\taddress public c = 0xF85A2E95FA30d005F629cBe6c6d2887D979ffF2A; \r\n\taddress public owner = 0x788c45dd60ae4dbe5055b5ac02384d5dc84677b0;\t\r\n\taddress public owner2 = 0x0C6561edad2017c01579Fd346a58197ea01A0Cf3;\t\r\n\tuint public active = 1;\t\r\n\r\n\tuint public token_price = 10**18*1/1000; \t\r\n\r\n\t//default function for buy tokens      \r\n\tfunction() payable {        \r\n\t    tokens_buy();        \r\n\t}\r\n\r\n\t/**\r\n\t* Buy tokens\r\n\t*/\r\n    function tokens_buy() payable returns (bool) {         \r\n        \r\n        require(active > 0);\r\n        require(msg.value >= token_price);        \r\n\r\n        uint tokens_buy = msg.value*10**18/token_price;\r\n\r\n        require(tokens_buy > 0);\r\n\r\n        if(!c.call(bytes4(sha3(\"transferFrom(address,address,uint256)\")),owner, msg.sender,tokens_buy)){\r\n        \treturn false;\r\n        }\r\n\r\n        uint sum2 = msg.value * 3 / 10;           \r\n        // <yes> <report> UNCHECKED_LL_CALLS\r\n        owner2.send(sum2);\r\n\r\n        return true;\r\n      }     \r\n\r\n      //Withdraw money from contract balance to owner\r\n      function withdraw(uint256 _amount) onlyOwner returns (bool result) {\r\n          uint256 balance;\r\n          balance = this.balance;\r\n          if(_amount > 0) balance = _amount;\r\n          // <yes> <report> UNCHECKED_LL_CALLS\r\n          owner.send(balance);\r\n          return true;\r\n      }\r\n\r\n      //Change token\r\n      function change_token_price(uint256 _token_price) onlyOwner returns (bool result) {\r\n        token_price = _token_price;\r\n        return true;\r\n      }\r\n\r\n      //Change active\r\n      function change_active(uint256 _active) onlyOwner returns (bool result) {\r\n        active = _active;\r\n        return true;\r\n      }\r\n\r\n      // Functions with this modifier can only be executed by the owner\r\n    \tmodifier onlyOwner() {\r\n        if (msg.sender != owner) {\r\n            throw;\r\n        }\r\n        _;\r\n    }        \t\r\n\r\n\r\n}"
+  VariableDeclaration "c"
+     Type: address
+     Gas costs: [???]
+     Source: "address public c = 0xF85A2E95FA30d005F629cBe6c6d2887D979ffF2A"
+    ElementaryTypeName address
+       Source: "address"
+    Literal, token: [no token] value: 0xF85A2E95FA30d005F629cBe6c6d2887D979ffF2A
+       Type: address
+       Source: "0xF85A2E95FA30d005F629cBe6c6d2887D979ffF2A"
+  VariableDeclaration "owner"
+     Type: address
+     Gas costs: [???]
+     Source: "address public owner = 0x788c45dd60ae4dbe5055b5ac02384d5dc84677b0"
+    ElementaryTypeName address
+       Source: "address"
+    Literal, token: [no token] value: 0x788c45dd60ae4dbe5055b5ac02384d5dc84677b0
+       Type: int_const 6882...(40 digits omitted)...9008
+       Source: "0x788c45dd60ae4dbe5055b5ac02384d5dc84677b0"
+  VariableDeclaration "owner2"
+     Type: address
+     Gas costs: [???]
+     Source: "address public owner2 = 0x0C6561edad2017c01579Fd346a58197ea01A0Cf3"
+    ElementaryTypeName address
+       Source: "address"
+    Literal, token: [no token] value: 0x0C6561edad2017c01579Fd346a58197ea01A0Cf3
+       Type: address
+       Source: "0x0C6561edad2017c01579Fd346a58197ea01A0Cf3"
+  VariableDeclaration "active"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint public active = 1"
+    ElementaryTypeName uint
+       Source: "uint"
+    Literal, token: [no token] value: 1
+       Type: int_const 1
+       Source: "1"
+  VariableDeclaration "token_price"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint public token_price = 10**18*1/1000"
+    ElementaryTypeName uint
+       Source: "uint"
+    BinaryOperation using operator /
+       Type: int_const 1000000000000000
+       Source: "10**18*1/1000"
+      BinaryOperation using operator *
+         Type: int_const 1000000000000000000
+         Source: "10**18*1"
+        BinaryOperation using operator **
+           Type: int_const 1000000000000000000
+           Source: "10**18"
+          Literal, token: [no token] value: 10
+             Type: int_const 10
+             Source: "10"
+          Literal, token: [no token] value: 18
+             Type: int_const 18
+             Source: "18"
+        Literal, token: [no token] value: 1
+           Type: int_const 1
+           Source: "1"
+      Literal, token: [no token] value: 1000
+         Type: int_const 1000
+         Source: "1000"
+  FunctionDefinition "" - public
+     Source: "function() payable {        \r\n\t    tokens_buy();        \r\n\t}"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{        \r\n\t    tokens_buy();        \r\n\t}"
+      ExpressionStatement
+         Gas costs: 6
+         Source: "tokens_buy()"
+        FunctionCall
+           Type: bool
+           Source: "tokens_buy()"
+          Identifier tokens_buy
+             Type: function () returns (bool)
+             Source: "tokens_buy"
+  FunctionDefinition "tokens_buy" - public
+     Source: "function tokens_buy() payable returns (bool) {         \r\n        \r\n        require(active > 0);\r\n        require(msg.value >= token_price);        \r\n\r\n        uint tokens_buy = msg.value*10**18/token_price;\r\n\r\n        require(tokens_buy > 0);\r\n\r\n        if(!c.call(bytes4(sha3(\"transferFrom(address,address,uint256)\")),owner, msg.sender,tokens_buy)){\r\n        \treturn false;\r\n        }\r\n\r\n        uint sum2 = msg.value * 3 / 10;           \r\n        // <yes> <report> UNCHECKED_LL_CALLS\r\n        owner2.send(sum2);\r\n\r\n        return true;\r\n      }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool)"
+      VariableDeclaration ""
+         Type: bool
+         Source: "bool"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{         \r\n        \r\n        require(active > 0);\r\n        require(msg.value >= token_price);        \r\n\r\n        uint tokens_buy = msg.value*10**18/token_price;\r\n\r\n        require(tokens_buy > 0);\r\n\r\n        if(!c.call(bytes4(sha3(\"transferFrom(address,address,uint256)\")),owner, msg.sender,tokens_buy)){\r\n        \treturn false;\r\n        }\r\n\r\n        uint sum2 = msg.value * 3 / 10;           \r\n        // <yes> <report> UNCHECKED_LL_CALLS\r\n        owner2.send(sum2);\r\n\r\n        return true;\r\n      }"
+      ExpressionStatement
+         Gas costs: 235
+         Source: "require(active > 0)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(active > 0)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >
+             Type: bool
+             Source: "active > 0"
+            Identifier active
+               Type: uint256
+               Source: "active"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+      ExpressionStatement
+         Gas costs: 237
+         Source: "require(msg.value >= token_price)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(msg.value >= token_price)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "msg.value >= token_price"
+            MemberAccess to member value
+               Type: uint256
+               Source: "msg.value"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Identifier token_price
+               Type: uint256
+               Source: "token_price"
+      VariableDeclarationStatement
+         Gas costs: 249
+         Source: "uint tokens_buy = msg.value*10**18/token_price"
+        VariableDeclaration "tokens_buy"
+           Type: uint256
+           Source: "uint tokens_buy"
+          ElementaryTypeName uint
+             Source: "uint"
+        BinaryOperation using operator /
+           Type: uint256
+           Source: "msg.value*10**18/token_price"
+          BinaryOperation using operator *
+             Type: uint256
+             Source: "msg.value*10**18"
+            MemberAccess to member value
+               Type: uint256
+               Source: "msg.value"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            BinaryOperation using operator **
+               Type: int_const 1000000000000000000
+               Source: "10**18"
+              Literal, token: [no token] value: 10
+                 Type: int_const 10
+                 Source: "10"
+              Literal, token: [no token] value: 18
+                 Type: int_const 18
+                 Source: "18"
+          Identifier token_price
+             Type: uint256
+             Source: "token_price"
+      ExpressionStatement
+         Gas costs: 35
+         Source: "require(tokens_buy > 0)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(tokens_buy > 0)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >
+             Type: bool
+             Source: "tokens_buy > 0"
+            Identifier tokens_buy
+               Type: uint256
+               Source: "tokens_buy"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+      IfStatement
+         Source: "if(!c.call(bytes4(sha3(\"transferFrom(address,address,uint256)\")),owner, msg.sender,tokens_buy)){\r\n        \treturn false;\r\n        }"
+        UnaryOperation (prefix) !
+           Type: bool
+           Gas costs: [???]
+           Source: "!c.call(bytes4(sha3(\"transferFrom(address,address,uint256)\")),owner, msg.sender,tokens_buy)"
+          FunctionCall
+             Type: bool
+             Source: "c.call(bytes4(sha3(\"transferFrom(address,address,uint256)\")),owner, msg.sender,tokens_buy)"
+            MemberAccess to member call
+               Type: function () payable returns (bool)
+               Source: "c.call"
+              Identifier c
+                 Type: address
+                 Source: "c"
+            FunctionCall
+               Type: bytes4
+               Source: "bytes4(sha3(\"transferFrom(address,address,uint256)\"))"
+              ElementaryTypeNameExpression bytes4
+                 Type: type(bytes4)
+                 Source: "bytes4"
+              FunctionCall
+                 Type: bytes32
+                 Source: "sha3(\"transferFrom(address,address,uint256)\")"
+                Identifier sha3
+                   Type: function () pure returns (bytes32)
+                   Source: "sha3"
+                Literal, token: [no token] value: transferFrom(address,address,uint256)
+                   Type: literal_string "transferFrom(address,address,uint256)"
+                   Source: "\"transferFrom(address,address,uint256)\""
+            Identifier owner
+               Type: address
+               Source: "owner"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Identifier tokens_buy
+               Type: uint256
+               Source: "tokens_buy"
+        Block
+           Source: "{\r\n        \treturn false;\r\n        }"
+          Return
+             Gas costs: 19
+             Source: "return false"
+            Literal, token: false value: false
+               Type: bool
+               Source: "false"
+      VariableDeclarationStatement
+         Gas costs: 49
+         Source: "uint sum2 = msg.value * 3 / 10"
+        VariableDeclaration "sum2"
+           Type: uint256
+           Source: "uint sum2"
+          ElementaryTypeName uint
+             Source: "uint"
+        BinaryOperation using operator /
+           Type: uint256
+           Source: "msg.value * 3 / 10"
+          BinaryOperation using operator *
+             Type: uint256
+             Source: "msg.value * 3"
+            MemberAccess to member value
+               Type: uint256
+               Source: "msg.value"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Literal, token: [no token] value: 3
+               Type: int_const 3
+               Source: "3"
+          Literal, token: [no token] value: 10
+             Type: int_const 10
+             Source: "10"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "owner2.send(sum2)"
+        FunctionCall
+           Type: bool
+           Source: "owner2.send(sum2)"
+          MemberAccess to member send
+             Type: function (uint256) returns (bool)
+             Source: "owner2.send"
+            Identifier owner2
+               Type: address
+               Source: "owner2"
+          Identifier sum2
+             Type: uint256
+             Source: "sum2"
+      Return
+         Gas costs: 8
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+  FunctionDefinition "withdraw" - public
+     Source: "function withdraw(uint256 _amount) onlyOwner returns (bool result) {\r\n          uint256 balance;\r\n          balance = this.balance;\r\n          if(_amount > 0) balance = _amount;\r\n          // <yes> <report> UNCHECKED_LL_CALLS\r\n          owner.send(balance);\r\n          return true;\r\n      }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 _amount)"
+      VariableDeclaration "_amount"
+         Type: uint256
+         Source: "uint256 _amount"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool result)"
+      VariableDeclaration "result"
+         Type: bool
+         Source: "bool result"
+        ElementaryTypeName bool
+           Source: "bool"
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n          uint256 balance;\r\n          balance = this.balance;\r\n          if(_amount > 0) balance = _amount;\r\n          // <yes> <report> UNCHECKED_LL_CALLS\r\n          owner.send(balance);\r\n          return true;\r\n      }"
+      VariableDeclarationStatement
+         Gas costs: 3
+         Source: "uint256 balance"
+        VariableDeclaration "balance"
+           Type: uint256
+           Source: "uint256 balance"
+          ElementaryTypeName uint256
+             Source: "uint256"
+      ExpressionStatement
+         Gas costs: 413
+         Source: "balance = this.balance"
+        Assignment using operator =
+           Type: uint256
+           Source: "balance = this.balance"
+          Identifier balance
+             Type: uint256
+             Source: "balance"
+          MemberAccess to member balance
+             Type: uint256
+             Source: "this.balance"
+            Identifier this
+               Type: contract Delta
+               Source: "this"
+      IfStatement
+         Source: "if(_amount > 0) balance = _amount"
+        BinaryOperation using operator >
+           Type: bool
+           Gas costs: 9
+           Source: "_amount > 0"
+          Identifier _amount
+             Type: uint256
+             Source: "_amount"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        ExpressionStatement
+           Gas costs: 8
+           Source: "balance = _amount"
+          Assignment using operator =
+             Type: uint256
+             Source: "balance = _amount"
+            Identifier balance
+               Type: uint256
+               Source: "balance"
+            Identifier _amount
+               Type: uint256
+               Source: "_amount"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "owner.send(balance)"
+        FunctionCall
+           Type: bool
+           Source: "owner.send(balance)"
+          MemberAccess to member send
+             Type: function (uint256) returns (bool)
+             Source: "owner.send"
+            Identifier owner
+               Type: address
+               Source: "owner"
+          Identifier balance
+             Type: uint256
+             Source: "balance"
+      Return
+         Gas costs: 8
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+  FunctionDefinition "change_token_price" - public
+     Source: "function change_token_price(uint256 _token_price) onlyOwner returns (bool result) {\r\n        token_price = _token_price;\r\n        return true;\r\n      }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 _token_price)"
+      VariableDeclaration "_token_price"
+         Type: uint256
+         Source: "uint256 _token_price"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool result)"
+      VariableDeclaration "result"
+         Type: bool
+         Source: "bool result"
+        ElementaryTypeName bool
+           Source: "bool"
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n        token_price = _token_price;\r\n        return true;\r\n      }"
+      ExpressionStatement
+         Gas costs: 20014
+         Source: "token_price = _token_price"
+        Assignment using operator =
+           Type: uint256
+           Source: "token_price = _token_price"
+          Identifier token_price
+             Type: uint256
+             Source: "token_price"
+          Identifier _token_price
+             Type: uint256
+             Source: "_token_price"
+      Return
+         Gas costs: 8
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+  FunctionDefinition "change_active" - public
+     Source: "function change_active(uint256 _active) onlyOwner returns (bool result) {\r\n        active = _active;\r\n        return true;\r\n      }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 _active)"
+      VariableDeclaration "_active"
+         Type: uint256
+         Source: "uint256 _active"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool result)"
+      VariableDeclaration "result"
+         Type: bool
+         Source: "bool result"
+        ElementaryTypeName bool
+           Source: "bool"
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n        active = _active;\r\n        return true;\r\n      }"
+      ExpressionStatement
+         Gas costs: 20014
+         Source: "active = _active"
+        Assignment using operator =
+           Type: uint256
+           Source: "active = _active"
+          Identifier active
+             Type: uint256
+             Source: "active"
+          Identifier _active
+             Type: uint256
+             Source: "_active"
+      Return
+         Gas costs: 8
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+  ModifierDefinition "onlyOwner"
+     Source: "modifier onlyOwner() {\r\n        if (msg.sender != owner) {\r\n            throw;\r\n        }\r\n        _;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    Block
+       Source: "{\r\n        if (msg.sender != owner) {\r\n            throw;\r\n        }\r\n        _;\r\n    }"
+      IfStatement
+         Source: "if (msg.sender != owner) {\r\n            throw;\r\n        }"
+        BinaryOperation using operator !=
+           Type: bool
+           Gas costs: 777
+           Source: "msg.sender != owner"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier owner
+             Type: address
+             Source: "owner"
+        Block
+           Source: "{\r\n            throw;\r\n        }"
+          Throw
+             Gas costs: 18
+             Source: "throw"
+      PlaceholderStatement
+         Gas costs: 0
+         Source: "_"

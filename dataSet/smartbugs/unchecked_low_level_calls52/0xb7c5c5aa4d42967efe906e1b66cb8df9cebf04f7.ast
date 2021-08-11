@@ -1,0 +1,117 @@
+Syntax trees:
+
+
+======= /home/fabric/ArocRevision/Aroc/dataSet/smartbugs-21-7-13/unchecked_low_level_calls52/0xb7c5c5aa4d42967efe906e1b66cb8df9cebf04f7.sol =======
+PragmaDirective
+   Gas costs: 0
+   Source: "pragma solidity ^0.4.23;"
+ContractDefinition "keepMyEther"
+   Source: "contract keepMyEther {\r\n    mapping(address => uint256) public balances;\r\n    \r\n    function () payable public {\r\n        balances[msg.sender] += msg.value;\r\n    }\r\n    \r\n    function withdraw() public {\r\n        // <yes> <report> UNCHECKED_LL_CALLS\r\n        msg.sender.call.value(balances[msg.sender])();\r\n        balances[msg.sender] = 0;\r\n    }\r\n}"
+  VariableDeclaration "balances"
+     Type: mapping(address => uint256)
+     Gas costs: 431
+     Source: "mapping(address => uint256) public balances"
+    Mapping
+       Source: "mapping(address => uint256)"
+      ElementaryTypeName address
+         Source: "address"
+      ElementaryTypeName uint256
+         Source: "uint256"
+  FunctionDefinition "" - public
+     Source: "function () payable public {\r\n        balances[msg.sender] += msg.value;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        balances[msg.sender] += msg.value;\r\n    }"
+      ExpressionStatement
+         Gas costs: 20327
+         Source: "balances[msg.sender] += msg.value"
+        Assignment using operator +=
+           Type: uint256
+           Source: "balances[msg.sender] += msg.value"
+          IndexAccess
+             Type: uint256
+             Source: "balances[msg.sender]"
+            Identifier balances
+               Type: mapping(address => uint256)
+               Source: "balances"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          MemberAccess to member value
+             Type: uint256
+             Source: "msg.value"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+  FunctionDefinition "withdraw" - public
+     Source: "function withdraw() public {\r\n        // <yes> <report> UNCHECKED_LL_CALLS\r\n        msg.sender.call.value(balances[msg.sender])();\r\n        balances[msg.sender] = 0;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        // <yes> <report> UNCHECKED_LL_CALLS\r\n        msg.sender.call.value(balances[msg.sender])();\r\n        balances[msg.sender] = 0;\r\n    }"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "msg.sender.call.value(balances[msg.sender])()"
+        FunctionCall
+           Type: bool
+           Source: "msg.sender.call.value(balances[msg.sender])()"
+          FunctionCall
+             Type: function () payable returns (bool)
+             Source: "msg.sender.call.value(balances[msg.sender])"
+            MemberAccess to member value
+               Type: function (uint256) returns (function () payable returns (bool))
+               Source: "msg.sender.call.value"
+              MemberAccess to member call
+                 Type: function () payable returns (bool)
+                 Source: "msg.sender.call"
+                MemberAccess to member sender
+                   Type: address
+                   Source: "msg.sender"
+                  Identifier msg
+                     Type: msg
+                     Source: "msg"
+            IndexAccess
+               Type: uint256
+               Source: "balances[msg.sender]"
+              Identifier balances
+                 Type: mapping(address => uint256)
+                 Source: "balances"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+      ExpressionStatement
+         Gas costs: 5103
+         Source: "balances[msg.sender] = 0"
+        Assignment using operator =
+           Type: uint256
+           Source: "balances[msg.sender] = 0"
+          IndexAccess
+             Type: uint256
+             Source: "balances[msg.sender]"
+            Identifier balances
+               Type: mapping(address => uint256)
+               Source: "balances"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"

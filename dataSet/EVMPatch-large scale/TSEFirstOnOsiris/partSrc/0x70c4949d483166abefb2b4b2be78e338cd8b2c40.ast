@@ -1,0 +1,1667 @@
+Syntax trees:
+
+
+======= /home/fabric/ArocRevision/Aroc/osirisData/contractSrc/0x70c4949d483166abefb2b4b2be78e338cd8b2c40.sol =======
+PragmaDirective
+   Gas costs: 0
+   Source: "pragma solidity ^0.4.19;"
+ContractDefinition "FrikandelToken"
+   Source: "contract FrikandelToken {\r\n    address public contractOwner = msg.sender; //King Frikandel\r\n\r\n    bool public ICOEnabled = true; //Enable selling new Frikandellen\r\n    bool public Killable = true; //Enabled when the contract can commit suicide (In case of a problem with the contract in its early development, we will set this to false later on)\r\n\r\n    mapping (address => uint256) balances; //This is where de lekkere frikandellen are stored\r\n    mapping (address => mapping (address => uint256)) allowed; //This is where approvals are stored!\r\n\r\n    uint256 internal airdropLimit = 450000; //The maximum amount of tokens to airdrop before the feature shuts down\r\n    uint256 public airdropSpent = 0; //The amount of airdropped tokens given away (The airdrop will not send past this)\r\n    \r\n    //uint256 internal ownerDrop = 50000; //Lets not waste gas storing this solid value we will only use 1 time - Adding it here so its obvious though\r\n    uint256 public totalSupply = 500000; //We're reserving the airdrop tokens, they will be spent eventually. Combining that with the ownerDrop tokens we're at 500k\r\n    uint256 internal hardLimitICO = 750000; //Do not allow more then 750k frikandellen to exist, ever. (The ICO will not sell past this)\r\n\r\n    function name() public pure returns (string) { return \"Frikandel\"; } //Frikandellen zijn lekker\r\n    function symbol() public pure returns (string) { return \"FRIKANDEL\"; } //I was deciding between FRKNDL and FRIKANDEL, but since the former is already kinda long why not just write it in full\r\n    function decimals() public pure returns (uint8) { return 0; } //Imagine getting half of a frikandel, that must be pretty shitty... Lets not do that. Whish we could store this as uint256 to save gas though lol\r\n\r\n    function balanceOf(address _owner) public view returns (uint256) { return balances[_owner]; }\r\n\r\n\tfunction FrikandelToken() public {\r\n\t    balances[contractOwner] = 50000; //To use for rewards and such - also I REALLY like frikandellen so don't judge please\r\n\t    Transfer(0x0, contractOwner, 50000); //Run a Transfer event for this as recommended by the ERC20 spec.\r\n\t}\r\n\t\r\n\tfunction transferOwnership(address _newOwner) public {\r\n\t    require(msg.sender == contractOwner); //:crying_tears_of_joy:\r\n\r\n        contractOwner = _newOwner; //Nieuwe eigennaar van de frikandellentent\r\n\t}\r\n\t\r\n\tfunction Destroy() public {\r\n\t    require(msg.sender == contractOwner); //yo what why\r\n\t    \r\n\t    if (Killable == true){ //Only if the contract is killable.. Go ahead\r\n\t        selfdestruct(contractOwner);\r\n\t    }\r\n\t}\r\n\t\r\n\tfunction disableSuicide() public returns (bool success){\r\n\t    require(msg.sender == contractOwner); //u dont control me\r\n\t    \r\n\t    Killable = false; //The contract is now solid and will for ever be on the chain\r\n\t    return true;\r\n\t}\r\n\t\r\n    function Airdrop(address[] _recipients) public {\r\n        require(msg.sender == contractOwner); //no airdrop access 4 u\r\n        if((_recipients.length + airdropSpent) > airdropLimit) { revert(); } //Hey, you're sending too much!!\r\n        for (uint256 i = 0; i < _recipients.length; i++) {\r\n            balances[_recipients[i]] += 1; //One frikandelletje 4 u\r\n\t\t\tTransfer(address(this), _recipients[i], 1);\r\n        }\r\n        airdropSpent += _recipients.length; //Store the amount of tokens that have been given away. Doing this once instead of in the loop saves a neat amount of gas! (If the code gets intreupted it gets reverted anyways)\r\n    }\r\n\t\r\n\tfunction transferFrom(address _from, address _to, uint256 _value) public returns (bool success) { //Useful if someone allowed you to spend some of their frikandellen or if a smart contract needs to interact with it! :)\r\n        //if (msg.data.length < (3 * 32) + 4) { revert(); } - Been thinking about implementing this, but its not fair to waste gas just to potentially ever save someone from sending a dumb malformed transaction, as a fault of their code or systems. (ERC20 Short address migration)\r\n        if (_value == 0) { Transfer(msg.sender, _to, 0); return; } //Follow the ERC20 spec and just mark the transfer event even through 0 tokens are being transfered\r\n\r\n        //bool sufficientFunds = balances[_from] >= _value; (Not having this single use variable in there saves us 8 gas)\r\n        //bool sufficientAllowance = allowed[_from][msg.sender] >= _value;\r\n        if (allowed[_from][msg.sender] >= _value && balances[_from] >= _value) {\r\n            balances[_to] += _value;\r\n            balances[_from] -= _value;\r\n            \r\n            allowed[_from][msg.sender] -= _value;\r\n            \r\n            Transfer(_from, _to, _value);\r\n            return true;\r\n        } else { return false; } //ERC20 spec tells us the feature SHOULD throw() if the account has not authhorized the sender of the message, however I see everyone using return false... As its not a MUST to throw(), I'm going with the others and returning false\r\n    }\r\n\t\r\n\tfunction approve(address _spender, uint256 _value) public returns (bool success) { //Allow someone else to spend some of your frikandellen\r\n        if (_value != 0 && allowed[msg.sender][_spender] != 0) { return false; } //ERC20 Spend/Approval race conditional migration - Always have a tx set the allowance to 0 first, before applying a new amount.\r\n        \r\n        allowed[msg.sender][_spender] = _value;\r\n        \r\n        Approval(msg.sender, _spender, _value);\r\n        return true;\r\n    }\r\n    \r\n    function increaseApproval(address _spender, uint256 _addedValue) public returns (bool) {\r\n        if (allowed[msg.sender][_spender] >= allowed[msg.sender][_spender] + _addedValue) { revert(); } //Lets not overflow the allowance ;) (I guess this also prevents it from being increased by 0 as a nice extra)\r\n        allowed[msg.sender][_spender] += _addedValue;\r\n        Approval(msg.sender, _spender, allowed[msg.sender][_spender]);\r\n        return true;\r\n    }\r\n\t\r\n\tfunction allowance(address _owner, address _spender) constant public returns (uint256) {\r\n        return allowed[_owner][_spender];\r\n    }\r\n\r\n    function transfer(address _to, uint256 _value) public returns (bool success) {\r\n        //if (msg.data.length < (2 * 32) + 4) { revert(); } - Been thinking about implementing this, but its not fair to waste gas just to potentially ever save someone from sending a dumb malformed transaction, as a fault of their code or systems. (ERC20 Short address migration)\r\n\r\n        if (_value == 0) { Transfer(msg.sender, _to, 0); return; } //Follow the ERC20 specification and just trigger the event and quit the function since nothing is being transfered anyways\r\n\r\n        //bool sufficientFunds = balances[msg.sender] >= _value; (Not having this single use variable in there saves us 8 gas)\r\n        //bool overflowed = balances[_to] + _value < balances[_to]; (Not having this one probably saves some too but I'm too lazy to test how much we save so fuck that)\r\n\r\n        if (balances[msg.sender] >= _value && !(balances[_to] + _value < balances[_to])) {\r\n            balances[msg.sender] -= _value;\r\n            balances[_to] += _value;\r\n            \r\n            Transfer(msg.sender, _to, _value);\r\n            return true; //Smakelijk!\r\n        } else { return false; } //Sorry man je hebt niet genoeg F R I K A N D E L L E N\r\n    }\r\n\r\n    event Transfer(address indexed _from, address indexed _to, uint256 _value);\r\n\tevent Approval(address indexed _owner, address indexed _spender, uint256 _value);\r\n\r\n    function enableICO() public {\r\n        require(msg.sender == contractOwner); //Bro stay of my contract\r\n        ICOEnabled = true;\r\n    }\r\n\r\n    function disableICO() public {\r\n        require(msg.sender == contractOwner); //BRO what did I tell you\r\n        ICOEnabled = false; //Business closed y'all\r\n    }\r\n\r\n    function() payable public {\r\n        require(ICOEnabled);\r\n        require(msg.value > 0); //You can't send nothing lol. It won't get you anything and I won't allow you to waste your precious gas on it! (You can send 1wei though, which will give you nothing in return either but still run the code below)\r\n        if(balances[msg.sender]+(msg.value / 1e14) > 50000) { revert(); } //This would give you more then 50000 frikandellen, you can't buy from this account anymore through the ICO (If you eat 50000 frikandellen you'd probably die for real from all the layers of fat)\r\n        if(totalSupply+(msg.value / 1e14) > hardLimitICO) { revert(); } //Hard limit on Frikandellen\r\n        \r\n        contractOwner.transfer(msg.value); //Thank you very much for supporting, I'll promise that I will spend an equal amount of money on purchaching frikandellen from my local store!\r\n\r\n        uint256 tokensIssued = (msg.value / 1e14); //Since 1 token can be bought for 0.0001 ETH split the value (in Wei) through 1e14 to get the amount of tokens\r\n\r\n        totalSupply += tokensIssued; //Lets note the tokens\r\n        balances[msg.sender] += tokensIssued; //Dinner is served (Or well, maybe just a snack... Kinda depends on how many frikandel you've bought)\r\n\r\n        Transfer(address(this), msg.sender, tokensIssued); //Trigger a transfer() event :)\r\n    }\r\n}"
+  VariableDeclaration "contractOwner"
+     Type: address
+     Gas costs: 335
+     Source: "address public contractOwner = msg.sender"
+    ElementaryTypeName address
+       Source: "address"
+    MemberAccess to member sender
+       Type: address
+       Source: "msg.sender"
+      Identifier msg
+         Type: msg
+         Source: "msg"
+  VariableDeclaration "ICOEnabled"
+     Type: bool
+     Gas costs: 385
+     Source: "bool public ICOEnabled = true"
+    ElementaryTypeName bool
+       Source: "bool"
+    Literal, token: true value: true
+       Type: bool
+       Source: "true"
+  VariableDeclaration "Killable"
+     Type: bool
+     Gas costs: 385
+     Source: "bool public Killable = true"
+    ElementaryTypeName bool
+       Source: "bool"
+    Literal, token: true value: true
+       Type: bool
+       Source: "true"
+  VariableDeclaration "balances"
+     Type: mapping(address => uint256)
+     Gas costs: 0
+     Source: "mapping (address => uint256) balances"
+    Mapping
+       Source: "mapping (address => uint256)"
+      ElementaryTypeName address
+         Source: "address"
+      ElementaryTypeName uint256
+         Source: "uint256"
+  VariableDeclaration "allowed"
+     Type: mapping(address => mapping(address => uint256))
+     Gas costs: 0
+     Source: "mapping (address => mapping (address => uint256)) allowed"
+    Mapping
+       Source: "mapping (address => mapping (address => uint256))"
+      ElementaryTypeName address
+         Source: "address"
+      Mapping
+         Source: "mapping (address => uint256)"
+        ElementaryTypeName address
+           Source: "address"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  VariableDeclaration "airdropLimit"
+     Type: uint256
+     Gas costs: 0
+     Source: "uint256 internal airdropLimit = 450000"
+    ElementaryTypeName uint256
+       Source: "uint256"
+    Literal, token: [no token] value: 450000
+       Type: int_const 450000
+       Source: "450000"
+  VariableDeclaration "airdropSpent"
+     Type: uint256
+     Gas costs: 287
+     Source: "uint256 public airdropSpent = 0"
+    ElementaryTypeName uint256
+       Source: "uint256"
+    Literal, token: [no token] value: 0
+       Type: int_const 0
+       Source: "0"
+  VariableDeclaration "totalSupply"
+     Type: uint256
+     Gas costs: 287
+     Source: "uint256 public totalSupply = 500000"
+    ElementaryTypeName uint256
+       Source: "uint256"
+    Literal, token: [no token] value: 500000
+       Type: int_const 500000
+       Source: "500000"
+  VariableDeclaration "hardLimitICO"
+     Type: uint256
+     Gas costs: 0
+     Source: "uint256 internal hardLimitICO = 750000"
+    ElementaryTypeName uint256
+       Source: "uint256"
+    Literal, token: [no token] value: 750000
+       Type: int_const 750000
+       Source: "750000"
+  FunctionDefinition "name" - public
+     Source: "function name() public pure returns (string) { return \"Frikandel\"; }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(string)"
+      VariableDeclaration ""
+         Type: string memory
+         Source: "string"
+        ElementaryTypeName string
+           Source: "string"
+    Block
+       Source: "{ return \"Frikandel\"; }"
+      Return
+         Gas costs: 76
+         Source: "return \"Frikandel\""
+        Literal, token: [no token] value: Frikandel
+           Type: literal_string "Frikandel"
+           Source: "\"Frikandel\""
+  FunctionDefinition "symbol" - public
+     Source: "function symbol() public pure returns (string) { return \"FRIKANDEL\"; }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(string)"
+      VariableDeclaration ""
+         Type: string memory
+         Source: "string"
+        ElementaryTypeName string
+           Source: "string"
+    Block
+       Source: "{ return \"FRIKANDEL\"; }"
+      Return
+         Gas costs: 76
+         Source: "return \"FRIKANDEL\""
+        Literal, token: [no token] value: FRIKANDEL
+           Type: literal_string "FRIKANDEL"
+           Source: "\"FRIKANDEL\""
+  FunctionDefinition "decimals" - public
+     Source: "function decimals() public pure returns (uint8) { return 0; }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint8)"
+      VariableDeclaration ""
+         Type: uint8
+         Source: "uint8"
+        ElementaryTypeName uint8
+           Source: "uint8"
+    Block
+       Source: "{ return 0; }"
+      Return
+         Gas costs: 8
+         Source: "return 0"
+        Literal, token: [no token] value: 0
+           Type: int_const 0
+           Source: "0"
+  FunctionDefinition "balanceOf" - public - const
+     Source: "function balanceOf(address _owner) public view returns (uint256) { return balances[_owner]; }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _owner)"
+      VariableDeclaration "_owner"
+         Type: address
+         Source: "address _owner"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint256)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint256"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{ return balances[_owner]; }"
+      Return
+         Gas costs: 304
+         Source: "return balances[_owner]"
+        IndexAccess
+           Type: uint256
+           Source: "balances[_owner]"
+          Identifier balances
+             Type: mapping(address => uint256)
+             Source: "balances"
+          Identifier _owner
+             Type: address
+             Source: "_owner"
+  FunctionDefinition "FrikandelToken" - public
+     Source: "function FrikandelToken() public {\r\n\t    balances[contractOwner] = 50000; //To use for rewards and such - also I REALLY like frikandellen so don't judge please\r\n\t    Transfer(0x0, contractOwner, 50000); //Run a Transfer event for this as recommended by the ERC20 spec.\r\n\t}"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n\t    balances[contractOwner] = 50000; //To use for rewards and such - also I REALLY like frikandellen so don't judge please\r\n\t    Transfer(0x0, contractOwner, 50000); //Run a Transfer event for this as recommended by the ERC20 spec.\r\n\t}"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "balances[contractOwner] = 50000"
+        Assignment using operator =
+           Type: uint256
+           Source: "balances[contractOwner] = 50000"
+          IndexAccess
+             Type: uint256
+             Source: "balances[contractOwner]"
+            Identifier balances
+               Type: mapping(address => uint256)
+               Source: "balances"
+            Identifier contractOwner
+               Type: address
+               Source: "contractOwner"
+          Literal, token: [no token] value: 50000
+             Type: int_const 50000
+             Source: "50000"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "Transfer(0x0, contractOwner, 50000)"
+        FunctionCall
+           Type: tuple()
+           Source: "Transfer(0x0, contractOwner, 50000)"
+          Identifier Transfer
+             Type: function (address,address,uint256)
+             Source: "Transfer"
+          Literal, token: [no token] value: 0x0
+             Type: int_const 0
+             Source: "0x0"
+          Identifier contractOwner
+             Type: address
+             Source: "contractOwner"
+          Literal, token: [no token] value: 50000
+             Type: int_const 50000
+             Source: "50000"
+  FunctionDefinition "transferOwnership" - public
+     Source: "function transferOwnership(address _newOwner) public {\r\n\t    require(msg.sender == contractOwner); //:crying_tears_of_joy:\r\n\r\n        contractOwner = _newOwner; //Nieuwe eigennaar van de frikandellentent\r\n\t}"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _newOwner)"
+      VariableDeclaration "_newOwner"
+         Type: address
+         Source: "address _newOwner"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n\t    require(msg.sender == contractOwner); //:crying_tears_of_joy:\r\n\r\n        contractOwner = _newOwner; //Nieuwe eigennaar van de frikandellentent\r\n\t}"
+      ExpressionStatement
+         Gas costs: 282
+         Source: "require(msg.sender == contractOwner)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(msg.sender == contractOwner)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "msg.sender == contractOwner"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Identifier contractOwner
+               Type: address
+               Source: "contractOwner"
+      ExpressionStatement
+         Gas costs: 20267
+         Source: "contractOwner = _newOwner"
+        Assignment using operator =
+           Type: address
+           Source: "contractOwner = _newOwner"
+          Identifier contractOwner
+             Type: address
+             Source: "contractOwner"
+          Identifier _newOwner
+             Type: address
+             Source: "_newOwner"
+  FunctionDefinition "Destroy" - public
+     Source: "function Destroy() public {\r\n\t    require(msg.sender == contractOwner); //yo what why\r\n\t    \r\n\t    if (Killable == true){ //Only if the contract is killable.. Go ahead\r\n\t        selfdestruct(contractOwner);\r\n\t    }\r\n\t}"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n\t    require(msg.sender == contractOwner); //yo what why\r\n\t    \r\n\t    if (Killable == true){ //Only if the contract is killable.. Go ahead\r\n\t        selfdestruct(contractOwner);\r\n\t    }\r\n\t}"
+      ExpressionStatement
+         Gas costs: 282
+         Source: "require(msg.sender == contractOwner)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(msg.sender == contractOwner)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "msg.sender == contractOwner"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Identifier contractOwner
+               Type: address
+               Source: "contractOwner"
+      IfStatement
+         Source: "if (Killable == true){ //Only if the contract is killable.. Go ahead\r\n\t        selfdestruct(contractOwner);\r\n\t    }"
+        BinaryOperation using operator ==
+           Type: bool
+           Gas costs: 307
+           Source: "Killable == true"
+          Identifier Killable
+             Type: bool
+             Source: "Killable"
+          Literal, token: true value: true
+             Type: bool
+             Source: "true"
+        Block
+           Source: "{ //Only if the contract is killable.. Go ahead\r\n\t        selfdestruct(contractOwner);\r\n\t    }"
+          ExpressionStatement
+             Gas costs: 30245
+             Source: "selfdestruct(contractOwner)"
+            FunctionCall
+               Type: tuple()
+               Source: "selfdestruct(contractOwner)"
+              Identifier selfdestruct
+                 Type: function (address)
+                 Source: "selfdestruct"
+              Identifier contractOwner
+                 Type: address
+                 Source: "contractOwner"
+  FunctionDefinition "disableSuicide" - public
+     Source: "function disableSuicide() public returns (bool success){\r\n\t    require(msg.sender == contractOwner); //u dont control me\r\n\t    \r\n\t    Killable = false; //The contract is now solid and will for ever be on the chain\r\n\t    return true;\r\n\t}"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n\t    require(msg.sender == contractOwner); //u dont control me\r\n\t    \r\n\t    Killable = false; //The contract is now solid and will for ever be on the chain\r\n\t    return true;\r\n\t}"
+      ExpressionStatement
+         Gas costs: 282
+         Source: "require(msg.sender == contractOwner)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(msg.sender == contractOwner)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "msg.sender == contractOwner"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Identifier contractOwner
+               Type: address
+               Source: "contractOwner"
+      ExpressionStatement
+         Gas costs: 20317
+         Source: "Killable = false"
+        Assignment using operator =
+           Type: bool
+           Source: "Killable = false"
+          Identifier Killable
+             Type: bool
+             Source: "Killable"
+          Literal, token: false value: false
+             Type: bool
+             Source: "false"
+      Return
+         Gas costs: 8
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+  FunctionDefinition "Airdrop" - public
+     Source: "function Airdrop(address[] _recipients) public {\r\n        require(msg.sender == contractOwner); //no airdrop access 4 u\r\n        if((_recipients.length + airdropSpent) > airdropLimit) { revert(); } //Hey, you're sending too much!!\r\n        for (uint256 i = 0; i < _recipients.length; i++) {\r\n            balances[_recipients[i]] += 1; //One frikandelletje 4 u\r\n\t\t\tTransfer(address(this), _recipients[i], 1);\r\n        }\r\n        airdropSpent += _recipients.length; //Store the amount of tokens that have been given away. Doing this once instead of in the loop saves a neat amount of gas! (If the code gets intreupted it gets reverted anyways)\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address[] _recipients)"
+      VariableDeclaration "_recipients"
+         Type: address[] memory
+         Source: "address[] _recipients"
+        ArrayTypeName
+           Source: "address[]"
+          ElementaryTypeName address
+             Source: "address"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        require(msg.sender == contractOwner); //no airdrop access 4 u\r\n        if((_recipients.length + airdropSpent) > airdropLimit) { revert(); } //Hey, you're sending too much!!\r\n        for (uint256 i = 0; i < _recipients.length; i++) {\r\n            balances[_recipients[i]] += 1; //One frikandelletje 4 u\r\n\t\t\tTransfer(address(this), _recipients[i], 1);\r\n        }\r\n        airdropSpent += _recipients.length; //Store the amount of tokens that have been given away. Doing this once instead of in the loop saves a neat amount of gas! (If the code gets intreupted it gets reverted anyways)\r\n    }"
+      ExpressionStatement
+         Gas costs: 282
+         Source: "require(msg.sender == contractOwner)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(msg.sender == contractOwner)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "msg.sender == contractOwner"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Identifier contractOwner
+               Type: address
+               Source: "contractOwner"
+      IfStatement
+         Source: "if((_recipients.length + airdropSpent) > airdropLimit) { revert(); }"
+        BinaryOperation using operator >
+           Type: bool
+           Gas costs: 433
+           Source: "(_recipients.length + airdropSpent) > airdropLimit"
+          TupleExpression
+             Type: uint256
+             Source: "(_recipients.length + airdropSpent)"
+            BinaryOperation using operator +
+               Type: uint256
+               Source: "_recipients.length + airdropSpent"
+              MemberAccess to member length
+                 Type: uint256
+                 Source: "_recipients.length"
+                Identifier _recipients
+                   Type: address[] memory
+                   Source: "_recipients"
+              Identifier airdropSpent
+                 Type: uint256
+                 Source: "airdropSpent"
+          Identifier airdropLimit
+             Type: uint256
+             Source: "airdropLimit"
+        Block
+           Source: "{ revert(); }"
+          ExpressionStatement
+             Gas costs: 6
+             Source: "revert()"
+            FunctionCall
+               Type: tuple()
+               Source: "revert()"
+              Identifier revert
+                 Type: function () pure
+                 Source: "revert"
+      ForStatement
+         Source: "for (uint256 i = 0; i < _recipients.length; i++) {\r\n            balances[_recipients[i]] += 1; //One frikandelletje 4 u\r\n\t\t\tTransfer(address(this), _recipients[i], 1);\r\n        }"
+        VariableDeclarationStatement
+           Gas costs: 11
+           Source: "uint256 i = 0"
+          VariableDeclaration "i"
+             Type: uint256
+             Source: "uint256 i"
+            ElementaryTypeName uint256
+               Source: "uint256"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        BinaryOperation using operator <
+           Type: bool
+           Gas costs: 27
+           Source: "i < _recipients.length"
+          Identifier i
+             Type: uint256
+             Source: "i"
+          MemberAccess to member length
+             Type: uint256
+             Source: "_recipients.length"
+            Identifier _recipients
+               Type: address[] memory
+               Source: "_recipients"
+        ExpressionStatement
+           Gas costs: 19
+           Source: "i++"
+          UnaryOperation (postfix) ++
+             Type: uint256
+             Source: "i++"
+            Identifier i
+               Type: uint256
+               Source: "i"
+        Block
+           Source: "{\r\n            balances[_recipients[i]] += 1; //One frikandelletje 4 u\r\n\t\t\tTransfer(address(this), _recipients[i], 1);\r\n        }"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "balances[_recipients[i]] += 1"
+            Assignment using operator +=
+               Type: uint256
+               Source: "balances[_recipients[i]] += 1"
+              IndexAccess
+                 Type: uint256
+                 Source: "balances[_recipients[i]]"
+                Identifier balances
+                   Type: mapping(address => uint256)
+                   Source: "balances"
+                IndexAccess
+                   Type: address
+                   Source: "_recipients[i]"
+                  Identifier _recipients
+                     Type: address[] memory
+                     Source: "_recipients"
+                  Identifier i
+                     Type: uint256
+                     Source: "i"
+              Literal, token: [no token] value: 1
+                 Type: int_const 1
+                 Source: "1"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "Transfer(address(this), _recipients[i], 1)"
+            FunctionCall
+               Type: tuple()
+               Source: "Transfer(address(this), _recipients[i], 1)"
+              Identifier Transfer
+                 Type: function (address,address,uint256)
+                 Source: "Transfer"
+              FunctionCall
+                 Type: address
+                 Source: "address(this)"
+                ElementaryTypeNameExpression address
+                   Type: type(address)
+                   Source: "address"
+                Identifier this
+                   Type: contract FrikandelToken
+                   Source: "this"
+              IndexAccess
+                 Type: address
+                 Source: "_recipients[i]"
+                Identifier _recipients
+                   Type: address[] memory
+                   Source: "_recipients"
+                Identifier i
+                   Type: uint256
+                   Source: "i"
+              Literal, token: [no token] value: 1
+                 Type: int_const 1
+                 Source: "1"
+      ExpressionStatement
+         Gas costs: 20251
+         Source: "airdropSpent += _recipients.length"
+        Assignment using operator +=
+           Type: uint256
+           Source: "airdropSpent += _recipients.length"
+          Identifier airdropSpent
+             Type: uint256
+             Source: "airdropSpent"
+          MemberAccess to member length
+             Type: uint256
+             Source: "_recipients.length"
+            Identifier _recipients
+               Type: address[] memory
+               Source: "_recipients"
+  FunctionDefinition "transferFrom" - public
+     Source: "function transferFrom(address _from, address _to, uint256 _value) public returns (bool success) { //Useful if someone allowed you to spend some of their frikandellen or if a smart contract needs to interact with it! :)\r\n        //if (msg.data.length < (3 * 32) + 4) { revert(); } - Been thinking about implementing this, but its not fair to waste gas just to potentially ever save someone from sending a dumb malformed transaction, as a fault of their code or systems. (ERC20 Short address migration)\r\n        if (_value == 0) { Transfer(msg.sender, _to, 0); return; } //Follow the ERC20 spec and just mark the transfer event even through 0 tokens are being transfered\r\n\r\n        //bool sufficientFunds = balances[_from] >= _value; (Not having this single use variable in there saves us 8 gas)\r\n        //bool sufficientAllowance = allowed[_from][msg.sender] >= _value;\r\n        if (allowed[_from][msg.sender] >= _value && balances[_from] >= _value) {\r\n            balances[_to] += _value;\r\n            balances[_from] -= _value;\r\n            \r\n            allowed[_from][msg.sender] -= _value;\r\n            \r\n            Transfer(_from, _to, _value);\r\n            return true;\r\n        } else { return false; } //ERC20 spec tells us the feature SHOULD throw() if the account has not authhorized the sender of the message, however I see everyone using return false... As its not a MUST to throw(), I'm going with the others and returning false\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _from, address _to, uint256 _value)"
+      VariableDeclaration "_from"
+         Type: address
+         Source: "address _from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{ //Useful if someone allowed you to spend some of their frikandellen or if a smart contract needs to interact with it! :)\r\n        //if (msg.data.length < (3 * 32) + 4) { revert(); } - Been thinking about implementing this, but its not fair to waste gas just to potentially ever save someone from sending a dumb malformed transaction, as a fault of their code or systems. (ERC20 Short address migration)\r\n        if (_value == 0) { Transfer(msg.sender, _to, 0); return; } //Follow the ERC20 spec and just mark the transfer event even through 0 tokens are being transfered\r\n\r\n        //bool sufficientFunds = balances[_from] >= _value; (Not having this single use variable in there saves us 8 gas)\r\n        //bool sufficientAllowance = allowed[_from][msg.sender] >= _value;\r\n        if (allowed[_from][msg.sender] >= _value && balances[_from] >= _value) {\r\n            balances[_to] += _value;\r\n            balances[_from] -= _value;\r\n            \r\n            allowed[_from][msg.sender] -= _value;\r\n            \r\n            Transfer(_from, _to, _value);\r\n            return true;\r\n        } else { return false; } //ERC20 spec tells us the feature SHOULD throw() if the account has not authhorized the sender of the message, however I see everyone using return false... As its not a MUST to throw(), I'm going with the others and returning false\r\n    }"
+      IfStatement
+         Source: "if (_value == 0) { Transfer(msg.sender, _to, 0); return; }"
+        BinaryOperation using operator ==
+           Type: bool
+           Gas costs: 9
+           Source: "_value == 0"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        Block
+           Source: "{ Transfer(msg.sender, _to, 0); return; }"
+          ExpressionStatement
+             Gas costs: 1843
+             Source: "Transfer(msg.sender, _to, 0)"
+            FunctionCall
+               Type: tuple()
+               Source: "Transfer(msg.sender, _to, 0)"
+              Identifier Transfer
+                 Type: function (address,address,uint256)
+                 Source: "Transfer"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+              Identifier _to
+                 Type: address
+                 Source: "_to"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+          Return
+             Gas costs: 11
+             Source: "return;"
+      IfStatement
+         Source: "if (allowed[_from][msg.sender] >= _value && balances[_from] >= _value) {\r\n            balances[_to] += _value;\r\n            balances[_from] -= _value;\r\n            \r\n            allowed[_from][msg.sender] -= _value;\r\n            \r\n            Transfer(_from, _to, _value);\r\n            return true;\r\n        } else { return false; }"
+        BinaryOperation using operator &&
+           Type: bool
+           Gas costs: 727
+           Source: "allowed[_from][msg.sender] >= _value && balances[_from] >= _value"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "allowed[_from][msg.sender] >= _value"
+            IndexAccess
+               Type: uint256
+               Source: "allowed[_from][msg.sender]"
+              IndexAccess
+                 Type: mapping(address => uint256)
+                 Source: "allowed[_from]"
+                Identifier allowed
+                   Type: mapping(address => mapping(address => uint256))
+                   Source: "allowed"
+                Identifier _from
+                   Type: address
+                   Source: "_from"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "balances[_from] >= _value"
+            IndexAccess
+               Type: uint256
+               Source: "balances[_from]"
+              Identifier balances
+                 Type: mapping(address => uint256)
+                 Source: "balances"
+              Identifier _from
+                 Type: address
+                 Source: "_from"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+        Block
+           Source: "{\r\n            balances[_to] += _value;\r\n            balances[_from] -= _value;\r\n            \r\n            allowed[_from][msg.sender] -= _value;\r\n            \r\n            Transfer(_from, _to, _value);\r\n            return true;\r\n        }"
+          ExpressionStatement
+             Gas costs: 20329
+             Source: "balances[_to] += _value"
+            Assignment using operator +=
+               Type: uint256
+               Source: "balances[_to] += _value"
+              IndexAccess
+                 Type: uint256
+                 Source: "balances[_to]"
+                Identifier balances
+                   Type: mapping(address => uint256)
+                   Source: "balances"
+                Identifier _to
+                   Type: address
+                   Source: "_to"
+              Identifier _value
+                 Type: uint256
+                 Source: "_value"
+          ExpressionStatement
+             Gas costs: 20323
+             Source: "balances[_from] -= _value"
+            Assignment using operator -=
+               Type: uint256
+               Source: "balances[_from] -= _value"
+              IndexAccess
+                 Type: uint256
+                 Source: "balances[_from]"
+                Identifier balances
+                   Type: mapping(address => uint256)
+                   Source: "balances"
+                Identifier _from
+                   Type: address
+                   Source: "_from"
+              Identifier _value
+                 Type: uint256
+                 Source: "_value"
+          ExpressionStatement
+             Gas costs: 20412
+             Source: "allowed[_from][msg.sender] -= _value"
+            Assignment using operator -=
+               Type: uint256
+               Source: "allowed[_from][msg.sender] -= _value"
+              IndexAccess
+                 Type: uint256
+                 Source: "allowed[_from][msg.sender]"
+                IndexAccess
+                   Type: mapping(address => uint256)
+                   Source: "allowed[_from]"
+                  Identifier allowed
+                     Type: mapping(address => mapping(address => uint256))
+                     Source: "allowed"
+                  Identifier _from
+                     Type: address
+                     Source: "_from"
+                MemberAccess to member sender
+                   Type: address
+                   Source: "msg.sender"
+                  Identifier msg
+                     Type: msg
+                     Source: "msg"
+              Identifier _value
+                 Type: uint256
+                 Source: "_value"
+          ExpressionStatement
+             Gas costs: 1838
+             Source: "Transfer(_from, _to, _value)"
+            FunctionCall
+               Type: tuple()
+               Source: "Transfer(_from, _to, _value)"
+              Identifier Transfer
+                 Type: function (address,address,uint256)
+                 Source: "Transfer"
+              Identifier _from
+                 Type: address
+                 Source: "_from"
+              Identifier _to
+                 Type: address
+                 Source: "_to"
+              Identifier _value
+                 Type: uint256
+                 Source: "_value"
+          Return
+             Gas costs: 19
+             Source: "return true"
+            Literal, token: true value: true
+               Type: bool
+               Source: "true"
+        Block
+           Source: "{ return false; }"
+          Return
+             Gas costs: 8
+             Source: "return false"
+            Literal, token: false value: false
+               Type: bool
+               Source: "false"
+  FunctionDefinition "approve" - public
+     Source: "function approve(address _spender, uint256 _value) public returns (bool success) { //Allow someone else to spend some of your frikandellen\r\n        if (_value != 0 && allowed[msg.sender][_spender] != 0) { return false; } //ERC20 Spend/Approval race conditional migration - Always have a tx set the allowance to 0 first, before applying a new amount.\r\n        \r\n        allowed[msg.sender][_spender] = _value;\r\n        \r\n        Approval(msg.sender, _spender, _value);\r\n        return true;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _spender, uint256 _value)"
+      VariableDeclaration "_spender"
+         Type: address
+         Source: "address _spender"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{ //Allow someone else to spend some of your frikandellen\r\n        if (_value != 0 && allowed[msg.sender][_spender] != 0) { return false; } //ERC20 Spend/Approval race conditional migration - Always have a tx set the allowance to 0 first, before applying a new amount.\r\n        \r\n        allowed[msg.sender][_spender] = _value;\r\n        \r\n        Approval(msg.sender, _spender, _value);\r\n        return true;\r\n    }"
+      IfStatement
+         Source: "if (_value != 0 && allowed[msg.sender][_spender] != 0) { return false; }"
+        BinaryOperation using operator &&
+           Type: bool
+           Gas costs: 431
+           Source: "_value != 0 && allowed[msg.sender][_spender] != 0"
+          BinaryOperation using operator !=
+             Type: bool
+             Source: "_value != 0"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+          BinaryOperation using operator !=
+             Type: bool
+             Source: "allowed[msg.sender][_spender] != 0"
+            IndexAccess
+               Type: uint256
+               Source: "allowed[msg.sender][_spender]"
+              IndexAccess
+                 Type: mapping(address => uint256)
+                 Source: "allowed[msg.sender]"
+                Identifier allowed
+                   Type: mapping(address => mapping(address => uint256))
+                   Source: "allowed"
+                MemberAccess to member sender
+                   Type: address
+                   Source: "msg.sender"
+                  Identifier msg
+                     Type: msg
+                     Source: "msg"
+              Identifier _spender
+                 Type: address
+                 Source: "_spender"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+        Block
+           Source: "{ return false; }"
+          Return
+             Gas costs: 19
+             Source: "return false"
+            Literal, token: false value: false
+               Type: bool
+               Source: "false"
+      ExpressionStatement
+         Gas costs: 20199
+         Source: "allowed[msg.sender][_spender] = _value"
+        Assignment using operator =
+           Type: uint256
+           Source: "allowed[msg.sender][_spender] = _value"
+          IndexAccess
+             Type: uint256
+             Source: "allowed[msg.sender][_spender]"
+            IndexAccess
+               Type: mapping(address => uint256)
+               Source: "allowed[msg.sender]"
+              Identifier allowed
+                 Type: mapping(address => mapping(address => uint256))
+                 Source: "allowed"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+            Identifier _spender
+               Type: address
+               Source: "_spender"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: 1837
+         Source: "Approval(msg.sender, _spender, _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "Approval(msg.sender, _spender, _value)"
+          Identifier Approval
+             Type: function (address,address,uint256)
+             Source: "Approval"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier _spender
+             Type: address
+             Source: "_spender"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      Return
+         Gas costs: 8
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+  FunctionDefinition "increaseApproval" - public
+     Source: "function increaseApproval(address _spender, uint256 _addedValue) public returns (bool) {\r\n        if (allowed[msg.sender][_spender] >= allowed[msg.sender][_spender] + _addedValue) { revert(); } //Lets not overflow the allowance ;) (I guess this also prevents it from being increased by 0 as a nice extra)\r\n        allowed[msg.sender][_spender] += _addedValue;\r\n        Approval(msg.sender, _spender, allowed[msg.sender][_spender]);\r\n        return true;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _spender, uint256 _addedValue)"
+      VariableDeclaration "_spender"
+         Type: address
+         Source: "address _spender"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_addedValue"
+         Type: uint256
+         Source: "uint256 _addedValue"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool)"
+      VariableDeclaration ""
+         Type: bool
+         Source: "bool"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n        if (allowed[msg.sender][_spender] >= allowed[msg.sender][_spender] + _addedValue) { revert(); } //Lets not overflow the allowance ;) (I guess this also prevents it from being increased by 0 as a nice extra)\r\n        allowed[msg.sender][_spender] += _addedValue;\r\n        Approval(msg.sender, _spender, allowed[msg.sender][_spender]);\r\n        return true;\r\n    }"
+      IfStatement
+         Source: "if (allowed[msg.sender][_spender] >= allowed[msg.sender][_spender] + _addedValue) { revert(); }"
+        BinaryOperation using operator >=
+           Type: bool
+           Gas costs: 782
+           Source: "allowed[msg.sender][_spender] >= allowed[msg.sender][_spender] + _addedValue"
+          IndexAccess
+             Type: uint256
+             Source: "allowed[msg.sender][_spender]"
+            IndexAccess
+               Type: mapping(address => uint256)
+               Source: "allowed[msg.sender]"
+              Identifier allowed
+                 Type: mapping(address => mapping(address => uint256))
+                 Source: "allowed"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+            Identifier _spender
+               Type: address
+               Source: "_spender"
+          BinaryOperation using operator +
+             Type: uint256
+             Source: "allowed[msg.sender][_spender] + _addedValue"
+            IndexAccess
+               Type: uint256
+               Source: "allowed[msg.sender][_spender]"
+              IndexAccess
+                 Type: mapping(address => uint256)
+                 Source: "allowed[msg.sender]"
+                Identifier allowed
+                   Type: mapping(address => mapping(address => uint256))
+                   Source: "allowed"
+                MemberAccess to member sender
+                   Type: address
+                   Source: "msg.sender"
+                  Identifier msg
+                     Type: msg
+                     Source: "msg"
+              Identifier _spender
+                 Type: address
+                 Source: "_spender"
+            Identifier _addedValue
+               Type: uint256
+               Source: "_addedValue"
+        Block
+           Source: "{ revert(); }"
+          ExpressionStatement
+             Gas costs: 6
+             Source: "revert()"
+            FunctionCall
+               Type: tuple()
+               Source: "revert()"
+              Identifier revert
+                 Type: function () pure
+                 Source: "revert"
+      ExpressionStatement
+         Gas costs: 20418
+         Source: "allowed[msg.sender][_spender] += _addedValue"
+        Assignment using operator +=
+           Type: uint256
+           Source: "allowed[msg.sender][_spender] += _addedValue"
+          IndexAccess
+             Type: uint256
+             Source: "allowed[msg.sender][_spender]"
+            IndexAccess
+               Type: mapping(address => uint256)
+               Source: "allowed[msg.sender]"
+              Identifier allowed
+                 Type: mapping(address => mapping(address => uint256))
+                 Source: "allowed"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+            Identifier _spender
+               Type: address
+               Source: "_spender"
+          Identifier _addedValue
+             Type: uint256
+             Source: "_addedValue"
+      ExpressionStatement
+         Gas costs: 2216
+         Source: "Approval(msg.sender, _spender, allowed[msg.sender][_spender])"
+        FunctionCall
+           Type: tuple()
+           Source: "Approval(msg.sender, _spender, allowed[msg.sender][_spender])"
+          Identifier Approval
+             Type: function (address,address,uint256)
+             Source: "Approval"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier _spender
+             Type: address
+             Source: "_spender"
+          IndexAccess
+             Type: uint256
+             Source: "allowed[msg.sender][_spender]"
+            IndexAccess
+               Type: mapping(address => uint256)
+               Source: "allowed[msg.sender]"
+              Identifier allowed
+                 Type: mapping(address => mapping(address => uint256))
+                 Source: "allowed"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+            Identifier _spender
+               Type: address
+               Source: "_spender"
+      Return
+         Gas costs: 8
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+  FunctionDefinition "allowance" - public - const
+     Source: "function allowance(address _owner, address _spender) constant public returns (uint256) {\r\n        return allowed[_owner][_spender];\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _owner, address _spender)"
+      VariableDeclaration "_owner"
+         Type: address
+         Source: "address _owner"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_spender"
+         Type: address
+         Source: "address _spender"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint256)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint256"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{\r\n        return allowed[_owner][_spender];\r\n    }"
+      Return
+         Gas costs: 394
+         Source: "return allowed[_owner][_spender]"
+        IndexAccess
+           Type: uint256
+           Source: "allowed[_owner][_spender]"
+          IndexAccess
+             Type: mapping(address => uint256)
+             Source: "allowed[_owner]"
+            Identifier allowed
+               Type: mapping(address => mapping(address => uint256))
+               Source: "allowed"
+            Identifier _owner
+               Type: address
+               Source: "_owner"
+          Identifier _spender
+             Type: address
+             Source: "_spender"
+  FunctionDefinition "transfer" - public
+     Source: "function transfer(address _to, uint256 _value) public returns (bool success) {\r\n        //if (msg.data.length < (2 * 32) + 4) { revert(); } - Been thinking about implementing this, but its not fair to waste gas just to potentially ever save someone from sending a dumb malformed transaction, as a fault of their code or systems. (ERC20 Short address migration)\r\n\r\n        if (_value == 0) { Transfer(msg.sender, _to, 0); return; } //Follow the ERC20 specification and just trigger the event and quit the function since nothing is being transfered anyways\r\n\r\n        //bool sufficientFunds = balances[msg.sender] >= _value; (Not having this single use variable in there saves us 8 gas)\r\n        //bool overflowed = balances[_to] + _value < balances[_to]; (Not having this one probably saves some too but I'm too lazy to test how much we save so fuck that)\r\n\r\n        if (balances[msg.sender] >= _value && !(balances[_to] + _value < balances[_to])) {\r\n            balances[msg.sender] -= _value;\r\n            balances[_to] += _value;\r\n            \r\n            Transfer(msg.sender, _to, _value);\r\n            return true; //Smakelijk!\r\n        } else { return false; } //Sorry man je hebt niet genoeg F R I K A N D E L L E N\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _to, uint256 _value)"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n        //if (msg.data.length < (2 * 32) + 4) { revert(); } - Been thinking about implementing this, but its not fair to waste gas just to potentially ever save someone from sending a dumb malformed transaction, as a fault of their code or systems. (ERC20 Short address migration)\r\n\r\n        if (_value == 0) { Transfer(msg.sender, _to, 0); return; } //Follow the ERC20 specification and just trigger the event and quit the function since nothing is being transfered anyways\r\n\r\n        //bool sufficientFunds = balances[msg.sender] >= _value; (Not having this single use variable in there saves us 8 gas)\r\n        //bool overflowed = balances[_to] + _value < balances[_to]; (Not having this one probably saves some too but I'm too lazy to test how much we save so fuck that)\r\n\r\n        if (balances[msg.sender] >= _value && !(balances[_to] + _value < balances[_to])) {\r\n            balances[msg.sender] -= _value;\r\n            balances[_to] += _value;\r\n            \r\n            Transfer(msg.sender, _to, _value);\r\n            return true; //Smakelijk!\r\n        } else { return false; } //Sorry man je hebt niet genoeg F R I K A N D E L L E N\r\n    }"
+      IfStatement
+         Source: "if (_value == 0) { Transfer(msg.sender, _to, 0); return; }"
+        BinaryOperation using operator ==
+           Type: bool
+           Gas costs: 9
+           Source: "_value == 0"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        Block
+           Source: "{ Transfer(msg.sender, _to, 0); return; }"
+          ExpressionStatement
+             Gas costs: 1843
+             Source: "Transfer(msg.sender, _to, 0)"
+            FunctionCall
+               Type: tuple()
+               Source: "Transfer(msg.sender, _to, 0)"
+              Identifier Transfer
+                 Type: function (address,address,uint256)
+                 Source: "Transfer"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+              Identifier _to
+                 Type: address
+                 Source: "_to"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+          Return
+             Gas costs: 11
+             Source: "return;"
+      IfStatement
+         Source: "if (balances[msg.sender] >= _value && !(balances[_to] + _value < balances[_to])) {\r\n            balances[msg.sender] -= _value;\r\n            balances[_to] += _value;\r\n            \r\n            Transfer(msg.sender, _to, _value);\r\n            return true; //Smakelijk!\r\n        } else { return false; }"
+        BinaryOperation using operator &&
+           Type: bool
+           Gas costs: 933
+           Source: "balances[msg.sender] >= _value && !(balances[_to] + _value < balances[_to])"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "balances[msg.sender] >= _value"
+            IndexAccess
+               Type: uint256
+               Source: "balances[msg.sender]"
+              Identifier balances
+                 Type: mapping(address => uint256)
+                 Source: "balances"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+          UnaryOperation (prefix) !
+             Type: bool
+             Source: "!(balances[_to] + _value < balances[_to])"
+            TupleExpression
+               Type: bool
+               Source: "(balances[_to] + _value < balances[_to])"
+              BinaryOperation using operator <
+                 Type: bool
+                 Source: "balances[_to] + _value < balances[_to]"
+                BinaryOperation using operator +
+                   Type: uint256
+                   Source: "balances[_to] + _value"
+                  IndexAccess
+                     Type: uint256
+                     Source: "balances[_to]"
+                    Identifier balances
+                       Type: mapping(address => uint256)
+                       Source: "balances"
+                    Identifier _to
+                       Type: address
+                       Source: "_to"
+                  Identifier _value
+                     Type: uint256
+                     Source: "_value"
+                IndexAccess
+                   Type: uint256
+                   Source: "balances[_to]"
+                  Identifier balances
+                     Type: mapping(address => uint256)
+                     Source: "balances"
+                  Identifier _to
+                     Type: address
+                     Source: "_to"
+        Block
+           Source: "{\r\n            balances[msg.sender] -= _value;\r\n            balances[_to] += _value;\r\n            \r\n            Transfer(msg.sender, _to, _value);\r\n            return true; //Smakelijk!\r\n        }"
+          ExpressionStatement
+             Gas costs: 20328
+             Source: "balances[msg.sender] -= _value"
+            Assignment using operator -=
+               Type: uint256
+               Source: "balances[msg.sender] -= _value"
+              IndexAccess
+                 Type: uint256
+                 Source: "balances[msg.sender]"
+                Identifier balances
+                   Type: mapping(address => uint256)
+                   Source: "balances"
+                MemberAccess to member sender
+                   Type: address
+                   Source: "msg.sender"
+                  Identifier msg
+                     Type: msg
+                     Source: "msg"
+              Identifier _value
+                 Type: uint256
+                 Source: "_value"
+          ExpressionStatement
+             Gas costs: 20323
+             Source: "balances[_to] += _value"
+            Assignment using operator +=
+               Type: uint256
+               Source: "balances[_to] += _value"
+              IndexAccess
+                 Type: uint256
+                 Source: "balances[_to]"
+                Identifier balances
+                   Type: mapping(address => uint256)
+                   Source: "balances"
+                Identifier _to
+                   Type: address
+                   Source: "_to"
+              Identifier _value
+                 Type: uint256
+                 Source: "_value"
+          ExpressionStatement
+             Gas costs: 1837
+             Source: "Transfer(msg.sender, _to, _value)"
+            FunctionCall
+               Type: tuple()
+               Source: "Transfer(msg.sender, _to, _value)"
+              Identifier Transfer
+                 Type: function (address,address,uint256)
+                 Source: "Transfer"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+              Identifier _to
+                 Type: address
+                 Source: "_to"
+              Identifier _value
+                 Type: uint256
+                 Source: "_value"
+          Return
+             Gas costs: 19
+             Source: "return true"
+            Literal, token: true value: true
+               Type: bool
+               Source: "true"
+        Block
+           Source: "{ return false; }"
+          Return
+             Gas costs: 8
+             Source: "return false"
+            Literal, token: false value: false
+               Type: bool
+               Source: "false"
+  EventDefinition "Transfer"
+     Gas costs: 0
+     Source: "event Transfer(address indexed _from, address indexed _to, uint256 _value);"
+    ParameterList
+       Source: "(address indexed _from, address indexed _to, uint256 _value)"
+      VariableDeclaration "_from"
+         Type: address
+         Source: "address indexed _from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address indexed _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  EventDefinition "Approval"
+     Gas costs: 0
+     Source: "event Approval(address indexed _owner, address indexed _spender, uint256 _value);"
+    ParameterList
+       Source: "(address indexed _owner, address indexed _spender, uint256 _value)"
+      VariableDeclaration "_owner"
+         Type: address
+         Source: "address indexed _owner"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_spender"
+         Type: address
+         Source: "address indexed _spender"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  FunctionDefinition "enableICO" - public
+     Source: "function enableICO() public {\r\n        require(msg.sender == contractOwner); //Bro stay of my contract\r\n        ICOEnabled = true;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        require(msg.sender == contractOwner); //Bro stay of my contract\r\n        ICOEnabled = true;\r\n    }"
+      ExpressionStatement
+         Gas costs: 282
+         Source: "require(msg.sender == contractOwner)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(msg.sender == contractOwner)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "msg.sender == contractOwner"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Identifier contractOwner
+               Type: address
+               Source: "contractOwner"
+      ExpressionStatement
+         Gas costs: 20317
+         Source: "ICOEnabled = true"
+        Assignment using operator =
+           Type: bool
+           Source: "ICOEnabled = true"
+          Identifier ICOEnabled
+             Type: bool
+             Source: "ICOEnabled"
+          Literal, token: true value: true
+             Type: bool
+             Source: "true"
+  FunctionDefinition "disableICO" - public
+     Source: "function disableICO() public {\r\n        require(msg.sender == contractOwner); //BRO what did I tell you\r\n        ICOEnabled = false; //Business closed y'all\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        require(msg.sender == contractOwner); //BRO what did I tell you\r\n        ICOEnabled = false; //Business closed y'all\r\n    }"
+      ExpressionStatement
+         Gas costs: 282
+         Source: "require(msg.sender == contractOwner)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(msg.sender == contractOwner)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "msg.sender == contractOwner"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Identifier contractOwner
+               Type: address
+               Source: "contractOwner"
+      ExpressionStatement
+         Gas costs: 20317
+         Source: "ICOEnabled = false"
+        Assignment using operator =
+           Type: bool
+           Source: "ICOEnabled = false"
+          Identifier ICOEnabled
+             Type: bool
+             Source: "ICOEnabled"
+          Literal, token: false value: false
+             Type: bool
+             Source: "false"
+  FunctionDefinition "" - public
+     Source: "function() payable public {\r\n        require(ICOEnabled);\r\n        require(msg.value > 0); //You can't send nothing lol. It won't get you anything and I won't allow you to waste your precious gas on it! (You can send 1wei though, which will give you nothing in return either but still run the code below)\r\n        if(balances[msg.sender]+(msg.value / 1e14) > 50000) { revert(); } //This would give you more then 50000 frikandellen, you can't buy from this account anymore through the ICO (If you eat 50000 frikandellen you'd probably die for real from all the layers of fat)\r\n        if(totalSupply+(msg.value / 1e14) > hardLimitICO) { revert(); } //Hard limit on Frikandellen\r\n        \r\n        contractOwner.transfer(msg.value); //Thank you very much for supporting, I'll promise that I will spend an equal amount of money on purchaching frikandellen from my local store!\r\n\r\n        uint256 tokensIssued = (msg.value / 1e14); //Since 1 token can be bought for 0.0001 ETH split the value (in Wei) through 1e14 to get the amount of tokens\r\n\r\n        totalSupply += tokensIssued; //Lets note the tokens\r\n        balances[msg.sender] += tokensIssued; //Dinner is served (Or well, maybe just a snack... Kinda depends on how many frikandel you've bought)\r\n\r\n        Transfer(address(this), msg.sender, tokensIssued); //Trigger a transfer() event :)\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        require(ICOEnabled);\r\n        require(msg.value > 0); //You can't send nothing lol. It won't get you anything and I won't allow you to waste your precious gas on it! (You can send 1wei though, which will give you nothing in return either but still run the code below)\r\n        if(balances[msg.sender]+(msg.value / 1e14) > 50000) { revert(); } //This would give you more then 50000 frikandellen, you can't buy from this account anymore through the ICO (If you eat 50000 frikandellen you'd probably die for real from all the layers of fat)\r\n        if(totalSupply+(msg.value / 1e14) > hardLimitICO) { revert(); } //Hard limit on Frikandellen\r\n        \r\n        contractOwner.transfer(msg.value); //Thank you very much for supporting, I'll promise that I will spend an equal amount of money on purchaching frikandellen from my local store!\r\n\r\n        uint256 tokensIssued = (msg.value / 1e14); //Since 1 token can be bought for 0.0001 ETH split the value (in Wei) through 1e14 to get the amount of tokens\r\n\r\n        totalSupply += tokensIssued; //Lets note the tokens\r\n        balances[msg.sender] += tokensIssued; //Dinner is served (Or well, maybe just a snack... Kinda depends on how many frikandel you've bought)\r\n\r\n        Transfer(address(this), msg.sender, tokensIssued); //Trigger a transfer() event :)\r\n    }"
+      ExpressionStatement
+         Gas costs: 315
+         Source: "require(ICOEnabled)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(ICOEnabled)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          Identifier ICOEnabled
+             Type: bool
+             Source: "ICOEnabled"
+      ExpressionStatement
+         Gas costs: 34
+         Source: "require(msg.value > 0)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(msg.value > 0)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >
+             Type: bool
+             Source: "msg.value > 0"
+            MemberAccess to member value
+               Type: uint256
+               Source: "msg.value"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+      IfStatement
+         Source: "if(balances[msg.sender]+(msg.value / 1e14) > 50000) { revert(); }"
+        BinaryOperation using operator >
+           Type: bool
+           Gas costs: 340
+           Source: "balances[msg.sender]+(msg.value / 1e14) > 50000"
+          BinaryOperation using operator +
+             Type: uint256
+             Source: "balances[msg.sender]+(msg.value / 1e14)"
+            IndexAccess
+               Type: uint256
+               Source: "balances[msg.sender]"
+              Identifier balances
+                 Type: mapping(address => uint256)
+                 Source: "balances"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+            TupleExpression
+               Type: uint256
+               Source: "(msg.value / 1e14)"
+              BinaryOperation using operator /
+                 Type: uint256
+                 Source: "msg.value / 1e14"
+                MemberAccess to member value
+                   Type: uint256
+                   Source: "msg.value"
+                  Identifier msg
+                     Type: msg
+                     Source: "msg"
+                Literal, token: [no token] value: 1e14
+                   Type: int_const 100000000000000
+                   Source: "1e14"
+          Literal, token: [no token] value: 50000
+             Type: int_const 50000
+             Source: "50000"
+        Block
+           Source: "{ revert(); }"
+          ExpressionStatement
+             Gas costs: 6
+             Source: "revert()"
+            FunctionCall
+               Type: tuple()
+               Source: "revert()"
+              Identifier revert
+                 Type: function () pure
+                 Source: "revert"
+      IfStatement
+         Source: "if(totalSupply+(msg.value / 1e14) > hardLimitICO) { revert(); }"
+        BinaryOperation using operator >
+           Type: bool
+           Gas costs: 445
+           Source: "totalSupply+(msg.value / 1e14) > hardLimitICO"
+          BinaryOperation using operator +
+             Type: uint256
+             Source: "totalSupply+(msg.value / 1e14)"
+            Identifier totalSupply
+               Type: uint256
+               Source: "totalSupply"
+            TupleExpression
+               Type: uint256
+               Source: "(msg.value / 1e14)"
+              BinaryOperation using operator /
+                 Type: uint256
+                 Source: "msg.value / 1e14"
+                MemberAccess to member value
+                   Type: uint256
+                   Source: "msg.value"
+                  Identifier msg
+                     Type: msg
+                     Source: "msg"
+                Literal, token: [no token] value: 1e14
+                   Type: int_const 100000000000000
+                   Source: "1e14"
+          Identifier hardLimitICO
+             Type: uint256
+             Source: "hardLimitICO"
+        Block
+           Source: "{ revert(); }"
+          ExpressionStatement
+             Gas costs: 6
+             Source: "revert()"
+            FunctionCall
+               Type: tuple()
+               Source: "revert()"
+              Identifier revert
+                 Type: function () pure
+                 Source: "revert"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "contractOwner.transfer(msg.value)"
+        FunctionCall
+           Type: tuple()
+           Source: "contractOwner.transfer(msg.value)"
+          MemberAccess to member transfer
+             Type: function (uint256)
+             Source: "contractOwner.transfer"
+            Identifier contractOwner
+               Type: address
+               Source: "contractOwner"
+          MemberAccess to member value
+             Type: uint256
+             Source: "msg.value"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+      VariableDeclarationStatement
+         Gas costs: 41
+         Source: "uint256 tokensIssued = (msg.value / 1e14)"
+        VariableDeclaration "tokensIssued"
+           Type: uint256
+           Source: "uint256 tokensIssued"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        TupleExpression
+           Type: uint256
+           Source: "(msg.value / 1e14)"
+          BinaryOperation using operator /
+             Type: uint256
+             Source: "msg.value / 1e14"
+            MemberAccess to member value
+               Type: uint256
+               Source: "msg.value"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Literal, token: [no token] value: 1e14
+               Type: int_const 100000000000000
+               Source: "1e14"
+      ExpressionStatement
+         Gas costs: 20233
+         Source: "totalSupply += tokensIssued"
+        Assignment using operator +=
+           Type: uint256
+           Source: "totalSupply += tokensIssued"
+          Identifier totalSupply
+             Type: uint256
+             Source: "totalSupply"
+          Identifier tokensIssued
+             Type: uint256
+             Source: "tokensIssued"
+      ExpressionStatement
+         Gas costs: 20328
+         Source: "balances[msg.sender] += tokensIssued"
+        Assignment using operator +=
+           Type: uint256
+           Source: "balances[msg.sender] += tokensIssued"
+          IndexAccess
+             Type: uint256
+             Source: "balances[msg.sender]"
+            Identifier balances
+               Type: mapping(address => uint256)
+               Source: "balances"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Identifier tokensIssued
+             Type: uint256
+             Source: "tokensIssued"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "Transfer(address(this), msg.sender, tokensIssued)"
+        FunctionCall
+           Type: tuple()
+           Source: "Transfer(address(this), msg.sender, tokensIssued)"
+          Identifier Transfer
+             Type: function (address,address,uint256)
+             Source: "Transfer"
+          FunctionCall
+             Type: address
+             Source: "address(this)"
+            ElementaryTypeNameExpression address
+               Type: type(address)
+               Source: "address"
+            Identifier this
+               Type: contract FrikandelToken
+               Source: "this"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier tokensIssued
+             Type: uint256
+             Source: "tokensIssued"

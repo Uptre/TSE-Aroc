@@ -1,0 +1,731 @@
+Syntax trees:
+
+
+======= /home/fabric/ArocRevision/Aroc/osirisData/contractSrc/0xa64b0456ee7956cbc72ce31d61f43220a398a4f1.sol =======
+ContractDefinition "Private_Fund"
+   Source: "contract Private_Fund{\r\n    \r\n    address public beneficiary;\r\n    uint public amountRaised;\r\n    uint256 public start;\r\n    uint256 public deadline;\r\n    address public creator;\r\n    bool public deadline_status = false;\r\n    uint256 public minAmount = 1 ether;\r\n    \r\n    Funder[] public funders;\r\n    event FundTransfer(address backer, uint amount, bool isContribution);\r\n    \r\n    /* data structure to hold information about campaign contributors */\r\n    struct Funder {\r\n        address addr;\r\n        uint amount;\r\n    }\r\n    \r\n    modifier onlyCreator() {\r\n        if (creator != msg.sender) {\r\n            throw;\r\n        }\r\n        _;\r\n     }\r\n     \r\n    modifier afterDeadline() { if (now >= deadline) _;}\r\n    \r\n    function check_deadline() {\r\n      if (now >= deadline) deadline_status = true;\r\n      else                 deadline_status = false;\r\n    }\r\n    \r\n    function deadline_modify(uint256 _start ,uint256 _duration) onlyCreator {\r\n       start = _start;\r\n       deadline = _start + _duration * 1 days; \r\n    }\r\n    \r\n    function beneficiary_modify  (address _beneficiary) onlyCreator{\r\n        beneficiary = _beneficiary;\r\n    }\r\n    \r\n    /*  at initialization, setup the owner */\r\n    function Private_Fund(address _creator, uint256 _duration) {\r\n        creator = _creator;\r\n        beneficiary = 0xfaC1D48E61353D49D8E234C27943A7b58cd94FD6;\r\n        start = now;\r\n        deadline = start + _duration * 1 days;\r\n        //deadline = start + _duration * 1 minutes;\r\n    }   \r\n    \r\n    /* The function without name is the default function that is called whenever anyone sends funds to a contract */\r\n    function () payable {\r\n        if(now < start) throw;\r\n        if(now >= deadline) throw;\r\n        if(msg.value < minAmount) throw;\r\n        \r\n        uint amount = msg.value;\r\n        funders[funders.length++] = Funder({addr: msg.sender, amount: amount});\r\n        amountRaised += amount;\r\n        FundTransfer(msg.sender, amount, true);\r\n    }\r\n        \r\n\r\n    /* checks if the goal or time limit has been reached and ends the campaign */\r\n    function withdraw_privatefund(bool _withdraw_en) afterDeadline onlyCreator{\r\n        if (_withdraw_en){\r\n            beneficiary.send(amountRaised);\r\n            FundTransfer(beneficiary, amountRaised, false);\r\n        } else {\r\n            FundTransfer(0, 11, false);\r\n            for (uint i = 0; i < funders.length; ++i) {\r\n              funders[i].addr.send(funders[i].amount);  \r\n              FundTransfer(funders[i].addr, funders[i].amount, false);\r\n            }               \r\n        }\r\n    }\r\n    \r\n    function kill() onlyCreator{\r\n      suicide(beneficiary);\r\n    }\r\n}"
+  VariableDeclaration "beneficiary"
+     Type: address
+     Gas costs: 335
+     Source: "address public beneficiary"
+    ElementaryTypeName address
+       Source: "address"
+  VariableDeclaration "amountRaised"
+     Type: uint256
+     Gas costs: 287
+     Source: "uint public amountRaised"
+    ElementaryTypeName uint
+       Source: "uint"
+  VariableDeclaration "start"
+     Type: uint256
+     Gas costs: 287
+     Source: "uint256 public start"
+    ElementaryTypeName uint256
+       Source: "uint256"
+  VariableDeclaration "deadline"
+     Type: uint256
+     Gas costs: 287
+     Source: "uint256 public deadline"
+    ElementaryTypeName uint256
+       Source: "uint256"
+  VariableDeclaration "creator"
+     Type: address
+     Gas costs: 335
+     Source: "address public creator"
+    ElementaryTypeName address
+       Source: "address"
+  VariableDeclaration "deadline_status"
+     Type: bool
+     Gas costs: 385
+     Source: "bool public deadline_status = false"
+    ElementaryTypeName bool
+       Source: "bool"
+    Literal, token: false value: false
+       Type: bool
+       Source: "false"
+  VariableDeclaration "minAmount"
+     Type: uint256
+     Gas costs: 287
+     Source: "uint256 public minAmount = 1 ether"
+    ElementaryTypeName uint256
+       Source: "uint256"
+    Literal, token: [no token] value: 1
+       Type: int_const 1000000000000000000
+       Source: "1 ether"
+  VariableDeclaration "funders"
+     Type: struct Private_Fund.Funder storage ref[] storage ref
+     Gas costs: 950
+     Source: "Funder[] public funders"
+    ArrayTypeName
+       Source: "Funder[]"
+      UserDefinedTypeName "Funder"
+         Source: "Funder"
+  EventDefinition "FundTransfer"
+     Gas costs: 0
+     Source: "event FundTransfer(address backer, uint amount, bool isContribution);"
+    ParameterList
+       Source: "(address backer, uint amount, bool isContribution)"
+      VariableDeclaration "backer"
+         Type: address
+         Source: "address backer"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "amount"
+         Type: uint256
+         Source: "uint amount"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "isContribution"
+         Type: bool
+         Source: "bool isContribution"
+        ElementaryTypeName bool
+           Source: "bool"
+  StructDefinition "Funder"
+     Gas costs: 0
+     Source: "struct Funder {\r\n        address addr;\r\n        uint amount;\r\n    }"
+    VariableDeclaration "addr"
+       Type: address
+       Source: "address addr"
+      ElementaryTypeName address
+         Source: "address"
+    VariableDeclaration "amount"
+       Type: uint256
+       Source: "uint amount"
+      ElementaryTypeName uint
+         Source: "uint"
+  ModifierDefinition "onlyCreator"
+     Source: "modifier onlyCreator() {\r\n        if (creator != msg.sender) {\r\n            throw;\r\n        }\r\n        _;\r\n     }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    Block
+       Source: "{\r\n        if (creator != msg.sender) {\r\n            throw;\r\n        }\r\n        _;\r\n     }"
+      IfStatement
+         Source: "if (creator != msg.sender) {\r\n            throw;\r\n        }"
+        BinaryOperation using operator !=
+           Type: bool
+           Gas costs: 1036
+           Source: "creator != msg.sender"
+          Identifier creator
+             Type: address
+             Source: "creator"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+        Block
+           Source: "{\r\n            throw;\r\n        }"
+          Throw
+             Gas costs: 24
+             Source: "throw"
+      PlaceholderStatement
+         Gas costs: 0
+         Source: "_"
+  ModifierDefinition "afterDeadline"
+     Source: "modifier afterDeadline() { if (now >= deadline) _;}"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    Block
+       Source: "{ if (now >= deadline) _;}"
+      IfStatement
+         Source: "if (now >= deadline) _"
+        BinaryOperation using operator >=
+           Type: bool
+           Gas costs: 211
+           Source: "now >= deadline"
+          Identifier now
+             Type: uint256
+             Source: "now"
+          Identifier deadline
+             Type: uint256
+             Source: "deadline"
+        PlaceholderStatement
+           Gas costs: 0
+           Source: "_"
+  FunctionDefinition "check_deadline" - public
+     Source: "function check_deadline() {\r\n      if (now >= deadline) deadline_status = true;\r\n      else                 deadline_status = false;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n      if (now >= deadline) deadline_status = true;\r\n      else                 deadline_status = false;\r\n    }"
+      IfStatement
+         Source: "if (now >= deadline) deadline_status = true;\r\n      else                 deadline_status = false"
+        BinaryOperation using operator >=
+           Type: bool
+           Gas costs: 211
+           Source: "now >= deadline"
+          Identifier now
+             Type: uint256
+             Source: "now"
+          Identifier deadline
+             Type: uint256
+             Source: "deadline"
+        ExpressionStatement
+           Gas costs: 20317
+           Source: "deadline_status = true"
+          Assignment using operator =
+             Type: bool
+             Source: "deadline_status = true"
+            Identifier deadline_status
+               Type: bool
+               Source: "deadline_status"
+            Literal, token: true value: true
+               Type: bool
+               Source: "true"
+        ExpressionStatement
+           Gas costs: 20317
+           Source: "deadline_status = false"
+          Assignment using operator =
+             Type: bool
+             Source: "deadline_status = false"
+            Identifier deadline_status
+               Type: bool
+               Source: "deadline_status"
+            Literal, token: false value: false
+               Type: bool
+               Source: "false"
+  FunctionDefinition "deadline_modify" - public
+     Source: "function deadline_modify(uint256 _start ,uint256 _duration) onlyCreator {\r\n       start = _start;\r\n       deadline = _start + _duration * 1 days; \r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 _start ,uint256 _duration)"
+      VariableDeclaration "_start"
+         Type: uint256
+         Source: "uint256 _start"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "_duration"
+         Type: uint256
+         Source: "uint256 _duration"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyCreator"
+       Gas costs: 0
+       Source: "onlyCreator"
+      Identifier onlyCreator
+         Type: modifier ()
+         Source: "onlyCreator"
+    Block
+       Source: "{\r\n       start = _start;\r\n       deadline = _start + _duration * 1 days; \r\n    }"
+      ExpressionStatement
+         Gas costs: 20014
+         Source: "start = _start"
+        Assignment using operator =
+           Type: uint256
+           Source: "start = _start"
+          Identifier start
+             Type: uint256
+             Source: "start"
+          Identifier _start
+             Type: uint256
+             Source: "_start"
+      ExpressionStatement
+         Gas costs: 20028
+         Source: "deadline = _start + _duration * 1 days"
+        Assignment using operator =
+           Type: uint256
+           Source: "deadline = _start + _duration * 1 days"
+          Identifier deadline
+             Type: uint256
+             Source: "deadline"
+          BinaryOperation using operator +
+             Type: uint256
+             Source: "_start + _duration * 1 days"
+            Identifier _start
+               Type: uint256
+               Source: "_start"
+            BinaryOperation using operator *
+               Type: uint256
+               Source: "_duration * 1 days"
+              Identifier _duration
+                 Type: uint256
+                 Source: "_duration"
+              Literal, token: [no token] value: 1
+                 Type: int_const 86400
+                 Source: "1 days"
+  FunctionDefinition "beneficiary_modify" - public
+     Source: "function beneficiary_modify  (address _beneficiary) onlyCreator{\r\n        beneficiary = _beneficiary;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _beneficiary)"
+      VariableDeclaration "_beneficiary"
+         Type: address
+         Source: "address _beneficiary"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyCreator"
+       Gas costs: 0
+       Source: "onlyCreator"
+      Identifier onlyCreator
+         Type: modifier ()
+         Source: "onlyCreator"
+    Block
+       Source: "{\r\n        beneficiary = _beneficiary;\r\n    }"
+      ExpressionStatement
+         Gas costs: 20267
+         Source: "beneficiary = _beneficiary"
+        Assignment using operator =
+           Type: address
+           Source: "beneficiary = _beneficiary"
+          Identifier beneficiary
+             Type: address
+             Source: "beneficiary"
+          Identifier _beneficiary
+             Type: address
+             Source: "_beneficiary"
+  FunctionDefinition "Private_Fund" - public
+     Source: "function Private_Fund(address _creator, uint256 _duration) {\r\n        creator = _creator;\r\n        beneficiary = 0xfaC1D48E61353D49D8E234C27943A7b58cd94FD6;\r\n        start = now;\r\n        deadline = start + _duration * 1 days;\r\n        //deadline = start + _duration * 1 minutes;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _creator, uint256 _duration)"
+      VariableDeclaration "_creator"
+         Type: address
+         Source: "address _creator"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_duration"
+         Type: uint256
+         Source: "uint256 _duration"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        creator = _creator;\r\n        beneficiary = 0xfaC1D48E61353D49D8E234C27943A7b58cd94FD6;\r\n        start = now;\r\n        deadline = start + _duration * 1 days;\r\n        //deadline = start + _duration * 1 minutes;\r\n    }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "creator = _creator"
+        Assignment using operator =
+           Type: address
+           Source: "creator = _creator"
+          Identifier creator
+             Type: address
+             Source: "creator"
+          Identifier _creator
+             Type: address
+             Source: "_creator"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "beneficiary = 0xfaC1D48E61353D49D8E234C27943A7b58cd94FD6"
+        Assignment using operator =
+           Type: address
+           Source: "beneficiary = 0xfaC1D48E61353D49D8E234C27943A7b58cd94FD6"
+          Identifier beneficiary
+             Type: address
+             Source: "beneficiary"
+          Literal, token: [no token] value: 0xfaC1D48E61353D49D8E234C27943A7b58cd94FD6
+             Type: address
+             Source: "0xfaC1D48E61353D49D8E234C27943A7b58cd94FD6"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "start = now"
+        Assignment using operator =
+           Type: uint256
+           Source: "start = now"
+          Identifier start
+             Type: uint256
+             Source: "start"
+          Identifier now
+             Type: uint256
+             Source: "now"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "deadline = start + _duration * 1 days"
+        Assignment using operator =
+           Type: uint256
+           Source: "deadline = start + _duration * 1 days"
+          Identifier deadline
+             Type: uint256
+             Source: "deadline"
+          BinaryOperation using operator +
+             Type: uint256
+             Source: "start + _duration * 1 days"
+            Identifier start
+               Type: uint256
+               Source: "start"
+            BinaryOperation using operator *
+               Type: uint256
+               Source: "_duration * 1 days"
+              Identifier _duration
+                 Type: uint256
+                 Source: "_duration"
+              Literal, token: [no token] value: 1
+                 Type: int_const 86400
+                 Source: "1 days"
+  FunctionDefinition "" - public
+     Source: "function () payable {\r\n        if(now < start) throw;\r\n        if(now >= deadline) throw;\r\n        if(msg.value < minAmount) throw;\r\n        \r\n        uint amount = msg.value;\r\n        funders[funders.length++] = Funder({addr: msg.sender, amount: amount});\r\n        amountRaised += amount;\r\n        FundTransfer(msg.sender, amount, true);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        if(now < start) throw;\r\n        if(now >= deadline) throw;\r\n        if(msg.value < minAmount) throw;\r\n        \r\n        uint amount = msg.value;\r\n        funders[funders.length++] = Funder({addr: msg.sender, amount: amount});\r\n        amountRaised += amount;\r\n        FundTransfer(msg.sender, amount, true);\r\n    }"
+      IfStatement
+         Source: "if(now < start) throw"
+        BinaryOperation using operator <
+           Type: bool
+           Gas costs: 208
+           Source: "now < start"
+          Identifier now
+             Type: uint256
+             Source: "now"
+          Identifier start
+             Type: uint256
+             Source: "start"
+        Throw
+           Gas costs: 6
+           Source: "throw"
+      IfStatement
+         Source: "if(now >= deadline) throw"
+        BinaryOperation using operator >=
+           Type: bool
+           Gas costs: 211
+           Source: "now >= deadline"
+          Identifier now
+             Type: uint256
+             Source: "now"
+          Identifier deadline
+             Type: uint256
+             Source: "deadline"
+        Throw
+           Gas costs: 6
+           Source: "throw"
+      IfStatement
+         Source: "if(msg.value < minAmount) throw"
+        BinaryOperation using operator <
+           Type: bool
+           Gas costs: 208
+           Source: "msg.value < minAmount"
+          MemberAccess to member value
+             Type: uint256
+             Source: "msg.value"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier minAmount
+             Type: uint256
+             Source: "minAmount"
+        Throw
+           Gas costs: 6
+           Source: "throw"
+      VariableDeclarationStatement
+         Gas costs: 10
+         Source: "uint amount = msg.value"
+        VariableDeclaration "amount"
+           Type: uint256
+           Source: "uint amount"
+          ElementaryTypeName uint
+             Source: "uint"
+        MemberAccess to member value
+           Type: uint256
+           Source: "msg.value"
+          Identifier msg
+             Type: msg
+             Source: "msg"
+      ExpressionStatement
+         Gas costs: 40932
+         Source: "funders[funders.length++] = Funder({addr: msg.sender, amount: amount})"
+        Assignment using operator =
+           Type: struct Private_Fund.Funder storage ref
+           Source: "funders[funders.length++] = Funder({addr: msg.sender, amount: amount})"
+          IndexAccess
+             Type: struct Private_Fund.Funder storage ref
+             Source: "funders[funders.length++]"
+            Identifier funders
+               Type: struct Private_Fund.Funder storage ref[] storage ref
+               Source: "funders"
+            UnaryOperation (postfix) ++
+               Type: uint256
+               Source: "funders.length++"
+              MemberAccess to member length
+                 Type: uint256
+                 Source: "funders.length"
+                Identifier funders
+                   Type: struct Private_Fund.Funder storage ref[] storage ref
+                   Source: "funders"
+          FunctionCall
+             Type: struct Private_Fund.Funder memory
+             Source: "Funder({addr: msg.sender, amount: amount})"
+            Identifier Funder
+               Type: type(struct Private_Fund.Funder storage pointer)
+               Source: "Funder"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Identifier amount
+               Type: uint256
+               Source: "amount"
+      ExpressionStatement
+         Gas costs: 20233
+         Source: "amountRaised += amount"
+        Assignment using operator +=
+           Type: uint256
+           Source: "amountRaised += amount"
+          Identifier amountRaised
+             Type: uint256
+             Source: "amountRaised"
+          Identifier amount
+             Type: uint256
+             Source: "amount"
+      ExpressionStatement
+         Gas costs: 1645
+         Source: "FundTransfer(msg.sender, amount, true)"
+        FunctionCall
+           Type: tuple()
+           Source: "FundTransfer(msg.sender, amount, true)"
+          Identifier FundTransfer
+             Type: function (address,uint256,bool)
+             Source: "FundTransfer"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier amount
+             Type: uint256
+             Source: "amount"
+          Literal, token: true value: true
+             Type: bool
+             Source: "true"
+  FunctionDefinition "withdraw_privatefund" - public
+     Source: "function withdraw_privatefund(bool _withdraw_en) afterDeadline onlyCreator{\r\n        if (_withdraw_en){\r\n            beneficiary.send(amountRaised);\r\n            FundTransfer(beneficiary, amountRaised, false);\r\n        } else {\r\n            FundTransfer(0, 11, false);\r\n            for (uint i = 0; i < funders.length; ++i) {\r\n              funders[i].addr.send(funders[i].amount);  \r\n              FundTransfer(funders[i].addr, funders[i].amount, false);\r\n            }               \r\n        }\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(bool _withdraw_en)"
+      VariableDeclaration "_withdraw_en"
+         Type: bool
+         Source: "bool _withdraw_en"
+        ElementaryTypeName bool
+           Source: "bool"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "afterDeadline"
+       Gas costs: 0
+       Source: "afterDeadline"
+      Identifier afterDeadline
+         Type: modifier ()
+         Source: "afterDeadline"
+    ModifierInvocation "onlyCreator"
+       Gas costs: 0
+       Source: "onlyCreator"
+      Identifier onlyCreator
+         Type: modifier ()
+         Source: "onlyCreator"
+    Block
+       Source: "{\r\n        if (_withdraw_en){\r\n            beneficiary.send(amountRaised);\r\n            FundTransfer(beneficiary, amountRaised, false);\r\n        } else {\r\n            FundTransfer(0, 11, false);\r\n            for (uint i = 0; i < funders.length; ++i) {\r\n              funders[i].addr.send(funders[i].amount);  \r\n              FundTransfer(funders[i].addr, funders[i].amount, false);\r\n            }               \r\n        }\r\n    }"
+      IfStatement
+         Source: "if (_withdraw_en){\r\n            beneficiary.send(amountRaised);\r\n            FundTransfer(beneficiary, amountRaised, false);\r\n        } else {\r\n            FundTransfer(0, 11, false);\r\n            for (uint i = 0; i < funders.length; ++i) {\r\n              funders[i].addr.send(funders[i].amount);  \r\n              FundTransfer(funders[i].addr, funders[i].amount, false);\r\n            }               \r\n        }"
+        Identifier _withdraw_en
+           Type: bool
+           Gas costs: 3
+           Source: "_withdraw_en"
+        Block
+           Source: "{\r\n            beneficiary.send(amountRaised);\r\n            FundTransfer(beneficiary, amountRaised, false);\r\n        }"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "beneficiary.send(amountRaised)"
+            FunctionCall
+               Type: bool
+               Source: "beneficiary.send(amountRaised)"
+              MemberAccess to member send
+                 Type: function (uint256) returns (bool)
+                 Source: "beneficiary.send"
+                Identifier beneficiary
+                   Type: address
+                   Source: "beneficiary"
+              Identifier amountRaised
+                 Type: uint256
+                 Source: "amountRaised"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "FundTransfer(beneficiary, amountRaised, false)"
+            FunctionCall
+               Type: tuple()
+               Source: "FundTransfer(beneficiary, amountRaised, false)"
+              Identifier FundTransfer
+                 Type: function (address,uint256,bool)
+                 Source: "FundTransfer"
+              Identifier beneficiary
+                 Type: address
+                 Source: "beneficiary"
+              Identifier amountRaised
+                 Type: uint256
+                 Source: "amountRaised"
+              Literal, token: false value: false
+                 Type: bool
+                 Source: "false"
+        Block
+           Source: "{\r\n            FundTransfer(0, 11, false);\r\n            for (uint i = 0; i < funders.length; ++i) {\r\n              funders[i].addr.send(funders[i].amount);  \r\n              FundTransfer(funders[i].addr, funders[i].amount, false);\r\n            }               \r\n        }"
+          ExpressionStatement
+             Gas costs: 1652
+             Source: "FundTransfer(0, 11, false)"
+            FunctionCall
+               Type: tuple()
+               Source: "FundTransfer(0, 11, false)"
+              Identifier FundTransfer
+                 Type: function (address,uint256,bool)
+                 Source: "FundTransfer"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+              Literal, token: [no token] value: 11
+                 Type: int_const 11
+                 Source: "11"
+              Literal, token: false value: false
+                 Type: bool
+                 Source: "false"
+          ForStatement
+             Source: "for (uint i = 0; i < funders.length; ++i) {\r\n              funders[i].addr.send(funders[i].amount);  \r\n              FundTransfer(funders[i].addr, funders[i].amount, false);\r\n            }"
+            VariableDeclarationStatement
+               Gas costs: 11
+               Source: "uint i = 0"
+              VariableDeclaration "i"
+                 Type: uint256
+                 Source: "uint i"
+                ElementaryTypeName uint
+                   Source: "uint"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+            BinaryOperation using operator <
+               Type: bool
+               Gas costs: 217
+               Source: "i < funders.length"
+              Identifier i
+                 Type: uint256
+                 Source: "i"
+              MemberAccess to member length
+                 Type: uint256
+                 Source: "funders.length"
+                Identifier funders
+                   Type: struct Private_Fund.Funder storage ref[] storage ref
+                   Source: "funders"
+            ExpressionStatement
+               Gas costs: 14
+               Source: "++i"
+              UnaryOperation (prefix) ++
+                 Type: uint256
+                 Source: "++i"
+                Identifier i
+                   Type: uint256
+                   Source: "i"
+            Block
+               Source: "{\r\n              funders[i].addr.send(funders[i].amount);  \r\n              FundTransfer(funders[i].addr, funders[i].amount, false);\r\n            }"
+              ExpressionStatement
+                 Gas costs: [???]
+                 Source: "funders[i].addr.send(funders[i].amount)"
+                FunctionCall
+                   Type: bool
+                   Source: "funders[i].addr.send(funders[i].amount)"
+                  MemberAccess to member send
+                     Type: function (uint256) returns (bool)
+                     Source: "funders[i].addr.send"
+                    MemberAccess to member addr
+                       Type: address
+                       Source: "funders[i].addr"
+                      IndexAccess
+                         Type: struct Private_Fund.Funder storage ref
+                         Source: "funders[i]"
+                        Identifier funders
+                           Type: struct Private_Fund.Funder storage ref[] storage ref
+                           Source: "funders"
+                        Identifier i
+                           Type: uint256
+                           Source: "i"
+                  MemberAccess to member amount
+                     Type: uint256
+                     Source: "funders[i].amount"
+                    IndexAccess
+                       Type: struct Private_Fund.Funder storage ref
+                       Source: "funders[i]"
+                      Identifier funders
+                         Type: struct Private_Fund.Funder storage ref[] storage ref
+                         Source: "funders"
+                      Identifier i
+                         Type: uint256
+                         Source: "i"
+              ExpressionStatement
+                 Gas costs: [???]
+                 Source: "FundTransfer(funders[i].addr, funders[i].amount, false)"
+                FunctionCall
+                   Type: tuple()
+                   Source: "FundTransfer(funders[i].addr, funders[i].amount, false)"
+                  Identifier FundTransfer
+                     Type: function (address,uint256,bool)
+                     Source: "FundTransfer"
+                  MemberAccess to member addr
+                     Type: address
+                     Source: "funders[i].addr"
+                    IndexAccess
+                       Type: struct Private_Fund.Funder storage ref
+                       Source: "funders[i]"
+                      Identifier funders
+                         Type: struct Private_Fund.Funder storage ref[] storage ref
+                         Source: "funders"
+                      Identifier i
+                         Type: uint256
+                         Source: "i"
+                  MemberAccess to member amount
+                     Type: uint256
+                     Source: "funders[i].amount"
+                    IndexAccess
+                       Type: struct Private_Fund.Funder storage ref
+                       Source: "funders[i]"
+                      Identifier funders
+                         Type: struct Private_Fund.Funder storage ref[] storage ref
+                         Source: "funders"
+                      Identifier i
+                         Type: uint256
+                         Source: "i"
+                  Literal, token: false value: false
+                     Type: bool
+                     Source: "false"
+  FunctionDefinition "kill" - public
+     Source: "function kill() onlyCreator{\r\n      suicide(beneficiary);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyCreator"
+       Gas costs: 0
+       Source: "onlyCreator"
+      Identifier onlyCreator
+         Type: modifier ()
+         Source: "onlyCreator"
+    Block
+       Source: "{\r\n      suicide(beneficiary);\r\n    }"
+      ExpressionStatement
+         Gas costs: 30245
+         Source: "suicide(beneficiary)"
+        FunctionCall
+           Type: tuple()
+           Source: "suicide(beneficiary)"
+          Identifier suicide
+             Type: function (address)
+             Source: "suicide"
+          Identifier beneficiary
+             Type: address
+             Source: "beneficiary"

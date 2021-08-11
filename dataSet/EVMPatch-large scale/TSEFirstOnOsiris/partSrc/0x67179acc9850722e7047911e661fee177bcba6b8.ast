@@ -1,0 +1,1189 @@
+Syntax trees:
+
+
+======= /home/fabric/ArocRevision/Aroc/osirisData/contractSrc/0x67179acc9850722e7047911e661fee177bcba6b8.sol =======
+PragmaDirective
+   Gas costs: 0
+   Source: "pragma solidity ^0.4.11;"
+ContractDefinition "TokenStorage"
+   Gas costs: 0
+   Source: "contract TokenStorage {\r\n    function balances(address account) public returns(uint balance);\r\n}"
+  FunctionDefinition "balances" - public
+     Source: "function balances(address account) public returns(uint balance);"
+    ParameterList
+       Source: "(address account)"
+      VariableDeclaration "account"
+         Type: address
+         Source: "address account"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Source: "(uint balance)"
+      VariableDeclaration "balance"
+         Type: uint256
+         Source: "uint balance"
+        ElementaryTypeName uint
+           Source: "uint"
+ContractDefinition "PresalerVoting"
+   Source: "contract PresalerVoting {\r\n\r\n    string public constant VERSION = \"0.0.8\";\r\n\r\n    /* ====== configuration START ====== */\r\n\r\n    uint public VOTING_START_BLOCKNR  = 0;\r\n    uint public VOTING_END_TIME       = 0;\r\n\r\n    /* ====== configuration END ====== */\r\n\r\n    TokenStorage PRESALE_CONTRACT = TokenStorage(0x4Fd997Ed7c10DbD04e95d3730cd77D79513076F2);\r\n\r\n    string[3] private stateNames = [\"BEFORE_START\",  \"VOTING_RUNNING\", \"CLOSED\" ];\r\n    enum State { BEFORE_START,  VOTING_RUNNING, CLOSED }\r\n\r\n    mapping (address => uint) public rawVotes;\r\n\r\n    uint private constant MAX_AMOUNT_EQU_0_PERCENT   = 10 finney;\r\n    uint private constant MIN_AMOUNT_EQU_100_PERCENT = 1 ether ;\r\n    uint public constant TOTAL_BONUS_SUPPLY_ETH = 12000;\r\n\r\n\r\n\r\n    address public owner;\r\n    address[] public voters;\r\n    uint16 public stakeVoted_Eth;\r\n    uint16 public stakeRemainingToVote_Eth;\r\n    uint16 public stakeWaived_Eth;\r\n    uint16 public stakeConfirmed_Eth;\r\n\r\n    //constructors\r\n    function PresalerVoting () {\r\n        owner = msg.sender;\r\n    }\r\n\r\n    //accept (and send back) voting payments here\r\n    function ()\r\n    onlyState(State.VOTING_RUNNING)\r\n    payable {\r\n        uint bonusVoted;\r\n        uint bonus = PRESALE_CONTRACT.balances(msg.sender);\r\n        assert (bonus > 0); // only presaler allowed in.\r\n        if (msg.value > 1 ether || !msg.sender.send(msg.value)) throw;\r\n        if (rawVotes[msg.sender] == 0) {\r\n            voters.push(msg.sender);\r\n            stakeVoted_Eth += uint16(bonus / 1 ether);\r\n        } else {\r\n            //clear statistik related to old voting state for this sender\r\n            bonusVoted           = votedPerCent(msg.sender) * bonus / 100;\r\n            stakeWaived_Eth     -= uint16((bonus - bonusVoted) / 1 ether);\r\n            stakeConfirmed_Eth  -= uint16(bonusVoted / 1 ether);\r\n        }\r\n        //special treatment for 0-ether payment\r\n        rawVotes[msg.sender] = msg.value > 0 ? msg.value : 1 wei;\r\n\r\n        bonusVoted           = votedPerCent(msg.sender) * bonus / 100;\r\n        stakeWaived_Eth     += uint16((bonus - bonusVoted) / 1 ether);\r\n        stakeConfirmed_Eth  += uint16(bonusVoted / 1 ether);\r\n\r\n        stakeRemainingToVote_Eth = uint16((TOTAL_BONUS_SUPPLY_ETH - stakeConfirmed_Eth)/1 ether);\r\n\r\n    }\r\n\r\n    function votersLen() external returns (uint) { return voters.length; }\r\n\r\n    /// @notice start voting at `startBlockNr` for `durationHrs`.\r\n    /// Restricted for owner only.\r\n    /// @param startBlockNr block number to start voting; starts immediatly if less than current block number.\r\n    /// @param durationHrs voting duration (from now!); at least 1 hour.\r\n    function startVoting(uint startBlockNr, uint durationHrs) onlyOwner {\r\n        VOTING_START_BLOCKNR = max(block.number, startBlockNr);\r\n        VOTING_END_TIME = now + max(durationHrs,1) * 1 hours;\r\n    }\r\n\r\n    function setOwner(address newOwner) onlyOwner { owner = newOwner; }\r\n\r\n    /// @notice returns current voting result for given address in percent.\r\n    /// @param voter balance holder address.\r\n    function votedPerCent(address voter) constant public returns (uint) {\r\n        var rawVote = rawVotes[voter];\r\n        if (rawVote < MAX_AMOUNT_EQU_0_PERCENT) return 0;\r\n        else if (rawVote >= MIN_AMOUNT_EQU_100_PERCENT) return 100;\r\n        else return rawVote * 100 / 1 ether;\r\n    }\r\n\r\n    /// @notice return voting remaining time (hours, minutes).\r\n    function votingEndsInHHMM() constant returns (uint8, uint8) {\r\n        var tsec = VOTING_END_TIME - now;\r\n        return VOTING_END_TIME==0 ? (0,0) : (uint8(tsec / 1 hours), uint8(tsec % 1 hours / 1 minutes));\r\n    }\r\n\r\n    function currentState() internal constant returns (State) {\r\n        if (VOTING_START_BLOCKNR == 0 || block.number < VOTING_START_BLOCKNR) {\r\n            return State.BEFORE_START;\r\n        } else if (now <= VOTING_END_TIME) {\r\n            return State.VOTING_RUNNING;\r\n        } else {\r\n            return State.CLOSED;\r\n        }\r\n    }\r\n\r\n    /// @notice returns current state of the voting.\r\n    function state() public constant returns(string) {\r\n        return stateNames[uint(currentState())];\r\n    }\r\n\r\n    function max(uint a, uint b) internal constant returns (uint maxValue) { return a>b ? a : b; }\r\n\r\n    modifier onlyState(State state) {\r\n        if (currentState()!=state) throw;\r\n        _;\r\n    }\r\n\r\n    modifier onlyOwner() {\r\n        if (msg.sender!=owner) throw;\r\n        _;\r\n    }\r\n\r\n}"
+  VariableDeclaration "VERSION"
+     Type: string memory
+     Gas costs: [???]
+     Source: "string public constant VERSION = \"0.0.8\""
+    ElementaryTypeName string
+       Source: "string"
+    Literal, token: [no token] value: 0.0.8
+       Type: literal_string "0.0.8"
+       Source: "\"0.0.8\""
+  VariableDeclaration "VOTING_START_BLOCKNR"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint public VOTING_START_BLOCKNR  = 0"
+    ElementaryTypeName uint
+       Source: "uint"
+    Literal, token: [no token] value: 0
+       Type: int_const 0
+       Source: "0"
+  VariableDeclaration "VOTING_END_TIME"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint public VOTING_END_TIME       = 0"
+    ElementaryTypeName uint
+       Source: "uint"
+    Literal, token: [no token] value: 0
+       Type: int_const 0
+       Source: "0"
+  VariableDeclaration "PRESALE_CONTRACT"
+     Type: contract TokenStorage
+     Gas costs: 0
+     Source: "TokenStorage PRESALE_CONTRACT = TokenStorage(0x4Fd997Ed7c10DbD04e95d3730cd77D79513076F2)"
+    UserDefinedTypeName "TokenStorage"
+       Source: "TokenStorage"
+    FunctionCall
+       Type: contract TokenStorage
+       Source: "TokenStorage(0x4Fd997Ed7c10DbD04e95d3730cd77D79513076F2)"
+      Identifier TokenStorage
+         Type: type(contract TokenStorage)
+         Source: "TokenStorage"
+      Literal, token: [no token] value: 0x4Fd997Ed7c10DbD04e95d3730cd77D79513076F2
+         Type: address
+         Source: "0x4Fd997Ed7c10DbD04e95d3730cd77D79513076F2"
+  VariableDeclaration "stateNames"
+     Type: string storage ref[3] storage ref
+     Gas costs: 0
+     Source: "string[3] private stateNames = [\"BEFORE_START\",  \"VOTING_RUNNING\", \"CLOSED\" ]"
+    ArrayTypeName
+       Source: "string[3]"
+      ElementaryTypeName string
+         Source: "string"
+      Literal, token: [no token] value: 3
+         Type unknown.
+         Source: "3"
+    TupleExpression
+       Type: string memory[3] memory
+       Source: "[\"BEFORE_START\",  \"VOTING_RUNNING\", \"CLOSED\" ]"
+      Literal, token: [no token] value: BEFORE_START
+         Type: literal_string "BEFORE_START"
+         Source: "\"BEFORE_START\""
+      Literal, token: [no token] value: VOTING_RUNNING
+         Type: literal_string "VOTING_RUNNING"
+         Source: "\"VOTING_RUNNING\""
+      Literal, token: [no token] value: CLOSED
+         Type: literal_string "CLOSED"
+         Source: "\"CLOSED\""
+  EnumDefinition "State"
+    EnumValue "BEFORE_START"
+    EnumValue "VOTING_RUNNING"
+    EnumValue "CLOSED"
+  VariableDeclaration "rawVotes"
+     Type: mapping(address => uint256)
+     Gas costs: [???]
+     Source: "mapping (address => uint) public rawVotes"
+    Mapping
+       Source: "mapping (address => uint)"
+      ElementaryTypeName address
+         Source: "address"
+      ElementaryTypeName uint
+         Source: "uint"
+  VariableDeclaration "MAX_AMOUNT_EQU_0_PERCENT"
+     Type: uint256
+     Gas costs: 3
+     Source: "uint private constant MAX_AMOUNT_EQU_0_PERCENT   = 10 finney"
+    ElementaryTypeName uint
+       Source: "uint"
+    Literal, token: [no token] value: 10
+       Type: int_const 10000000000000000
+       Source: "10 finney"
+  VariableDeclaration "MIN_AMOUNT_EQU_100_PERCENT"
+     Type: uint256
+     Gas costs: 3
+     Source: "uint private constant MIN_AMOUNT_EQU_100_PERCENT = 1 ether"
+    ElementaryTypeName uint
+       Source: "uint"
+    Literal, token: [no token] value: 1
+       Type: int_const 1000000000000000000
+       Source: "1 ether"
+  VariableDeclaration "TOTAL_BONUS_SUPPLY_ETH"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint public constant TOTAL_BONUS_SUPPLY_ETH = 12000"
+    ElementaryTypeName uint
+       Source: "uint"
+    Literal, token: [no token] value: 12000
+       Type: int_const 12000
+       Source: "12000"
+  VariableDeclaration "owner"
+     Type: address
+     Gas costs: [???]
+     Source: "address public owner"
+    ElementaryTypeName address
+       Source: "address"
+  VariableDeclaration "voters"
+     Type: address[] storage ref
+     Gas costs: [???]
+     Source: "address[] public voters"
+    ArrayTypeName
+       Source: "address[]"
+      ElementaryTypeName address
+         Source: "address"
+  VariableDeclaration "stakeVoted_Eth"
+     Type: uint16
+     Gas costs: [???]
+     Source: "uint16 public stakeVoted_Eth"
+    ElementaryTypeName uint16
+       Source: "uint16"
+  VariableDeclaration "stakeRemainingToVote_Eth"
+     Type: uint16
+     Gas costs: [???]
+     Source: "uint16 public stakeRemainingToVote_Eth"
+    ElementaryTypeName uint16
+       Source: "uint16"
+  VariableDeclaration "stakeWaived_Eth"
+     Type: uint16
+     Gas costs: [???]
+     Source: "uint16 public stakeWaived_Eth"
+    ElementaryTypeName uint16
+       Source: "uint16"
+  VariableDeclaration "stakeConfirmed_Eth"
+     Type: uint16
+     Gas costs: [???]
+     Source: "uint16 public stakeConfirmed_Eth"
+    ElementaryTypeName uint16
+       Source: "uint16"
+  FunctionDefinition "PresalerVoting" - public
+     Source: "function PresalerVoting () {\r\n        owner = msg.sender;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        owner = msg.sender;\r\n    }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "owner = msg.sender"
+        Assignment using operator =
+           Type: address
+           Source: "owner = msg.sender"
+          Identifier owner
+             Type: address
+             Source: "owner"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+  FunctionDefinition "" - public
+     Source: "function ()\r\n    onlyState(State.VOTING_RUNNING)\r\n    payable {\r\n        uint bonusVoted;\r\n        uint bonus = PRESALE_CONTRACT.balances(msg.sender);\r\n        assert (bonus > 0); // only presaler allowed in.\r\n        if (msg.value > 1 ether || !msg.sender.send(msg.value)) throw;\r\n        if (rawVotes[msg.sender] == 0) {\r\n            voters.push(msg.sender);\r\n            stakeVoted_Eth += uint16(bonus / 1 ether);\r\n        } else {\r\n            //clear statistik related to old voting state for this sender\r\n            bonusVoted           = votedPerCent(msg.sender) * bonus / 100;\r\n            stakeWaived_Eth     -= uint16((bonus - bonusVoted) / 1 ether);\r\n            stakeConfirmed_Eth  -= uint16(bonusVoted / 1 ether);\r\n        }\r\n        //special treatment for 0-ether payment\r\n        rawVotes[msg.sender] = msg.value > 0 ? msg.value : 1 wei;\r\n\r\n        bonusVoted           = votedPerCent(msg.sender) * bonus / 100;\r\n        stakeWaived_Eth     += uint16((bonus - bonusVoted) / 1 ether);\r\n        stakeConfirmed_Eth  += uint16(bonusVoted / 1 ether);\r\n\r\n        stakeRemainingToVote_Eth = uint16((TOTAL_BONUS_SUPPLY_ETH - stakeConfirmed_Eth)/1 ether);\r\n\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyState"
+       Gas costs: 3
+       Source: "onlyState(State.VOTING_RUNNING)"
+      Identifier onlyState
+         Type: modifier (enum PresalerVoting.State)
+         Source: "onlyState"
+      MemberAccess to member VOTING_RUNNING
+         Type: enum PresalerVoting.State
+         Source: "State.VOTING_RUNNING"
+        Identifier State
+           Type: type(enum PresalerVoting.State)
+           Source: "State"
+    Block
+       Source: "{\r\n        uint bonusVoted;\r\n        uint bonus = PRESALE_CONTRACT.balances(msg.sender);\r\n        assert (bonus > 0); // only presaler allowed in.\r\n        if (msg.value > 1 ether || !msg.sender.send(msg.value)) throw;\r\n        if (rawVotes[msg.sender] == 0) {\r\n            voters.push(msg.sender);\r\n            stakeVoted_Eth += uint16(bonus / 1 ether);\r\n        } else {\r\n            //clear statistik related to old voting state for this sender\r\n            bonusVoted           = votedPerCent(msg.sender) * bonus / 100;\r\n            stakeWaived_Eth     -= uint16((bonus - bonusVoted) / 1 ether);\r\n            stakeConfirmed_Eth  -= uint16(bonusVoted / 1 ether);\r\n        }\r\n        //special treatment for 0-ether payment\r\n        rawVotes[msg.sender] = msg.value > 0 ? msg.value : 1 wei;\r\n\r\n        bonusVoted           = votedPerCent(msg.sender) * bonus / 100;\r\n        stakeWaived_Eth     += uint16((bonus - bonusVoted) / 1 ether);\r\n        stakeConfirmed_Eth  += uint16(bonusVoted / 1 ether);\r\n\r\n        stakeRemainingToVote_Eth = uint16((TOTAL_BONUS_SUPPLY_ETH - stakeConfirmed_Eth)/1 ether);\r\n\r\n    }"
+      VariableDeclarationStatement
+         Gas costs: 3
+         Source: "uint bonusVoted"
+        VariableDeclaration "bonusVoted"
+           Type: uint256
+           Source: "uint bonusVoted"
+          ElementaryTypeName uint
+             Source: "uint"
+      VariableDeclarationStatement
+         Gas costs: [???]
+         Source: "uint bonus = PRESALE_CONTRACT.balances(msg.sender)"
+        VariableDeclaration "bonus"
+           Type: uint256
+           Source: "uint bonus"
+          ElementaryTypeName uint
+             Source: "uint"
+        FunctionCall
+           Type: uint256
+           Source: "PRESALE_CONTRACT.balances(msg.sender)"
+          MemberAccess to member balances
+             Type: function (address) external returns (uint256)
+             Source: "PRESALE_CONTRACT.balances"
+            Identifier PRESALE_CONTRACT
+               Type: contract TokenStorage
+               Source: "PRESALE_CONTRACT"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+      ExpressionStatement
+         Gas costs: 29
+         Source: "assert (bonus > 0)"
+        FunctionCall
+           Type: tuple()
+           Source: "assert (bonus > 0)"
+          Identifier assert
+             Type: function (bool) pure
+             Source: "assert"
+          BinaryOperation using operator >
+             Type: bool
+             Source: "bonus > 0"
+            Identifier bonus
+               Type: uint256
+               Source: "bonus"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+      IfStatement
+         Source: "if (msg.value > 1 ether || !msg.sender.send(msg.value)) throw"
+        BinaryOperation using operator ||
+           Type: bool
+           Gas costs: [???]
+           Source: "msg.value > 1 ether || !msg.sender.send(msg.value)"
+          BinaryOperation using operator >
+             Type: bool
+             Source: "msg.value > 1 ether"
+            MemberAccess to member value
+               Type: uint256
+               Source: "msg.value"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Literal, token: [no token] value: 1
+               Type: int_const 1000000000000000000
+               Source: "1 ether"
+          UnaryOperation (prefix) !
+             Type: bool
+             Source: "!msg.sender.send(msg.value)"
+            FunctionCall
+               Type: bool
+               Source: "msg.sender.send(msg.value)"
+              MemberAccess to member send
+                 Type: function (uint256) returns (bool)
+                 Source: "msg.sender.send"
+                MemberAccess to member sender
+                   Type: address
+                   Source: "msg.sender"
+                  Identifier msg
+                     Type: msg
+                     Source: "msg"
+              MemberAccess to member value
+                 Type: uint256
+                 Source: "msg.value"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+        Throw
+           Gas costs: 6
+           Source: "throw"
+      IfStatement
+         Source: "if (rawVotes[msg.sender] == 0) {\r\n            voters.push(msg.sender);\r\n            stakeVoted_Eth += uint16(bonus / 1 ether);\r\n        } else {\r\n            //clear statistik related to old voting state for this sender\r\n            bonusVoted           = votedPerCent(msg.sender) * bonus / 100;\r\n            stakeWaived_Eth     -= uint16((bonus - bonusVoted) / 1 ether);\r\n            stakeConfirmed_Eth  -= uint16(bonusVoted / 1 ether);\r\n        }"
+        BinaryOperation using operator ==
+           Type: bool
+           Gas costs: 304
+           Source: "rawVotes[msg.sender] == 0"
+          IndexAccess
+             Type: uint256
+             Source: "rawVotes[msg.sender]"
+            Identifier rawVotes
+               Type: mapping(address => uint256)
+               Source: "rawVotes"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        Block
+           Source: "{\r\n            voters.push(msg.sender);\r\n            stakeVoted_Eth += uint16(bonus / 1 ether);\r\n        }"
+          ExpressionStatement
+             Gas costs: 20364
+             Source: "voters.push(msg.sender)"
+            FunctionCall
+               Type: uint256
+               Source: "voters.push(msg.sender)"
+              MemberAccess to member push
+                 Type: function (address) returns (uint256)
+                 Source: "voters.push"
+                Identifier voters
+                   Type: address[] storage ref
+                   Source: "voters"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+          ExpressionStatement
+             Gas costs: 20548
+             Source: "stakeVoted_Eth += uint16(bonus / 1 ether)"
+            Assignment using operator +=
+               Type: uint16
+               Source: "stakeVoted_Eth += uint16(bonus / 1 ether)"
+              Identifier stakeVoted_Eth
+                 Type: uint16
+                 Source: "stakeVoted_Eth"
+              FunctionCall
+                 Type: uint16
+                 Source: "uint16(bonus / 1 ether)"
+                ElementaryTypeNameExpression uint16
+                   Type: type(uint16)
+                   Source: "uint16"
+                BinaryOperation using operator /
+                   Type: uint256
+                   Source: "bonus / 1 ether"
+                  Identifier bonus
+                     Type: uint256
+                     Source: "bonus"
+                  Literal, token: [no token] value: 1
+                     Type: int_const 1000000000000000000
+                     Source: "1 ether"
+        Block
+           Source: "{\r\n            //clear statistik related to old voting state for this sender\r\n            bonusVoted           = votedPerCent(msg.sender) * bonus / 100;\r\n            stakeWaived_Eth     -= uint16((bonus - bonusVoted) / 1 ether);\r\n            stakeConfirmed_Eth  -= uint16(bonusVoted / 1 ether);\r\n        }"
+          ExpressionStatement
+             Gas costs: 50
+             Source: "bonusVoted           = votedPerCent(msg.sender) * bonus / 100"
+            Assignment using operator =
+               Type: uint256
+               Source: "bonusVoted           = votedPerCent(msg.sender) * bonus / 100"
+              Identifier bonusVoted
+                 Type: uint256
+                 Source: "bonusVoted"
+              BinaryOperation using operator /
+                 Type: uint256
+                 Source: "votedPerCent(msg.sender) * bonus / 100"
+                BinaryOperation using operator *
+                   Type: uint256
+                   Source: "votedPerCent(msg.sender) * bonus"
+                  FunctionCall
+                     Type: uint256
+                     Source: "votedPerCent(msg.sender)"
+                    Identifier votedPerCent
+                       Type: function (address) view returns (uint256)
+                       Source: "votedPerCent"
+                    MemberAccess to member sender
+                       Type: address
+                       Source: "msg.sender"
+                      Identifier msg
+                         Type: msg
+                         Source: "msg"
+                  Identifier bonus
+                     Type: uint256
+                     Source: "bonus"
+                Literal, token: [no token] value: 100
+                   Type: int_const 100
+                   Source: "100"
+          ExpressionStatement
+             Gas costs: 20654
+             Source: "stakeWaived_Eth     -= uint16((bonus - bonusVoted) / 1 ether)"
+            Assignment using operator -=
+               Type: uint16
+               Source: "stakeWaived_Eth     -= uint16((bonus - bonusVoted) / 1 ether)"
+              Identifier stakeWaived_Eth
+                 Type: uint16
+                 Source: "stakeWaived_Eth"
+              FunctionCall
+                 Type: uint16
+                 Source: "uint16((bonus - bonusVoted) / 1 ether)"
+                ElementaryTypeNameExpression uint16
+                   Type: type(uint16)
+                   Source: "uint16"
+                BinaryOperation using operator /
+                   Type: uint256
+                   Source: "(bonus - bonusVoted) / 1 ether"
+                  TupleExpression
+                     Type: uint256
+                     Source: "(bonus - bonusVoted)"
+                    BinaryOperation using operator -
+                       Type: uint256
+                       Source: "bonus - bonusVoted"
+                      Identifier bonus
+                         Type: uint256
+                         Source: "bonus"
+                      Identifier bonusVoted
+                         Type: uint256
+                         Source: "bonusVoted"
+                  Literal, token: [no token] value: 1
+                     Type: int_const 1000000000000000000
+                     Source: "1 ether"
+          ExpressionStatement
+             Gas costs: 20648
+             Source: "stakeConfirmed_Eth  -= uint16(bonusVoted / 1 ether)"
+            Assignment using operator -=
+               Type: uint16
+               Source: "stakeConfirmed_Eth  -= uint16(bonusVoted / 1 ether)"
+              Identifier stakeConfirmed_Eth
+                 Type: uint16
+                 Source: "stakeConfirmed_Eth"
+              FunctionCall
+                 Type: uint16
+                 Source: "uint16(bonusVoted / 1 ether)"
+                ElementaryTypeNameExpression uint16
+                   Type: type(uint16)
+                   Source: "uint16"
+                BinaryOperation using operator /
+                   Type: uint256
+                   Source: "bonusVoted / 1 ether"
+                  Identifier bonusVoted
+                     Type: uint256
+                     Source: "bonusVoted"
+                  Literal, token: [no token] value: 1
+                     Type: int_const 1000000000000000000
+                     Source: "1 ether"
+      ExpressionStatement
+         Gas costs: 20145
+         Source: "rawVotes[msg.sender] = msg.value > 0 ? msg.value : 1 wei"
+        Assignment using operator =
+           Type: uint256
+           Source: "rawVotes[msg.sender] = msg.value > 0 ? msg.value : 1 wei"
+          IndexAccess
+             Type: uint256
+             Source: "rawVotes[msg.sender]"
+            Identifier rawVotes
+               Type: mapping(address => uint256)
+               Source: "rawVotes"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Conditional
+             Type: uint256
+             Source: "msg.value > 0 ? msg.value : 1 wei"
+            BinaryOperation using operator >
+               Type: bool
+               Source: "msg.value > 0"
+              MemberAccess to member value
+                 Type: uint256
+                 Source: "msg.value"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+            MemberAccess to member value
+               Type: uint256
+               Source: "msg.value"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Literal, token: [no token] value: 1
+               Type: int_const 1
+               Source: "1 wei"
+      ExpressionStatement
+         Gas costs: 61
+         Source: "bonusVoted           = votedPerCent(msg.sender) * bonus / 100"
+        Assignment using operator =
+           Type: uint256
+           Source: "bonusVoted           = votedPerCent(msg.sender) * bonus / 100"
+          Identifier bonusVoted
+             Type: uint256
+             Source: "bonusVoted"
+          BinaryOperation using operator /
+             Type: uint256
+             Source: "votedPerCent(msg.sender) * bonus / 100"
+            BinaryOperation using operator *
+               Type: uint256
+               Source: "votedPerCent(msg.sender) * bonus"
+              FunctionCall
+                 Type: uint256
+                 Source: "votedPerCent(msg.sender)"
+                Identifier votedPerCent
+                   Type: function (address) view returns (uint256)
+                   Source: "votedPerCent"
+                MemberAccess to member sender
+                   Type: address
+                   Source: "msg.sender"
+                  Identifier msg
+                     Type: msg
+                     Source: "msg"
+              Identifier bonus
+                 Type: uint256
+                 Source: "bonus"
+            Literal, token: [no token] value: 100
+               Type: int_const 100
+               Source: "100"
+      ExpressionStatement
+         Gas costs: 20654
+         Source: "stakeWaived_Eth     += uint16((bonus - bonusVoted) / 1 ether)"
+        Assignment using operator +=
+           Type: uint16
+           Source: "stakeWaived_Eth     += uint16((bonus - bonusVoted) / 1 ether)"
+          Identifier stakeWaived_Eth
+             Type: uint16
+             Source: "stakeWaived_Eth"
+          FunctionCall
+             Type: uint16
+             Source: "uint16((bonus - bonusVoted) / 1 ether)"
+            ElementaryTypeNameExpression uint16
+               Type: type(uint16)
+               Source: "uint16"
+            BinaryOperation using operator /
+               Type: uint256
+               Source: "(bonus - bonusVoted) / 1 ether"
+              TupleExpression
+                 Type: uint256
+                 Source: "(bonus - bonusVoted)"
+                BinaryOperation using operator -
+                   Type: uint256
+                   Source: "bonus - bonusVoted"
+                  Identifier bonus
+                     Type: uint256
+                     Source: "bonus"
+                  Identifier bonusVoted
+                     Type: uint256
+                     Source: "bonusVoted"
+              Literal, token: [no token] value: 1
+                 Type: int_const 1000000000000000000
+                 Source: "1 ether"
+      ExpressionStatement
+         Gas costs: 20648
+         Source: "stakeConfirmed_Eth  += uint16(bonusVoted / 1 ether)"
+        Assignment using operator +=
+           Type: uint16
+           Source: "stakeConfirmed_Eth  += uint16(bonusVoted / 1 ether)"
+          Identifier stakeConfirmed_Eth
+             Type: uint16
+             Source: "stakeConfirmed_Eth"
+          FunctionCall
+             Type: uint16
+             Source: "uint16(bonusVoted / 1 ether)"
+            ElementaryTypeNameExpression uint16
+               Type: type(uint16)
+               Source: "uint16"
+            BinaryOperation using operator /
+               Type: uint256
+               Source: "bonusVoted / 1 ether"
+              Identifier bonusVoted
+                 Type: uint256
+                 Source: "bonusVoted"
+              Literal, token: [no token] value: 1
+                 Type: int_const 1000000000000000000
+                 Source: "1 ether"
+      ExpressionStatement
+         Gas costs: 20643
+         Source: "stakeRemainingToVote_Eth = uint16((TOTAL_BONUS_SUPPLY_ETH - stakeConfirmed_Eth)/1 ether)"
+        Assignment using operator =
+           Type: uint16
+           Source: "stakeRemainingToVote_Eth = uint16((TOTAL_BONUS_SUPPLY_ETH - stakeConfirmed_Eth)/1 ether)"
+          Identifier stakeRemainingToVote_Eth
+             Type: uint16
+             Source: "stakeRemainingToVote_Eth"
+          FunctionCall
+             Type: uint16
+             Source: "uint16((TOTAL_BONUS_SUPPLY_ETH - stakeConfirmed_Eth)/1 ether)"
+            ElementaryTypeNameExpression uint16
+               Type: type(uint16)
+               Source: "uint16"
+            BinaryOperation using operator /
+               Type: uint256
+               Source: "(TOTAL_BONUS_SUPPLY_ETH - stakeConfirmed_Eth)/1 ether"
+              TupleExpression
+                 Type: uint256
+                 Source: "(TOTAL_BONUS_SUPPLY_ETH - stakeConfirmed_Eth)"
+                BinaryOperation using operator -
+                   Type: uint256
+                   Source: "TOTAL_BONUS_SUPPLY_ETH - stakeConfirmed_Eth"
+                  Identifier TOTAL_BONUS_SUPPLY_ETH
+                     Type: uint256
+                     Source: "TOTAL_BONUS_SUPPLY_ETH"
+                  Identifier stakeConfirmed_Eth
+                     Type: uint16
+                     Source: "stakeConfirmed_Eth"
+              Literal, token: [no token] value: 1
+                 Type: int_const 1000000000000000000
+                 Source: "1 ether"
+  FunctionDefinition "votersLen" - public
+     Source: "function votersLen() external returns (uint) { return voters.length; }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint"
+        ElementaryTypeName uint
+           Source: "uint"
+    Block
+       Source: "{ return voters.length; }"
+      Return
+         Gas costs: 216
+         Source: "return voters.length"
+        MemberAccess to member length
+           Type: uint256
+           Source: "voters.length"
+          Identifier voters
+             Type: address[] storage ref
+             Source: "voters"
+  FunctionDefinition "startVoting" - public
+     Source: "function startVoting(uint startBlockNr, uint durationHrs) onlyOwner {\r\n        VOTING_START_BLOCKNR = max(block.number, startBlockNr);\r\n        VOTING_END_TIME = now + max(durationHrs,1) * 1 hours;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint startBlockNr, uint durationHrs)"
+      VariableDeclaration "startBlockNr"
+         Type: uint256
+         Source: "uint startBlockNr"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "durationHrs"
+         Type: uint256
+         Source: "uint durationHrs"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n        VOTING_START_BLOCKNR = max(block.number, startBlockNr);\r\n        VOTING_END_TIME = now + max(durationHrs,1) * 1 hours;\r\n    }"
+      ExpressionStatement
+         Gas costs: 20020
+         Source: "VOTING_START_BLOCKNR = max(block.number, startBlockNr)"
+        Assignment using operator =
+           Type: uint256
+           Source: "VOTING_START_BLOCKNR = max(block.number, startBlockNr)"
+          Identifier VOTING_START_BLOCKNR
+             Type: uint256
+             Source: "VOTING_START_BLOCKNR"
+          FunctionCall
+             Type: uint256
+             Source: "max(block.number, startBlockNr)"
+            Identifier max
+               Type: function (uint256,uint256) view returns (uint256)
+               Source: "max"
+            MemberAccess to member number
+               Type: uint256
+               Source: "block.number"
+              Identifier block
+                 Type: block
+                 Source: "block"
+            Identifier startBlockNr
+               Type: uint256
+               Source: "startBlockNr"
+      ExpressionStatement
+         Gas costs: 20045
+         Source: "VOTING_END_TIME = now + max(durationHrs,1) * 1 hours"
+        Assignment using operator =
+           Type: uint256
+           Source: "VOTING_END_TIME = now + max(durationHrs,1) * 1 hours"
+          Identifier VOTING_END_TIME
+             Type: uint256
+             Source: "VOTING_END_TIME"
+          BinaryOperation using operator +
+             Type: uint256
+             Source: "now + max(durationHrs,1) * 1 hours"
+            Identifier now
+               Type: uint256
+               Source: "now"
+            BinaryOperation using operator *
+               Type: uint256
+               Source: "max(durationHrs,1) * 1 hours"
+              FunctionCall
+                 Type: uint256
+                 Source: "max(durationHrs,1)"
+                Identifier max
+                   Type: function (uint256,uint256) view returns (uint256)
+                   Source: "max"
+                Identifier durationHrs
+                   Type: uint256
+                   Source: "durationHrs"
+                Literal, token: [no token] value: 1
+                   Type: int_const 1
+                   Source: "1"
+              Literal, token: [no token] value: 1
+                 Type: int_const 3600
+                 Source: "1 hours"
+  FunctionDefinition "setOwner" - public
+     Source: "function setOwner(address newOwner) onlyOwner { owner = newOwner; }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address newOwner)"
+      VariableDeclaration "newOwner"
+         Type: address
+         Source: "address newOwner"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{ owner = newOwner; }"
+      ExpressionStatement
+         Gas costs: 20267
+         Source: "owner = newOwner"
+        Assignment using operator =
+           Type: address
+           Source: "owner = newOwner"
+          Identifier owner
+             Type: address
+             Source: "owner"
+          Identifier newOwner
+             Type: address
+             Source: "newOwner"
+  FunctionDefinition "votedPerCent" - public - const
+     Source: "function votedPerCent(address voter) constant public returns (uint) {\r\n        var rawVote = rawVotes[voter];\r\n        if (rawVote < MAX_AMOUNT_EQU_0_PERCENT) return 0;\r\n        else if (rawVote >= MIN_AMOUNT_EQU_100_PERCENT) return 100;\r\n        else return rawVote * 100 / 1 ether;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address voter)"
+      VariableDeclaration "voter"
+         Type: address
+         Source: "address voter"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint"
+        ElementaryTypeName uint
+           Source: "uint"
+    Block
+       Source: "{\r\n        var rawVote = rawVotes[voter];\r\n        if (rawVote < MAX_AMOUNT_EQU_0_PERCENT) return 0;\r\n        else if (rawVote >= MIN_AMOUNT_EQU_100_PERCENT) return 100;\r\n        else return rawVote * 100 / 1 ether;\r\n    }"
+      VariableDeclarationStatement
+         Gas costs: 307
+         Source: "var rawVote = rawVotes[voter]"
+        VariableDeclaration "rawVote"
+           Type: uint256
+           Source: "var rawVote"
+        IndexAccess
+           Type: uint256
+           Source: "rawVotes[voter]"
+          Identifier rawVotes
+             Type: mapping(address => uint256)
+             Source: "rawVotes"
+          Identifier voter
+             Type: address
+             Source: "voter"
+      IfStatement
+         Source: "if (rawVote < MAX_AMOUNT_EQU_0_PERCENT) return 0;\r\n        else if (rawVote >= MIN_AMOUNT_EQU_100_PERCENT) return 100;\r\n        else return rawVote * 100 / 1 ether"
+        BinaryOperation using operator <
+           Type: bool
+           Gas costs: 6
+           Source: "rawVote < MAX_AMOUNT_EQU_0_PERCENT"
+          Identifier rawVote
+             Type: uint256
+             Source: "rawVote"
+          Identifier MAX_AMOUNT_EQU_0_PERCENT
+             Type: uint256
+             Source: "MAX_AMOUNT_EQU_0_PERCENT"
+        Return
+           Gas costs: 19
+           Source: "return 0"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        IfStatement
+           Source: "if (rawVote >= MIN_AMOUNT_EQU_100_PERCENT) return 100;\r\n        else return rawVote * 100 / 1 ether"
+          BinaryOperation using operator >=
+             Type: bool
+             Gas costs: 9
+             Source: "rawVote >= MIN_AMOUNT_EQU_100_PERCENT"
+            Identifier rawVote
+               Type: uint256
+               Source: "rawVote"
+            Identifier MIN_AMOUNT_EQU_100_PERCENT
+               Type: uint256
+               Source: "MIN_AMOUNT_EQU_100_PERCENT"
+          Return
+             Gas costs: 19
+             Source: "return 100"
+            Literal, token: [no token] value: 100
+               Type: int_const 100
+               Source: "100"
+          Return
+             Gas costs: 47
+             Source: "return rawVote * 100 / 1 ether"
+            BinaryOperation using operator /
+               Type: uint256
+               Source: "rawVote * 100 / 1 ether"
+              BinaryOperation using operator *
+                 Type: uint256
+                 Source: "rawVote * 100"
+                Identifier rawVote
+                   Type: uint256
+                   Source: "rawVote"
+                Literal, token: [no token] value: 100
+                   Type: int_const 100
+                   Source: "100"
+              Literal, token: [no token] value: 1
+                 Type: int_const 1000000000000000000
+                 Source: "1 ether"
+  FunctionDefinition "votingEndsInHHMM" - public - const
+     Source: "function votingEndsInHHMM() constant returns (uint8, uint8) {\r\n        var tsec = VOTING_END_TIME - now;\r\n        return VOTING_END_TIME==0 ? (0,0) : (uint8(tsec / 1 hours), uint8(tsec % 1 hours / 1 minutes));\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 6
+       Source: "(uint8, uint8)"
+      VariableDeclaration ""
+         Type: uint8
+         Source: "uint8"
+        ElementaryTypeName uint8
+           Source: "uint8"
+      VariableDeclaration ""
+         Type: uint8
+         Source: "uint8"
+        ElementaryTypeName uint8
+           Source: "uint8"
+    Block
+       Source: "{\r\n        var tsec = VOTING_END_TIME - now;\r\n        return VOTING_END_TIME==0 ? (0,0) : (uint8(tsec / 1 hours), uint8(tsec % 1 hours / 1 minutes));\r\n    }"
+      VariableDeclarationStatement
+         Gas costs: 216
+         Source: "var tsec = VOTING_END_TIME - now"
+        VariableDeclaration "tsec"
+           Type: uint256
+           Source: "var tsec"
+        BinaryOperation using operator -
+           Type: uint256
+           Source: "VOTING_END_TIME - now"
+          Identifier VOTING_END_TIME
+             Type: uint256
+             Source: "VOTING_END_TIME"
+          Identifier now
+             Type: uint256
+             Source: "now"
+      Return
+         Gas costs: 366
+         Source: "return VOTING_END_TIME==0 ? (0,0) : (uint8(tsec / 1 hours), uint8(tsec % 1 hours / 1 minutes))"
+        Conditional
+           Type: tuple(uint8,uint8)
+           Source: "VOTING_END_TIME==0 ? (0,0) : (uint8(tsec / 1 hours), uint8(tsec % 1 hours / 1 minutes))"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "VOTING_END_TIME==0"
+            Identifier VOTING_END_TIME
+               Type: uint256
+               Source: "VOTING_END_TIME"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+          TupleExpression
+             Type: tuple(int_const 0,int_const 0)
+             Source: "(0,0)"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+          TupleExpression
+             Type: tuple(uint8,uint8)
+             Source: "(uint8(tsec / 1 hours), uint8(tsec % 1 hours / 1 minutes))"
+            FunctionCall
+               Type: uint8
+               Source: "uint8(tsec / 1 hours)"
+              ElementaryTypeNameExpression uint8
+                 Type: type(uint8)
+                 Source: "uint8"
+              BinaryOperation using operator /
+                 Type: uint256
+                 Source: "tsec / 1 hours"
+                Identifier tsec
+                   Type: uint256
+                   Source: "tsec"
+                Literal, token: [no token] value: 1
+                   Type: int_const 3600
+                   Source: "1 hours"
+            FunctionCall
+               Type: uint8
+               Source: "uint8(tsec % 1 hours / 1 minutes)"
+              ElementaryTypeNameExpression uint8
+                 Type: type(uint8)
+                 Source: "uint8"
+              BinaryOperation using operator /
+                 Type: uint256
+                 Source: "tsec % 1 hours / 1 minutes"
+                BinaryOperation using operator %
+                   Type: uint256
+                   Source: "tsec % 1 hours"
+                  Identifier tsec
+                     Type: uint256
+                     Source: "tsec"
+                  Literal, token: [no token] value: 1
+                     Type: int_const 3600
+                     Source: "1 hours"
+                Literal, token: [no token] value: 1
+                   Type: int_const 60
+                   Source: "1 minutes"
+  FunctionDefinition "currentState" - const
+     Source: "function currentState() internal constant returns (State) {\r\n        if (VOTING_START_BLOCKNR == 0 || block.number < VOTING_START_BLOCKNR) {\r\n            return State.BEFORE_START;\r\n        } else if (now <= VOTING_END_TIME) {\r\n            return State.VOTING_RUNNING;\r\n        } else {\r\n            return State.CLOSED;\r\n        }\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(State)"
+      VariableDeclaration ""
+         Type: enum PresalerVoting.State
+         Source: "State"
+        UserDefinedTypeName "State"
+           Source: "State"
+    Block
+       Source: "{\r\n        if (VOTING_START_BLOCKNR == 0 || block.number < VOTING_START_BLOCKNR) {\r\n            return State.BEFORE_START;\r\n        } else if (now <= VOTING_END_TIME) {\r\n            return State.VOTING_RUNNING;\r\n        } else {\r\n            return State.CLOSED;\r\n        }\r\n    }"
+      IfStatement
+         Source: "if (VOTING_START_BLOCKNR == 0 || block.number < VOTING_START_BLOCKNR) {\r\n            return State.BEFORE_START;\r\n        } else if (now <= VOTING_END_TIME) {\r\n            return State.VOTING_RUNNING;\r\n        } else {\r\n            return State.CLOSED;\r\n        }"
+        BinaryOperation using operator ||
+           Type: bool
+           Gas costs: 436
+           Source: "VOTING_START_BLOCKNR == 0 || block.number < VOTING_START_BLOCKNR"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "VOTING_START_BLOCKNR == 0"
+            Identifier VOTING_START_BLOCKNR
+               Type: uint256
+               Source: "VOTING_START_BLOCKNR"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+          BinaryOperation using operator <
+             Type: bool
+             Source: "block.number < VOTING_START_BLOCKNR"
+            MemberAccess to member number
+               Type: uint256
+               Source: "block.number"
+              Identifier block
+                 Type: block
+                 Source: "block"
+            Identifier VOTING_START_BLOCKNR
+               Type: uint256
+               Source: "VOTING_START_BLOCKNR"
+        Block
+           Source: "{\r\n            return State.BEFORE_START;\r\n        }"
+          Return
+             Gas costs: 19
+             Source: "return State.BEFORE_START"
+            MemberAccess to member BEFORE_START
+               Type: enum PresalerVoting.State
+               Source: "State.BEFORE_START"
+              Identifier State
+                 Type: type(enum PresalerVoting.State)
+                 Source: "State"
+        IfStatement
+           Source: "if (now <= VOTING_END_TIME) {\r\n            return State.VOTING_RUNNING;\r\n        } else {\r\n            return State.CLOSED;\r\n        }"
+          BinaryOperation using operator <=
+             Type: bool
+             Gas costs: 211
+             Source: "now <= VOTING_END_TIME"
+            Identifier now
+               Type: uint256
+               Source: "now"
+            Identifier VOTING_END_TIME
+               Type: uint256
+               Source: "VOTING_END_TIME"
+          Block
+             Source: "{\r\n            return State.VOTING_RUNNING;\r\n        }"
+            Return
+               Gas costs: 19
+               Source: "return State.VOTING_RUNNING"
+              MemberAccess to member VOTING_RUNNING
+                 Type: enum PresalerVoting.State
+                 Source: "State.VOTING_RUNNING"
+                Identifier State
+                   Type: type(enum PresalerVoting.State)
+                   Source: "State"
+          Block
+             Source: "{\r\n            return State.CLOSED;\r\n        }"
+            Return
+               Gas costs: 8
+               Source: "return State.CLOSED"
+              MemberAccess to member CLOSED
+                 Type: enum PresalerVoting.State
+                 Source: "State.CLOSED"
+                Identifier State
+                   Type: type(enum PresalerVoting.State)
+                   Source: "State"
+  FunctionDefinition "state" - public - const
+     Source: "function state() public constant returns(string) {\r\n        return stateNames[uint(currentState())];\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(string)"
+      VariableDeclaration ""
+         Type: string memory
+         Source: "string"
+        ElementaryTypeName string
+           Source: "string"
+    Block
+       Source: "{\r\n        return stateNames[uint(currentState())];\r\n    }"
+      Return
+         Gas costs: [???]
+         Source: "return stateNames[uint(currentState())]"
+        IndexAccess
+           Type: string storage ref
+           Source: "stateNames[uint(currentState())]"
+          Identifier stateNames
+             Type: string storage ref[3] storage ref
+             Source: "stateNames"
+          FunctionCall
+             Type: uint256
+             Source: "uint(currentState())"
+            ElementaryTypeNameExpression uint
+               Type: type(uint256)
+               Source: "uint"
+            FunctionCall
+               Type: enum PresalerVoting.State
+               Source: "currentState()"
+              Identifier currentState
+                 Type: function () view returns (enum PresalerVoting.State)
+                 Source: "currentState"
+  FunctionDefinition "max" - const
+     Source: "function max(uint a, uint b) internal constant returns (uint maxValue) { return a>b ? a : b; }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint a, uint b)"
+      VariableDeclaration "a"
+         Type: uint256
+         Source: "uint a"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "b"
+         Type: uint256
+         Source: "uint b"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint maxValue)"
+      VariableDeclaration "maxValue"
+         Type: uint256
+         Source: "uint maxValue"
+        ElementaryTypeName uint
+           Source: "uint"
+    Block
+       Source: "{ return a>b ? a : b; }"
+      Return
+         Gas costs: 46
+         Source: "return a>b ? a : b"
+        Conditional
+           Type: uint256
+           Source: "a>b ? a : b"
+          BinaryOperation using operator >
+             Type: bool
+             Source: "a>b"
+            Identifier a
+               Type: uint256
+               Source: "a"
+            Identifier b
+               Type: uint256
+               Source: "b"
+          Identifier a
+             Type: uint256
+             Source: "a"
+          Identifier b
+             Type: uint256
+             Source: "b"
+  ModifierDefinition "onlyState"
+     Source: "modifier onlyState(State state) {\r\n        if (currentState()!=state) throw;\r\n        _;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(State state)"
+      VariableDeclaration "state"
+         Type: enum PresalerVoting.State
+         Source: "State state"
+        UserDefinedTypeName "State"
+           Source: "State"
+    Block
+       Source: "{\r\n        if (currentState()!=state) throw;\r\n        _;\r\n    }"
+      IfStatement
+         Source: "if (currentState()!=state) throw"
+        BinaryOperation using operator !=
+           Type: bool
+           Gas costs: 65
+           Source: "currentState()!=state"
+          FunctionCall
+             Type: enum PresalerVoting.State
+             Source: "currentState()"
+            Identifier currentState
+               Type: function () view returns (enum PresalerVoting.State)
+               Source: "currentState"
+          Identifier state
+             Type: enum PresalerVoting.State
+             Source: "state"
+        Throw
+           Gas costs: 6
+           Source: "throw"
+      PlaceholderStatement
+         Gas costs: 0
+         Source: "_"
+  ModifierDefinition "onlyOwner"
+     Source: "modifier onlyOwner() {\r\n        if (msg.sender!=owner) throw;\r\n        _;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    Block
+       Source: "{\r\n        if (msg.sender!=owner) throw;\r\n        _;\r\n    }"
+      IfStatement
+         Source: "if (msg.sender!=owner) throw"
+        BinaryOperation using operator !=
+           Type: bool
+           Gas costs: 518
+           Source: "msg.sender!=owner"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier owner
+             Type: address
+             Source: "owner"
+        Throw
+           Gas costs: 12
+           Source: "throw"
+      PlaceholderStatement
+         Gas costs: 0
+         Source: "_"

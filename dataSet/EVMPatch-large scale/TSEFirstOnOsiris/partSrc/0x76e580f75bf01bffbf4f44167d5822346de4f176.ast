@@ -1,0 +1,923 @@
+Syntax trees:
+
+
+======= /home/fabric/ArocRevision/Aroc/osirisData/contractSrc/0x76e580f75bf01bffbf4f44167d5822346de4f176.sol =======
+PragmaDirective
+   Gas costs: 0
+   Source: "pragma solidity ^0.4.6;"
+ContractDefinition "tokenRecipient"
+   Gas costs: 0
+   Source: "contract tokenRecipient { function receiveApproval(address _from, uint256 _value, address _token, bytes _extraData); }"
+  FunctionDefinition "receiveApproval" - public
+     Source: "function receiveApproval(address _from, uint256 _value, address _token, bytes _extraData);"
+    ParameterList
+       Source: "(address _from, uint256 _value, address _token, bytes _extraData)"
+      VariableDeclaration "_from"
+         Type: address
+         Source: "address _from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "_token"
+         Type: address
+         Source: "address _token"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_extraData"
+         Type: bytes memory
+         Source: "bytes _extraData"
+        ElementaryTypeName bytes
+           Source: "bytes"
+    ParameterList
+       Source: ""
+ContractDefinition "WillieWatts"
+   Source: "contract WillieWatts {\r\n\r\n    string public standard = 'Token 0.1';\r\n    string public name;\r\n    string public symbol;\r\n    uint8 public decimals;\r\n    uint256 public totalSupply;\r\n\r\n    mapping (address => uint256) public balanceOf;\r\n    mapping (address => mapping (address => uint256)) public allowance;\r\n\r\n    event Transfer(address indexed from, address indexed to, uint256 value);\r\n\r\n    function WillieWatts(\r\n        string tokenName,\r\n        string tokenSymbol\r\n        ) {              \r\n        totalSupply = 0;                        \r\n        name = tokenName;   \r\n        symbol = tokenSymbol;   \r\n        decimals = 0;  \r\n    }\r\n\r\n\r\n    /* Send coins */\r\n    function transfer(address _to, uint256 _value) {\r\n        if (balanceOf[msg.sender] < _value) throw;          \r\n        if (balanceOf[_to] + _value < balanceOf[_to]) throw; \r\n        balanceOf[msg.sender] -= _value;                 \r\n        balanceOf[_to] += _value;                    \r\n        Transfer(msg.sender, _to, _value);             \r\n    }\r\n\r\n\r\n    function approve(address _spender, uint256 _value)\r\n        returns (bool success) {\r\n        allowance[msg.sender][_spender] = _value;\r\n        return true;\r\n    }\r\n\r\n\r\n    function approveAndCall(address _spender, uint256 _value, bytes _extraData)\r\n        returns (bool success) {\r\n        tokenRecipient spender = tokenRecipient(_spender);\r\n        if (approve(_spender, _value)) {\r\n            spender.receiveApproval(msg.sender, _value, this, _extraData);\r\n            return true;\r\n        }\r\n    }        \r\n\r\n    /* A contract attempts to get the coins */\r\n    function transferFrom(address _from, address _to, uint256 _value) returns (bool success) {\r\n        if (balanceOf[_from] < _value) throw;                 // Check if the sender has enough\r\n        if (balanceOf[_to] + _value < balanceOf[_to]) throw;  // Check for overflows\r\n        if (_value > allowance[_from][msg.sender]) throw;   // Check allowance\r\n        balanceOf[_from] -= _value;                          // Subtract from the sender\r\n        balanceOf[_to] += _value;                            // Add the same to the recipient\r\n        allowance[_from][msg.sender] -= _value;\r\n        Transfer(_from, _to, _value);\r\n        return true;\r\n    }\r\n\r\n    function refund(uint256 _value) returns (bool success) {\r\n      uint256 etherValue = (_value * 1 ether) / 1000;\r\n\r\n      if(balanceOf[msg.sender] < _value) throw;   \r\n      if(!msg.sender.send(etherValue)) throw;\r\n      \r\n      balanceOf[msg.sender] -= _value;\r\n      totalSupply -= _value;\r\n      Transfer(msg.sender, this, _value);\r\n      return true;\r\n    }\r\n    \r\n    function() payable {\r\n      uint256 tokenCount = (msg.value * 1000) / 1 ether ;\r\n\r\n      balanceOf[msg.sender] += tokenCount;\r\n      totalSupply += tokenCount;\r\n      Transfer(this, msg.sender, tokenCount);\r\n    }\r\n}"
+  VariableDeclaration "standard"
+     Type: string storage ref
+     Gas costs: [???]
+     Source: "string public standard = 'Token 0.1'"
+    ElementaryTypeName string
+       Source: "string"
+    Literal, token: [no token] value: Token 0.1
+       Type: literal_string "Token 0.1"
+       Source: "'Token 0.1'"
+  VariableDeclaration "name"
+     Type: string storage ref
+     Gas costs: [???]
+     Source: "string public name"
+    ElementaryTypeName string
+       Source: "string"
+  VariableDeclaration "symbol"
+     Type: string storage ref
+     Gas costs: [???]
+     Source: "string public symbol"
+    ElementaryTypeName string
+       Source: "string"
+  VariableDeclaration "decimals"
+     Type: uint8
+     Gas costs: [???]
+     Source: "uint8 public decimals"
+    ElementaryTypeName uint8
+       Source: "uint8"
+  VariableDeclaration "totalSupply"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint256 public totalSupply"
+    ElementaryTypeName uint256
+       Source: "uint256"
+  VariableDeclaration "balanceOf"
+     Type: mapping(address => uint256)
+     Gas costs: [???]
+     Source: "mapping (address => uint256) public balanceOf"
+    Mapping
+       Source: "mapping (address => uint256)"
+      ElementaryTypeName address
+         Source: "address"
+      ElementaryTypeName uint256
+         Source: "uint256"
+  VariableDeclaration "allowance"
+     Type: mapping(address => mapping(address => uint256))
+     Gas costs: [???]
+     Source: "mapping (address => mapping (address => uint256)) public allowance"
+    Mapping
+       Source: "mapping (address => mapping (address => uint256))"
+      ElementaryTypeName address
+         Source: "address"
+      Mapping
+         Source: "mapping (address => uint256)"
+        ElementaryTypeName address
+           Source: "address"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  EventDefinition "Transfer"
+     Gas costs: 0
+     Source: "event Transfer(address indexed from, address indexed to, uint256 value);"
+    ParameterList
+       Source: "(address indexed from, address indexed to, uint256 value)"
+      VariableDeclaration "from"
+         Type: address
+         Source: "address indexed from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "to"
+         Type: address
+         Source: "address indexed to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "value"
+         Type: uint256
+         Source: "uint256 value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  FunctionDefinition "WillieWatts" - public
+     Source: "function WillieWatts(\r\n        string tokenName,\r\n        string tokenSymbol\r\n        ) {              \r\n        totalSupply = 0;                        \r\n        name = tokenName;   \r\n        symbol = tokenSymbol;   \r\n        decimals = 0;  \r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(\r\n        string tokenName,\r\n        string tokenSymbol\r\n        )"
+      VariableDeclaration "tokenName"
+         Type: string memory
+         Source: "string tokenName"
+        ElementaryTypeName string
+           Source: "string"
+      VariableDeclaration "tokenSymbol"
+         Type: string memory
+         Source: "string tokenSymbol"
+        ElementaryTypeName string
+           Source: "string"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{              \r\n        totalSupply = 0;                        \r\n        name = tokenName;   \r\n        symbol = tokenSymbol;   \r\n        decimals = 0;  \r\n    }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "totalSupply = 0"
+        Assignment using operator =
+           Type: uint256
+           Source: "totalSupply = 0"
+          Identifier totalSupply
+             Type: uint256
+             Source: "totalSupply"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "name = tokenName"
+        Assignment using operator =
+           Type: string storage ref
+           Source: "name = tokenName"
+          Identifier name
+             Type: string storage ref
+             Source: "name"
+          Identifier tokenName
+             Type: string memory
+             Source: "tokenName"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "symbol = tokenSymbol"
+        Assignment using operator =
+           Type: string storage ref
+           Source: "symbol = tokenSymbol"
+          Identifier symbol
+             Type: string storage ref
+             Source: "symbol"
+          Identifier tokenSymbol
+             Type: string memory
+             Source: "tokenSymbol"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "decimals = 0"
+        Assignment using operator =
+           Type: uint8
+           Source: "decimals = 0"
+          Identifier decimals
+             Type: uint8
+             Source: "decimals"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+  FunctionDefinition "transfer" - public
+     Source: "function transfer(address _to, uint256 _value) {\r\n        if (balanceOf[msg.sender] < _value) throw;          \r\n        if (balanceOf[_to] + _value < balanceOf[_to]) throw; \r\n        balanceOf[msg.sender] -= _value;                 \r\n        balanceOf[_to] += _value;                    \r\n        Transfer(msg.sender, _to, _value);             \r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _to, uint256 _value)"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        if (balanceOf[msg.sender] < _value) throw;          \r\n        if (balanceOf[_to] + _value < balanceOf[_to]) throw; \r\n        balanceOf[msg.sender] -= _value;                 \r\n        balanceOf[_to] += _value;                    \r\n        Transfer(msg.sender, _to, _value);             \r\n    }"
+      IfStatement
+         Source: "if (balanceOf[msg.sender] < _value) throw"
+        BinaryOperation using operator <
+           Type: bool
+           Gas costs: 304
+           Source: "balanceOf[msg.sender] < _value"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[msg.sender]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+        Throw
+           Gas costs: 6
+           Source: "throw"
+      IfStatement
+         Source: "if (balanceOf[_to] + _value < balanceOf[_to]) throw"
+        BinaryOperation using operator <
+           Type: bool
+           Gas costs: 601
+           Source: "balanceOf[_to] + _value < balanceOf[_to]"
+          BinaryOperation using operator +
+             Type: uint256
+             Source: "balanceOf[_to] + _value"
+            IndexAccess
+               Type: uint256
+               Source: "balanceOf[_to]"
+              Identifier balanceOf
+                 Type: mapping(address => uint256)
+                 Source: "balanceOf"
+              Identifier _to
+                 Type: address
+                 Source: "_to"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[_to]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            Identifier _to
+               Type: address
+               Source: "_to"
+        Throw
+           Gas costs: 6
+           Source: "throw"
+      ExpressionStatement
+         Gas costs: 20328
+         Source: "balanceOf[msg.sender] -= _value"
+        Assignment using operator -=
+           Type: uint256
+           Source: "balanceOf[msg.sender] -= _value"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[msg.sender]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: 20323
+         Source: "balanceOf[_to] += _value"
+        Assignment using operator +=
+           Type: uint256
+           Source: "balanceOf[_to] += _value"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[_to]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            Identifier _to
+               Type: address
+               Source: "_to"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "Transfer(msg.sender, _to, _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "Transfer(msg.sender, _to, _value)"
+          Identifier Transfer
+             Type: function (address,address,uint256)
+             Source: "Transfer"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier _to
+             Type: address
+             Source: "_to"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+  FunctionDefinition "approve" - public
+     Source: "function approve(address _spender, uint256 _value)\r\n        returns (bool success) {\r\n        allowance[msg.sender][_spender] = _value;\r\n        return true;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _spender, uint256 _value)"
+      VariableDeclaration "_spender"
+         Type: address
+         Source: "address _spender"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n        allowance[msg.sender][_spender] = _value;\r\n        return true;\r\n    }"
+      ExpressionStatement
+         Gas costs: 20199
+         Source: "allowance[msg.sender][_spender] = _value"
+        Assignment using operator =
+           Type: uint256
+           Source: "allowance[msg.sender][_spender] = _value"
+          IndexAccess
+             Type: uint256
+             Source: "allowance[msg.sender][_spender]"
+            IndexAccess
+               Type: mapping(address => uint256)
+               Source: "allowance[msg.sender]"
+              Identifier allowance
+                 Type: mapping(address => mapping(address => uint256))
+                 Source: "allowance"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+            Identifier _spender
+               Type: address
+               Source: "_spender"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      Return
+         Gas costs: 8
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+  FunctionDefinition "approveAndCall" - public
+     Source: "function approveAndCall(address _spender, uint256 _value, bytes _extraData)\r\n        returns (bool success) {\r\n        tokenRecipient spender = tokenRecipient(_spender);\r\n        if (approve(_spender, _value)) {\r\n            spender.receiveApproval(msg.sender, _value, this, _extraData);\r\n            return true;\r\n        }\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _spender, uint256 _value, bytes _extraData)"
+      VariableDeclaration "_spender"
+         Type: address
+         Source: "address _spender"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "_extraData"
+         Type: bytes memory
+         Source: "bytes _extraData"
+        ElementaryTypeName bytes
+           Source: "bytes"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n        tokenRecipient spender = tokenRecipient(_spender);\r\n        if (approve(_spender, _value)) {\r\n            spender.receiveApproval(msg.sender, _value, this, _extraData);\r\n            return true;\r\n        }\r\n    }"
+      VariableDeclarationStatement
+         Gas costs: 11
+         Source: "tokenRecipient spender = tokenRecipient(_spender)"
+        VariableDeclaration "spender"
+           Type: contract tokenRecipient
+           Source: "tokenRecipient spender"
+          UserDefinedTypeName "tokenRecipient"
+             Source: "tokenRecipient"
+        FunctionCall
+           Type: contract tokenRecipient
+           Source: "tokenRecipient(_spender)"
+          Identifier tokenRecipient
+             Type: type(contract tokenRecipient)
+             Source: "tokenRecipient"
+          Identifier _spender
+             Type: address
+             Source: "_spender"
+      IfStatement
+         Source: "if (approve(_spender, _value)) {\r\n            spender.receiveApproval(msg.sender, _value, this, _extraData);\r\n            return true;\r\n        }"
+        FunctionCall
+           Type: bool
+           Gas costs: 21
+           Source: "approve(_spender, _value)"
+          Identifier approve
+             Type: function (address,uint256) returns (bool)
+             Source: "approve"
+          Identifier _spender
+             Type: address
+             Source: "_spender"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+        Block
+           Source: "{\r\n            spender.receiveApproval(msg.sender, _value, this, _extraData);\r\n            return true;\r\n        }"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "spender.receiveApproval(msg.sender, _value, this, _extraData)"
+            FunctionCall
+               Type: tuple()
+               Source: "spender.receiveApproval(msg.sender, _value, this, _extraData)"
+              MemberAccess to member receiveApproval
+                 Type: function (address,uint256,address,bytes memory) external
+                 Source: "spender.receiveApproval"
+                Identifier spender
+                   Type: contract tokenRecipient
+                   Source: "spender"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+              Identifier _value
+                 Type: uint256
+                 Source: "_value"
+              Identifier this
+                 Type: contract WillieWatts
+                 Source: "this"
+              Identifier _extraData
+                 Type: bytes memory
+                 Source: "_extraData"
+          Return
+             Gas costs: 19
+             Source: "return true"
+            Literal, token: true value: true
+               Type: bool
+               Source: "true"
+  FunctionDefinition "transferFrom" - public
+     Source: "function transferFrom(address _from, address _to, uint256 _value) returns (bool success) {\r\n        if (balanceOf[_from] < _value) throw;                 // Check if the sender has enough\r\n        if (balanceOf[_to] + _value < balanceOf[_to]) throw;  // Check for overflows\r\n        if (_value > allowance[_from][msg.sender]) throw;   // Check allowance\r\n        balanceOf[_from] -= _value;                          // Subtract from the sender\r\n        balanceOf[_to] += _value;                            // Add the same to the recipient\r\n        allowance[_from][msg.sender] -= _value;\r\n        Transfer(_from, _to, _value);\r\n        return true;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _from, address _to, uint256 _value)"
+      VariableDeclaration "_from"
+         Type: address
+         Source: "address _from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n        if (balanceOf[_from] < _value) throw;                 // Check if the sender has enough\r\n        if (balanceOf[_to] + _value < balanceOf[_to]) throw;  // Check for overflows\r\n        if (_value > allowance[_from][msg.sender]) throw;   // Check allowance\r\n        balanceOf[_from] -= _value;                          // Subtract from the sender\r\n        balanceOf[_to] += _value;                            // Add the same to the recipient\r\n        allowance[_from][msg.sender] -= _value;\r\n        Transfer(_from, _to, _value);\r\n        return true;\r\n    }"
+      IfStatement
+         Source: "if (balanceOf[_from] < _value) throw"
+        BinaryOperation using operator <
+           Type: bool
+           Gas costs: 305
+           Source: "balanceOf[_from] < _value"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[_from]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            Identifier _from
+               Type: address
+               Source: "_from"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+        Throw
+           Gas costs: 6
+           Source: "throw"
+      IfStatement
+         Source: "if (balanceOf[_to] + _value < balanceOf[_to]) throw"
+        BinaryOperation using operator <
+           Type: bool
+           Gas costs: 601
+           Source: "balanceOf[_to] + _value < balanceOf[_to]"
+          BinaryOperation using operator +
+             Type: uint256
+             Source: "balanceOf[_to] + _value"
+            IndexAccess
+               Type: uint256
+               Source: "balanceOf[_to]"
+              Identifier balanceOf
+                 Type: mapping(address => uint256)
+                 Source: "balanceOf"
+              Identifier _to
+                 Type: address
+                 Source: "_to"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[_to]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            Identifier _to
+               Type: address
+               Source: "_to"
+        Throw
+           Gas costs: 6
+           Source: "throw"
+      IfStatement
+         Source: "if (_value > allowance[_from][msg.sender]) throw"
+        BinaryOperation using operator >
+           Type: bool
+           Gas costs: 394
+           Source: "_value > allowance[_from][msg.sender]"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+          IndexAccess
+             Type: uint256
+             Source: "allowance[_from][msg.sender]"
+            IndexAccess
+               Type: mapping(address => uint256)
+               Source: "allowance[_from]"
+              Identifier allowance
+                 Type: mapping(address => mapping(address => uint256))
+                 Source: "allowance"
+              Identifier _from
+                 Type: address
+                 Source: "_from"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+        Throw
+           Gas costs: 6
+           Source: "throw"
+      ExpressionStatement
+         Gas costs: 20329
+         Source: "balanceOf[_from] -= _value"
+        Assignment using operator -=
+           Type: uint256
+           Source: "balanceOf[_from] -= _value"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[_from]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            Identifier _from
+               Type: address
+               Source: "_from"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: 20323
+         Source: "balanceOf[_to] += _value"
+        Assignment using operator +=
+           Type: uint256
+           Source: "balanceOf[_to] += _value"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[_to]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            Identifier _to
+               Type: address
+               Source: "_to"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: 20412
+         Source: "allowance[_from][msg.sender] -= _value"
+        Assignment using operator -=
+           Type: uint256
+           Source: "allowance[_from][msg.sender] -= _value"
+          IndexAccess
+             Type: uint256
+             Source: "allowance[_from][msg.sender]"
+            IndexAccess
+               Type: mapping(address => uint256)
+               Source: "allowance[_from]"
+              Identifier allowance
+                 Type: mapping(address => mapping(address => uint256))
+                 Source: "allowance"
+              Identifier _from
+                 Type: address
+                 Source: "_from"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "Transfer(_from, _to, _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "Transfer(_from, _to, _value)"
+          Identifier Transfer
+             Type: function (address,address,uint256)
+             Source: "Transfer"
+          Identifier _from
+             Type: address
+             Source: "_from"
+          Identifier _to
+             Type: address
+             Source: "_to"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      Return
+         Gas costs: 8
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+  FunctionDefinition "refund" - public
+     Source: "function refund(uint256 _value) returns (bool success) {\r\n      uint256 etherValue = (_value * 1 ether) / 1000;\r\n\r\n      if(balanceOf[msg.sender] < _value) throw;   \r\n      if(!msg.sender.send(etherValue)) throw;\r\n      \r\n      balanceOf[msg.sender] -= _value;\r\n      totalSupply -= _value;\r\n      Transfer(msg.sender, this, _value);\r\n      return true;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 _value)"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n      uint256 etherValue = (_value * 1 ether) / 1000;\r\n\r\n      if(balanceOf[msg.sender] < _value) throw;   \r\n      if(!msg.sender.send(etherValue)) throw;\r\n      \r\n      balanceOf[msg.sender] -= _value;\r\n      totalSupply -= _value;\r\n      Transfer(msg.sender, this, _value);\r\n      return true;\r\n    }"
+      VariableDeclarationStatement
+         Gas costs: 50
+         Source: "uint256 etherValue = (_value * 1 ether) / 1000"
+        VariableDeclaration "etherValue"
+           Type: uint256
+           Source: "uint256 etherValue"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        BinaryOperation using operator /
+           Type: uint256
+           Source: "(_value * 1 ether) / 1000"
+          TupleExpression
+             Type: uint256
+             Source: "(_value * 1 ether)"
+            BinaryOperation using operator *
+               Type: uint256
+               Source: "_value * 1 ether"
+              Identifier _value
+                 Type: uint256
+                 Source: "_value"
+              Literal, token: [no token] value: 1
+                 Type: int_const 1000000000000000000
+                 Source: "1 ether"
+          Literal, token: [no token] value: 1000
+             Type: int_const 1000
+             Source: "1000"
+      IfStatement
+         Source: "if(balanceOf[msg.sender] < _value) throw"
+        BinaryOperation using operator <
+           Type: bool
+           Gas costs: 304
+           Source: "balanceOf[msg.sender] < _value"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[msg.sender]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+        Throw
+           Gas costs: 6
+           Source: "throw"
+      IfStatement
+         Source: "if(!msg.sender.send(etherValue)) throw"
+        UnaryOperation (prefix) !
+           Type: bool
+           Gas costs: [???]
+           Source: "!msg.sender.send(etherValue)"
+          FunctionCall
+             Type: bool
+             Source: "msg.sender.send(etherValue)"
+            MemberAccess to member send
+               Type: function (uint256) returns (bool)
+               Source: "msg.sender.send"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+            Identifier etherValue
+               Type: uint256
+               Source: "etherValue"
+        Throw
+           Gas costs: 6
+           Source: "throw"
+      ExpressionStatement
+         Gas costs: 20328
+         Source: "balanceOf[msg.sender] -= _value"
+        Assignment using operator -=
+           Type: uint256
+           Source: "balanceOf[msg.sender] -= _value"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[msg.sender]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: 20233
+         Source: "totalSupply -= _value"
+        Assignment using operator -=
+           Type: uint256
+           Source: "totalSupply -= _value"
+          Identifier totalSupply
+             Type: uint256
+             Source: "totalSupply"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "Transfer(msg.sender, this, _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "Transfer(msg.sender, this, _value)"
+          Identifier Transfer
+             Type: function (address,address,uint256)
+             Source: "Transfer"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier this
+             Type: contract WillieWatts
+             Source: "this"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      Return
+         Gas costs: 8
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+  FunctionDefinition "" - public
+     Source: "function() payable {\r\n      uint256 tokenCount = (msg.value * 1000) / 1 ether ;\r\n\r\n      balanceOf[msg.sender] += tokenCount;\r\n      totalSupply += tokenCount;\r\n      Transfer(this, msg.sender, tokenCount);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n      uint256 tokenCount = (msg.value * 1000) / 1 ether ;\r\n\r\n      balanceOf[msg.sender] += tokenCount;\r\n      totalSupply += tokenCount;\r\n      Transfer(this, msg.sender, tokenCount);\r\n    }"
+      VariableDeclarationStatement
+         Gas costs: 49
+         Source: "uint256 tokenCount = (msg.value * 1000) / 1 ether"
+        VariableDeclaration "tokenCount"
+           Type: uint256
+           Source: "uint256 tokenCount"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        BinaryOperation using operator /
+           Type: uint256
+           Source: "(msg.value * 1000) / 1 ether"
+          TupleExpression
+             Type: uint256
+             Source: "(msg.value * 1000)"
+            BinaryOperation using operator *
+               Type: uint256
+               Source: "msg.value * 1000"
+              MemberAccess to member value
+                 Type: uint256
+                 Source: "msg.value"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+              Literal, token: [no token] value: 1000
+                 Type: int_const 1000
+                 Source: "1000"
+          Literal, token: [no token] value: 1
+             Type: int_const 1000000000000000000
+             Source: "1 ether"
+      ExpressionStatement
+         Gas costs: 20328
+         Source: "balanceOf[msg.sender] += tokenCount"
+        Assignment using operator +=
+           Type: uint256
+           Source: "balanceOf[msg.sender] += tokenCount"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[msg.sender]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Identifier tokenCount
+             Type: uint256
+             Source: "tokenCount"
+      ExpressionStatement
+         Gas costs: 20233
+         Source: "totalSupply += tokenCount"
+        Assignment using operator +=
+           Type: uint256
+           Source: "totalSupply += tokenCount"
+          Identifier totalSupply
+             Type: uint256
+             Source: "totalSupply"
+          Identifier tokenCount
+             Type: uint256
+             Source: "tokenCount"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "Transfer(this, msg.sender, tokenCount)"
+        FunctionCall
+           Type: tuple()
+           Source: "Transfer(this, msg.sender, tokenCount)"
+          Identifier Transfer
+             Type: function (address,address,uint256)
+             Source: "Transfer"
+          Identifier this
+             Type: contract WillieWatts
+             Source: "this"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier tokenCount
+             Type: uint256
+             Source: "tokenCount"

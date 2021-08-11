@@ -1,0 +1,1262 @@
+Syntax trees:
+
+
+======= /home/fabric/ArocRevision/Aroc/dataSet/smartbugs-21-7-13/unchecked_low_level_calls52/0x07f7ecb66d788ab01dc93b9b71a88401de7d0f2e.sol =======
+PragmaDirective
+   Source: "pragma solidity ^0.4.21;"
+ContractDefinition "PoCGame"
+   Source: "contract PoCGame {\r\n\r\n    \r\n    /**\r\n     * Modifiers\r\n     */\r\n     \r\n    modifier onlyOwner()\r\n    {\r\n        require(msg.sender == owner);\r\n        _;\r\n    }\r\n    \r\n   modifier isOpenToPublic()\r\n    {\r\n        require(openToPublic);\r\n        _;\r\n    }\r\n\r\n    modifier onlyRealPeople()\r\n    {\r\n          require (msg.sender == tx.origin);\r\n        _;\r\n    }\r\n\r\n    modifier  onlyPlayers()\r\n    { \r\n        require (wagers[msg.sender] > 0); \r\n        _; \r\n    }\r\n    \r\n   \r\n    /**\r\n     * Events\r\n     */\r\n    event Wager(uint256 amount, address depositer);\r\n    event Win(uint256 amount, address paidTo);\r\n    event Lose(uint256 amount, address loser);\r\n    event Donate(uint256 amount, address paidTo, address donator);\r\n    event DifficultyChanged(uint256 currentDifficulty);\r\n    event BetLimitChanged(uint256 currentBetLimit);\r\n\r\n    /**\r\n     * Global Variables\r\n     */\r\n    address private whale;\r\n    uint256 betLimit;\r\n    uint difficulty;\r\n    uint private randomSeed;\r\n    address owner;\r\n    mapping(address => uint256) timestamps;\r\n    mapping(address => uint256) wagers;\r\n    bool openToPublic;\r\n    uint256 totalDonated;\r\n\r\n    /**\r\n     * Constructor\r\n     */\r\n    constructor(address whaleAddress, uint256 wagerLimit) \r\n    onlyRealPeople()\r\n    public \r\n    {\r\n        openToPublic = false;\r\n        owner = msg.sender;\r\n        whale = whaleAddress;\r\n        totalDonated = 0;\r\n        betLimit = wagerLimit;\r\n        \r\n    }\r\n\r\n\r\n    /**\r\n     * Let the public play\r\n     */\r\n    function OpenToThePublic() \r\n    onlyOwner()\r\n    public\r\n    {\r\n        openToPublic = true;\r\n    }\r\n    \r\n    /**\r\n     * Adjust the bet amounts\r\n     */\r\n    function AdjustBetAmounts(uint256 amount) \r\n    onlyOwner()\r\n    public\r\n    {\r\n        betLimit = amount;\r\n        \r\n        emit BetLimitChanged(betLimit);\r\n    }\r\n    \r\n     /**\r\n     * Adjust the difficulty\r\n     */\r\n    function AdjustDifficulty(uint256 amount) \r\n    onlyOwner()\r\n    public\r\n    {\r\n        difficulty = amount;\r\n        \r\n        emit DifficultyChanged(difficulty);\r\n    }\r\n    \r\n    \r\n    function() public payable { }\r\n\r\n    /**\r\n     * Wager your bet\r\n     */\r\n    function wager()\r\n    isOpenToPublic()\r\n    onlyRealPeople() \r\n    payable\r\n    public \r\n    {\r\n        //You have to send exactly 0.01 ETH.\r\n        require(msg.value == betLimit);\r\n        \r\n        //You cannot wager multiple times\r\n        require(wagers[msg.sender] == 0);\r\n\r\n        //log the wager and timestamp(block number)\r\n        timestamps[msg.sender] = block.number;\r\n        wagers[msg.sender] = msg.value;\r\n        emit Wager(msg.value, msg.sender);\r\n    }\r\n    \r\n    /**\r\n     * method to determine winners and losers\r\n     */\r\n    function play()\r\n    isOpenToPublic()\r\n    onlyRealPeople()\r\n    onlyPlayers()\r\n    public\r\n    {\r\n        uint256 blockNumber = timestamps[msg.sender];\r\n        if(blockNumber < block.number)\r\n        {\r\n            timestamps[msg.sender] = 0;\r\n            wagers[msg.sender] = 0;\r\n    \r\n            uint256 winningNumber = uint256(keccak256(abi.encodePacked(blockhash(blockNumber),  msg.sender)))%difficulty +1;\r\n    \r\n            if(winningNumber == difficulty / 2)\r\n            {\r\n                payout(msg.sender);\r\n            }\r\n            else \r\n            {\r\n                //player loses\r\n                loseWager(betLimit / 2);\r\n            }    \r\n        }\r\n        else\r\n        {\r\n            revert();\r\n        }\r\n    }\r\n\r\n    /**\r\n     * For those that just want to donate to the whale\r\n     */\r\n    function donate()\r\n    isOpenToPublic()\r\n    public \r\n    payable\r\n    {\r\n        donateToWhale(msg.value);\r\n    }\r\n\r\n    /**\r\n     * Payout ETH to winner\r\n     */\r\n    function payout(address winner) \r\n    internal \r\n    {\r\n        uint256 ethToTransfer = address(this).balance / 2;\r\n        \r\n        winner.transfer(ethToTransfer);\r\n        emit Win(ethToTransfer, winner);\r\n    }\r\n\r\n    /**\r\n     * Payout ETH to whale\r\n     */\r\n    function donateToWhale(uint256 amount) \r\n    internal \r\n    {\r\n        // <yes> <report> UNCHECKED_LL_CALLS\r\n        whale.call.value(amount)(bytes4(keccak256(\"donate()\")));\r\n        totalDonated += amount;\r\n        emit Donate(amount, whale, msg.sender);\r\n    }\r\n\r\n    /**\r\n     * Payout ETH to whale when player loses\r\n     */\r\n    function loseWager(uint256 amount) \r\n    internal \r\n    {\r\n        // <yes> <report> UNCHECKED_LL_CALLS\r\n        whale.call.value(amount)(bytes4(keccak256(\"donate()\")));\r\n        totalDonated += amount;\r\n        emit Lose(amount, msg.sender);\r\n    }\r\n    \r\n\r\n    /**\r\n     * ETH balance of contract\r\n     */\r\n    function ethBalance() \r\n    public \r\n    view \r\n    returns (uint256)\r\n    {\r\n        return address(this).balance;\r\n    }\r\n    \r\n    \r\n    /**\r\n     * current difficulty of the game\r\n     */\r\n    function currentDifficulty() \r\n    public \r\n    view \r\n    returns (uint256)\r\n    {\r\n        return difficulty;\r\n    }\r\n    \r\n    \r\n    /**\r\n     * current bet amount for the game\r\n     */\r\n    function currentBetLimit() \r\n    public \r\n    view \r\n    returns (uint256)\r\n    {\r\n        return betLimit;\r\n    }\r\n    \r\n    function hasPlayerWagered(address player)\r\n    public \r\n    view \r\n    returns (bool)\r\n    {\r\n        if(wagers[player] > 0)\r\n        {\r\n            return true;\r\n        }\r\n        else\r\n        {\r\n            return false;\r\n        }\r\n        \r\n    }\r\n\r\n    /**\r\n     * For the UI to properly display the winner's pot\r\n     */\r\n    function winnersPot() \r\n    public \r\n    view \r\n    returns (uint256)\r\n    {\r\n        return address(this).balance / 2;\r\n    }\r\n\r\n    /**\r\n     * A trap door for when someone sends tokens other than the intended ones so the overseers can decide where to send them.\r\n     */\r\n    function transferAnyERC20Token(address tokenAddress, address tokenOwner, uint tokens) \r\n    public \r\n    onlyOwner() \r\n    returns (bool success) \r\n    {\r\n        return ERC20Interface(tokenAddress).transfer(tokenOwner, tokens);\r\n    }\r\n}"
+  ModifierDefinition "onlyOwner"
+     Source: "modifier onlyOwner()\r\n    {\r\n        require(msg.sender == owner);\r\n        _;\r\n    }"
+    ParameterList
+       Source: "()"
+    Block
+       Source: "{\r\n        require(msg.sender == owner);\r\n        _;\r\n    }"
+      ExpressionStatement
+         Source: "require(msg.sender == owner)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(msg.sender == owner)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "msg.sender == owner"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Identifier owner
+               Type: address
+               Source: "owner"
+      PlaceholderStatement
+         Source: "_"
+  ModifierDefinition "isOpenToPublic"
+     Source: "modifier isOpenToPublic()\r\n    {\r\n        require(openToPublic);\r\n        _;\r\n    }"
+    ParameterList
+       Source: "()"
+    Block
+       Source: "{\r\n        require(openToPublic);\r\n        _;\r\n    }"
+      ExpressionStatement
+         Source: "require(openToPublic)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(openToPublic)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          Identifier openToPublic
+             Type: bool
+             Source: "openToPublic"
+      PlaceholderStatement
+         Source: "_"
+  ModifierDefinition "onlyRealPeople"
+     Source: "modifier onlyRealPeople()\r\n    {\r\n          require (msg.sender == tx.origin);\r\n        _;\r\n    }"
+    ParameterList
+       Source: "()"
+    Block
+       Source: "{\r\n          require (msg.sender == tx.origin);\r\n        _;\r\n    }"
+      ExpressionStatement
+         Source: "require (msg.sender == tx.origin)"
+        FunctionCall
+           Type: tuple()
+           Source: "require (msg.sender == tx.origin)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "msg.sender == tx.origin"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            MemberAccess to member origin
+               Type: address
+               Source: "tx.origin"
+              Identifier tx
+                 Type: tx
+                 Source: "tx"
+      PlaceholderStatement
+         Source: "_"
+  ModifierDefinition "onlyPlayers"
+     Source: "modifier  onlyPlayers()\r\n    { \r\n        require (wagers[msg.sender] > 0); \r\n        _; \r\n    }"
+    ParameterList
+       Source: "()"
+    Block
+       Source: "{ \r\n        require (wagers[msg.sender] > 0); \r\n        _; \r\n    }"
+      ExpressionStatement
+         Source: "require (wagers[msg.sender] > 0)"
+        FunctionCall
+           Type: tuple()
+           Source: "require (wagers[msg.sender] > 0)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >
+             Type: bool
+             Source: "wagers[msg.sender] > 0"
+            IndexAccess
+               Type: uint256
+               Source: "wagers[msg.sender]"
+              Identifier wagers
+                 Type: mapping(address => uint256)
+                 Source: "wagers"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+      PlaceholderStatement
+         Source: "_"
+  EventDefinition "Wager"
+     Source: "event Wager(uint256 amount, address depositer);"
+    ParameterList
+       Source: "(uint256 amount, address depositer)"
+      VariableDeclaration "amount"
+         Type: uint256
+         Source: "uint256 amount"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "depositer"
+         Type: address
+         Source: "address depositer"
+        ElementaryTypeName address
+           Source: "address"
+  EventDefinition "Win"
+     Source: "event Win(uint256 amount, address paidTo);"
+    ParameterList
+       Source: "(uint256 amount, address paidTo)"
+      VariableDeclaration "amount"
+         Type: uint256
+         Source: "uint256 amount"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "paidTo"
+         Type: address
+         Source: "address paidTo"
+        ElementaryTypeName address
+           Source: "address"
+  EventDefinition "Lose"
+     Source: "event Lose(uint256 amount, address loser);"
+    ParameterList
+       Source: "(uint256 amount, address loser)"
+      VariableDeclaration "amount"
+         Type: uint256
+         Source: "uint256 amount"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "loser"
+         Type: address
+         Source: "address loser"
+        ElementaryTypeName address
+           Source: "address"
+  EventDefinition "Donate"
+     Source: "event Donate(uint256 amount, address paidTo, address donator);"
+    ParameterList
+       Source: "(uint256 amount, address paidTo, address donator)"
+      VariableDeclaration "amount"
+         Type: uint256
+         Source: "uint256 amount"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "paidTo"
+         Type: address
+         Source: "address paidTo"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "donator"
+         Type: address
+         Source: "address donator"
+        ElementaryTypeName address
+           Source: "address"
+  EventDefinition "DifficultyChanged"
+     Source: "event DifficultyChanged(uint256 currentDifficulty);"
+    ParameterList
+       Source: "(uint256 currentDifficulty)"
+      VariableDeclaration "currentDifficulty"
+         Type: uint256
+         Source: "uint256 currentDifficulty"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  EventDefinition "BetLimitChanged"
+     Source: "event BetLimitChanged(uint256 currentBetLimit);"
+    ParameterList
+       Source: "(uint256 currentBetLimit)"
+      VariableDeclaration "currentBetLimit"
+         Type: uint256
+         Source: "uint256 currentBetLimit"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  VariableDeclaration "whale"
+     Type: address
+     Source: "address private whale"
+    ElementaryTypeName address
+       Source: "address"
+  VariableDeclaration "betLimit"
+     Type: uint256
+     Source: "uint256 betLimit"
+    ElementaryTypeName uint256
+       Source: "uint256"
+  VariableDeclaration "difficulty"
+     Type: uint256
+     Source: "uint difficulty"
+    ElementaryTypeName uint
+       Source: "uint"
+  VariableDeclaration "randomSeed"
+     Type: uint256
+     Source: "uint private randomSeed"
+    ElementaryTypeName uint
+       Source: "uint"
+  VariableDeclaration "owner"
+     Type: address
+     Source: "address owner"
+    ElementaryTypeName address
+       Source: "address"
+  VariableDeclaration "timestamps"
+     Type: mapping(address => uint256)
+     Source: "mapping(address => uint256) timestamps"
+    Mapping
+       Source: "mapping(address => uint256)"
+      ElementaryTypeName address
+         Source: "address"
+      ElementaryTypeName uint256
+         Source: "uint256"
+  VariableDeclaration "wagers"
+     Type: mapping(address => uint256)
+     Source: "mapping(address => uint256) wagers"
+    Mapping
+       Source: "mapping(address => uint256)"
+      ElementaryTypeName address
+         Source: "address"
+      ElementaryTypeName uint256
+         Source: "uint256"
+  VariableDeclaration "openToPublic"
+     Type: bool
+     Source: "bool openToPublic"
+    ElementaryTypeName bool
+       Source: "bool"
+  VariableDeclaration "totalDonated"
+     Type: uint256
+     Source: "uint256 totalDonated"
+    ElementaryTypeName uint256
+       Source: "uint256"
+  FunctionDefinition "" - public
+     Source: "constructor(address whaleAddress, uint256 wagerLimit) \r\n    onlyRealPeople()\r\n    public \r\n    {\r\n        openToPublic = false;\r\n        owner = msg.sender;\r\n        whale = whaleAddress;\r\n        totalDonated = 0;\r\n        betLimit = wagerLimit;\r\n        \r\n    }"
+    ParameterList
+       Source: "(address whaleAddress, uint256 wagerLimit)"
+      VariableDeclaration "whaleAddress"
+         Type: address
+         Source: "address whaleAddress"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "wagerLimit"
+         Type: uint256
+         Source: "uint256 wagerLimit"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Source: ""
+    ModifierInvocation "onlyRealPeople"
+       Source: "onlyRealPeople()"
+      Identifier onlyRealPeople
+         Type: modifier ()
+         Source: "onlyRealPeople"
+    Block
+       Source: "{\r\n        openToPublic = false;\r\n        owner = msg.sender;\r\n        whale = whaleAddress;\r\n        totalDonated = 0;\r\n        betLimit = wagerLimit;\r\n        \r\n    }"
+      ExpressionStatement
+         Source: "openToPublic = false"
+        Assignment using operator =
+           Type: bool
+           Source: "openToPublic = false"
+          Identifier openToPublic
+             Type: bool
+             Source: "openToPublic"
+          Literal, token: false value: false
+             Type: bool
+             Source: "false"
+      ExpressionStatement
+         Source: "owner = msg.sender"
+        Assignment using operator =
+           Type: address
+           Source: "owner = msg.sender"
+          Identifier owner
+             Type: address
+             Source: "owner"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+      ExpressionStatement
+         Source: "whale = whaleAddress"
+        Assignment using operator =
+           Type: address
+           Source: "whale = whaleAddress"
+          Identifier whale
+             Type: address
+             Source: "whale"
+          Identifier whaleAddress
+             Type: address
+             Source: "whaleAddress"
+      ExpressionStatement
+         Source: "totalDonated = 0"
+        Assignment using operator =
+           Type: uint256
+           Source: "totalDonated = 0"
+          Identifier totalDonated
+             Type: uint256
+             Source: "totalDonated"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+      ExpressionStatement
+         Source: "betLimit = wagerLimit"
+        Assignment using operator =
+           Type: uint256
+           Source: "betLimit = wagerLimit"
+          Identifier betLimit
+             Type: uint256
+             Source: "betLimit"
+          Identifier wagerLimit
+             Type: uint256
+             Source: "wagerLimit"
+  FunctionDefinition "OpenToThePublic" - public
+     Source: "function OpenToThePublic() \r\n    onlyOwner()\r\n    public\r\n    {\r\n        openToPublic = true;\r\n    }"
+    ParameterList
+       Source: "()"
+    ParameterList
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Source: "onlyOwner()"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n        openToPublic = true;\r\n    }"
+      ExpressionStatement
+         Source: "openToPublic = true"
+        Assignment using operator =
+           Type: bool
+           Source: "openToPublic = true"
+          Identifier openToPublic
+             Type: bool
+             Source: "openToPublic"
+          Literal, token: true value: true
+             Type: bool
+             Source: "true"
+  FunctionDefinition "AdjustBetAmounts" - public
+     Source: "function AdjustBetAmounts(uint256 amount) \r\n    onlyOwner()\r\n    public\r\n    {\r\n        betLimit = amount;\r\n        \r\n        emit BetLimitChanged(betLimit);\r\n    }"
+    ParameterList
+       Source: "(uint256 amount)"
+      VariableDeclaration "amount"
+         Type: uint256
+         Source: "uint256 amount"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Source: "onlyOwner()"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n        betLimit = amount;\r\n        \r\n        emit BetLimitChanged(betLimit);\r\n    }"
+      ExpressionStatement
+         Source: "betLimit = amount"
+        Assignment using operator =
+           Type: uint256
+           Source: "betLimit = amount"
+          Identifier betLimit
+             Type: uint256
+             Source: "betLimit"
+          Identifier amount
+             Type: uint256
+             Source: "amount"
+      EmitStatement
+         Source: "emit BetLimitChanged(betLimit)"
+        FunctionCall
+           Type: tuple()
+           Source: "BetLimitChanged(betLimit)"
+          Identifier BetLimitChanged
+             Type: function (uint256)
+             Source: "BetLimitChanged"
+          Identifier betLimit
+             Type: uint256
+             Source: "betLimit"
+  FunctionDefinition "AdjustDifficulty" - public
+     Source: "function AdjustDifficulty(uint256 amount) \r\n    onlyOwner()\r\n    public\r\n    {\r\n        difficulty = amount;\r\n        \r\n        emit DifficultyChanged(difficulty);\r\n    }"
+    ParameterList
+       Source: "(uint256 amount)"
+      VariableDeclaration "amount"
+         Type: uint256
+         Source: "uint256 amount"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Source: "onlyOwner()"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n        difficulty = amount;\r\n        \r\n        emit DifficultyChanged(difficulty);\r\n    }"
+      ExpressionStatement
+         Source: "difficulty = amount"
+        Assignment using operator =
+           Type: uint256
+           Source: "difficulty = amount"
+          Identifier difficulty
+             Type: uint256
+             Source: "difficulty"
+          Identifier amount
+             Type: uint256
+             Source: "amount"
+      EmitStatement
+         Source: "emit DifficultyChanged(difficulty)"
+        FunctionCall
+           Type: tuple()
+           Source: "DifficultyChanged(difficulty)"
+          Identifier DifficultyChanged
+             Type: function (uint256)
+             Source: "DifficultyChanged"
+          Identifier difficulty
+             Type: uint256
+             Source: "difficulty"
+  FunctionDefinition "" - public
+     Source: "function() public payable { }"
+    ParameterList
+       Source: "()"
+    ParameterList
+       Source: ""
+    Block
+       Source: "{ }"
+  FunctionDefinition "wager" - public
+     Source: "function wager()\r\n    isOpenToPublic()\r\n    onlyRealPeople() \r\n    payable\r\n    public \r\n    {\r\n        //You have to send exactly 0.01 ETH.\r\n        require(msg.value == betLimit);\r\n        \r\n        //You cannot wager multiple times\r\n        require(wagers[msg.sender] == 0);\r\n\r\n        //log the wager and timestamp(block number)\r\n        timestamps[msg.sender] = block.number;\r\n        wagers[msg.sender] = msg.value;\r\n        emit Wager(msg.value, msg.sender);\r\n    }"
+    ParameterList
+       Source: "()"
+    ParameterList
+       Source: ""
+    ModifierInvocation "isOpenToPublic"
+       Source: "isOpenToPublic()"
+      Identifier isOpenToPublic
+         Type: modifier ()
+         Source: "isOpenToPublic"
+    ModifierInvocation "onlyRealPeople"
+       Source: "onlyRealPeople()"
+      Identifier onlyRealPeople
+         Type: modifier ()
+         Source: "onlyRealPeople"
+    Block
+       Source: "{\r\n        //You have to send exactly 0.01 ETH.\r\n        require(msg.value == betLimit);\r\n        \r\n        //You cannot wager multiple times\r\n        require(wagers[msg.sender] == 0);\r\n\r\n        //log the wager and timestamp(block number)\r\n        timestamps[msg.sender] = block.number;\r\n        wagers[msg.sender] = msg.value;\r\n        emit Wager(msg.value, msg.sender);\r\n    }"
+      ExpressionStatement
+         Source: "require(msg.value == betLimit)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(msg.value == betLimit)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "msg.value == betLimit"
+            MemberAccess to member value
+               Type: uint256
+               Source: "msg.value"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Identifier betLimit
+               Type: uint256
+               Source: "betLimit"
+      ExpressionStatement
+         Source: "require(wagers[msg.sender] == 0)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(wagers[msg.sender] == 0)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "wagers[msg.sender] == 0"
+            IndexAccess
+               Type: uint256
+               Source: "wagers[msg.sender]"
+              Identifier wagers
+                 Type: mapping(address => uint256)
+                 Source: "wagers"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+      ExpressionStatement
+         Source: "timestamps[msg.sender] = block.number"
+        Assignment using operator =
+           Type: uint256
+           Source: "timestamps[msg.sender] = block.number"
+          IndexAccess
+             Type: uint256
+             Source: "timestamps[msg.sender]"
+            Identifier timestamps
+               Type: mapping(address => uint256)
+               Source: "timestamps"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          MemberAccess to member number
+             Type: uint256
+             Source: "block.number"
+            Identifier block
+               Type: block
+               Source: "block"
+      ExpressionStatement
+         Source: "wagers[msg.sender] = msg.value"
+        Assignment using operator =
+           Type: uint256
+           Source: "wagers[msg.sender] = msg.value"
+          IndexAccess
+             Type: uint256
+             Source: "wagers[msg.sender]"
+            Identifier wagers
+               Type: mapping(address => uint256)
+               Source: "wagers"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          MemberAccess to member value
+             Type: uint256
+             Source: "msg.value"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+      EmitStatement
+         Source: "emit Wager(msg.value, msg.sender)"
+        FunctionCall
+           Type: tuple()
+           Source: "Wager(msg.value, msg.sender)"
+          Identifier Wager
+             Type: function (uint256,address)
+             Source: "Wager"
+          MemberAccess to member value
+             Type: uint256
+             Source: "msg.value"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+  FunctionDefinition "play" - public
+     Source: "function play()\r\n    isOpenToPublic()\r\n    onlyRealPeople()\r\n    onlyPlayers()\r\n    public\r\n    {\r\n        uint256 blockNumber = timestamps[msg.sender];\r\n        if(blockNumber < block.number)\r\n        {\r\n            timestamps[msg.sender] = 0;\r\n            wagers[msg.sender] = 0;\r\n    \r\n            uint256 winningNumber = uint256(keccak256(abi.encodePacked(blockhash(blockNumber),  msg.sender)))%difficulty +1;\r\n    \r\n            if(winningNumber == difficulty / 2)\r\n            {\r\n                payout(msg.sender);\r\n            }\r\n            else \r\n            {\r\n                //player loses\r\n                loseWager(betLimit / 2);\r\n            }    \r\n        }\r\n        else\r\n        {\r\n            revert();\r\n        }\r\n    }"
+    ParameterList
+       Source: "()"
+    ParameterList
+       Source: ""
+    ModifierInvocation "isOpenToPublic"
+       Source: "isOpenToPublic()"
+      Identifier isOpenToPublic
+         Type: modifier ()
+         Source: "isOpenToPublic"
+    ModifierInvocation "onlyRealPeople"
+       Source: "onlyRealPeople()"
+      Identifier onlyRealPeople
+         Type: modifier ()
+         Source: "onlyRealPeople"
+    ModifierInvocation "onlyPlayers"
+       Source: "onlyPlayers()"
+      Identifier onlyPlayers
+         Type: modifier ()
+         Source: "onlyPlayers"
+    Block
+       Source: "{\r\n        uint256 blockNumber = timestamps[msg.sender];\r\n        if(blockNumber < block.number)\r\n        {\r\n            timestamps[msg.sender] = 0;\r\n            wagers[msg.sender] = 0;\r\n    \r\n            uint256 winningNumber = uint256(keccak256(abi.encodePacked(blockhash(blockNumber),  msg.sender)))%difficulty +1;\r\n    \r\n            if(winningNumber == difficulty / 2)\r\n            {\r\n                payout(msg.sender);\r\n            }\r\n            else \r\n            {\r\n                //player loses\r\n                loseWager(betLimit / 2);\r\n            }    \r\n        }\r\n        else\r\n        {\r\n            revert();\r\n        }\r\n    }"
+      VariableDeclarationStatement
+         Source: "uint256 blockNumber = timestamps[msg.sender]"
+        VariableDeclaration "blockNumber"
+           Type: uint256
+           Source: "uint256 blockNumber"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        IndexAccess
+           Type: uint256
+           Source: "timestamps[msg.sender]"
+          Identifier timestamps
+             Type: mapping(address => uint256)
+             Source: "timestamps"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+      IfStatement
+         Source: "if(blockNumber < block.number)\r\n        {\r\n            timestamps[msg.sender] = 0;\r\n            wagers[msg.sender] = 0;\r\n    \r\n            uint256 winningNumber = uint256(keccak256(abi.encodePacked(blockhash(blockNumber),  msg.sender)))%difficulty +1;\r\n    \r\n            if(winningNumber == difficulty / 2)\r\n            {\r\n                payout(msg.sender);\r\n            }\r\n            else \r\n            {\r\n                //player loses\r\n                loseWager(betLimit / 2);\r\n            }    \r\n        }\r\n        else\r\n        {\r\n            revert();\r\n        }"
+        BinaryOperation using operator <
+           Type: bool
+           Source: "blockNumber < block.number"
+          Identifier blockNumber
+             Type: uint256
+             Source: "blockNumber"
+          MemberAccess to member number
+             Type: uint256
+             Source: "block.number"
+            Identifier block
+               Type: block
+               Source: "block"
+        Block
+           Source: "{\r\n            timestamps[msg.sender] = 0;\r\n            wagers[msg.sender] = 0;\r\n    \r\n            uint256 winningNumber = uint256(keccak256(abi.encodePacked(blockhash(blockNumber),  msg.sender)))%difficulty +1;\r\n    \r\n            if(winningNumber == difficulty / 2)\r\n            {\r\n                payout(msg.sender);\r\n            }\r\n            else \r\n            {\r\n                //player loses\r\n                loseWager(betLimit / 2);\r\n            }    \r\n        }"
+          ExpressionStatement
+             Source: "timestamps[msg.sender] = 0"
+            Assignment using operator =
+               Type: uint256
+               Source: "timestamps[msg.sender] = 0"
+              IndexAccess
+                 Type: uint256
+                 Source: "timestamps[msg.sender]"
+                Identifier timestamps
+                   Type: mapping(address => uint256)
+                   Source: "timestamps"
+                MemberAccess to member sender
+                   Type: address
+                   Source: "msg.sender"
+                  Identifier msg
+                     Type: msg
+                     Source: "msg"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+          ExpressionStatement
+             Source: "wagers[msg.sender] = 0"
+            Assignment using operator =
+               Type: uint256
+               Source: "wagers[msg.sender] = 0"
+              IndexAccess
+                 Type: uint256
+                 Source: "wagers[msg.sender]"
+                Identifier wagers
+                   Type: mapping(address => uint256)
+                   Source: "wagers"
+                MemberAccess to member sender
+                   Type: address
+                   Source: "msg.sender"
+                  Identifier msg
+                     Type: msg
+                     Source: "msg"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+          VariableDeclarationStatement
+             Source: "uint256 winningNumber = uint256(keccak256(abi.encodePacked(blockhash(blockNumber),  msg.sender)))%difficulty +1"
+            VariableDeclaration "winningNumber"
+               Type: uint256
+               Source: "uint256 winningNumber"
+              ElementaryTypeName uint256
+                 Source: "uint256"
+            BinaryOperation using operator +
+               Type: uint256
+               Source: "uint256(keccak256(abi.encodePacked(blockhash(blockNumber),  msg.sender)))%difficulty +1"
+              BinaryOperation using operator %
+                 Type: uint256
+                 Source: "uint256(keccak256(abi.encodePacked(blockhash(blockNumber),  msg.sender)))%difficulty"
+                FunctionCall
+                   Type: uint256
+                   Source: "uint256(keccak256(abi.encodePacked(blockhash(blockNumber),  msg.sender)))"
+                  ElementaryTypeNameExpression uint256
+                     Type: type(uint256)
+                     Source: "uint256"
+                  FunctionCall
+                     Type: bytes32
+                     Source: "keccak256(abi.encodePacked(blockhash(blockNumber),  msg.sender))"
+                    Identifier keccak256
+                       Type: function () pure returns (bytes32)
+                       Source: "keccak256"
+                    FunctionCall
+                       Type: bytes memory
+                       Source: "abi.encodePacked(blockhash(blockNumber),  msg.sender)"
+                      MemberAccess to member encodePacked
+                         Type: function () pure returns (bytes memory)
+                         Source: "abi.encodePacked"
+                        Identifier abi
+                           Type: abi
+                           Source: "abi"
+                      FunctionCall
+                         Type: bytes32
+                         Source: "blockhash(blockNumber)"
+                        Identifier blockhash
+                           Type: function (uint256) view returns (bytes32)
+                           Source: "blockhash"
+                        Identifier blockNumber
+                           Type: uint256
+                           Source: "blockNumber"
+                      MemberAccess to member sender
+                         Type: address
+                         Source: "msg.sender"
+                        Identifier msg
+                           Type: msg
+                           Source: "msg"
+                Identifier difficulty
+                   Type: uint256
+                   Source: "difficulty"
+              Literal, token: [no token] value: 1
+                 Type: int_const 1
+                 Source: "1"
+          IfStatement
+             Source: "if(winningNumber == difficulty / 2)\r\n            {\r\n                payout(msg.sender);\r\n            }\r\n            else \r\n            {\r\n                //player loses\r\n                loseWager(betLimit / 2);\r\n            }"
+            BinaryOperation using operator ==
+               Type: bool
+               Source: "winningNumber == difficulty / 2"
+              Identifier winningNumber
+                 Type: uint256
+                 Source: "winningNumber"
+              BinaryOperation using operator /
+                 Type: uint256
+                 Source: "difficulty / 2"
+                Identifier difficulty
+                   Type: uint256
+                   Source: "difficulty"
+                Literal, token: [no token] value: 2
+                   Type: int_const 2
+                   Source: "2"
+            Block
+               Source: "{\r\n                payout(msg.sender);\r\n            }"
+              ExpressionStatement
+                 Source: "payout(msg.sender)"
+                FunctionCall
+                   Type: tuple()
+                   Source: "payout(msg.sender)"
+                  Identifier payout
+                     Type: function (address)
+                     Source: "payout"
+                  MemberAccess to member sender
+                     Type: address
+                     Source: "msg.sender"
+                    Identifier msg
+                       Type: msg
+                       Source: "msg"
+            Block
+               Source: "{\r\n                //player loses\r\n                loseWager(betLimit / 2);\r\n            }"
+              ExpressionStatement
+                 Source: "loseWager(betLimit / 2)"
+                FunctionCall
+                   Type: tuple()
+                   Source: "loseWager(betLimit / 2)"
+                  Identifier loseWager
+                     Type: function (uint256)
+                     Source: "loseWager"
+                  BinaryOperation using operator /
+                     Type: uint256
+                     Source: "betLimit / 2"
+                    Identifier betLimit
+                       Type: uint256
+                       Source: "betLimit"
+                    Literal, token: [no token] value: 2
+                       Type: int_const 2
+                       Source: "2"
+        Block
+           Source: "{\r\n            revert();\r\n        }"
+          ExpressionStatement
+             Source: "revert()"
+            FunctionCall
+               Type: tuple()
+               Source: "revert()"
+              Identifier revert
+                 Type: function () pure
+                 Source: "revert"
+  FunctionDefinition "donate" - public
+     Source: "function donate()\r\n    isOpenToPublic()\r\n    public \r\n    payable\r\n    {\r\n        donateToWhale(msg.value);\r\n    }"
+    ParameterList
+       Source: "()"
+    ParameterList
+       Source: ""
+    ModifierInvocation "isOpenToPublic"
+       Source: "isOpenToPublic()"
+      Identifier isOpenToPublic
+         Type: modifier ()
+         Source: "isOpenToPublic"
+    Block
+       Source: "{\r\n        donateToWhale(msg.value);\r\n    }"
+      ExpressionStatement
+         Source: "donateToWhale(msg.value)"
+        FunctionCall
+           Type: tuple()
+           Source: "donateToWhale(msg.value)"
+          Identifier donateToWhale
+             Type: function (uint256)
+             Source: "donateToWhale"
+          MemberAccess to member value
+             Type: uint256
+             Source: "msg.value"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+  FunctionDefinition "payout"
+     Source: "function payout(address winner) \r\n    internal \r\n    {\r\n        uint256 ethToTransfer = address(this).balance / 2;\r\n        \r\n        winner.transfer(ethToTransfer);\r\n        emit Win(ethToTransfer, winner);\r\n    }"
+    ParameterList
+       Source: "(address winner)"
+      VariableDeclaration "winner"
+         Type: address
+         Source: "address winner"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Source: ""
+    Block
+       Source: "{\r\n        uint256 ethToTransfer = address(this).balance / 2;\r\n        \r\n        winner.transfer(ethToTransfer);\r\n        emit Win(ethToTransfer, winner);\r\n    }"
+      VariableDeclarationStatement
+         Source: "uint256 ethToTransfer = address(this).balance / 2"
+        VariableDeclaration "ethToTransfer"
+           Type: uint256
+           Source: "uint256 ethToTransfer"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        BinaryOperation using operator /
+           Type: uint256
+           Source: "address(this).balance / 2"
+          MemberAccess to member balance
+             Type: uint256
+             Source: "address(this).balance"
+            FunctionCall
+               Type: address
+               Source: "address(this)"
+              ElementaryTypeNameExpression address
+                 Type: type(address)
+                 Source: "address"
+              Identifier this
+                 Type: contract PoCGame
+                 Source: "this"
+          Literal, token: [no token] value: 2
+             Type: int_const 2
+             Source: "2"
+      ExpressionStatement
+         Source: "winner.transfer(ethToTransfer)"
+        FunctionCall
+           Type: tuple()
+           Source: "winner.transfer(ethToTransfer)"
+          MemberAccess to member transfer
+             Type: function (uint256)
+             Source: "winner.transfer"
+            Identifier winner
+               Type: address
+               Source: "winner"
+          Identifier ethToTransfer
+             Type: uint256
+             Source: "ethToTransfer"
+      EmitStatement
+         Source: "emit Win(ethToTransfer, winner)"
+        FunctionCall
+           Type: tuple()
+           Source: "Win(ethToTransfer, winner)"
+          Identifier Win
+             Type: function (uint256,address)
+             Source: "Win"
+          Identifier ethToTransfer
+             Type: uint256
+             Source: "ethToTransfer"
+          Identifier winner
+             Type: address
+             Source: "winner"
+  FunctionDefinition "donateToWhale"
+     Source: "function donateToWhale(uint256 amount) \r\n    internal \r\n    {\r\n        // <yes> <report> UNCHECKED_LL_CALLS\r\n        whale.call.value(amount)(bytes4(keccak256(\"donate()\")));\r\n        totalDonated += amount;\r\n        emit Donate(amount, whale, msg.sender);\r\n    }"
+    ParameterList
+       Source: "(uint256 amount)"
+      VariableDeclaration "amount"
+         Type: uint256
+         Source: "uint256 amount"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Source: ""
+    Block
+       Source: "{\r\n        // <yes> <report> UNCHECKED_LL_CALLS\r\n        whale.call.value(amount)(bytes4(keccak256(\"donate()\")));\r\n        totalDonated += amount;\r\n        emit Donate(amount, whale, msg.sender);\r\n    }"
+      ExpressionStatement
+         Source: "whale.call.value(amount)(bytes4(keccak256(\"donate()\")))"
+        FunctionCall
+           Type: bool
+           Source: "whale.call.value(amount)(bytes4(keccak256(\"donate()\")))"
+          FunctionCall
+             Type: function () payable returns (bool)
+             Source: "whale.call.value(amount)"
+            MemberAccess to member value
+               Type: function (uint256) returns (function () payable returns (bool))
+               Source: "whale.call.value"
+              MemberAccess to member call
+                 Type: function () payable returns (bool)
+                 Source: "whale.call"
+                Identifier whale
+                   Type: address
+                   Source: "whale"
+            Identifier amount
+               Type: uint256
+               Source: "amount"
+          FunctionCall
+             Type: bytes4
+             Source: "bytes4(keccak256(\"donate()\"))"
+            ElementaryTypeNameExpression bytes4
+               Type: type(bytes4)
+               Source: "bytes4"
+            FunctionCall
+               Type: bytes32
+               Source: "keccak256(\"donate()\")"
+              Identifier keccak256
+                 Type: function () pure returns (bytes32)
+                 Source: "keccak256"
+              Literal, token: [no token] value: donate()
+                 Type: literal_string "donate()"
+                 Source: "\"donate()\""
+      ExpressionStatement
+         Source: "totalDonated += amount"
+        Assignment using operator +=
+           Type: uint256
+           Source: "totalDonated += amount"
+          Identifier totalDonated
+             Type: uint256
+             Source: "totalDonated"
+          Identifier amount
+             Type: uint256
+             Source: "amount"
+      EmitStatement
+         Source: "emit Donate(amount, whale, msg.sender)"
+        FunctionCall
+           Type: tuple()
+           Source: "Donate(amount, whale, msg.sender)"
+          Identifier Donate
+             Type: function (uint256,address,address)
+             Source: "Donate"
+          Identifier amount
+             Type: uint256
+             Source: "amount"
+          Identifier whale
+             Type: address
+             Source: "whale"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+  FunctionDefinition "loseWager"
+     Source: "function loseWager(uint256 amount) \r\n    internal \r\n    {\r\n        // <yes> <report> UNCHECKED_LL_CALLS\r\n        whale.call.value(amount)(bytes4(keccak256(\"donate()\")));\r\n        totalDonated += amount;\r\n        emit Lose(amount, msg.sender);\r\n    }"
+    ParameterList
+       Source: "(uint256 amount)"
+      VariableDeclaration "amount"
+         Type: uint256
+         Source: "uint256 amount"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Source: ""
+    Block
+       Source: "{\r\n        // <yes> <report> UNCHECKED_LL_CALLS\r\n        whale.call.value(amount)(bytes4(keccak256(\"donate()\")));\r\n        totalDonated += amount;\r\n        emit Lose(amount, msg.sender);\r\n    }"
+      ExpressionStatement
+         Source: "whale.call.value(amount)(bytes4(keccak256(\"donate()\")))"
+        FunctionCall
+           Type: bool
+           Source: "whale.call.value(amount)(bytes4(keccak256(\"donate()\")))"
+          FunctionCall
+             Type: function () payable returns (bool)
+             Source: "whale.call.value(amount)"
+            MemberAccess to member value
+               Type: function (uint256) returns (function () payable returns (bool))
+               Source: "whale.call.value"
+              MemberAccess to member call
+                 Type: function () payable returns (bool)
+                 Source: "whale.call"
+                Identifier whale
+                   Type: address
+                   Source: "whale"
+            Identifier amount
+               Type: uint256
+               Source: "amount"
+          FunctionCall
+             Type: bytes4
+             Source: "bytes4(keccak256(\"donate()\"))"
+            ElementaryTypeNameExpression bytes4
+               Type: type(bytes4)
+               Source: "bytes4"
+            FunctionCall
+               Type: bytes32
+               Source: "keccak256(\"donate()\")"
+              Identifier keccak256
+                 Type: function () pure returns (bytes32)
+                 Source: "keccak256"
+              Literal, token: [no token] value: donate()
+                 Type: literal_string "donate()"
+                 Source: "\"donate()\""
+      ExpressionStatement
+         Source: "totalDonated += amount"
+        Assignment using operator +=
+           Type: uint256
+           Source: "totalDonated += amount"
+          Identifier totalDonated
+             Type: uint256
+             Source: "totalDonated"
+          Identifier amount
+             Type: uint256
+             Source: "amount"
+      EmitStatement
+         Source: "emit Lose(amount, msg.sender)"
+        FunctionCall
+           Type: tuple()
+           Source: "Lose(amount, msg.sender)"
+          Identifier Lose
+             Type: function (uint256,address)
+             Source: "Lose"
+          Identifier amount
+             Type: uint256
+             Source: "amount"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+  FunctionDefinition "ethBalance" - public - const
+     Source: "function ethBalance() \r\n    public \r\n    view \r\n    returns (uint256)\r\n    {\r\n        return address(this).balance;\r\n    }"
+    ParameterList
+       Source: "()"
+    ParameterList
+       Source: "(uint256)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint256"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{\r\n        return address(this).balance;\r\n    }"
+      Return
+         Source: "return address(this).balance"
+        MemberAccess to member balance
+           Type: uint256
+           Source: "address(this).balance"
+          FunctionCall
+             Type: address
+             Source: "address(this)"
+            ElementaryTypeNameExpression address
+               Type: type(address)
+               Source: "address"
+            Identifier this
+               Type: contract PoCGame
+               Source: "this"
+  FunctionDefinition "currentDifficulty" - public - const
+     Source: "function currentDifficulty() \r\n    public \r\n    view \r\n    returns (uint256)\r\n    {\r\n        return difficulty;\r\n    }"
+    ParameterList
+       Source: "()"
+    ParameterList
+       Source: "(uint256)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint256"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{\r\n        return difficulty;\r\n    }"
+      Return
+         Source: "return difficulty"
+        Identifier difficulty
+           Type: uint256
+           Source: "difficulty"
+  FunctionDefinition "currentBetLimit" - public - const
+     Source: "function currentBetLimit() \r\n    public \r\n    view \r\n    returns (uint256)\r\n    {\r\n        return betLimit;\r\n    }"
+    ParameterList
+       Source: "()"
+    ParameterList
+       Source: "(uint256)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint256"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{\r\n        return betLimit;\r\n    }"
+      Return
+         Source: "return betLimit"
+        Identifier betLimit
+           Type: uint256
+           Source: "betLimit"
+  FunctionDefinition "hasPlayerWagered" - public - const
+     Source: "function hasPlayerWagered(address player)\r\n    public \r\n    view \r\n    returns (bool)\r\n    {\r\n        if(wagers[player] > 0)\r\n        {\r\n            return true;\r\n        }\r\n        else\r\n        {\r\n            return false;\r\n        }\r\n        \r\n    }"
+    ParameterList
+       Source: "(address player)"
+      VariableDeclaration "player"
+         Type: address
+         Source: "address player"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Source: "(bool)"
+      VariableDeclaration ""
+         Type: bool
+         Source: "bool"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n        if(wagers[player] > 0)\r\n        {\r\n            return true;\r\n        }\r\n        else\r\n        {\r\n            return false;\r\n        }\r\n        \r\n    }"
+      IfStatement
+         Source: "if(wagers[player] > 0)\r\n        {\r\n            return true;\r\n        }\r\n        else\r\n        {\r\n            return false;\r\n        }"
+        BinaryOperation using operator >
+           Type: bool
+           Source: "wagers[player] > 0"
+          IndexAccess
+             Type: uint256
+             Source: "wagers[player]"
+            Identifier wagers
+               Type: mapping(address => uint256)
+               Source: "wagers"
+            Identifier player
+               Type: address
+               Source: "player"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        Block
+           Source: "{\r\n            return true;\r\n        }"
+          Return
+             Source: "return true"
+            Literal, token: true value: true
+               Type: bool
+               Source: "true"
+        Block
+           Source: "{\r\n            return false;\r\n        }"
+          Return
+             Source: "return false"
+            Literal, token: false value: false
+               Type: bool
+               Source: "false"
+  FunctionDefinition "winnersPot" - public - const
+     Source: "function winnersPot() \r\n    public \r\n    view \r\n    returns (uint256)\r\n    {\r\n        return address(this).balance / 2;\r\n    }"
+    ParameterList
+       Source: "()"
+    ParameterList
+       Source: "(uint256)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint256"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{\r\n        return address(this).balance / 2;\r\n    }"
+      Return
+         Source: "return address(this).balance / 2"
+        BinaryOperation using operator /
+           Type: uint256
+           Source: "address(this).balance / 2"
+          MemberAccess to member balance
+             Type: uint256
+             Source: "address(this).balance"
+            FunctionCall
+               Type: address
+               Source: "address(this)"
+              ElementaryTypeNameExpression address
+                 Type: type(address)
+                 Source: "address"
+              Identifier this
+                 Type: contract PoCGame
+                 Source: "this"
+          Literal, token: [no token] value: 2
+             Type: int_const 2
+             Source: "2"
+  FunctionDefinition "transferAnyERC20Token" - public
+     Source: "function transferAnyERC20Token(address tokenAddress, address tokenOwner, uint tokens) \r\n    public \r\n    onlyOwner() \r\n    returns (bool success) \r\n    {\r\n        return ERC20Interface(tokenAddress).transfer(tokenOwner, tokens);\r\n    }"
+    ParameterList
+       Source: "(address tokenAddress, address tokenOwner, uint tokens)"
+      VariableDeclaration "tokenAddress"
+         Type: address
+         Source: "address tokenAddress"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "tokenOwner"
+         Type: address
+         Source: "address tokenOwner"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "tokens"
+         Type: uint256
+         Source: "uint tokens"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+    ModifierInvocation "onlyOwner"
+       Source: "onlyOwner()"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n        return ERC20Interface(tokenAddress).transfer(tokenOwner, tokens);\r\n    }"
+      Return
+         Source: "return ERC20Interface(tokenAddress).transfer(tokenOwner, tokens)"
+        FunctionCall
+           Type: bool
+           Source: "ERC20Interface(tokenAddress).transfer(tokenOwner, tokens)"
+          MemberAccess to member transfer
+             Type: function (address,uint256) external returns (bool)
+             Source: "ERC20Interface(tokenAddress).transfer"
+            FunctionCall
+               Type: contract ERC20Interface
+               Source: "ERC20Interface(tokenAddress)"
+              Identifier ERC20Interface
+                 Type: type(contract ERC20Interface)
+                 Source: "ERC20Interface"
+              Identifier tokenAddress
+                 Type: address
+                 Source: "tokenAddress"
+          Identifier tokenOwner
+             Type: address
+             Source: "tokenOwner"
+          Identifier tokens
+             Type: uint256
+             Source: "tokens"
+ContractDefinition "ERC20Interface"
+   Source: "contract ERC20Interface \r\n{\r\n    function transfer(address to, uint256 tokens) public returns (bool success);\r\n}"
+  FunctionDefinition "transfer" - public
+     Source: "function transfer(address to, uint256 tokens) public returns (bool success);"
+    ParameterList
+       Source: "(address to, uint256 tokens)"
+      VariableDeclaration "to"
+         Type: address
+         Source: "address to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "tokens"
+         Type: uint256
+         Source: "uint256 tokens"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"

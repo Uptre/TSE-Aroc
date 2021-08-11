@@ -1,0 +1,2083 @@
+Syntax trees:
+
+
+======= /home/fabric/ArocRevision/Aroc/dataSet/smartbugs-21-7-13/unAnalyzedUlls/0x89c1b3807d4c67df034fffb62f3509561218d30b.sol =======
+PragmaDirective
+   Gas costs: 0
+   Source: "pragma solidity ^0.4.9;"
+ContractDefinition "TownCrier"
+   Source: "contract TownCrier {\r\n    struct Request { // the data structure for each request\r\n        address requester; // the address of the requester\r\n        uint fee; // the amount of wei the requester pays for the request\r\n        address callbackAddr; // the address of the contract to call for delivering response\r\n        bytes4 callbackFID; // the specification of the callback function\r\n        bytes32 paramsHash; // the hash of the request parameters\r\n    }\r\n   \r\n    event Upgrade(address newAddr);\r\n    event Reset(uint gas_price, uint min_fee, uint cancellation_fee); \r\n    event RequestInfo(uint64 id, uint8 requestType, address requester, uint fee, address callbackAddr, bytes32 paramsHash, uint timestamp, bytes32[] requestData); // log of requests, the Town Crier server watches this event and processes requests\r\n    event DeliverInfo(uint64 requestId, uint fee, uint gasPrice, uint gasLeft, uint callbackGas, bytes32 paramsHash, uint64 error, bytes32 respData); // log of responses\r\n    event Cancel(uint64 requestId, address canceller, address requester, uint fee, int flag); // log of cancellations\r\n\r\n    address public constant SGX_ADDRESS = 0x18513702cCd928F2A3eb63d900aDf03c9cc81593;// address of the SGX account\r\n\r\n    uint public GAS_PRICE = 5 * 10**10;\r\n    uint public MIN_FEE = 30000 * GAS_PRICE; // minimum fee required for the requester to pay such that SGX could call deliver() to send a response\r\n    uint public CANCELLATION_FEE = 25000 * GAS_PRICE; // charged when the requester cancels a request that is not responded\r\n\r\n    uint public constant CANCELLED_FEE_FLAG = 1;\r\n    uint public constant DELIVERED_FEE_FLAG = 0;\r\n    int public constant FAIL_FLAG = -2 ** 250;\r\n    int public constant SUCCESS_FLAG = 1;\r\n\r\n    bool public killswitch;\r\n\r\n    bool public externalCallFlag;\r\n\r\n    uint64 public requestCnt;\r\n    uint64 public unrespondedCnt;\r\n    Request[2**64] public requests;\r\n\r\n    int public newVersion = 0;\r\n\r\n    // Contracts that receive Ether but do not define a fallback function throw\r\n    // an exception, sending back the Ether (this was different before Solidity\r\n    // v0.4.0). So if you want your contract to receive Ether, you have to\r\n    // implement a fallback function.\r\n    function () {}\r\n\r\n    function TownCrier() public {\r\n        // Start request IDs at 1 for two reasons:\r\n        //   1. We can use 0 to denote an invalid request (ids are unsigned)\r\n        //   2. Storage is more expensive when changing something from zero to non-zero,\r\n        //      so this means the first request isn't randomly more expensive.\r\n        requestCnt = 1;\r\n        requests[0].requester = msg.sender;\r\n        killswitch = false;\r\n        unrespondedCnt = 0;\r\n        externalCallFlag = false;\r\n    }\r\n\r\n    function upgrade(address newAddr) {\r\n        if (msg.sender == requests[0].requester && unrespondedCnt == 0) {\r\n            newVersion = -int(newAddr);\r\n            killswitch = true;\r\n            Upgrade(newAddr);\r\n        }\r\n    }\r\n\r\n    function reset(uint price, uint minGas, uint cancellationGas) public {\r\n        if (msg.sender == requests[0].requester && unrespondedCnt == 0) {\r\n            GAS_PRICE = price;\r\n            MIN_FEE = price * minGas;\r\n            CANCELLATION_FEE = price * cancellationGas;\r\n            Reset(GAS_PRICE, MIN_FEE, CANCELLATION_FEE);\r\n        }\r\n    }\r\n\r\n    function suspend() public {\r\n        if (msg.sender == requests[0].requester) {\r\n            killswitch = true;\r\n        }\r\n    }\r\n\r\n    function restart() public {\r\n        if (msg.sender == requests[0].requester && newVersion == 0) {\r\n            killswitch = false;\r\n        }\r\n    }\r\n\r\n    function withdraw() public {\r\n        if (msg.sender == requests[0].requester && unrespondedCnt == 0) {\r\n            if (!requests[0].requester.call.value(this.balance)()) {\r\n                throw;\r\n            }\r\n        }\r\n    }\r\n\r\n    function request(uint8 requestType, address callbackAddr, bytes4 callbackFID, uint timestamp, bytes32[] requestData) public payable returns (int) {\r\n        if (externalCallFlag) {\r\n            throw;\r\n        }\r\n\r\n        if (killswitch) {\r\n            externalCallFlag = true;\r\n            if (!msg.sender.call.value(msg.value)()) {\r\n                throw;\r\n            }\r\n            externalCallFlag = false;\r\n            return newVersion;\r\n        }\r\n\r\n        if (msg.value < MIN_FEE) {\r\n            externalCallFlag = true;\r\n            // If the amount of ether sent by the requester is too little or \r\n            // too much, refund the requester and discard the request.\r\n            if (!msg.sender.call.value(msg.value)()) {\r\n                throw;\r\n            }\r\n            externalCallFlag = false;\r\n            return FAIL_FLAG;\r\n        } else {\r\n            // Record the request.\r\n            uint64 requestId = requestCnt;\r\n            requestCnt++;\r\n            unrespondedCnt++;\r\n\r\n            bytes32 paramsHash = sha3(requestType, requestData);\r\n            requests[requestId].requester = msg.sender;\r\n            requests[requestId].fee = msg.value;\r\n            requests[requestId].callbackAddr = callbackAddr;\r\n            requests[requestId].callbackFID = callbackFID;\r\n            requests[requestId].paramsHash = paramsHash;\r\n\r\n            // Log the request for the Town Crier server to process.\r\n            RequestInfo(requestId, requestType, msg.sender, msg.value, callbackAddr, paramsHash, timestamp, requestData);\r\n            return requestId;\r\n        }\r\n    }\r\n\r\n    function deliver(uint64 requestId, bytes32 paramsHash, uint64 error, bytes32 respData) public {\r\n        if (msg.sender != SGX_ADDRESS ||\r\n                requestId <= 0 ||\r\n                requests[requestId].requester == 0 ||\r\n                requests[requestId].fee == DELIVERED_FEE_FLAG) {\r\n            // If the response is not delivered by the SGX account or the \r\n            // request has already been responded to, discard the response.\r\n            return;\r\n        }\r\n\r\n        uint fee = requests[requestId].fee;\r\n        if (requests[requestId].paramsHash != paramsHash) {\r\n            // If the hash of request parameters in the response is not \r\n            // correct, discard the response for security concern.\r\n            return;\r\n        } else if (fee == CANCELLED_FEE_FLAG) {\r\n            // If the request is cancelled by the requester, cancellation \r\n            // fee goes to the SGX account and set the request as having\r\n            // been responded to.\r\n            // <yes> <report> UNCHECKED_LL_CALLS\r\n            SGX_ADDRESS.send(CANCELLATION_FEE);\r\n            requests[requestId].fee = DELIVERED_FEE_FLAG;\r\n            unrespondedCnt--;\r\n            return;\r\n        }\r\n\r\n        requests[requestId].fee = DELIVERED_FEE_FLAG;\r\n        unrespondedCnt--;\r\n\r\n        if (error < 2) {\r\n            // Either no error occurs, or the requester sent an invalid query.\r\n            // Send the fee to the SGX account for its delivering.\r\n            // <yes> <report> UNCHECKED_LL_CALLS\r\n            SGX_ADDRESS.send(fee);         \r\n        } else {\r\n            // Error in TC, refund the requester.\r\n            externalCallFlag = true;\r\n            // <yes> <report> UNCHECKED_LL_CALLS\r\n            requests[requestId].requester.call.gas(2300).value(fee)();\r\n            externalCallFlag = false;\r\n        }\r\n\r\n        uint callbackGas = (fee - MIN_FEE) / tx.gasprice; // gas left for the callback function\r\n        DeliverInfo(requestId, fee, tx.gasprice, msg.gas, callbackGas, paramsHash, error, respData); // log the response information\r\n        if (callbackGas > msg.gas - 5000) {\r\n            callbackGas = msg.gas - 5000;\r\n        }\r\n        \r\n        externalCallFlag = true;\r\n        // <yes> <report> UNCHECKED_LL_CALLS\r\n        requests[requestId].callbackAddr.call.gas(callbackGas)(requests[requestId].callbackFID, requestId, error, respData); // call the callback function in the application contract\r\n        externalCallFlag = false;\r\n    }\r\n\r\n    function cancel(uint64 requestId) public returns (int) {\r\n        if (externalCallFlag) {\r\n            throw;\r\n        }\r\n\r\n        if (killswitch) {\r\n            return 0;\r\n        }\r\n\r\n        uint fee = requests[requestId].fee;\r\n        if (requests[requestId].requester == msg.sender && fee >= CANCELLATION_FEE) {\r\n            // If the request was sent by this user and has money left on it,\r\n            // then cancel it.\r\n            requests[requestId].fee = CANCELLED_FEE_FLAG;\r\n            externalCallFlag = true;\r\n            if (!msg.sender.call.value(fee - CANCELLATION_FEE)()) {\r\n                throw;\r\n            }\r\n            externalCallFlag = false;\r\n            Cancel(requestId, msg.sender, requests[requestId].requester, requests[requestId].fee, 1);\r\n            return SUCCESS_FLAG;\r\n        } else {\r\n            Cancel(requestId, msg.sender, requests[requestId].requester, fee, -1);\r\n            return FAIL_FLAG;\r\n        }\r\n    }\r\n}"
+  StructDefinition "Request"
+     Gas costs: 0
+     Source: "struct Request { // the data structure for each request\r\n        address requester; // the address of the requester\r\n        uint fee; // the amount of wei the requester pays for the request\r\n        address callbackAddr; // the address of the contract to call for delivering response\r\n        bytes4 callbackFID; // the specification of the callback function\r\n        bytes32 paramsHash; // the hash of the request parameters\r\n    }"
+    VariableDeclaration "requester"
+       Type: address
+       Source: "address requester"
+      ElementaryTypeName address
+         Source: "address"
+    VariableDeclaration "fee"
+       Type: uint256
+       Source: "uint fee"
+      ElementaryTypeName uint
+         Source: "uint"
+    VariableDeclaration "callbackAddr"
+       Type: address
+       Source: "address callbackAddr"
+      ElementaryTypeName address
+         Source: "address"
+    VariableDeclaration "callbackFID"
+       Type: bytes4
+       Source: "bytes4 callbackFID"
+      ElementaryTypeName bytes4
+         Source: "bytes4"
+    VariableDeclaration "paramsHash"
+       Type: bytes32
+       Source: "bytes32 paramsHash"
+      ElementaryTypeName bytes32
+         Source: "bytes32"
+  EventDefinition "Upgrade"
+     Gas costs: 0
+     Source: "event Upgrade(address newAddr);"
+    ParameterList
+       Source: "(address newAddr)"
+      VariableDeclaration "newAddr"
+         Type: address
+         Source: "address newAddr"
+        ElementaryTypeName address
+           Source: "address"
+  EventDefinition "Reset"
+     Gas costs: 0
+     Source: "event Reset(uint gas_price, uint min_fee, uint cancellation_fee);"
+    ParameterList
+       Source: "(uint gas_price, uint min_fee, uint cancellation_fee)"
+      VariableDeclaration "gas_price"
+         Type: uint256
+         Source: "uint gas_price"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "min_fee"
+         Type: uint256
+         Source: "uint min_fee"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "cancellation_fee"
+         Type: uint256
+         Source: "uint cancellation_fee"
+        ElementaryTypeName uint
+           Source: "uint"
+  EventDefinition "RequestInfo"
+     Gas costs: 0
+     Source: "event RequestInfo(uint64 id, uint8 requestType, address requester, uint fee, address callbackAddr, bytes32 paramsHash, uint timestamp, bytes32[] requestData);"
+    ParameterList
+       Source: "(uint64 id, uint8 requestType, address requester, uint fee, address callbackAddr, bytes32 paramsHash, uint timestamp, bytes32[] requestData)"
+      VariableDeclaration "id"
+         Type: uint64
+         Source: "uint64 id"
+        ElementaryTypeName uint64
+           Source: "uint64"
+      VariableDeclaration "requestType"
+         Type: uint8
+         Source: "uint8 requestType"
+        ElementaryTypeName uint8
+           Source: "uint8"
+      VariableDeclaration "requester"
+         Type: address
+         Source: "address requester"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "fee"
+         Type: uint256
+         Source: "uint fee"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "callbackAddr"
+         Type: address
+         Source: "address callbackAddr"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "paramsHash"
+         Type: bytes32
+         Source: "bytes32 paramsHash"
+        ElementaryTypeName bytes32
+           Source: "bytes32"
+      VariableDeclaration "timestamp"
+         Type: uint256
+         Source: "uint timestamp"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "requestData"
+         Type: bytes32[] memory
+         Source: "bytes32[] requestData"
+        ArrayTypeName
+           Source: "bytes32[]"
+          ElementaryTypeName bytes32
+             Source: "bytes32"
+  EventDefinition "DeliverInfo"
+     Gas costs: 0
+     Source: "event DeliverInfo(uint64 requestId, uint fee, uint gasPrice, uint gasLeft, uint callbackGas, bytes32 paramsHash, uint64 error, bytes32 respData);"
+    ParameterList
+       Source: "(uint64 requestId, uint fee, uint gasPrice, uint gasLeft, uint callbackGas, bytes32 paramsHash, uint64 error, bytes32 respData)"
+      VariableDeclaration "requestId"
+         Type: uint64
+         Source: "uint64 requestId"
+        ElementaryTypeName uint64
+           Source: "uint64"
+      VariableDeclaration "fee"
+         Type: uint256
+         Source: "uint fee"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "gasPrice"
+         Type: uint256
+         Source: "uint gasPrice"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "gasLeft"
+         Type: uint256
+         Source: "uint gasLeft"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "callbackGas"
+         Type: uint256
+         Source: "uint callbackGas"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "paramsHash"
+         Type: bytes32
+         Source: "bytes32 paramsHash"
+        ElementaryTypeName bytes32
+           Source: "bytes32"
+      VariableDeclaration "error"
+         Type: uint64
+         Source: "uint64 error"
+        ElementaryTypeName uint64
+           Source: "uint64"
+      VariableDeclaration "respData"
+         Type: bytes32
+         Source: "bytes32 respData"
+        ElementaryTypeName bytes32
+           Source: "bytes32"
+  EventDefinition "Cancel"
+     Gas costs: 0
+     Source: "event Cancel(uint64 requestId, address canceller, address requester, uint fee, int flag);"
+    ParameterList
+       Source: "(uint64 requestId, address canceller, address requester, uint fee, int flag)"
+      VariableDeclaration "requestId"
+         Type: uint64
+         Source: "uint64 requestId"
+        ElementaryTypeName uint64
+           Source: "uint64"
+      VariableDeclaration "canceller"
+         Type: address
+         Source: "address canceller"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "requester"
+         Type: address
+         Source: "address requester"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "fee"
+         Type: uint256
+         Source: "uint fee"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "flag"
+         Type: int256
+         Source: "int flag"
+        ElementaryTypeName int
+           Source: "int"
+  VariableDeclaration "SGX_ADDRESS"
+     Type: address
+     Gas costs: 108
+     Source: "address public constant SGX_ADDRESS = 0x18513702cCd928F2A3eb63d900aDf03c9cc81593"
+    ElementaryTypeName address
+       Source: "address"
+    Literal, token: [no token] value: 0x18513702cCd928F2A3eb63d900aDf03c9cc81593
+       Type: address
+       Source: "0x18513702cCd928F2A3eb63d900aDf03c9cc81593"
+  VariableDeclaration "GAS_PRICE"
+     Type: uint256
+     Gas costs: 287
+     Source: "uint public GAS_PRICE = 5 * 10**10"
+    ElementaryTypeName uint
+       Source: "uint"
+    BinaryOperation using operator *
+       Type: int_const 50000000000
+       Source: "5 * 10**10"
+      Literal, token: [no token] value: 5
+         Type: int_const 5
+         Source: "5"
+      BinaryOperation using operator **
+         Type: int_const 10000000000
+         Source: "10**10"
+        Literal, token: [no token] value: 10
+           Type: int_const 10
+           Source: "10"
+        Literal, token: [no token] value: 10
+           Type: int_const 10
+           Source: "10"
+  VariableDeclaration "MIN_FEE"
+     Type: uint256
+     Gas costs: 287
+     Source: "uint public MIN_FEE = 30000 * GAS_PRICE"
+    ElementaryTypeName uint
+       Source: "uint"
+    BinaryOperation using operator *
+       Type: uint256
+       Source: "30000 * GAS_PRICE"
+      Literal, token: [no token] value: 30000
+         Type: int_const 30000
+         Source: "30000"
+      Identifier GAS_PRICE
+         Type: uint256
+         Source: "GAS_PRICE"
+  VariableDeclaration "CANCELLATION_FEE"
+     Type: uint256
+     Gas costs: 287
+     Source: "uint public CANCELLATION_FEE = 25000 * GAS_PRICE"
+    ElementaryTypeName uint
+       Source: "uint"
+    BinaryOperation using operator *
+       Type: uint256
+       Source: "25000 * GAS_PRICE"
+      Literal, token: [no token] value: 25000
+         Type: int_const 25000
+         Source: "25000"
+      Identifier GAS_PRICE
+         Type: uint256
+         Source: "GAS_PRICE"
+  VariableDeclaration "CANCELLED_FEE_FLAG"
+     Type: uint256
+     Gas costs: 93
+     Source: "uint public constant CANCELLED_FEE_FLAG = 1"
+    ElementaryTypeName uint
+       Source: "uint"
+    Literal, token: [no token] value: 1
+       Type: int_const 1
+       Source: "1"
+  VariableDeclaration "DELIVERED_FEE_FLAG"
+     Type: uint256
+     Gas costs: 96
+     Source: "uint public constant DELIVERED_FEE_FLAG = 0"
+    ElementaryTypeName uint
+       Source: "uint"
+    Literal, token: [no token] value: 0
+       Type: int_const 0
+       Source: "0"
+  VariableDeclaration "FAIL_FLAG"
+     Type: int256
+     Gas costs: 93
+     Source: "int public constant FAIL_FLAG = -2 ** 250"
+    ElementaryTypeName int
+       Source: "int"
+    BinaryOperation using operator **
+       Type: int_const 1809...(68 digits omitted)...0624
+       Source: "-2 ** 250"
+      UnaryOperation (prefix) -
+         Type: int_const -2
+         Source: "-2"
+        Literal, token: [no token] value: 2
+           Type: int_const 2
+           Source: "2"
+      Literal, token: [no token] value: 250
+         Type: int_const 250
+         Source: "250"
+  VariableDeclaration "SUCCESS_FLAG"
+     Type: int256
+     Gas costs: 90
+     Source: "int public constant SUCCESS_FLAG = 1"
+    ElementaryTypeName int
+       Source: "int"
+    Literal, token: [no token] value: 1
+       Type: int_const 1
+       Source: "1"
+  VariableDeclaration "killswitch"
+     Type: bool
+     Gas costs: 335
+     Source: "bool public killswitch"
+    ElementaryTypeName bool
+       Source: "bool"
+  VariableDeclaration "externalCallFlag"
+     Type: bool
+     Gas costs: 385
+     Source: "bool public externalCallFlag"
+    ElementaryTypeName bool
+       Source: "bool"
+  VariableDeclaration "requestCnt"
+     Type: uint64
+     Gas costs: 385
+     Source: "uint64 public requestCnt"
+    ElementaryTypeName uint64
+       Source: "uint64"
+  VariableDeclaration "unrespondedCnt"
+     Type: uint64
+     Gas costs: 385
+     Source: "uint64 public unrespondedCnt"
+    ElementaryTypeName uint64
+       Source: "uint64"
+  VariableDeclaration "requests"
+     Type: struct TownCrier.Request storage ref[18446744073709551616] storage ref
+     Gas costs: 1561
+     Source: "Request[2**64] public requests"
+    ArrayTypeName
+       Source: "Request[2**64]"
+      UserDefinedTypeName "Request"
+         Source: "Request"
+      BinaryOperation using operator **
+         Type unknown.
+         Source: "2**64"
+        Literal, token: [no token] value: 2
+           Type unknown.
+           Source: "2"
+        Literal, token: [no token] value: 64
+           Type unknown.
+           Source: "64"
+  VariableDeclaration "newVersion"
+     Type: int256
+     Gas costs: 287
+     Source: "int public newVersion = 0"
+    ElementaryTypeName int
+       Source: "int"
+    Literal, token: [no token] value: 0
+       Type: int_const 0
+       Source: "0"
+  FunctionDefinition "" - public
+     Source: "function () {}"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Gas costs: 0
+       Source: "{}"
+  FunctionDefinition "TownCrier" - public
+     Source: "function TownCrier() public {\r\n        // Start request IDs at 1 for two reasons:\r\n        //   1. We can use 0 to denote an invalid request (ids are unsigned)\r\n        //   2. Storage is more expensive when changing something from zero to non-zero,\r\n        //      so this means the first request isn't randomly more expensive.\r\n        requestCnt = 1;\r\n        requests[0].requester = msg.sender;\r\n        killswitch = false;\r\n        unrespondedCnt = 0;\r\n        externalCallFlag = false;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        // Start request IDs at 1 for two reasons:\r\n        //   1. We can use 0 to denote an invalid request (ids are unsigned)\r\n        //   2. Storage is more expensive when changing something from zero to non-zero,\r\n        //      so this means the first request isn't randomly more expensive.\r\n        requestCnt = 1;\r\n        requests[0].requester = msg.sender;\r\n        killswitch = false;\r\n        unrespondedCnt = 0;\r\n        externalCallFlag = false;\r\n    }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "requestCnt = 1"
+        Assignment using operator =
+           Type: uint64
+           Source: "requestCnt = 1"
+          Identifier requestCnt
+             Type: uint64
+             Source: "requestCnt"
+          Literal, token: [no token] value: 1
+             Type: int_const 1
+             Source: "1"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "requests[0].requester = msg.sender"
+        Assignment using operator =
+           Type: address
+           Source: "requests[0].requester = msg.sender"
+          MemberAccess to member requester
+             Type: address
+             Source: "requests[0].requester"
+            IndexAccess
+               Type: struct TownCrier.Request storage ref
+               Source: "requests[0]"
+              Identifier requests
+                 Type: struct TownCrier.Request storage ref[18446744073709551616] storage ref
+                 Source: "requests"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "killswitch = false"
+        Assignment using operator =
+           Type: bool
+           Source: "killswitch = false"
+          Identifier killswitch
+             Type: bool
+             Source: "killswitch"
+          Literal, token: false value: false
+             Type: bool
+             Source: "false"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "unrespondedCnt = 0"
+        Assignment using operator =
+           Type: uint64
+           Source: "unrespondedCnt = 0"
+          Identifier unrespondedCnt
+             Type: uint64
+             Source: "unrespondedCnt"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "externalCallFlag = false"
+        Assignment using operator =
+           Type: bool
+           Source: "externalCallFlag = false"
+          Identifier externalCallFlag
+             Type: bool
+             Source: "externalCallFlag"
+          Literal, token: false value: false
+             Type: bool
+             Source: "false"
+  FunctionDefinition "upgrade" - public
+     Source: "function upgrade(address newAddr) {\r\n        if (msg.sender == requests[0].requester && unrespondedCnt == 0) {\r\n            newVersion = -int(newAddr);\r\n            killswitch = true;\r\n            Upgrade(newAddr);\r\n        }\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address newAddr)"
+      VariableDeclaration "newAddr"
+         Type: address
+         Source: "address newAddr"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        if (msg.sender == requests[0].requester && unrespondedCnt == 0) {\r\n            newVersion = -int(newAddr);\r\n            killswitch = true;\r\n            Upgrade(newAddr);\r\n        }\r\n    }"
+      IfStatement
+         Source: "if (msg.sender == requests[0].requester && unrespondedCnt == 0) {\r\n            newVersion = -int(newAddr);\r\n            killswitch = true;\r\n            Upgrade(newAddr);\r\n        }"
+        BinaryOperation using operator &&
+           Type: bool
+           Gas costs: 628
+           Source: "msg.sender == requests[0].requester && unrespondedCnt == 0"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "msg.sender == requests[0].requester"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            MemberAccess to member requester
+               Type: address
+               Source: "requests[0].requester"
+              IndexAccess
+                 Type: struct TownCrier.Request storage ref
+                 Source: "requests[0]"
+                Identifier requests
+                   Type: struct TownCrier.Request storage ref[18446744073709551616] storage ref
+                   Source: "requests"
+                Literal, token: [no token] value: 0
+                   Type: int_const 0
+                   Source: "0"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "unrespondedCnt == 0"
+            Identifier unrespondedCnt
+               Type: uint64
+               Source: "unrespondedCnt"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+        Block
+           Source: "{\r\n            newVersion = -int(newAddr);\r\n            killswitch = true;\r\n            Upgrade(newAddr);\r\n        }"
+          ExpressionStatement
+             Gas costs: 20026
+             Source: "newVersion = -int(newAddr)"
+            Assignment using operator =
+               Type: int256
+               Source: "newVersion = -int(newAddr)"
+              Identifier newVersion
+                 Type: int256
+                 Source: "newVersion"
+              UnaryOperation (prefix) -
+                 Type: int256
+                 Source: "-int(newAddr)"
+                FunctionCall
+                   Type: int256
+                   Source: "int(newAddr)"
+                  ElementaryTypeNameExpression int
+                     Type: type(int256)
+                     Source: "int"
+                  Identifier newAddr
+                     Type: address
+                     Source: "newAddr"
+          ExpressionStatement
+             Gas costs: 20267
+             Source: "killswitch = true"
+            Assignment using operator =
+               Type: bool
+               Source: "killswitch = true"
+              Identifier killswitch
+                 Type: bool
+                 Source: "killswitch"
+              Literal, token: true value: true
+                 Type: bool
+                 Source: "true"
+          ExpressionStatement
+             Gas costs: 1088
+             Source: "Upgrade(newAddr)"
+            FunctionCall
+               Type: tuple()
+               Source: "Upgrade(newAddr)"
+              Identifier Upgrade
+                 Type: function (address)
+                 Source: "Upgrade"
+              Identifier newAddr
+                 Type: address
+                 Source: "newAddr"
+  FunctionDefinition "reset" - public
+     Source: "function reset(uint price, uint minGas, uint cancellationGas) public {\r\n        if (msg.sender == requests[0].requester && unrespondedCnt == 0) {\r\n            GAS_PRICE = price;\r\n            MIN_FEE = price * minGas;\r\n            CANCELLATION_FEE = price * cancellationGas;\r\n            Reset(GAS_PRICE, MIN_FEE, CANCELLATION_FEE);\r\n        }\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint price, uint minGas, uint cancellationGas)"
+      VariableDeclaration "price"
+         Type: uint256
+         Source: "uint price"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "minGas"
+         Type: uint256
+         Source: "uint minGas"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "cancellationGas"
+         Type: uint256
+         Source: "uint cancellationGas"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        if (msg.sender == requests[0].requester && unrespondedCnt == 0) {\r\n            GAS_PRICE = price;\r\n            MIN_FEE = price * minGas;\r\n            CANCELLATION_FEE = price * cancellationGas;\r\n            Reset(GAS_PRICE, MIN_FEE, CANCELLATION_FEE);\r\n        }\r\n    }"
+      IfStatement
+         Source: "if (msg.sender == requests[0].requester && unrespondedCnt == 0) {\r\n            GAS_PRICE = price;\r\n            MIN_FEE = price * minGas;\r\n            CANCELLATION_FEE = price * cancellationGas;\r\n            Reset(GAS_PRICE, MIN_FEE, CANCELLATION_FEE);\r\n        }"
+        BinaryOperation using operator &&
+           Type: bool
+           Gas costs: 628
+           Source: "msg.sender == requests[0].requester && unrespondedCnt == 0"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "msg.sender == requests[0].requester"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            MemberAccess to member requester
+               Type: address
+               Source: "requests[0].requester"
+              IndexAccess
+                 Type: struct TownCrier.Request storage ref
+                 Source: "requests[0]"
+                Identifier requests
+                   Type: struct TownCrier.Request storage ref[18446744073709551616] storage ref
+                   Source: "requests"
+                Literal, token: [no token] value: 0
+                   Type: int_const 0
+                   Source: "0"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "unrespondedCnt == 0"
+            Identifier unrespondedCnt
+               Type: uint64
+               Source: "unrespondedCnt"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+        Block
+           Source: "{\r\n            GAS_PRICE = price;\r\n            MIN_FEE = price * minGas;\r\n            CANCELLATION_FEE = price * cancellationGas;\r\n            Reset(GAS_PRICE, MIN_FEE, CANCELLATION_FEE);\r\n        }"
+          ExpressionStatement
+             Gas costs: 20014
+             Source: "GAS_PRICE = price"
+            Assignment using operator =
+               Type: uint256
+               Source: "GAS_PRICE = price"
+              Identifier GAS_PRICE
+                 Type: uint256
+                 Source: "GAS_PRICE"
+              Identifier price
+                 Type: uint256
+                 Source: "price"
+          ExpressionStatement
+             Gas costs: 20022
+             Source: "MIN_FEE = price * minGas"
+            Assignment using operator =
+               Type: uint256
+               Source: "MIN_FEE = price * minGas"
+              Identifier MIN_FEE
+                 Type: uint256
+                 Source: "MIN_FEE"
+              BinaryOperation using operator *
+                 Type: uint256
+                 Source: "price * minGas"
+                Identifier price
+                   Type: uint256
+                   Source: "price"
+                Identifier minGas
+                   Type: uint256
+                   Source: "minGas"
+          ExpressionStatement
+             Gas costs: 20022
+             Source: "CANCELLATION_FEE = price * cancellationGas"
+            Assignment using operator =
+               Type: uint256
+               Source: "CANCELLATION_FEE = price * cancellationGas"
+              Identifier CANCELLATION_FEE
+                 Type: uint256
+                 Source: "CANCELLATION_FEE"
+              BinaryOperation using operator *
+                 Type: uint256
+                 Source: "price * cancellationGas"
+                Identifier price
+                   Type: uint256
+                   Source: "price"
+                Identifier cancellationGas
+                   Type: uint256
+                   Source: "cancellationGas"
+          ExpressionStatement
+             Gas costs: 2234
+             Source: "Reset(GAS_PRICE, MIN_FEE, CANCELLATION_FEE)"
+            FunctionCall
+               Type: tuple()
+               Source: "Reset(GAS_PRICE, MIN_FEE, CANCELLATION_FEE)"
+              Identifier Reset
+                 Type: function (uint256,uint256,uint256)
+                 Source: "Reset"
+              Identifier GAS_PRICE
+                 Type: uint256
+                 Source: "GAS_PRICE"
+              Identifier MIN_FEE
+                 Type: uint256
+                 Source: "MIN_FEE"
+              Identifier CANCELLATION_FEE
+                 Type: uint256
+                 Source: "CANCELLATION_FEE"
+  FunctionDefinition "suspend" - public
+     Source: "function suspend() public {\r\n        if (msg.sender == requests[0].requester) {\r\n            killswitch = true;\r\n        }\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        if (msg.sender == requests[0].requester) {\r\n            killswitch = true;\r\n        }\r\n    }"
+      IfStatement
+         Source: "if (msg.sender == requests[0].requester) {\r\n            killswitch = true;\r\n        }"
+        BinaryOperation using operator ==
+           Type: bool
+           Gas costs: 305
+           Source: "msg.sender == requests[0].requester"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          MemberAccess to member requester
+             Type: address
+             Source: "requests[0].requester"
+            IndexAccess
+               Type: struct TownCrier.Request storage ref
+               Source: "requests[0]"
+              Identifier requests
+                 Type: struct TownCrier.Request storage ref[18446744073709551616] storage ref
+                 Source: "requests"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+        Block
+           Source: "{\r\n            killswitch = true;\r\n        }"
+          ExpressionStatement
+             Gas costs: 20267
+             Source: "killswitch = true"
+            Assignment using operator =
+               Type: bool
+               Source: "killswitch = true"
+              Identifier killswitch
+                 Type: bool
+                 Source: "killswitch"
+              Literal, token: true value: true
+                 Type: bool
+                 Source: "true"
+  FunctionDefinition "restart" - public
+     Source: "function restart() public {\r\n        if (msg.sender == requests[0].requester && newVersion == 0) {\r\n            killswitch = false;\r\n        }\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        if (msg.sender == requests[0].requester && newVersion == 0) {\r\n            killswitch = false;\r\n        }\r\n    }"
+      IfStatement
+         Source: "if (msg.sender == requests[0].requester && newVersion == 0) {\r\n            killswitch = false;\r\n        }"
+        BinaryOperation using operator &&
+           Type: bool
+           Gas costs: 536
+           Source: "msg.sender == requests[0].requester && newVersion == 0"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "msg.sender == requests[0].requester"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            MemberAccess to member requester
+               Type: address
+               Source: "requests[0].requester"
+              IndexAccess
+                 Type: struct TownCrier.Request storage ref
+                 Source: "requests[0]"
+                Identifier requests
+                   Type: struct TownCrier.Request storage ref[18446744073709551616] storage ref
+                   Source: "requests"
+                Literal, token: [no token] value: 0
+                   Type: int_const 0
+                   Source: "0"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "newVersion == 0"
+            Identifier newVersion
+               Type: int256
+               Source: "newVersion"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+        Block
+           Source: "{\r\n            killswitch = false;\r\n        }"
+          ExpressionStatement
+             Gas costs: 20267
+             Source: "killswitch = false"
+            Assignment using operator =
+               Type: bool
+               Source: "killswitch = false"
+              Identifier killswitch
+                 Type: bool
+                 Source: "killswitch"
+              Literal, token: false value: false
+                 Type: bool
+                 Source: "false"
+  FunctionDefinition "withdraw" - public
+     Source: "function withdraw() public {\r\n        if (msg.sender == requests[0].requester && unrespondedCnt == 0) {\r\n            if (!requests[0].requester.call.value(this.balance)()) {\r\n                throw;\r\n            }\r\n        }\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        if (msg.sender == requests[0].requester && unrespondedCnt == 0) {\r\n            if (!requests[0].requester.call.value(this.balance)()) {\r\n                throw;\r\n            }\r\n        }\r\n    }"
+      IfStatement
+         Source: "if (msg.sender == requests[0].requester && unrespondedCnt == 0) {\r\n            if (!requests[0].requester.call.value(this.balance)()) {\r\n                throw;\r\n            }\r\n        }"
+        BinaryOperation using operator &&
+           Type: bool
+           Gas costs: 628
+           Source: "msg.sender == requests[0].requester && unrespondedCnt == 0"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "msg.sender == requests[0].requester"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            MemberAccess to member requester
+               Type: address
+               Source: "requests[0].requester"
+              IndexAccess
+                 Type: struct TownCrier.Request storage ref
+                 Source: "requests[0]"
+                Identifier requests
+                   Type: struct TownCrier.Request storage ref[18446744073709551616] storage ref
+                   Source: "requests"
+                Literal, token: [no token] value: 0
+                   Type: int_const 0
+                   Source: "0"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "unrespondedCnt == 0"
+            Identifier unrespondedCnt
+               Type: uint64
+               Source: "unrespondedCnt"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+        Block
+           Source: "{\r\n            if (!requests[0].requester.call.value(this.balance)()) {\r\n                throw;\r\n            }\r\n        }"
+          IfStatement
+             Source: "if (!requests[0].requester.call.value(this.balance)()) {\r\n                throw;\r\n            }"
+            UnaryOperation (prefix) !
+               Type: bool
+               Gas costs: [???]
+               Source: "!requests[0].requester.call.value(this.balance)()"
+              FunctionCall
+                 Type: bool
+                 Source: "requests[0].requester.call.value(this.balance)()"
+                FunctionCall
+                   Type: function () payable returns (bool)
+                   Source: "requests[0].requester.call.value(this.balance)"
+                  MemberAccess to member value
+                     Type: function (uint256) returns (function () payable returns (bool))
+                     Source: "requests[0].requester.call.value"
+                    MemberAccess to member call
+                       Type: function () payable returns (bool)
+                       Source: "requests[0].requester.call"
+                      MemberAccess to member requester
+                         Type: address
+                         Source: "requests[0].requester"
+                        IndexAccess
+                           Type: struct TownCrier.Request storage ref
+                           Source: "requests[0]"
+                          Identifier requests
+                             Type: struct TownCrier.Request storage ref[18446744073709551616] storage ref
+                             Source: "requests"
+                          Literal, token: [no token] value: 0
+                             Type: int_const 0
+                             Source: "0"
+                  MemberAccess to member balance
+                     Type: uint256
+                     Source: "this.balance"
+                    Identifier this
+                       Type: contract TownCrier
+                       Source: "this"
+            Block
+               Source: "{\r\n                throw;\r\n            }"
+              Throw
+                 Gas costs: 6
+                 Source: "throw"
+  FunctionDefinition "request" - public
+     Source: "function request(uint8 requestType, address callbackAddr, bytes4 callbackFID, uint timestamp, bytes32[] requestData) public payable returns (int) {\r\n        if (externalCallFlag) {\r\n            throw;\r\n        }\r\n\r\n        if (killswitch) {\r\n            externalCallFlag = true;\r\n            if (!msg.sender.call.value(msg.value)()) {\r\n                throw;\r\n            }\r\n            externalCallFlag = false;\r\n            return newVersion;\r\n        }\r\n\r\n        if (msg.value < MIN_FEE) {\r\n            externalCallFlag = true;\r\n            // If the amount of ether sent by the requester is too little or \r\n            // too much, refund the requester and discard the request.\r\n            if (!msg.sender.call.value(msg.value)()) {\r\n                throw;\r\n            }\r\n            externalCallFlag = false;\r\n            return FAIL_FLAG;\r\n        } else {\r\n            // Record the request.\r\n            uint64 requestId = requestCnt;\r\n            requestCnt++;\r\n            unrespondedCnt++;\r\n\r\n            bytes32 paramsHash = sha3(requestType, requestData);\r\n            requests[requestId].requester = msg.sender;\r\n            requests[requestId].fee = msg.value;\r\n            requests[requestId].callbackAddr = callbackAddr;\r\n            requests[requestId].callbackFID = callbackFID;\r\n            requests[requestId].paramsHash = paramsHash;\r\n\r\n            // Log the request for the Town Crier server to process.\r\n            RequestInfo(requestId, requestType, msg.sender, msg.value, callbackAddr, paramsHash, timestamp, requestData);\r\n            return requestId;\r\n        }\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint8 requestType, address callbackAddr, bytes4 callbackFID, uint timestamp, bytes32[] requestData)"
+      VariableDeclaration "requestType"
+         Type: uint8
+         Source: "uint8 requestType"
+        ElementaryTypeName uint8
+           Source: "uint8"
+      VariableDeclaration "callbackAddr"
+         Type: address
+         Source: "address callbackAddr"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "callbackFID"
+         Type: bytes4
+         Source: "bytes4 callbackFID"
+        ElementaryTypeName bytes4
+           Source: "bytes4"
+      VariableDeclaration "timestamp"
+         Type: uint256
+         Source: "uint timestamp"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "requestData"
+         Type: bytes32[] memory
+         Source: "bytes32[] requestData"
+        ArrayTypeName
+           Source: "bytes32[]"
+          ElementaryTypeName bytes32
+             Source: "bytes32"
+    ParameterList
+       Gas costs: 3
+       Source: "(int)"
+      VariableDeclaration ""
+         Type: int256
+         Source: "int"
+        ElementaryTypeName int
+           Source: "int"
+    Block
+       Source: "{\r\n        if (externalCallFlag) {\r\n            throw;\r\n        }\r\n\r\n        if (killswitch) {\r\n            externalCallFlag = true;\r\n            if (!msg.sender.call.value(msg.value)()) {\r\n                throw;\r\n            }\r\n            externalCallFlag = false;\r\n            return newVersion;\r\n        }\r\n\r\n        if (msg.value < MIN_FEE) {\r\n            externalCallFlag = true;\r\n            // If the amount of ether sent by the requester is too little or \r\n            // too much, refund the requester and discard the request.\r\n            if (!msg.sender.call.value(msg.value)()) {\r\n                throw;\r\n            }\r\n            externalCallFlag = false;\r\n            return FAIL_FLAG;\r\n        } else {\r\n            // Record the request.\r\n            uint64 requestId = requestCnt;\r\n            requestCnt++;\r\n            unrespondedCnt++;\r\n\r\n            bytes32 paramsHash = sha3(requestType, requestData);\r\n            requests[requestId].requester = msg.sender;\r\n            requests[requestId].fee = msg.value;\r\n            requests[requestId].callbackAddr = callbackAddr;\r\n            requests[requestId].callbackFID = callbackFID;\r\n            requests[requestId].paramsHash = paramsHash;\r\n\r\n            // Log the request for the Town Crier server to process.\r\n            RequestInfo(requestId, requestType, msg.sender, msg.value, callbackAddr, paramsHash, timestamp, requestData);\r\n            return requestId;\r\n        }\r\n    }"
+      IfStatement
+         Source: "if (externalCallFlag) {\r\n            throw;\r\n        }"
+        Identifier externalCallFlag
+           Type: bool
+           Gas costs: 289
+           Source: "externalCallFlag"
+        Block
+           Source: "{\r\n            throw;\r\n        }"
+          Throw
+             Gas costs: 6
+             Source: "throw"
+      IfStatement
+         Source: "if (killswitch) {\r\n            externalCallFlag = true;\r\n            if (!msg.sender.call.value(msg.value)()) {\r\n                throw;\r\n            }\r\n            externalCallFlag = false;\r\n            return newVersion;\r\n        }"
+        Identifier killswitch
+           Type: bool
+           Gas costs: 239
+           Source: "killswitch"
+        Block
+           Source: "{\r\n            externalCallFlag = true;\r\n            if (!msg.sender.call.value(msg.value)()) {\r\n                throw;\r\n            }\r\n            externalCallFlag = false;\r\n            return newVersion;\r\n        }"
+          ExpressionStatement
+             Gas costs: 20317
+             Source: "externalCallFlag = true"
+            Assignment using operator =
+               Type: bool
+               Source: "externalCallFlag = true"
+              Identifier externalCallFlag
+                 Type: bool
+                 Source: "externalCallFlag"
+              Literal, token: true value: true
+                 Type: bool
+                 Source: "true"
+          IfStatement
+             Source: "if (!msg.sender.call.value(msg.value)()) {\r\n                throw;\r\n            }"
+            UnaryOperation (prefix) !
+               Type: bool
+               Gas costs: [???]
+               Source: "!msg.sender.call.value(msg.value)()"
+              FunctionCall
+                 Type: bool
+                 Source: "msg.sender.call.value(msg.value)()"
+                FunctionCall
+                   Type: function () payable returns (bool)
+                   Source: "msg.sender.call.value(msg.value)"
+                  MemberAccess to member value
+                     Type: function (uint256) returns (function () payable returns (bool))
+                     Source: "msg.sender.call.value"
+                    MemberAccess to member call
+                       Type: function () payable returns (bool)
+                       Source: "msg.sender.call"
+                      MemberAccess to member sender
+                         Type: address
+                         Source: "msg.sender"
+                        Identifier msg
+                           Type: msg
+                           Source: "msg"
+                  MemberAccess to member value
+                     Type: uint256
+                     Source: "msg.value"
+                    Identifier msg
+                       Type: msg
+                       Source: "msg"
+            Block
+               Source: "{\r\n                throw;\r\n            }"
+              Throw
+                 Gas costs: 6
+                 Source: "throw"
+          ExpressionStatement
+             Gas costs: 20317
+             Source: "externalCallFlag = false"
+            Assignment using operator =
+               Type: bool
+               Source: "externalCallFlag = false"
+              Identifier externalCallFlag
+                 Type: bool
+                 Source: "externalCallFlag"
+              Literal, token: false value: false
+                 Type: bool
+                 Source: "false"
+          Return
+             Gas costs: 219
+             Source: "return newVersion"
+            Identifier newVersion
+               Type: int256
+               Source: "newVersion"
+      IfStatement
+         Source: "if (msg.value < MIN_FEE) {\r\n            externalCallFlag = true;\r\n            // If the amount of ether sent by the requester is too little or \r\n            // too much, refund the requester and discard the request.\r\n            if (!msg.sender.call.value(msg.value)()) {\r\n                throw;\r\n            }\r\n            externalCallFlag = false;\r\n            return FAIL_FLAG;\r\n        } else {\r\n            // Record the request.\r\n            uint64 requestId = requestCnt;\r\n            requestCnt++;\r\n            unrespondedCnt++;\r\n\r\n            bytes32 paramsHash = sha3(requestType, requestData);\r\n            requests[requestId].requester = msg.sender;\r\n            requests[requestId].fee = msg.value;\r\n            requests[requestId].callbackAddr = callbackAddr;\r\n            requests[requestId].callbackFID = callbackFID;\r\n            requests[requestId].paramsHash = paramsHash;\r\n\r\n            // Log the request for the Town Crier server to process.\r\n            RequestInfo(requestId, requestType, msg.sender, msg.value, callbackAddr, paramsHash, timestamp, requestData);\r\n            return requestId;\r\n        }"
+        BinaryOperation using operator <
+           Type: bool
+           Gas costs: 208
+           Source: "msg.value < MIN_FEE"
+          MemberAccess to member value
+             Type: uint256
+             Source: "msg.value"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier MIN_FEE
+             Type: uint256
+             Source: "MIN_FEE"
+        Block
+           Source: "{\r\n            externalCallFlag = true;\r\n            // If the amount of ether sent by the requester is too little or \r\n            // too much, refund the requester and discard the request.\r\n            if (!msg.sender.call.value(msg.value)()) {\r\n                throw;\r\n            }\r\n            externalCallFlag = false;\r\n            return FAIL_FLAG;\r\n        }"
+          ExpressionStatement
+             Gas costs: 20317
+             Source: "externalCallFlag = true"
+            Assignment using operator =
+               Type: bool
+               Source: "externalCallFlag = true"
+              Identifier externalCallFlag
+                 Type: bool
+                 Source: "externalCallFlag"
+              Literal, token: true value: true
+                 Type: bool
+                 Source: "true"
+          IfStatement
+             Source: "if (!msg.sender.call.value(msg.value)()) {\r\n                throw;\r\n            }"
+            UnaryOperation (prefix) !
+               Type: bool
+               Gas costs: [???]
+               Source: "!msg.sender.call.value(msg.value)()"
+              FunctionCall
+                 Type: bool
+                 Source: "msg.sender.call.value(msg.value)()"
+                FunctionCall
+                   Type: function () payable returns (bool)
+                   Source: "msg.sender.call.value(msg.value)"
+                  MemberAccess to member value
+                     Type: function (uint256) returns (function () payable returns (bool))
+                     Source: "msg.sender.call.value"
+                    MemberAccess to member call
+                       Type: function () payable returns (bool)
+                       Source: "msg.sender.call"
+                      MemberAccess to member sender
+                         Type: address
+                         Source: "msg.sender"
+                        Identifier msg
+                           Type: msg
+                           Source: "msg"
+                  MemberAccess to member value
+                     Type: uint256
+                     Source: "msg.value"
+                    Identifier msg
+                       Type: msg
+                       Source: "msg"
+            Block
+               Source: "{\r\n                throw;\r\n            }"
+              Throw
+                 Gas costs: 6
+                 Source: "throw"
+          ExpressionStatement
+             Gas costs: 20317
+             Source: "externalCallFlag = false"
+            Assignment using operator =
+               Type: bool
+               Source: "externalCallFlag = false"
+              Identifier externalCallFlag
+                 Type: bool
+                 Source: "externalCallFlag"
+              Literal, token: false value: false
+                 Type: bool
+                 Source: "false"
+          Return
+             Gas costs: 16
+             Source: "return FAIL_FLAG"
+            Identifier FAIL_FLAG
+               Type: int256
+               Source: "FAIL_FLAG"
+        Block
+           Source: "{\r\n            // Record the request.\r\n            uint64 requestId = requestCnt;\r\n            requestCnt++;\r\n            unrespondedCnt++;\r\n\r\n            bytes32 paramsHash = sha3(requestType, requestData);\r\n            requests[requestId].requester = msg.sender;\r\n            requests[requestId].fee = msg.value;\r\n            requests[requestId].callbackAddr = callbackAddr;\r\n            requests[requestId].callbackFID = callbackFID;\r\n            requests[requestId].paramsHash = paramsHash;\r\n\r\n            // Log the request for the Town Crier server to process.\r\n            RequestInfo(requestId, requestType, msg.sender, msg.value, callbackAddr, paramsHash, timestamp, requestData);\r\n            return requestId;\r\n        }"
+          VariableDeclarationStatement
+             Gas costs: 297
+             Source: "uint64 requestId = requestCnt"
+            VariableDeclaration "requestId"
+               Type: uint64
+               Source: "uint64 requestId"
+              ElementaryTypeName uint64
+                 Source: "uint64"
+            Identifier requestCnt
+               Type: uint64
+               Source: "requestCnt"
+          ExpressionStatement
+             Gas costs: 20629
+             Source: "requestCnt++"
+            UnaryOperation (postfix) ++
+               Type: uint64
+               Source: "requestCnt++"
+              Identifier requestCnt
+                 Type: uint64
+                 Source: "requestCnt"
+          ExpressionStatement
+             Gas costs: 20629
+             Source: "unrespondedCnt++"
+            UnaryOperation (postfix) ++
+               Type: uint64
+               Source: "unrespondedCnt++"
+              Identifier unrespondedCnt
+                 Type: uint64
+                 Source: "unrespondedCnt"
+          VariableDeclarationStatement
+             Gas costs: [???]
+             Source: "bytes32 paramsHash = sha3(requestType, requestData)"
+            VariableDeclaration "paramsHash"
+               Type: bytes32
+               Source: "bytes32 paramsHash"
+              ElementaryTypeName bytes32
+                 Source: "bytes32"
+            FunctionCall
+               Type: bytes32
+               Source: "sha3(requestType, requestData)"
+              Identifier sha3
+                 Type: function () pure returns (bytes32)
+                 Source: "sha3"
+              Identifier requestType
+                 Type: uint8
+                 Source: "requestType"
+              Identifier requestData
+                 Type: bytes32[] memory
+                 Source: "requestData"
+          ExpressionStatement
+             Gas costs: 20321
+             Source: "requests[requestId].requester = msg.sender"
+            Assignment using operator =
+               Type: address
+               Source: "requests[requestId].requester = msg.sender"
+              MemberAccess to member requester
+                 Type: address
+                 Source: "requests[requestId].requester"
+                IndexAccess
+                   Type: struct TownCrier.Request storage ref
+                   Source: "requests[requestId]"
+                  Identifier requests
+                     Type: struct TownCrier.Request storage ref[18446744073709551616] storage ref
+                     Source: "requests"
+                  Identifier requestId
+                     Type: uint64
+                     Source: "requestId"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+          ExpressionStatement
+             Gas costs: 20068
+             Source: "requests[requestId].fee = msg.value"
+            Assignment using operator =
+               Type: uint256
+               Source: "requests[requestId].fee = msg.value"
+              MemberAccess to member fee
+                 Type: uint256
+                 Source: "requests[requestId].fee"
+                IndexAccess
+                   Type: struct TownCrier.Request storage ref
+                   Source: "requests[requestId]"
+                  Identifier requests
+                     Type: struct TownCrier.Request storage ref[18446744073709551616] storage ref
+                     Source: "requests"
+                  Identifier requestId
+                     Type: uint64
+                     Source: "requestId"
+              MemberAccess to member value
+                 Type: uint256
+                 Source: "msg.value"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+          ExpressionStatement
+             Gas costs: 20322
+             Source: "requests[requestId].callbackAddr = callbackAddr"
+            Assignment using operator =
+               Type: address
+               Source: "requests[requestId].callbackAddr = callbackAddr"
+              MemberAccess to member callbackAddr
+                 Type: address
+                 Source: "requests[requestId].callbackAddr"
+                IndexAccess
+                   Type: struct TownCrier.Request storage ref
+                   Source: "requests[requestId]"
+                  Identifier requests
+                     Type: struct TownCrier.Request storage ref[18446744073709551616] storage ref
+                     Source: "requests"
+                  Identifier requestId
+                     Type: uint64
+                     Source: "requestId"
+              Identifier callbackAddr
+                 Type: address
+                 Source: "callbackAddr"
+          ExpressionStatement
+             Gas costs: 20377
+             Source: "requests[requestId].callbackFID = callbackFID"
+            Assignment using operator =
+               Type: bytes4
+               Source: "requests[requestId].callbackFID = callbackFID"
+              MemberAccess to member callbackFID
+                 Type: bytes4
+                 Source: "requests[requestId].callbackFID"
+                IndexAccess
+                   Type: struct TownCrier.Request storage ref
+                   Source: "requests[requestId]"
+                  Identifier requests
+                     Type: struct TownCrier.Request storage ref[18446744073709551616] storage ref
+                     Source: "requests"
+                  Identifier requestId
+                     Type: uint64
+                     Source: "requestId"
+              Identifier callbackFID
+                 Type: bytes4
+                 Source: "callbackFID"
+          ExpressionStatement
+             Gas costs: 20078
+             Source: "requests[requestId].paramsHash = paramsHash"
+            Assignment using operator =
+               Type: bytes32
+               Source: "requests[requestId].paramsHash = paramsHash"
+              MemberAccess to member paramsHash
+                 Type: bytes32
+                 Source: "requests[requestId].paramsHash"
+                IndexAccess
+                   Type: struct TownCrier.Request storage ref
+                   Source: "requests[requestId]"
+                  Identifier requests
+                     Type: struct TownCrier.Request storage ref[18446744073709551616] storage ref
+                     Source: "requests"
+                  Identifier requestId
+                     Type: uint64
+                     Source: "requestId"
+              Identifier paramsHash
+                 Type: bytes32
+                 Source: "paramsHash"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "RequestInfo(requestId, requestType, msg.sender, msg.value, callbackAddr, paramsHash, timestamp, requestData)"
+            FunctionCall
+               Type: tuple()
+               Source: "RequestInfo(requestId, requestType, msg.sender, msg.value, callbackAddr, paramsHash, timestamp, requestData)"
+              Identifier RequestInfo
+                 Type: function (uint64,uint8,address,uint256,address,bytes32,uint256,bytes32[] memory)
+                 Source: "RequestInfo"
+              Identifier requestId
+                 Type: uint64
+                 Source: "requestId"
+              Identifier requestType
+                 Type: uint8
+                 Source: "requestType"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+              MemberAccess to member value
+                 Type: uint256
+                 Source: "msg.value"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+              Identifier callbackAddr
+                 Type: address
+                 Source: "callbackAddr"
+              Identifier paramsHash
+                 Type: bytes32
+                 Source: "paramsHash"
+              Identifier timestamp
+                 Type: uint256
+                 Source: "timestamp"
+              Identifier requestData
+                 Type: bytes32[] memory
+                 Source: "requestData"
+          Return
+             Gas costs: 14
+             Source: "return requestId"
+            Identifier requestId
+               Type: uint64
+               Source: "requestId"
+  FunctionDefinition "deliver" - public
+     Source: "function deliver(uint64 requestId, bytes32 paramsHash, uint64 error, bytes32 respData) public {\r\n        if (msg.sender != SGX_ADDRESS ||\r\n                requestId <= 0 ||\r\n                requests[requestId].requester == 0 ||\r\n                requests[requestId].fee == DELIVERED_FEE_FLAG) {\r\n            // If the response is not delivered by the SGX account or the \r\n            // request has already been responded to, discard the response.\r\n            return;\r\n        }\r\n\r\n        uint fee = requests[requestId].fee;\r\n        if (requests[requestId].paramsHash != paramsHash) {\r\n            // If the hash of request parameters in the response is not \r\n            // correct, discard the response for security concern.\r\n            return;\r\n        } else if (fee == CANCELLED_FEE_FLAG) {\r\n            // If the request is cancelled by the requester, cancellation \r\n            // fee goes to the SGX account and set the request as having\r\n            // been responded to.\r\n            // <yes> <report> UNCHECKED_LL_CALLS\r\n            SGX_ADDRESS.send(CANCELLATION_FEE);\r\n            requests[requestId].fee = DELIVERED_FEE_FLAG;\r\n            unrespondedCnt--;\r\n            return;\r\n        }\r\n\r\n        requests[requestId].fee = DELIVERED_FEE_FLAG;\r\n        unrespondedCnt--;\r\n\r\n        if (error < 2) {\r\n            // Either no error occurs, or the requester sent an invalid query.\r\n            // Send the fee to the SGX account for its delivering.\r\n            // <yes> <report> UNCHECKED_LL_CALLS\r\n            SGX_ADDRESS.send(fee);         \r\n        } else {\r\n            // Error in TC, refund the requester.\r\n            externalCallFlag = true;\r\n            // <yes> <report> UNCHECKED_LL_CALLS\r\n            requests[requestId].requester.call.gas(2300).value(fee)();\r\n            externalCallFlag = false;\r\n        }\r\n\r\n        uint callbackGas = (fee - MIN_FEE) / tx.gasprice; // gas left for the callback function\r\n        DeliverInfo(requestId, fee, tx.gasprice, msg.gas, callbackGas, paramsHash, error, respData); // log the response information\r\n        if (callbackGas > msg.gas - 5000) {\r\n            callbackGas = msg.gas - 5000;\r\n        }\r\n        \r\n        externalCallFlag = true;\r\n        // <yes> <report> UNCHECKED_LL_CALLS\r\n        requests[requestId].callbackAddr.call.gas(callbackGas)(requests[requestId].callbackFID, requestId, error, respData); // call the callback function in the application contract\r\n        externalCallFlag = false;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint64 requestId, bytes32 paramsHash, uint64 error, bytes32 respData)"
+      VariableDeclaration "requestId"
+         Type: uint64
+         Source: "uint64 requestId"
+        ElementaryTypeName uint64
+           Source: "uint64"
+      VariableDeclaration "paramsHash"
+         Type: bytes32
+         Source: "bytes32 paramsHash"
+        ElementaryTypeName bytes32
+           Source: "bytes32"
+      VariableDeclaration "error"
+         Type: uint64
+         Source: "uint64 error"
+        ElementaryTypeName uint64
+           Source: "uint64"
+      VariableDeclaration "respData"
+         Type: bytes32
+         Source: "bytes32 respData"
+        ElementaryTypeName bytes32
+           Source: "bytes32"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        if (msg.sender != SGX_ADDRESS ||\r\n                requestId <= 0 ||\r\n                requests[requestId].requester == 0 ||\r\n                requests[requestId].fee == DELIVERED_FEE_FLAG) {\r\n            // If the response is not delivered by the SGX account or the \r\n            // request has already been responded to, discard the response.\r\n            return;\r\n        }\r\n\r\n        uint fee = requests[requestId].fee;\r\n        if (requests[requestId].paramsHash != paramsHash) {\r\n            // If the hash of request parameters in the response is not \r\n            // correct, discard the response for security concern.\r\n            return;\r\n        } else if (fee == CANCELLED_FEE_FLAG) {\r\n            // If the request is cancelled by the requester, cancellation \r\n            // fee goes to the SGX account and set the request as having\r\n            // been responded to.\r\n            // <yes> <report> UNCHECKED_LL_CALLS\r\n            SGX_ADDRESS.send(CANCELLATION_FEE);\r\n            requests[requestId].fee = DELIVERED_FEE_FLAG;\r\n            unrespondedCnt--;\r\n            return;\r\n        }\r\n\r\n        requests[requestId].fee = DELIVERED_FEE_FLAG;\r\n        unrespondedCnt--;\r\n\r\n        if (error < 2) {\r\n            // Either no error occurs, or the requester sent an invalid query.\r\n            // Send the fee to the SGX account for its delivering.\r\n            // <yes> <report> UNCHECKED_LL_CALLS\r\n            SGX_ADDRESS.send(fee);         \r\n        } else {\r\n            // Error in TC, refund the requester.\r\n            externalCallFlag = true;\r\n            // <yes> <report> UNCHECKED_LL_CALLS\r\n            requests[requestId].requester.call.gas(2300).value(fee)();\r\n            externalCallFlag = false;\r\n        }\r\n\r\n        uint callbackGas = (fee - MIN_FEE) / tx.gasprice; // gas left for the callback function\r\n        DeliverInfo(requestId, fee, tx.gasprice, msg.gas, callbackGas, paramsHash, error, respData); // log the response information\r\n        if (callbackGas > msg.gas - 5000) {\r\n            callbackGas = msg.gas - 5000;\r\n        }\r\n        \r\n        externalCallFlag = true;\r\n        // <yes> <report> UNCHECKED_LL_CALLS\r\n        requests[requestId].callbackAddr.call.gas(callbackGas)(requests[requestId].callbackFID, requestId, error, respData); // call the callback function in the application contract\r\n        externalCallFlag = false;\r\n    }"
+      IfStatement
+         Source: "if (msg.sender != SGX_ADDRESS ||\r\n                requestId <= 0 ||\r\n                requests[requestId].requester == 0 ||\r\n                requests[requestId].fee == DELIVERED_FEE_FLAG) {\r\n            // If the response is not delivered by the SGX account or the \r\n            // request has already been responded to, discard the response.\r\n            return;\r\n        }"
+        BinaryOperation using operator ||
+           Type: bool
+           Gas costs: 662
+           Source: "msg.sender != SGX_ADDRESS ||\r\n                requestId <= 0 ||\r\n                requests[requestId].requester == 0 ||\r\n                requests[requestId].fee == DELIVERED_FEE_FLAG"
+          BinaryOperation using operator ||
+             Type: bool
+             Source: "msg.sender != SGX_ADDRESS ||\r\n                requestId <= 0 ||\r\n                requests[requestId].requester == 0"
+            BinaryOperation using operator ||
+               Type: bool
+               Source: "msg.sender != SGX_ADDRESS ||\r\n                requestId <= 0"
+              BinaryOperation using operator !=
+                 Type: bool
+                 Source: "msg.sender != SGX_ADDRESS"
+                MemberAccess to member sender
+                   Type: address
+                   Source: "msg.sender"
+                  Identifier msg
+                     Type: msg
+                     Source: "msg"
+                Identifier SGX_ADDRESS
+                   Type: address
+                   Source: "SGX_ADDRESS"
+              BinaryOperation using operator <=
+                 Type: bool
+                 Source: "requestId <= 0"
+                Identifier requestId
+                   Type: uint64
+                   Source: "requestId"
+                Literal, token: [no token] value: 0
+                   Type: int_const 0
+                   Source: "0"
+            BinaryOperation using operator ==
+               Type: bool
+               Source: "requests[requestId].requester == 0"
+              MemberAccess to member requester
+                 Type: address
+                 Source: "requests[requestId].requester"
+                IndexAccess
+                   Type: struct TownCrier.Request storage ref
+                   Source: "requests[requestId]"
+                  Identifier requests
+                     Type: struct TownCrier.Request storage ref[18446744073709551616] storage ref
+                     Source: "requests"
+                  Identifier requestId
+                     Type: uint64
+                     Source: "requestId"
+              Literal, token: [no token] value: 0
+                 Type: int_const 0
+                 Source: "0"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "requests[requestId].fee == DELIVERED_FEE_FLAG"
+            MemberAccess to member fee
+               Type: uint256
+               Source: "requests[requestId].fee"
+              IndexAccess
+                 Type: struct TownCrier.Request storage ref
+                 Source: "requests[requestId]"
+                Identifier requests
+                   Type: struct TownCrier.Request storage ref[18446744073709551616] storage ref
+                   Source: "requests"
+                Identifier requestId
+                   Type: uint64
+                   Source: "requestId"
+            Identifier DELIVERED_FEE_FLAG
+               Type: uint256
+               Source: "DELIVERED_FEE_FLAG"
+        Block
+           Source: "{\r\n            // If the response is not delivered by the SGX account or the \r\n            // request has already been responded to, discard the response.\r\n            return;\r\n        }"
+          Return
+             Gas costs: 11
+             Source: "return;"
+      VariableDeclarationStatement
+         Gas costs: 266
+         Source: "uint fee = requests[requestId].fee"
+        VariableDeclaration "fee"
+           Type: uint256
+           Source: "uint fee"
+          ElementaryTypeName uint
+             Source: "uint"
+        MemberAccess to member fee
+           Type: uint256
+           Source: "requests[requestId].fee"
+          IndexAccess
+             Type: struct TownCrier.Request storage ref
+             Source: "requests[requestId]"
+            Identifier requests
+               Type: struct TownCrier.Request storage ref[18446744073709551616] storage ref
+               Source: "requests"
+            Identifier requestId
+               Type: uint64
+               Source: "requestId"
+      IfStatement
+         Source: "if (requests[requestId].paramsHash != paramsHash) {\r\n            // If the hash of request parameters in the response is not \r\n            // correct, discard the response for security concern.\r\n            return;\r\n        } else if (fee == CANCELLED_FEE_FLAG) {\r\n            // If the request is cancelled by the requester, cancellation \r\n            // fee goes to the SGX account and set the request as having\r\n            // been responded to.\r\n            // <yes> <report> UNCHECKED_LL_CALLS\r\n            SGX_ADDRESS.send(CANCELLATION_FEE);\r\n            requests[requestId].fee = DELIVERED_FEE_FLAG;\r\n            unrespondedCnt--;\r\n            return;\r\n        }"
+        BinaryOperation using operator !=
+           Type: bool
+           Gas costs: 285
+           Source: "requests[requestId].paramsHash != paramsHash"
+          MemberAccess to member paramsHash
+             Type: bytes32
+             Source: "requests[requestId].paramsHash"
+            IndexAccess
+               Type: struct TownCrier.Request storage ref
+               Source: "requests[requestId]"
+              Identifier requests
+                 Type: struct TownCrier.Request storage ref[18446744073709551616] storage ref
+                 Source: "requests"
+              Identifier requestId
+                 Type: uint64
+                 Source: "requestId"
+          Identifier paramsHash
+             Type: bytes32
+             Source: "paramsHash"
+        Block
+           Source: "{\r\n            // If the hash of request parameters in the response is not \r\n            // correct, discard the response for security concern.\r\n            return;\r\n        }"
+          Return
+             Gas costs: 11
+             Source: "return;"
+        IfStatement
+           Source: "if (fee == CANCELLED_FEE_FLAG) {\r\n            // If the request is cancelled by the requester, cancellation \r\n            // fee goes to the SGX account and set the request as having\r\n            // been responded to.\r\n            // <yes> <report> UNCHECKED_LL_CALLS\r\n            SGX_ADDRESS.send(CANCELLATION_FEE);\r\n            requests[requestId].fee = DELIVERED_FEE_FLAG;\r\n            unrespondedCnt--;\r\n            return;\r\n        }"
+          BinaryOperation using operator ==
+             Type: bool
+             Gas costs: 6
+             Source: "fee == CANCELLED_FEE_FLAG"
+            Identifier fee
+               Type: uint256
+               Source: "fee"
+            Identifier CANCELLED_FEE_FLAG
+               Type: uint256
+               Source: "CANCELLED_FEE_FLAG"
+          Block
+             Source: "{\r\n            // If the request is cancelled by the requester, cancellation \r\n            // fee goes to the SGX account and set the request as having\r\n            // been responded to.\r\n            // <yes> <report> UNCHECKED_LL_CALLS\r\n            SGX_ADDRESS.send(CANCELLATION_FEE);\r\n            requests[requestId].fee = DELIVERED_FEE_FLAG;\r\n            unrespondedCnt--;\r\n            return;\r\n        }"
+            ExpressionStatement
+               Gas costs: [???]
+               Source: "SGX_ADDRESS.send(CANCELLATION_FEE)"
+              FunctionCall
+                 Type: bool
+                 Source: "SGX_ADDRESS.send(CANCELLATION_FEE)"
+                MemberAccess to member send
+                   Type: function (uint256) returns (bool)
+                   Source: "SGX_ADDRESS.send"
+                  Identifier SGX_ADDRESS
+                     Type: address
+                     Source: "SGX_ADDRESS"
+                Identifier CANCELLATION_FEE
+                   Type: uint256
+                   Source: "CANCELLATION_FEE"
+            ExpressionStatement
+               Gas costs: 5066
+               Source: "requests[requestId].fee = DELIVERED_FEE_FLAG"
+              Assignment using operator =
+                 Type: uint256
+                 Source: "requests[requestId].fee = DELIVERED_FEE_FLAG"
+                MemberAccess to member fee
+                   Type: uint256
+                   Source: "requests[requestId].fee"
+                  IndexAccess
+                     Type: struct TownCrier.Request storage ref
+                     Source: "requests[requestId]"
+                    Identifier requests
+                       Type: struct TownCrier.Request storage ref[18446744073709551616] storage ref
+                       Source: "requests"
+                    Identifier requestId
+                       Type: uint64
+                       Source: "requestId"
+                Identifier DELIVERED_FEE_FLAG
+                   Type: uint256
+                   Source: "DELIVERED_FEE_FLAG"
+            ExpressionStatement
+               Gas costs: 20632
+               Source: "unrespondedCnt--"
+              UnaryOperation (postfix) --
+                 Type: uint64
+                 Source: "unrespondedCnt--"
+                Identifier unrespondedCnt
+                   Type: uint64
+                   Source: "unrespondedCnt"
+            Return
+               Gas costs: 11
+               Source: "return;"
+      ExpressionStatement
+         Gas costs: 5066
+         Source: "requests[requestId].fee = DELIVERED_FEE_FLAG"
+        Assignment using operator =
+           Type: uint256
+           Source: "requests[requestId].fee = DELIVERED_FEE_FLAG"
+          MemberAccess to member fee
+             Type: uint256
+             Source: "requests[requestId].fee"
+            IndexAccess
+               Type: struct TownCrier.Request storage ref
+               Source: "requests[requestId]"
+              Identifier requests
+                 Type: struct TownCrier.Request storage ref[18446744073709551616] storage ref
+                 Source: "requests"
+              Identifier requestId
+                 Type: uint64
+                 Source: "requestId"
+          Identifier DELIVERED_FEE_FLAG
+             Type: uint256
+             Source: "DELIVERED_FEE_FLAG"
+      ExpressionStatement
+         Gas costs: 20632
+         Source: "unrespondedCnt--"
+        UnaryOperation (postfix) --
+           Type: uint64
+           Source: "unrespondedCnt--"
+          Identifier unrespondedCnt
+             Type: uint64
+             Source: "unrespondedCnt"
+      IfStatement
+         Source: "if (error < 2) {\r\n            // Either no error occurs, or the requester sent an invalid query.\r\n            // Send the fee to the SGX account for its delivering.\r\n            // <yes> <report> UNCHECKED_LL_CALLS\r\n            SGX_ADDRESS.send(fee);         \r\n        } else {\r\n            // Error in TC, refund the requester.\r\n            externalCallFlag = true;\r\n            // <yes> <report> UNCHECKED_LL_CALLS\r\n            requests[requestId].requester.call.gas(2300).value(fee)();\r\n            externalCallFlag = false;\r\n        }"
+        BinaryOperation using operator <
+           Type: bool
+           Gas costs: 15
+           Source: "error < 2"
+          Identifier error
+             Type: uint64
+             Source: "error"
+          Literal, token: [no token] value: 2
+             Type: int_const 2
+             Source: "2"
+        Block
+           Source: "{\r\n            // Either no error occurs, or the requester sent an invalid query.\r\n            // Send the fee to the SGX account for its delivering.\r\n            // <yes> <report> UNCHECKED_LL_CALLS\r\n            SGX_ADDRESS.send(fee);         \r\n        }"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "SGX_ADDRESS.send(fee)"
+            FunctionCall
+               Type: bool
+               Source: "SGX_ADDRESS.send(fee)"
+              MemberAccess to member send
+                 Type: function (uint256) returns (bool)
+                 Source: "SGX_ADDRESS.send"
+                Identifier SGX_ADDRESS
+                   Type: address
+                   Source: "SGX_ADDRESS"
+              Identifier fee
+                 Type: uint256
+                 Source: "fee"
+        Block
+           Source: "{\r\n            // Error in TC, refund the requester.\r\n            externalCallFlag = true;\r\n            // <yes> <report> UNCHECKED_LL_CALLS\r\n            requests[requestId].requester.call.gas(2300).value(fee)();\r\n            externalCallFlag = false;\r\n        }"
+          ExpressionStatement
+             Gas costs: 20317
+             Source: "externalCallFlag = true"
+            Assignment using operator =
+               Type: bool
+               Source: "externalCallFlag = true"
+              Identifier externalCallFlag
+                 Type: bool
+                 Source: "externalCallFlag"
+              Literal, token: true value: true
+                 Type: bool
+                 Source: "true"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "requests[requestId].requester.call.gas(2300).value(fee)()"
+            FunctionCall
+               Type: bool
+               Source: "requests[requestId].requester.call.gas(2300).value(fee)()"
+              FunctionCall
+                 Type: function () payable returns (bool)
+                 Source: "requests[requestId].requester.call.gas(2300).value(fee)"
+                MemberAccess to member value
+                   Type: function (uint256) returns (function () payable returns (bool))
+                   Source: "requests[requestId].requester.call.gas(2300).value"
+                  FunctionCall
+                     Type: function () payable returns (bool)
+                     Source: "requests[requestId].requester.call.gas(2300)"
+                    MemberAccess to member gas
+                       Type: function (uint256) returns (function () payable returns (bool))
+                       Source: "requests[requestId].requester.call.gas"
+                      MemberAccess to member call
+                         Type: function () payable returns (bool)
+                         Source: "requests[requestId].requester.call"
+                        MemberAccess to member requester
+                           Type: address
+                           Source: "requests[requestId].requester"
+                          IndexAccess
+                             Type: struct TownCrier.Request storage ref
+                             Source: "requests[requestId]"
+                            Identifier requests
+                               Type: struct TownCrier.Request storage ref[18446744073709551616] storage ref
+                               Source: "requests"
+                            Identifier requestId
+                               Type: uint64
+                               Source: "requestId"
+                    Literal, token: [no token] value: 2300
+                       Type: int_const 2300
+                       Source: "2300"
+                Identifier fee
+                   Type: uint256
+                   Source: "fee"
+          ExpressionStatement
+             Gas costs: 20317
+             Source: "externalCallFlag = false"
+            Assignment using operator =
+               Type: bool
+               Source: "externalCallFlag = false"
+              Identifier externalCallFlag
+                 Type: bool
+                 Source: "externalCallFlag"
+              Literal, token: false value: false
+                 Type: bool
+                 Source: "false"
+      VariableDeclarationStatement
+         Gas costs: 247
+         Source: "uint callbackGas = (fee - MIN_FEE) / tx.gasprice"
+        VariableDeclaration "callbackGas"
+           Type: uint256
+           Source: "uint callbackGas"
+          ElementaryTypeName uint
+             Source: "uint"
+        BinaryOperation using operator /
+           Type: uint256
+           Source: "(fee - MIN_FEE) / tx.gasprice"
+          TupleExpression
+             Type: uint256
+             Source: "(fee - MIN_FEE)"
+            BinaryOperation using operator -
+               Type: uint256
+               Source: "fee - MIN_FEE"
+              Identifier fee
+                 Type: uint256
+                 Source: "fee"
+              Identifier MIN_FEE
+                 Type: uint256
+                 Source: "MIN_FEE"
+          MemberAccess to member gasprice
+             Type: uint256
+             Source: "tx.gasprice"
+            Identifier tx
+               Type: tx
+               Source: "tx"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "DeliverInfo(requestId, fee, tx.gasprice, msg.gas, callbackGas, paramsHash, error, respData)"
+        FunctionCall
+           Type: tuple()
+           Source: "DeliverInfo(requestId, fee, tx.gasprice, msg.gas, callbackGas, paramsHash, error, respData)"
+          Identifier DeliverInfo
+             Type: function (uint64,uint256,uint256,uint256,uint256,bytes32,uint64,bytes32)
+             Source: "DeliverInfo"
+          Identifier requestId
+             Type: uint64
+             Source: "requestId"
+          Identifier fee
+             Type: uint256
+             Source: "fee"
+          MemberAccess to member gasprice
+             Type: uint256
+             Source: "tx.gasprice"
+            Identifier tx
+               Type: tx
+               Source: "tx"
+          MemberAccess to member gas
+             Type: uint256
+             Source: "msg.gas"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier callbackGas
+             Type: uint256
+             Source: "callbackGas"
+          Identifier paramsHash
+             Type: bytes32
+             Source: "paramsHash"
+          Identifier error
+             Type: uint64
+             Source: "error"
+          Identifier respData
+             Type: bytes32
+             Source: "respData"
+      IfStatement
+         Source: "if (callbackGas > msg.gas - 5000) {\r\n            callbackGas = msg.gas - 5000;\r\n        }"
+        BinaryOperation using operator >
+           Type: bool
+           Gas costs: 14
+           Source: "callbackGas > msg.gas - 5000"
+          Identifier callbackGas
+             Type: uint256
+             Source: "callbackGas"
+          BinaryOperation using operator -
+             Type: uint256
+             Source: "msg.gas - 5000"
+            MemberAccess to member gas
+               Type: uint256
+               Source: "msg.gas"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Literal, token: [no token] value: 5000
+               Type: int_const 5000
+               Source: "5000"
+        Block
+           Source: "{\r\n            callbackGas = msg.gas - 5000;\r\n        }"
+          ExpressionStatement
+             Gas costs: 13
+             Source: "callbackGas = msg.gas - 5000"
+            Assignment using operator =
+               Type: uint256
+               Source: "callbackGas = msg.gas - 5000"
+              Identifier callbackGas
+                 Type: uint256
+                 Source: "callbackGas"
+              BinaryOperation using operator -
+                 Type: uint256
+                 Source: "msg.gas - 5000"
+                MemberAccess to member gas
+                   Type: uint256
+                   Source: "msg.gas"
+                  Identifier msg
+                     Type: msg
+                     Source: "msg"
+                Literal, token: [no token] value: 5000
+                   Type: int_const 5000
+                   Source: "5000"
+      ExpressionStatement
+         Gas costs: 20317
+         Source: "externalCallFlag = true"
+        Assignment using operator =
+           Type: bool
+           Source: "externalCallFlag = true"
+          Identifier externalCallFlag
+             Type: bool
+             Source: "externalCallFlag"
+          Literal, token: true value: true
+             Type: bool
+             Source: "true"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "requests[requestId].callbackAddr.call.gas(callbackGas)(requests[requestId].callbackFID, requestId, error, respData)"
+        FunctionCall
+           Type: bool
+           Source: "requests[requestId].callbackAddr.call.gas(callbackGas)(requests[requestId].callbackFID, requestId, error, respData)"
+          FunctionCall
+             Type: function () payable returns (bool)
+             Source: "requests[requestId].callbackAddr.call.gas(callbackGas)"
+            MemberAccess to member gas
+               Type: function (uint256) returns (function () payable returns (bool))
+               Source: "requests[requestId].callbackAddr.call.gas"
+              MemberAccess to member call
+                 Type: function () payable returns (bool)
+                 Source: "requests[requestId].callbackAddr.call"
+                MemberAccess to member callbackAddr
+                   Type: address
+                   Source: "requests[requestId].callbackAddr"
+                  IndexAccess
+                     Type: struct TownCrier.Request storage ref
+                     Source: "requests[requestId]"
+                    Identifier requests
+                       Type: struct TownCrier.Request storage ref[18446744073709551616] storage ref
+                       Source: "requests"
+                    Identifier requestId
+                       Type: uint64
+                       Source: "requestId"
+            Identifier callbackGas
+               Type: uint256
+               Source: "callbackGas"
+          MemberAccess to member callbackFID
+             Type: bytes4
+             Source: "requests[requestId].callbackFID"
+            IndexAccess
+               Type: struct TownCrier.Request storage ref
+               Source: "requests[requestId]"
+              Identifier requests
+                 Type: struct TownCrier.Request storage ref[18446744073709551616] storage ref
+                 Source: "requests"
+              Identifier requestId
+                 Type: uint64
+                 Source: "requestId"
+          Identifier requestId
+             Type: uint64
+             Source: "requestId"
+          Identifier error
+             Type: uint64
+             Source: "error"
+          Identifier respData
+             Type: bytes32
+             Source: "respData"
+      ExpressionStatement
+         Gas costs: 20317
+         Source: "externalCallFlag = false"
+        Assignment using operator =
+           Type: bool
+           Source: "externalCallFlag = false"
+          Identifier externalCallFlag
+             Type: bool
+             Source: "externalCallFlag"
+          Literal, token: false value: false
+             Type: bool
+             Source: "false"
+  FunctionDefinition "cancel" - public
+     Source: "function cancel(uint64 requestId) public returns (int) {\r\n        if (externalCallFlag) {\r\n            throw;\r\n        }\r\n\r\n        if (killswitch) {\r\n            return 0;\r\n        }\r\n\r\n        uint fee = requests[requestId].fee;\r\n        if (requests[requestId].requester == msg.sender && fee >= CANCELLATION_FEE) {\r\n            // If the request was sent by this user and has money left on it,\r\n            // then cancel it.\r\n            requests[requestId].fee = CANCELLED_FEE_FLAG;\r\n            externalCallFlag = true;\r\n            if (!msg.sender.call.value(fee - CANCELLATION_FEE)()) {\r\n                throw;\r\n            }\r\n            externalCallFlag = false;\r\n            Cancel(requestId, msg.sender, requests[requestId].requester, requests[requestId].fee, 1);\r\n            return SUCCESS_FLAG;\r\n        } else {\r\n            Cancel(requestId, msg.sender, requests[requestId].requester, fee, -1);\r\n            return FAIL_FLAG;\r\n        }\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint64 requestId)"
+      VariableDeclaration "requestId"
+         Type: uint64
+         Source: "uint64 requestId"
+        ElementaryTypeName uint64
+           Source: "uint64"
+    ParameterList
+       Gas costs: 3
+       Source: "(int)"
+      VariableDeclaration ""
+         Type: int256
+         Source: "int"
+        ElementaryTypeName int
+           Source: "int"
+    Block
+       Source: "{\r\n        if (externalCallFlag) {\r\n            throw;\r\n        }\r\n\r\n        if (killswitch) {\r\n            return 0;\r\n        }\r\n\r\n        uint fee = requests[requestId].fee;\r\n        if (requests[requestId].requester == msg.sender && fee >= CANCELLATION_FEE) {\r\n            // If the request was sent by this user and has money left on it,\r\n            // then cancel it.\r\n            requests[requestId].fee = CANCELLED_FEE_FLAG;\r\n            externalCallFlag = true;\r\n            if (!msg.sender.call.value(fee - CANCELLATION_FEE)()) {\r\n                throw;\r\n            }\r\n            externalCallFlag = false;\r\n            Cancel(requestId, msg.sender, requests[requestId].requester, requests[requestId].fee, 1);\r\n            return SUCCESS_FLAG;\r\n        } else {\r\n            Cancel(requestId, msg.sender, requests[requestId].requester, fee, -1);\r\n            return FAIL_FLAG;\r\n        }\r\n    }"
+      IfStatement
+         Source: "if (externalCallFlag) {\r\n            throw;\r\n        }"
+        Identifier externalCallFlag
+           Type: bool
+           Gas costs: 289
+           Source: "externalCallFlag"
+        Block
+           Source: "{\r\n            throw;\r\n        }"
+          Throw
+             Gas costs: 6
+             Source: "throw"
+      IfStatement
+         Source: "if (killswitch) {\r\n            return 0;\r\n        }"
+        Identifier killswitch
+           Type: bool
+           Gas costs: 239
+           Source: "killswitch"
+        Block
+           Source: "{\r\n            return 0;\r\n        }"
+          Return
+             Gas costs: 19
+             Source: "return 0"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+      VariableDeclarationStatement
+         Gas costs: 266
+         Source: "uint fee = requests[requestId].fee"
+        VariableDeclaration "fee"
+           Type: uint256
+           Source: "uint fee"
+          ElementaryTypeName uint
+             Source: "uint"
+        MemberAccess to member fee
+           Type: uint256
+           Source: "requests[requestId].fee"
+          IndexAccess
+             Type: struct TownCrier.Request storage ref
+             Source: "requests[requestId]"
+            Identifier requests
+               Type: struct TownCrier.Request storage ref[18446744073709551616] storage ref
+               Source: "requests"
+            Identifier requestId
+               Type: uint64
+               Source: "requestId"
+      IfStatement
+         Source: "if (requests[requestId].requester == msg.sender && fee >= CANCELLATION_FEE) {\r\n            // If the request was sent by this user and has money left on it,\r\n            // then cancel it.\r\n            requests[requestId].fee = CANCELLED_FEE_FLAG;\r\n            externalCallFlag = true;\r\n            if (!msg.sender.call.value(fee - CANCELLATION_FEE)()) {\r\n                throw;\r\n            }\r\n            externalCallFlag = false;\r\n            Cancel(requestId, msg.sender, requests[requestId].requester, requests[requestId].fee, 1);\r\n            return SUCCESS_FLAG;\r\n        } else {\r\n            Cancel(requestId, msg.sender, requests[requestId].requester, fee, -1);\r\n            return FAIL_FLAG;\r\n        }"
+        BinaryOperation using operator &&
+           Type: bool
+           Gas costs: 545
+           Source: "requests[requestId].requester == msg.sender && fee >= CANCELLATION_FEE"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "requests[requestId].requester == msg.sender"
+            MemberAccess to member requester
+               Type: address
+               Source: "requests[requestId].requester"
+              IndexAccess
+                 Type: struct TownCrier.Request storage ref
+                 Source: "requests[requestId]"
+                Identifier requests
+                   Type: struct TownCrier.Request storage ref[18446744073709551616] storage ref
+                   Source: "requests"
+                Identifier requestId
+                   Type: uint64
+                   Source: "requestId"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "fee >= CANCELLATION_FEE"
+            Identifier fee
+               Type: uint256
+               Source: "fee"
+            Identifier CANCELLATION_FEE
+               Type: uint256
+               Source: "CANCELLATION_FEE"
+        Block
+           Source: "{\r\n            // If the request was sent by this user and has money left on it,\r\n            // then cancel it.\r\n            requests[requestId].fee = CANCELLED_FEE_FLAG;\r\n            externalCallFlag = true;\r\n            if (!msg.sender.call.value(fee - CANCELLATION_FEE)()) {\r\n                throw;\r\n            }\r\n            externalCallFlag = false;\r\n            Cancel(requestId, msg.sender, requests[requestId].requester, requests[requestId].fee, 1);\r\n            return SUCCESS_FLAG;\r\n        }"
+          ExpressionStatement
+             Gas costs: 20066
+             Source: "requests[requestId].fee = CANCELLED_FEE_FLAG"
+            Assignment using operator =
+               Type: uint256
+               Source: "requests[requestId].fee = CANCELLED_FEE_FLAG"
+              MemberAccess to member fee
+                 Type: uint256
+                 Source: "requests[requestId].fee"
+                IndexAccess
+                   Type: struct TownCrier.Request storage ref
+                   Source: "requests[requestId]"
+                  Identifier requests
+                     Type: struct TownCrier.Request storage ref[18446744073709551616] storage ref
+                     Source: "requests"
+                  Identifier requestId
+                     Type: uint64
+                     Source: "requestId"
+              Identifier CANCELLED_FEE_FLAG
+                 Type: uint256
+                 Source: "CANCELLED_FEE_FLAG"
+          ExpressionStatement
+             Gas costs: 20317
+             Source: "externalCallFlag = true"
+            Assignment using operator =
+               Type: bool
+               Source: "externalCallFlag = true"
+              Identifier externalCallFlag
+                 Type: bool
+                 Source: "externalCallFlag"
+              Literal, token: true value: true
+                 Type: bool
+                 Source: "true"
+          IfStatement
+             Source: "if (!msg.sender.call.value(fee - CANCELLATION_FEE)()) {\r\n                throw;\r\n            }"
+            UnaryOperation (prefix) !
+               Type: bool
+               Gas costs: [???]
+               Source: "!msg.sender.call.value(fee - CANCELLATION_FEE)()"
+              FunctionCall
+                 Type: bool
+                 Source: "msg.sender.call.value(fee - CANCELLATION_FEE)()"
+                FunctionCall
+                   Type: function () payable returns (bool)
+                   Source: "msg.sender.call.value(fee - CANCELLATION_FEE)"
+                  MemberAccess to member value
+                     Type: function (uint256) returns (function () payable returns (bool))
+                     Source: "msg.sender.call.value"
+                    MemberAccess to member call
+                       Type: function () payable returns (bool)
+                       Source: "msg.sender.call"
+                      MemberAccess to member sender
+                         Type: address
+                         Source: "msg.sender"
+                        Identifier msg
+                           Type: msg
+                           Source: "msg"
+                  BinaryOperation using operator -
+                     Type: uint256
+                     Source: "fee - CANCELLATION_FEE"
+                    Identifier fee
+                       Type: uint256
+                       Source: "fee"
+                    Identifier CANCELLATION_FEE
+                       Type: uint256
+                       Source: "CANCELLATION_FEE"
+            Block
+               Source: "{\r\n                throw;\r\n            }"
+              Throw
+                 Gas costs: 6
+                 Source: "throw"
+          ExpressionStatement
+             Gas costs: 20317
+             Source: "externalCallFlag = false"
+            Assignment using operator =
+               Type: bool
+               Source: "externalCallFlag = false"
+              Identifier externalCallFlag
+                 Type: bool
+                 Source: "externalCallFlag"
+              Literal, token: false value: false
+                 Type: bool
+                 Source: "false"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "Cancel(requestId, msg.sender, requests[requestId].requester, requests[requestId].fee, 1)"
+            FunctionCall
+               Type: tuple()
+               Source: "Cancel(requestId, msg.sender, requests[requestId].requester, requests[requestId].fee, 1)"
+              Identifier Cancel
+                 Type: function (uint64,address,address,uint256,int256)
+                 Source: "Cancel"
+              Identifier requestId
+                 Type: uint64
+                 Source: "requestId"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+              MemberAccess to member requester
+                 Type: address
+                 Source: "requests[requestId].requester"
+                IndexAccess
+                   Type: struct TownCrier.Request storage ref
+                   Source: "requests[requestId]"
+                  Identifier requests
+                     Type: struct TownCrier.Request storage ref[18446744073709551616] storage ref
+                     Source: "requests"
+                  Identifier requestId
+                     Type: uint64
+                     Source: "requestId"
+              MemberAccess to member fee
+                 Type: uint256
+                 Source: "requests[requestId].fee"
+                IndexAccess
+                   Type: struct TownCrier.Request storage ref
+                   Source: "requests[requestId]"
+                  Identifier requests
+                     Type: struct TownCrier.Request storage ref[18446744073709551616] storage ref
+                     Source: "requests"
+                  Identifier requestId
+                     Type: uint64
+                     Source: "requestId"
+              Literal, token: [no token] value: 1
+                 Type: int_const 1
+                 Source: "1"
+          Return
+             Gas costs: 16
+             Source: "return SUCCESS_FLAG"
+            Identifier SUCCESS_FLAG
+               Type: int256
+               Source: "SUCCESS_FLAG"
+        Block
+           Source: "{\r\n            Cancel(requestId, msg.sender, requests[requestId].requester, fee, -1);\r\n            return FAIL_FLAG;\r\n        }"
+          ExpressionStatement
+             Gas costs: 2518
+             Source: "Cancel(requestId, msg.sender, requests[requestId].requester, fee, -1)"
+            FunctionCall
+               Type: tuple()
+               Source: "Cancel(requestId, msg.sender, requests[requestId].requester, fee, -1)"
+              Identifier Cancel
+                 Type: function (uint64,address,address,uint256,int256)
+                 Source: "Cancel"
+              Identifier requestId
+                 Type: uint64
+                 Source: "requestId"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+              MemberAccess to member requester
+                 Type: address
+                 Source: "requests[requestId].requester"
+                IndexAccess
+                   Type: struct TownCrier.Request storage ref
+                   Source: "requests[requestId]"
+                  Identifier requests
+                     Type: struct TownCrier.Request storage ref[18446744073709551616] storage ref
+                     Source: "requests"
+                  Identifier requestId
+                     Type: uint64
+                     Source: "requestId"
+              Identifier fee
+                 Type: uint256
+                 Source: "fee"
+              UnaryOperation (prefix) -
+                 Type: int_const -1
+                 Source: "-1"
+                Literal, token: [no token] value: 1
+                   Type: int_const 1
+                   Source: "1"
+          Return
+             Gas costs: 5
+             Source: "return FAIL_FLAG"
+            Identifier FAIL_FLAG
+               Type: int256
+               Source: "FAIL_FLAG"

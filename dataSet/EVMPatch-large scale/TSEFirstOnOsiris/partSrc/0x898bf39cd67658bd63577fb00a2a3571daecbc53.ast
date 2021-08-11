@@ -1,0 +1,2475 @@
+Syntax trees:
+
+
+======= /home/fabric/ArocRevision/Aroc/osirisData/contractSrc/0x898bf39cd67658bd63577fb00a2a3571daecbc53.sol =======
+PragmaDirective
+   Source: "pragma solidity ^0.4.10;"
+ContractDefinition "elixor"
+   Source: "contract elixor {\r\n    \r\nstring public name; \r\nstring public symbol; \r\nuint8 public decimals; \r\nuint256 public startTime;\r\nuint256 public totalSupply;\r\n\r\nbool public balanceImportsComplete;\r\n\r\nmapping (address => bool) public numRewardsAvailableSetForChildAddress;\r\n\r\nmapping (address => bool) public isNewParent;\r\nmapping (address => address) public returnChildForParentNew;\r\n\r\nbool public genesisImportsComplete;\r\n\r\n// Until contract is locked, devs can freeze the system if anything arises.\r\n// Then deploy a contract that interfaces with the state of this one.\r\nbool public frozen;\r\nbool public freezeProhibited;\r\n\r\naddress public devAddress; // For doing imports\r\n\r\nbool importsComplete; // Locked when devs have updated all balances\r\n\r\nmapping (address => uint256) public burnAmountAllowed;\r\n\r\nmapping(address => mapping (address => uint256)) allowed;\r\n\r\n// Balances for each account\r\nmapping(address => uint256) balances;\r\n\r\nmapping (address => uint256) public numRewardsAvailable;\r\n\r\n// ELIX address info\r\nbool public ELIXAddressSet;\r\naddress public ELIXAddress;\r\n\r\nevent Transfer(address indexed from, address indexed to, uint256 value);\r\n// Triggered whenever approve(address _spender, uint256 _value) is called.\r\nevent Approval(address indexed _owner, address indexed _spender, uint256 _value);\r\n\r\nfunction elixor() {\r\nname = \"elixor\";\r\nsymbol = \"EXOR\";\r\ndecimals = 18;\r\nstartTime=1500307354; //Time contract went online.\r\ndevAddress=0x85196Da9269B24bDf5FfD2624ABB387fcA05382B; // Set the dev import address\r\n\r\n// Dev will create 10 batches as test using 1 EXOR in dev address (which is a child)\r\n// Also will send tiny amounts to several random addresses to make sure parent-child auth works.\r\n// Then set numRewardsAvailable to 0\r\nbalances[devAddress]+=1000000000000000000;\r\ntotalSupply+=1000000000000000000;\r\nnumRewardsAvailableSetForChildAddress[devAddress]=true;\r\nnumRewardsAvailable[devAddress]=10;\r\n}\r\n\r\n// Returns balance of particular account\r\nfunction balanceOf(address _owner) constant returns (uint256 balance) {\r\n    return balances[_owner];\r\n}\r\n\r\nfunction transfer(address _to, uint256 _value) { \r\nif (!frozen){\r\n    \r\n    if (balances[msg.sender] < _value) revert();\r\n    if (balances[_to] + _value < balances[_to]) revert();\r\n\r\n    if (returnIsParentAddress(_to) || isNewParent[_to])     {\r\n        if ((msg.sender==returnChildAddressForParent(_to)) || (returnChildForParentNew[_to]==msg.sender))  {\r\n            \r\n            if (numRewardsAvailableSetForChildAddress[msg.sender]==false)  {\r\n                setNumRewardsAvailableForAddress(msg.sender);\r\n            }\r\n\r\n            if (numRewardsAvailable[msg.sender]>0)    {\r\n                uint256 currDate=block.timestamp;\r\n                uint256 returnMaxPerBatchGenerated=5000000000000000000000; //max 5000 coins per batch\r\n                uint256 deployTime=10*365*86400; //10 years\r\n                uint256 secondsSinceStartTime=currDate-startTime;\r\n                uint256 maximizationTime=deployTime+startTime;\r\n                uint256 coinsPerBatchGenerated;\r\n                if (currDate>=maximizationTime)  {\r\n                    coinsPerBatchGenerated=returnMaxPerBatchGenerated;\r\n                } else  {\r\n                    uint256 b=(returnMaxPerBatchGenerated/4);\r\n                    uint256 m=(returnMaxPerBatchGenerated-b)/deployTime;\r\n                    coinsPerBatchGenerated=secondsSinceStartTime*m+b;\r\n                }\r\n                numRewardsAvailable[msg.sender]-=1;\r\n                balances[msg.sender]+=coinsPerBatchGenerated;\r\n                totalSupply+=coinsPerBatchGenerated;\r\n            }\r\n        }\r\n    }\r\n    \r\n    if (_to==ELIXAddress)   {\r\n        //They want to convert to ELIX\r\n        convertToELIX(_value,msg.sender);\r\n    }\r\n    \r\n    balances[msg.sender] -= _value;\r\n    balances[_to] += _value;\r\n    Transfer(msg.sender, _to, _value);\r\n}\r\n}\r\n\r\nfunction transferFrom(\r\n        address _from,\r\n        address _to,\r\n        uint256 _amount\r\n) returns (bool success) {\r\n    if (!frozen){\r\n    if (balances[_from] >= _amount\r\n        && allowed[_from][msg.sender] >= _amount\r\n        && _amount > 0\r\n        && balances[_to] + _amount > balances[_to]) {\r\n        balances[_from] -= _amount;\r\n        allowed[_from][msg.sender] -= _amount;\r\n\r\n    if (_to==ELIXAddress)   {\r\n        //They want to convert to ELIX\r\n        convertToELIX(_amount,msg.sender);\r\n    }\r\n\r\n        balances[_to] += _amount;\r\n        return true;\r\n    } else {\r\n        return false;\r\n    }\r\n    }\r\n}\r\n  \r\n// Allow _spender to withdraw from your account, multiple times, up to the _value amount.\r\n// If this function is called again it overwrites the current allowance with _value.\r\nfunction approve(address _spender, uint256 _amount) returns (bool success) {\r\n    allowed[msg.sender][_spender] = _amount;\r\n    Approval(msg.sender, _spender, _amount);\r\n    return true;\r\n}\r\n\r\n// Allows devs to set num rewards used. Locked up when system online.\r\nfunction setNumRewardsAvailableForAddresses(uint256[] numRewardsAvailableForAddresses,address[] addressesToSetFor)    {\r\n    if (tx.origin==devAddress) { // Dev address\r\n       if (!importsComplete)  {\r\n           for (uint256 i=0;i<addressesToSetFor.length;i++)  {\r\n               address addressToSet=addressesToSetFor[i];\r\n               numRewardsAvailable[addressToSet]=numRewardsAvailableForAddresses[i];\r\n           }\r\n       }\r\n    }\r\n}\r\n\r\n// Freezes the entire system\r\nfunction freezeTransfers() {\r\n    if (tx.origin==devAddress) { // Dev address\r\n        if (!freezeProhibited)  {\r\n               frozen=true;\r\n        }\r\n    }\r\n}\r\n\r\n// Prevent Freezing (Once system is ready to be locked)\r\nfunction prohibitFreeze()   {\r\n    if (tx.origin==devAddress) { // Dev address\r\n        freezeProhibited=true;\r\n    }\r\n}\r\n\r\n// Get whether address is genesis parent\r\nfunction returnIsParentAddress(address possibleParent) returns(bool)  {\r\n    return tme(0xEe22430595aE400a30FFBA37883363Fbf293e24e).parentAddress(possibleParent);\r\n}\r\n\r\n// Return child address for parent\r\nfunction returnChildAddressForParent(address parent) returns(address)  {\r\n    return tme(0xEe22430595aE400a30FFBA37883363Fbf293e24e).returnChildAddressForParent(parent);\r\n}\r\n\r\n//Allows dev to set ELIX Address\r\nfunction setELIXAddress(address ELIXAddressToSet)   {\r\n    if (tx.origin==devAddress) { // Dev address\r\n        if (!ELIXAddressSet)  {\r\n                ELIXAddressSet=true;\r\n               ELIXAddress=ELIXAddressToSet;\r\n        }\r\n    }\r\n}\r\n\r\n// Conversion to ELIX function\r\nfunction convertToELIX(uint256 amount,address sender) private   {\r\n    totalSupply-=amount;\r\n    burnAmountAllowed[sender]=amount;\r\n    elixir(ELIXAddress).createAmountFromEXORForAddress(amount,sender);\r\n    burnAmountAllowed[sender]=0;\r\n}\r\n\r\nfunction returnAmountOfELIXAddressCanProduce(address producingAddress) public returns(uint256)   {\r\n    return burnAmountAllowed[producingAddress];\r\n}\r\n\r\n// Locks up all changes to balances\r\nfunction lockBalanceChanges() {\r\n    if (tx.origin==devAddress) { // Dev address\r\n       balanceImportsComplete=true;\r\n   }\r\n}\r\n\r\nfunction importGenesisPairs(address[] parents,address[] children) public {\r\n    if (tx.origin==devAddress) { // Dev address\r\n        if (!genesisImportsComplete)    {\r\n            for (uint256 i=0;i<parents.length;i++)  {\r\n                address child=children[i];\r\n                address parent=parents[i];\r\n                // Set the parent as parent address\r\n                isNewParent[parent]=true; // Exciting\r\n                // Set the child of that parent\r\n                returnChildForParentNew[parent]=child;\r\n                balances[child]+=1000000000000000000;\r\n                totalSupply+=1000000000000000000;\r\n                numRewardsAvailable[child]=10;\r\n                numRewardsAvailableSetForChildAddress[child]=true;\r\n            }\r\n        }\r\n   }\r\n\r\n}\r\n\r\nfunction lockGenesisImports() public    {\r\n    if (tx.origin==devAddress) {\r\n        genesisImportsComplete=true;\r\n    }\r\n}\r\n\r\n// Devs will upload balances snapshot of blockchain via this function.\r\nfunction importAmountForAddresses(uint256[] amounts,address[] addressesToAddTo) public {\r\n   if (tx.origin==devAddress) { // Dev address\r\n       if (!balanceImportsComplete)  {\r\n           for (uint256 i=0;i<addressesToAddTo.length;i++)  {\r\n                address addressToAddTo=addressesToAddTo[i];\r\n                uint256 amount=amounts[i];\r\n                balances[addressToAddTo]+=amount;\r\n                totalSupply+=amount;\r\n           }\r\n       }\r\n   }\r\n}\r\n\r\n// Extra balance removal in case any issues arise. Do not anticipate using this function.\r\nfunction removeAmountForAddresses(uint256[] amounts,address[] addressesToRemoveFrom) public {\r\n   if (tx.origin==devAddress) { // Dev address\r\n       if (!balanceImportsComplete)  {\r\n           for (uint256 i=0;i<addressesToRemoveFrom.length;i++)  {\r\n                address addressToRemoveFrom=addressesToRemoveFrom[i];\r\n                uint256 amount=amounts[i];\r\n                balances[addressToRemoveFrom]-=amount;\r\n                totalSupply-=amount;\r\n           }\r\n       }\r\n   }\r\n}\r\n\r\n// Manual override in case any issues arise. Do not anticipate using this function.\r\nfunction manuallySetNumRewardsAvailableForChildAddress(address addressToSet,uint256 rewardsAvail) public {\r\n   if (tx.origin==devAddress) { // Dev address\r\n       if (!genesisImportsComplete)  {\r\n            numRewardsAvailable[addressToSet]=rewardsAvail;\r\n            numRewardsAvailableSetForChildAddress[addressToSet]=true;\r\n       }\r\n   }\r\n}\r\n\r\n// Manual override for total supply in case any issues arise. Do not anticipate using this function.\r\nfunction removeFromTotalSupply(uint256 amount) public {\r\n   if (tx.origin==devAddress) { // Dev address\r\n       if (!balanceImportsComplete)  {\r\n            totalSupply-=amount;\r\n       }\r\n   }\r\n}\r\n\r\nfunction setNumRewardsAvailableForAddress(address addressToSet) private {\r\n    //Get the number of rewards used in the old contract\r\n    tme tmeContract=tme(0xEe22430595aE400a30FFBA37883363Fbf293e24e);\r\n    uint256 numRewardsUsed=tmeContract.numRewardsUsed(addressToSet);\r\n    numRewardsAvailable[addressToSet]=10-numRewardsUsed;\r\n    numRewardsAvailableSetForChildAddress[addressToSet]=true;\r\n}\r\n\r\n}"
+  VariableDeclaration "name"
+     Type: string storage ref
+     Source: "string public name"
+    ElementaryTypeName string
+       Source: "string"
+  VariableDeclaration "symbol"
+     Type: string storage ref
+     Source: "string public symbol"
+    ElementaryTypeName string
+       Source: "string"
+  VariableDeclaration "decimals"
+     Type: uint8
+     Source: "uint8 public decimals"
+    ElementaryTypeName uint8
+       Source: "uint8"
+  VariableDeclaration "startTime"
+     Type: uint256
+     Source: "uint256 public startTime"
+    ElementaryTypeName uint256
+       Source: "uint256"
+  VariableDeclaration "totalSupply"
+     Type: uint256
+     Source: "uint256 public totalSupply"
+    ElementaryTypeName uint256
+       Source: "uint256"
+  VariableDeclaration "balanceImportsComplete"
+     Type: bool
+     Source: "bool public balanceImportsComplete"
+    ElementaryTypeName bool
+       Source: "bool"
+  VariableDeclaration "numRewardsAvailableSetForChildAddress"
+     Type: mapping(address => bool)
+     Source: "mapping (address => bool) public numRewardsAvailableSetForChildAddress"
+    Mapping
+       Source: "mapping (address => bool)"
+      ElementaryTypeName address
+         Source: "address"
+      ElementaryTypeName bool
+         Source: "bool"
+  VariableDeclaration "isNewParent"
+     Type: mapping(address => bool)
+     Source: "mapping (address => bool) public isNewParent"
+    Mapping
+       Source: "mapping (address => bool)"
+      ElementaryTypeName address
+         Source: "address"
+      ElementaryTypeName bool
+         Source: "bool"
+  VariableDeclaration "returnChildForParentNew"
+     Type: mapping(address => address)
+     Source: "mapping (address => address) public returnChildForParentNew"
+    Mapping
+       Source: "mapping (address => address)"
+      ElementaryTypeName address
+         Source: "address"
+      ElementaryTypeName address
+         Source: "address"
+  VariableDeclaration "genesisImportsComplete"
+     Type: bool
+     Source: "bool public genesisImportsComplete"
+    ElementaryTypeName bool
+       Source: "bool"
+  VariableDeclaration "frozen"
+     Type: bool
+     Source: "bool public frozen"
+    ElementaryTypeName bool
+       Source: "bool"
+  VariableDeclaration "freezeProhibited"
+     Type: bool
+     Source: "bool public freezeProhibited"
+    ElementaryTypeName bool
+       Source: "bool"
+  VariableDeclaration "devAddress"
+     Type: address
+     Source: "address public devAddress"
+    ElementaryTypeName address
+       Source: "address"
+  VariableDeclaration "importsComplete"
+     Type: bool
+     Source: "bool importsComplete"
+    ElementaryTypeName bool
+       Source: "bool"
+  VariableDeclaration "burnAmountAllowed"
+     Type: mapping(address => uint256)
+     Source: "mapping (address => uint256) public burnAmountAllowed"
+    Mapping
+       Source: "mapping (address => uint256)"
+      ElementaryTypeName address
+         Source: "address"
+      ElementaryTypeName uint256
+         Source: "uint256"
+  VariableDeclaration "allowed"
+     Type: mapping(address => mapping(address => uint256))
+     Source: "mapping(address => mapping (address => uint256)) allowed"
+    Mapping
+       Source: "mapping(address => mapping (address => uint256))"
+      ElementaryTypeName address
+         Source: "address"
+      Mapping
+         Source: "mapping (address => uint256)"
+        ElementaryTypeName address
+           Source: "address"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  VariableDeclaration "balances"
+     Type: mapping(address => uint256)
+     Source: "mapping(address => uint256) balances"
+    Mapping
+       Source: "mapping(address => uint256)"
+      ElementaryTypeName address
+         Source: "address"
+      ElementaryTypeName uint256
+         Source: "uint256"
+  VariableDeclaration "numRewardsAvailable"
+     Type: mapping(address => uint256)
+     Source: "mapping (address => uint256) public numRewardsAvailable"
+    Mapping
+       Source: "mapping (address => uint256)"
+      ElementaryTypeName address
+         Source: "address"
+      ElementaryTypeName uint256
+         Source: "uint256"
+  VariableDeclaration "ELIXAddressSet"
+     Type: bool
+     Source: "bool public ELIXAddressSet"
+    ElementaryTypeName bool
+       Source: "bool"
+  VariableDeclaration "ELIXAddress"
+     Type: address
+     Source: "address public ELIXAddress"
+    ElementaryTypeName address
+       Source: "address"
+  EventDefinition "Transfer"
+     Source: "event Transfer(address indexed from, address indexed to, uint256 value);"
+    ParameterList
+       Source: "(address indexed from, address indexed to, uint256 value)"
+      VariableDeclaration "from"
+         Type: address
+         Source: "address indexed from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "to"
+         Type: address
+         Source: "address indexed to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "value"
+         Type: uint256
+         Source: "uint256 value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  EventDefinition "Approval"
+     Source: "event Approval(address indexed _owner, address indexed _spender, uint256 _value);"
+    ParameterList
+       Source: "(address indexed _owner, address indexed _spender, uint256 _value)"
+      VariableDeclaration "_owner"
+         Type: address
+         Source: "address indexed _owner"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_spender"
+         Type: address
+         Source: "address indexed _spender"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  FunctionDefinition "elixor" - public
+     Source: "function elixor() {\r\nname = \"elixor\";\r\nsymbol = \"EXOR\";\r\ndecimals = 18;\r\nstartTime=1500307354; //Time contract went online.\r\ndevAddress=0x85196Da9269B24bDf5FfD2624ABB387fcA05382B; // Set the dev import address\r\n\r\n// Dev will create 10 batches as test using 1 EXOR in dev address (which is a child)\r\n// Also will send tiny amounts to several random addresses to make sure parent-child auth works.\r\n// Then set numRewardsAvailable to 0\r\nbalances[devAddress]+=1000000000000000000;\r\ntotalSupply+=1000000000000000000;\r\nnumRewardsAvailableSetForChildAddress[devAddress]=true;\r\nnumRewardsAvailable[devAddress]=10;\r\n}"
+    ParameterList
+       Source: "()"
+    ParameterList
+       Source: ""
+    Block
+       Source: "{\r\nname = \"elixor\";\r\nsymbol = \"EXOR\";\r\ndecimals = 18;\r\nstartTime=1500307354; //Time contract went online.\r\ndevAddress=0x85196Da9269B24bDf5FfD2624ABB387fcA05382B; // Set the dev import address\r\n\r\n// Dev will create 10 batches as test using 1 EXOR in dev address (which is a child)\r\n// Also will send tiny amounts to several random addresses to make sure parent-child auth works.\r\n// Then set numRewardsAvailable to 0\r\nbalances[devAddress]+=1000000000000000000;\r\ntotalSupply+=1000000000000000000;\r\nnumRewardsAvailableSetForChildAddress[devAddress]=true;\r\nnumRewardsAvailable[devAddress]=10;\r\n}"
+      ExpressionStatement
+         Source: "name = \"elixor\""
+        Assignment using operator =
+           Type: string storage ref
+           Source: "name = \"elixor\""
+          Identifier name
+             Type: string storage ref
+             Source: "name"
+          Literal, token: [no token] value: elixor
+             Type: literal_string "elixor"
+             Source: "\"elixor\""
+      ExpressionStatement
+         Source: "symbol = \"EXOR\""
+        Assignment using operator =
+           Type: string storage ref
+           Source: "symbol = \"EXOR\""
+          Identifier symbol
+             Type: string storage ref
+             Source: "symbol"
+          Literal, token: [no token] value: EXOR
+             Type: literal_string "EXOR"
+             Source: "\"EXOR\""
+      ExpressionStatement
+         Source: "decimals = 18"
+        Assignment using operator =
+           Type: uint8
+           Source: "decimals = 18"
+          Identifier decimals
+             Type: uint8
+             Source: "decimals"
+          Literal, token: [no token] value: 18
+             Type: int_const 18
+             Source: "18"
+      ExpressionStatement
+         Source: "startTime=1500307354"
+        Assignment using operator =
+           Type: uint256
+           Source: "startTime=1500307354"
+          Identifier startTime
+             Type: uint256
+             Source: "startTime"
+          Literal, token: [no token] value: 1500307354
+             Type: int_const 1500307354
+             Source: "1500307354"
+      ExpressionStatement
+         Source: "devAddress=0x85196Da9269B24bDf5FfD2624ABB387fcA05382B"
+        Assignment using operator =
+           Type: address
+           Source: "devAddress=0x85196Da9269B24bDf5FfD2624ABB387fcA05382B"
+          Identifier devAddress
+             Type: address
+             Source: "devAddress"
+          Literal, token: [no token] value: 0x85196Da9269B24bDf5FfD2624ABB387fcA05382B
+             Type: address
+             Source: "0x85196Da9269B24bDf5FfD2624ABB387fcA05382B"
+      ExpressionStatement
+         Source: "balances[devAddress]+=1000000000000000000"
+        Assignment using operator +=
+           Type: uint256
+           Source: "balances[devAddress]+=1000000000000000000"
+          IndexAccess
+             Type: uint256
+             Source: "balances[devAddress]"
+            Identifier balances
+               Type: mapping(address => uint256)
+               Source: "balances"
+            Identifier devAddress
+               Type: address
+               Source: "devAddress"
+          Literal, token: [no token] value: 1000000000000000000
+             Type: int_const 1000000000000000000
+             Source: "1000000000000000000"
+      ExpressionStatement
+         Source: "totalSupply+=1000000000000000000"
+        Assignment using operator +=
+           Type: uint256
+           Source: "totalSupply+=1000000000000000000"
+          Identifier totalSupply
+             Type: uint256
+             Source: "totalSupply"
+          Literal, token: [no token] value: 1000000000000000000
+             Type: int_const 1000000000000000000
+             Source: "1000000000000000000"
+      ExpressionStatement
+         Source: "numRewardsAvailableSetForChildAddress[devAddress]=true"
+        Assignment using operator =
+           Type: bool
+           Source: "numRewardsAvailableSetForChildAddress[devAddress]=true"
+          IndexAccess
+             Type: bool
+             Source: "numRewardsAvailableSetForChildAddress[devAddress]"
+            Identifier numRewardsAvailableSetForChildAddress
+               Type: mapping(address => bool)
+               Source: "numRewardsAvailableSetForChildAddress"
+            Identifier devAddress
+               Type: address
+               Source: "devAddress"
+          Literal, token: true value: true
+             Type: bool
+             Source: "true"
+      ExpressionStatement
+         Source: "numRewardsAvailable[devAddress]=10"
+        Assignment using operator =
+           Type: uint256
+           Source: "numRewardsAvailable[devAddress]=10"
+          IndexAccess
+             Type: uint256
+             Source: "numRewardsAvailable[devAddress]"
+            Identifier numRewardsAvailable
+               Type: mapping(address => uint256)
+               Source: "numRewardsAvailable"
+            Identifier devAddress
+               Type: address
+               Source: "devAddress"
+          Literal, token: [no token] value: 10
+             Type: int_const 10
+             Source: "10"
+  FunctionDefinition "balanceOf" - public - const
+     Source: "function balanceOf(address _owner) constant returns (uint256 balance) {\r\n    return balances[_owner];\r\n}"
+    ParameterList
+       Source: "(address _owner)"
+      VariableDeclaration "_owner"
+         Type: address
+         Source: "address _owner"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Source: "(uint256 balance)"
+      VariableDeclaration "balance"
+         Type: uint256
+         Source: "uint256 balance"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{\r\n    return balances[_owner];\r\n}"
+      Return
+         Source: "return balances[_owner]"
+        IndexAccess
+           Type: uint256
+           Source: "balances[_owner]"
+          Identifier balances
+             Type: mapping(address => uint256)
+             Source: "balances"
+          Identifier _owner
+             Type: address
+             Source: "_owner"
+  FunctionDefinition "transfer" - public
+     Source: "function transfer(address _to, uint256 _value) { \r\nif (!frozen){\r\n    \r\n    if (balances[msg.sender] < _value) revert();\r\n    if (balances[_to] + _value < balances[_to]) revert();\r\n\r\n    if (returnIsParentAddress(_to) || isNewParent[_to])     {\r\n        if ((msg.sender==returnChildAddressForParent(_to)) || (returnChildForParentNew[_to]==msg.sender))  {\r\n            \r\n            if (numRewardsAvailableSetForChildAddress[msg.sender]==false)  {\r\n                setNumRewardsAvailableForAddress(msg.sender);\r\n            }\r\n\r\n            if (numRewardsAvailable[msg.sender]>0)    {\r\n                uint256 currDate=block.timestamp;\r\n                uint256 returnMaxPerBatchGenerated=5000000000000000000000; //max 5000 coins per batch\r\n                uint256 deployTime=10*365*86400; //10 years\r\n                uint256 secondsSinceStartTime=currDate-startTime;\r\n                uint256 maximizationTime=deployTime+startTime;\r\n                uint256 coinsPerBatchGenerated;\r\n                if (currDate>=maximizationTime)  {\r\n                    coinsPerBatchGenerated=returnMaxPerBatchGenerated;\r\n                } else  {\r\n                    uint256 b=(returnMaxPerBatchGenerated/4);\r\n                    uint256 m=(returnMaxPerBatchGenerated-b)/deployTime;\r\n                    coinsPerBatchGenerated=secondsSinceStartTime*m+b;\r\n                }\r\n                numRewardsAvailable[msg.sender]-=1;\r\n                balances[msg.sender]+=coinsPerBatchGenerated;\r\n                totalSupply+=coinsPerBatchGenerated;\r\n            }\r\n        }\r\n    }\r\n    \r\n    if (_to==ELIXAddress)   {\r\n        //They want to convert to ELIX\r\n        convertToELIX(_value,msg.sender);\r\n    }\r\n    \r\n    balances[msg.sender] -= _value;\r\n    balances[_to] += _value;\r\n    Transfer(msg.sender, _to, _value);\r\n}\r\n}"
+    ParameterList
+       Source: "(address _to, uint256 _value)"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Source: ""
+    Block
+       Source: "{ \r\nif (!frozen){\r\n    \r\n    if (balances[msg.sender] < _value) revert();\r\n    if (balances[_to] + _value < balances[_to]) revert();\r\n\r\n    if (returnIsParentAddress(_to) || isNewParent[_to])     {\r\n        if ((msg.sender==returnChildAddressForParent(_to)) || (returnChildForParentNew[_to]==msg.sender))  {\r\n            \r\n            if (numRewardsAvailableSetForChildAddress[msg.sender]==false)  {\r\n                setNumRewardsAvailableForAddress(msg.sender);\r\n            }\r\n\r\n            if (numRewardsAvailable[msg.sender]>0)    {\r\n                uint256 currDate=block.timestamp;\r\n                uint256 returnMaxPerBatchGenerated=5000000000000000000000; //max 5000 coins per batch\r\n                uint256 deployTime=10*365*86400; //10 years\r\n                uint256 secondsSinceStartTime=currDate-startTime;\r\n                uint256 maximizationTime=deployTime+startTime;\r\n                uint256 coinsPerBatchGenerated;\r\n                if (currDate>=maximizationTime)  {\r\n                    coinsPerBatchGenerated=returnMaxPerBatchGenerated;\r\n                } else  {\r\n                    uint256 b=(returnMaxPerBatchGenerated/4);\r\n                    uint256 m=(returnMaxPerBatchGenerated-b)/deployTime;\r\n                    coinsPerBatchGenerated=secondsSinceStartTime*m+b;\r\n                }\r\n                numRewardsAvailable[msg.sender]-=1;\r\n                balances[msg.sender]+=coinsPerBatchGenerated;\r\n                totalSupply+=coinsPerBatchGenerated;\r\n            }\r\n        }\r\n    }\r\n    \r\n    if (_to==ELIXAddress)   {\r\n        //They want to convert to ELIX\r\n        convertToELIX(_value,msg.sender);\r\n    }\r\n    \r\n    balances[msg.sender] -= _value;\r\n    balances[_to] += _value;\r\n    Transfer(msg.sender, _to, _value);\r\n}\r\n}"
+      IfStatement
+         Source: "if (!frozen){\r\n    \r\n    if (balances[msg.sender] < _value) revert();\r\n    if (balances[_to] + _value < balances[_to]) revert();\r\n\r\n    if (returnIsParentAddress(_to) || isNewParent[_to])     {\r\n        if ((msg.sender==returnChildAddressForParent(_to)) || (returnChildForParentNew[_to]==msg.sender))  {\r\n            \r\n            if (numRewardsAvailableSetForChildAddress[msg.sender]==false)  {\r\n                setNumRewardsAvailableForAddress(msg.sender);\r\n            }\r\n\r\n            if (numRewardsAvailable[msg.sender]>0)    {\r\n                uint256 currDate=block.timestamp;\r\n                uint256 returnMaxPerBatchGenerated=5000000000000000000000; //max 5000 coins per batch\r\n                uint256 deployTime=10*365*86400; //10 years\r\n                uint256 secondsSinceStartTime=currDate-startTime;\r\n                uint256 maximizationTime=deployTime+startTime;\r\n                uint256 coinsPerBatchGenerated;\r\n                if (currDate>=maximizationTime)  {\r\n                    coinsPerBatchGenerated=returnMaxPerBatchGenerated;\r\n                } else  {\r\n                    uint256 b=(returnMaxPerBatchGenerated/4);\r\n                    uint256 m=(returnMaxPerBatchGenerated-b)/deployTime;\r\n                    coinsPerBatchGenerated=secondsSinceStartTime*m+b;\r\n                }\r\n                numRewardsAvailable[msg.sender]-=1;\r\n                balances[msg.sender]+=coinsPerBatchGenerated;\r\n                totalSupply+=coinsPerBatchGenerated;\r\n            }\r\n        }\r\n    }\r\n    \r\n    if (_to==ELIXAddress)   {\r\n        //They want to convert to ELIX\r\n        convertToELIX(_value,msg.sender);\r\n    }\r\n    \r\n    balances[msg.sender] -= _value;\r\n    balances[_to] += _value;\r\n    Transfer(msg.sender, _to, _value);\r\n}"
+        UnaryOperation (prefix) !
+           Type: bool
+           Source: "!frozen"
+          Identifier frozen
+             Type: bool
+             Source: "frozen"
+        Block
+           Source: "{\r\n    \r\n    if (balances[msg.sender] < _value) revert();\r\n    if (balances[_to] + _value < balances[_to]) revert();\r\n\r\n    if (returnIsParentAddress(_to) || isNewParent[_to])     {\r\n        if ((msg.sender==returnChildAddressForParent(_to)) || (returnChildForParentNew[_to]==msg.sender))  {\r\n            \r\n            if (numRewardsAvailableSetForChildAddress[msg.sender]==false)  {\r\n                setNumRewardsAvailableForAddress(msg.sender);\r\n            }\r\n\r\n            if (numRewardsAvailable[msg.sender]>0)    {\r\n                uint256 currDate=block.timestamp;\r\n                uint256 returnMaxPerBatchGenerated=5000000000000000000000; //max 5000 coins per batch\r\n                uint256 deployTime=10*365*86400; //10 years\r\n                uint256 secondsSinceStartTime=currDate-startTime;\r\n                uint256 maximizationTime=deployTime+startTime;\r\n                uint256 coinsPerBatchGenerated;\r\n                if (currDate>=maximizationTime)  {\r\n                    coinsPerBatchGenerated=returnMaxPerBatchGenerated;\r\n                } else  {\r\n                    uint256 b=(returnMaxPerBatchGenerated/4);\r\n                    uint256 m=(returnMaxPerBatchGenerated-b)/deployTime;\r\n                    coinsPerBatchGenerated=secondsSinceStartTime*m+b;\r\n                }\r\n                numRewardsAvailable[msg.sender]-=1;\r\n                balances[msg.sender]+=coinsPerBatchGenerated;\r\n                totalSupply+=coinsPerBatchGenerated;\r\n            }\r\n        }\r\n    }\r\n    \r\n    if (_to==ELIXAddress)   {\r\n        //They want to convert to ELIX\r\n        convertToELIX(_value,msg.sender);\r\n    }\r\n    \r\n    balances[msg.sender] -= _value;\r\n    balances[_to] += _value;\r\n    Transfer(msg.sender, _to, _value);\r\n}"
+          IfStatement
+             Source: "if (balances[msg.sender] < _value) revert()"
+            BinaryOperation using operator <
+               Type: bool
+               Source: "balances[msg.sender] < _value"
+              IndexAccess
+                 Type: uint256
+                 Source: "balances[msg.sender]"
+                Identifier balances
+                   Type: mapping(address => uint256)
+                   Source: "balances"
+                MemberAccess to member sender
+                   Type: address
+                   Source: "msg.sender"
+                  Identifier msg
+                     Type: msg
+                     Source: "msg"
+              Identifier _value
+                 Type: uint256
+                 Source: "_value"
+            ExpressionStatement
+               Source: "revert()"
+              FunctionCall
+                 Type: tuple()
+                 Source: "revert()"
+                Identifier revert
+                   Type: function () pure
+                   Source: "revert"
+          IfStatement
+             Source: "if (balances[_to] + _value < balances[_to]) revert()"
+            BinaryOperation using operator <
+               Type: bool
+               Source: "balances[_to] + _value < balances[_to]"
+              BinaryOperation using operator +
+                 Type: uint256
+                 Source: "balances[_to] + _value"
+                IndexAccess
+                   Type: uint256
+                   Source: "balances[_to]"
+                  Identifier balances
+                     Type: mapping(address => uint256)
+                     Source: "balances"
+                  Identifier _to
+                     Type: address
+                     Source: "_to"
+                Identifier _value
+                   Type: uint256
+                   Source: "_value"
+              IndexAccess
+                 Type: uint256
+                 Source: "balances[_to]"
+                Identifier balances
+                   Type: mapping(address => uint256)
+                   Source: "balances"
+                Identifier _to
+                   Type: address
+                   Source: "_to"
+            ExpressionStatement
+               Source: "revert()"
+              FunctionCall
+                 Type: tuple()
+                 Source: "revert()"
+                Identifier revert
+                   Type: function () pure
+                   Source: "revert"
+          IfStatement
+             Source: "if (returnIsParentAddress(_to) || isNewParent[_to])     {\r\n        if ((msg.sender==returnChildAddressForParent(_to)) || (returnChildForParentNew[_to]==msg.sender))  {\r\n            \r\n            if (numRewardsAvailableSetForChildAddress[msg.sender]==false)  {\r\n                setNumRewardsAvailableForAddress(msg.sender);\r\n            }\r\n\r\n            if (numRewardsAvailable[msg.sender]>0)    {\r\n                uint256 currDate=block.timestamp;\r\n                uint256 returnMaxPerBatchGenerated=5000000000000000000000; //max 5000 coins per batch\r\n                uint256 deployTime=10*365*86400; //10 years\r\n                uint256 secondsSinceStartTime=currDate-startTime;\r\n                uint256 maximizationTime=deployTime+startTime;\r\n                uint256 coinsPerBatchGenerated;\r\n                if (currDate>=maximizationTime)  {\r\n                    coinsPerBatchGenerated=returnMaxPerBatchGenerated;\r\n                } else  {\r\n                    uint256 b=(returnMaxPerBatchGenerated/4);\r\n                    uint256 m=(returnMaxPerBatchGenerated-b)/deployTime;\r\n                    coinsPerBatchGenerated=secondsSinceStartTime*m+b;\r\n                }\r\n                numRewardsAvailable[msg.sender]-=1;\r\n                balances[msg.sender]+=coinsPerBatchGenerated;\r\n                totalSupply+=coinsPerBatchGenerated;\r\n            }\r\n        }\r\n    }"
+            BinaryOperation using operator ||
+               Type: bool
+               Source: "returnIsParentAddress(_to) || isNewParent[_to]"
+              FunctionCall
+                 Type: bool
+                 Source: "returnIsParentAddress(_to)"
+                Identifier returnIsParentAddress
+                   Type: function (address) returns (bool)
+                   Source: "returnIsParentAddress"
+                Identifier _to
+                   Type: address
+                   Source: "_to"
+              IndexAccess
+                 Type: bool
+                 Source: "isNewParent[_to]"
+                Identifier isNewParent
+                   Type: mapping(address => bool)
+                   Source: "isNewParent"
+                Identifier _to
+                   Type: address
+                   Source: "_to"
+            Block
+               Source: "{\r\n        if ((msg.sender==returnChildAddressForParent(_to)) || (returnChildForParentNew[_to]==msg.sender))  {\r\n            \r\n            if (numRewardsAvailableSetForChildAddress[msg.sender]==false)  {\r\n                setNumRewardsAvailableForAddress(msg.sender);\r\n            }\r\n\r\n            if (numRewardsAvailable[msg.sender]>0)    {\r\n                uint256 currDate=block.timestamp;\r\n                uint256 returnMaxPerBatchGenerated=5000000000000000000000; //max 5000 coins per batch\r\n                uint256 deployTime=10*365*86400; //10 years\r\n                uint256 secondsSinceStartTime=currDate-startTime;\r\n                uint256 maximizationTime=deployTime+startTime;\r\n                uint256 coinsPerBatchGenerated;\r\n                if (currDate>=maximizationTime)  {\r\n                    coinsPerBatchGenerated=returnMaxPerBatchGenerated;\r\n                } else  {\r\n                    uint256 b=(returnMaxPerBatchGenerated/4);\r\n                    uint256 m=(returnMaxPerBatchGenerated-b)/deployTime;\r\n                    coinsPerBatchGenerated=secondsSinceStartTime*m+b;\r\n                }\r\n                numRewardsAvailable[msg.sender]-=1;\r\n                balances[msg.sender]+=coinsPerBatchGenerated;\r\n                totalSupply+=coinsPerBatchGenerated;\r\n            }\r\n        }\r\n    }"
+              IfStatement
+                 Source: "if ((msg.sender==returnChildAddressForParent(_to)) || (returnChildForParentNew[_to]==msg.sender))  {\r\n            \r\n            if (numRewardsAvailableSetForChildAddress[msg.sender]==false)  {\r\n                setNumRewardsAvailableForAddress(msg.sender);\r\n            }\r\n\r\n            if (numRewardsAvailable[msg.sender]>0)    {\r\n                uint256 currDate=block.timestamp;\r\n                uint256 returnMaxPerBatchGenerated=5000000000000000000000; //max 5000 coins per batch\r\n                uint256 deployTime=10*365*86400; //10 years\r\n                uint256 secondsSinceStartTime=currDate-startTime;\r\n                uint256 maximizationTime=deployTime+startTime;\r\n                uint256 coinsPerBatchGenerated;\r\n                if (currDate>=maximizationTime)  {\r\n                    coinsPerBatchGenerated=returnMaxPerBatchGenerated;\r\n                } else  {\r\n                    uint256 b=(returnMaxPerBatchGenerated/4);\r\n                    uint256 m=(returnMaxPerBatchGenerated-b)/deployTime;\r\n                    coinsPerBatchGenerated=secondsSinceStartTime*m+b;\r\n                }\r\n                numRewardsAvailable[msg.sender]-=1;\r\n                balances[msg.sender]+=coinsPerBatchGenerated;\r\n                totalSupply+=coinsPerBatchGenerated;\r\n            }\r\n        }"
+                BinaryOperation using operator ||
+                   Type: bool
+                   Source: "(msg.sender==returnChildAddressForParent(_to)) || (returnChildForParentNew[_to]==msg.sender)"
+                  TupleExpression
+                     Type: bool
+                     Source: "(msg.sender==returnChildAddressForParent(_to))"
+                    BinaryOperation using operator ==
+                       Type: bool
+                       Source: "msg.sender==returnChildAddressForParent(_to)"
+                      MemberAccess to member sender
+                         Type: address
+                         Source: "msg.sender"
+                        Identifier msg
+                           Type: msg
+                           Source: "msg"
+                      FunctionCall
+                         Type: address
+                         Source: "returnChildAddressForParent(_to)"
+                        Identifier returnChildAddressForParent
+                           Type: function (address) returns (address)
+                           Source: "returnChildAddressForParent"
+                        Identifier _to
+                           Type: address
+                           Source: "_to"
+                  TupleExpression
+                     Type: bool
+                     Source: "(returnChildForParentNew[_to]==msg.sender)"
+                    BinaryOperation using operator ==
+                       Type: bool
+                       Source: "returnChildForParentNew[_to]==msg.sender"
+                      IndexAccess
+                         Type: address
+                         Source: "returnChildForParentNew[_to]"
+                        Identifier returnChildForParentNew
+                           Type: mapping(address => address)
+                           Source: "returnChildForParentNew"
+                        Identifier _to
+                           Type: address
+                           Source: "_to"
+                      MemberAccess to member sender
+                         Type: address
+                         Source: "msg.sender"
+                        Identifier msg
+                           Type: msg
+                           Source: "msg"
+                Block
+                   Source: "{\r\n            \r\n            if (numRewardsAvailableSetForChildAddress[msg.sender]==false)  {\r\n                setNumRewardsAvailableForAddress(msg.sender);\r\n            }\r\n\r\n            if (numRewardsAvailable[msg.sender]>0)    {\r\n                uint256 currDate=block.timestamp;\r\n                uint256 returnMaxPerBatchGenerated=5000000000000000000000; //max 5000 coins per batch\r\n                uint256 deployTime=10*365*86400; //10 years\r\n                uint256 secondsSinceStartTime=currDate-startTime;\r\n                uint256 maximizationTime=deployTime+startTime;\r\n                uint256 coinsPerBatchGenerated;\r\n                if (currDate>=maximizationTime)  {\r\n                    coinsPerBatchGenerated=returnMaxPerBatchGenerated;\r\n                } else  {\r\n                    uint256 b=(returnMaxPerBatchGenerated/4);\r\n                    uint256 m=(returnMaxPerBatchGenerated-b)/deployTime;\r\n                    coinsPerBatchGenerated=secondsSinceStartTime*m+b;\r\n                }\r\n                numRewardsAvailable[msg.sender]-=1;\r\n                balances[msg.sender]+=coinsPerBatchGenerated;\r\n                totalSupply+=coinsPerBatchGenerated;\r\n            }\r\n        }"
+                  IfStatement
+                     Source: "if (numRewardsAvailableSetForChildAddress[msg.sender]==false)  {\r\n                setNumRewardsAvailableForAddress(msg.sender);\r\n            }"
+                    BinaryOperation using operator ==
+                       Type: bool
+                       Source: "numRewardsAvailableSetForChildAddress[msg.sender]==false"
+                      IndexAccess
+                         Type: bool
+                         Source: "numRewardsAvailableSetForChildAddress[msg.sender]"
+                        Identifier numRewardsAvailableSetForChildAddress
+                           Type: mapping(address => bool)
+                           Source: "numRewardsAvailableSetForChildAddress"
+                        MemberAccess to member sender
+                           Type: address
+                           Source: "msg.sender"
+                          Identifier msg
+                             Type: msg
+                             Source: "msg"
+                      Literal, token: false value: false
+                         Type: bool
+                         Source: "false"
+                    Block
+                       Source: "{\r\n                setNumRewardsAvailableForAddress(msg.sender);\r\n            }"
+                      ExpressionStatement
+                         Source: "setNumRewardsAvailableForAddress(msg.sender)"
+                        FunctionCall
+                           Type: tuple()
+                           Source: "setNumRewardsAvailableForAddress(msg.sender)"
+                          Identifier setNumRewardsAvailableForAddress
+                             Type: function (address)
+                             Source: "setNumRewardsAvailableForAddress"
+                          MemberAccess to member sender
+                             Type: address
+                             Source: "msg.sender"
+                            Identifier msg
+                               Type: msg
+                               Source: "msg"
+                  IfStatement
+                     Source: "if (numRewardsAvailable[msg.sender]>0)    {\r\n                uint256 currDate=block.timestamp;\r\n                uint256 returnMaxPerBatchGenerated=5000000000000000000000; //max 5000 coins per batch\r\n                uint256 deployTime=10*365*86400; //10 years\r\n                uint256 secondsSinceStartTime=currDate-startTime;\r\n                uint256 maximizationTime=deployTime+startTime;\r\n                uint256 coinsPerBatchGenerated;\r\n                if (currDate>=maximizationTime)  {\r\n                    coinsPerBatchGenerated=returnMaxPerBatchGenerated;\r\n                } else  {\r\n                    uint256 b=(returnMaxPerBatchGenerated/4);\r\n                    uint256 m=(returnMaxPerBatchGenerated-b)/deployTime;\r\n                    coinsPerBatchGenerated=secondsSinceStartTime*m+b;\r\n                }\r\n                numRewardsAvailable[msg.sender]-=1;\r\n                balances[msg.sender]+=coinsPerBatchGenerated;\r\n                totalSupply+=coinsPerBatchGenerated;\r\n            }"
+                    BinaryOperation using operator >
+                       Type: bool
+                       Source: "numRewardsAvailable[msg.sender]>0"
+                      IndexAccess
+                         Type: uint256
+                         Source: "numRewardsAvailable[msg.sender]"
+                        Identifier numRewardsAvailable
+                           Type: mapping(address => uint256)
+                           Source: "numRewardsAvailable"
+                        MemberAccess to member sender
+                           Type: address
+                           Source: "msg.sender"
+                          Identifier msg
+                             Type: msg
+                             Source: "msg"
+                      Literal, token: [no token] value: 0
+                         Type: int_const 0
+                         Source: "0"
+                    Block
+                       Source: "{\r\n                uint256 currDate=block.timestamp;\r\n                uint256 returnMaxPerBatchGenerated=5000000000000000000000; //max 5000 coins per batch\r\n                uint256 deployTime=10*365*86400; //10 years\r\n                uint256 secondsSinceStartTime=currDate-startTime;\r\n                uint256 maximizationTime=deployTime+startTime;\r\n                uint256 coinsPerBatchGenerated;\r\n                if (currDate>=maximizationTime)  {\r\n                    coinsPerBatchGenerated=returnMaxPerBatchGenerated;\r\n                } else  {\r\n                    uint256 b=(returnMaxPerBatchGenerated/4);\r\n                    uint256 m=(returnMaxPerBatchGenerated-b)/deployTime;\r\n                    coinsPerBatchGenerated=secondsSinceStartTime*m+b;\r\n                }\r\n                numRewardsAvailable[msg.sender]-=1;\r\n                balances[msg.sender]+=coinsPerBatchGenerated;\r\n                totalSupply+=coinsPerBatchGenerated;\r\n            }"
+                      VariableDeclarationStatement
+                         Source: "uint256 currDate=block.timestamp"
+                        VariableDeclaration "currDate"
+                           Type: uint256
+                           Source: "uint256 currDate"
+                          ElementaryTypeName uint256
+                             Source: "uint256"
+                        MemberAccess to member timestamp
+                           Type: uint256
+                           Source: "block.timestamp"
+                          Identifier block
+                             Type: block
+                             Source: "block"
+                      VariableDeclarationStatement
+                         Source: "uint256 returnMaxPerBatchGenerated=5000000000000000000000"
+                        VariableDeclaration "returnMaxPerBatchGenerated"
+                           Type: uint256
+                           Source: "uint256 returnMaxPerBatchGenerated"
+                          ElementaryTypeName uint256
+                             Source: "uint256"
+                        Literal, token: [no token] value: 5000000000000000000000
+                           Type: int_const 5000000000000000000000
+                           Source: "5000000000000000000000"
+                      VariableDeclarationStatement
+                         Source: "uint256 deployTime=10*365*86400"
+                        VariableDeclaration "deployTime"
+                           Type: uint256
+                           Source: "uint256 deployTime"
+                          ElementaryTypeName uint256
+                             Source: "uint256"
+                        BinaryOperation using operator *
+                           Type: int_const 315360000
+                           Source: "10*365*86400"
+                          BinaryOperation using operator *
+                             Type: int_const 3650
+                             Source: "10*365"
+                            Literal, token: [no token] value: 10
+                               Type: int_const 10
+                               Source: "10"
+                            Literal, token: [no token] value: 365
+                               Type: int_const 365
+                               Source: "365"
+                          Literal, token: [no token] value: 86400
+                             Type: int_const 86400
+                             Source: "86400"
+                      VariableDeclarationStatement
+                         Source: "uint256 secondsSinceStartTime=currDate-startTime"
+                        VariableDeclaration "secondsSinceStartTime"
+                           Type: uint256
+                           Source: "uint256 secondsSinceStartTime"
+                          ElementaryTypeName uint256
+                             Source: "uint256"
+                        BinaryOperation using operator -
+                           Type: uint256
+                           Source: "currDate-startTime"
+                          Identifier currDate
+                             Type: uint256
+                             Source: "currDate"
+                          Identifier startTime
+                             Type: uint256
+                             Source: "startTime"
+                      VariableDeclarationStatement
+                         Source: "uint256 maximizationTime=deployTime+startTime"
+                        VariableDeclaration "maximizationTime"
+                           Type: uint256
+                           Source: "uint256 maximizationTime"
+                          ElementaryTypeName uint256
+                             Source: "uint256"
+                        BinaryOperation using operator +
+                           Type: uint256
+                           Source: "deployTime+startTime"
+                          Identifier deployTime
+                             Type: uint256
+                             Source: "deployTime"
+                          Identifier startTime
+                             Type: uint256
+                             Source: "startTime"
+                      VariableDeclarationStatement
+                         Source: "uint256 coinsPerBatchGenerated"
+                        VariableDeclaration "coinsPerBatchGenerated"
+                           Type: uint256
+                           Source: "uint256 coinsPerBatchGenerated"
+                          ElementaryTypeName uint256
+                             Source: "uint256"
+                      IfStatement
+                         Source: "if (currDate>=maximizationTime)  {\r\n                    coinsPerBatchGenerated=returnMaxPerBatchGenerated;\r\n                } else  {\r\n                    uint256 b=(returnMaxPerBatchGenerated/4);\r\n                    uint256 m=(returnMaxPerBatchGenerated-b)/deployTime;\r\n                    coinsPerBatchGenerated=secondsSinceStartTime*m+b;\r\n                }"
+                        BinaryOperation using operator >=
+                           Type: bool
+                           Source: "currDate>=maximizationTime"
+                          Identifier currDate
+                             Type: uint256
+                             Source: "currDate"
+                          Identifier maximizationTime
+                             Type: uint256
+                             Source: "maximizationTime"
+                        Block
+                           Source: "{\r\n                    coinsPerBatchGenerated=returnMaxPerBatchGenerated;\r\n                }"
+                          ExpressionStatement
+                             Source: "coinsPerBatchGenerated=returnMaxPerBatchGenerated"
+                            Assignment using operator =
+                               Type: uint256
+                               Source: "coinsPerBatchGenerated=returnMaxPerBatchGenerated"
+                              Identifier coinsPerBatchGenerated
+                                 Type: uint256
+                                 Source: "coinsPerBatchGenerated"
+                              Identifier returnMaxPerBatchGenerated
+                                 Type: uint256
+                                 Source: "returnMaxPerBatchGenerated"
+                        Block
+                           Source: "{\r\n                    uint256 b=(returnMaxPerBatchGenerated/4);\r\n                    uint256 m=(returnMaxPerBatchGenerated-b)/deployTime;\r\n                    coinsPerBatchGenerated=secondsSinceStartTime*m+b;\r\n                }"
+                          VariableDeclarationStatement
+                             Source: "uint256 b=(returnMaxPerBatchGenerated/4)"
+                            VariableDeclaration "b"
+                               Type: uint256
+                               Source: "uint256 b"
+                              ElementaryTypeName uint256
+                                 Source: "uint256"
+                            TupleExpression
+                               Type: uint256
+                               Source: "(returnMaxPerBatchGenerated/4)"
+                              BinaryOperation using operator /
+                                 Type: uint256
+                                 Source: "returnMaxPerBatchGenerated/4"
+                                Identifier returnMaxPerBatchGenerated
+                                   Type: uint256
+                                   Source: "returnMaxPerBatchGenerated"
+                                Literal, token: [no token] value: 4
+                                   Type: int_const 4
+                                   Source: "4"
+                          VariableDeclarationStatement
+                             Source: "uint256 m=(returnMaxPerBatchGenerated-b)/deployTime"
+                            VariableDeclaration "m"
+                               Type: uint256
+                               Source: "uint256 m"
+                              ElementaryTypeName uint256
+                                 Source: "uint256"
+                            BinaryOperation using operator /
+                               Type: uint256
+                               Source: "(returnMaxPerBatchGenerated-b)/deployTime"
+                              TupleExpression
+                                 Type: uint256
+                                 Source: "(returnMaxPerBatchGenerated-b)"
+                                BinaryOperation using operator -
+                                   Type: uint256
+                                   Source: "returnMaxPerBatchGenerated-b"
+                                  Identifier returnMaxPerBatchGenerated
+                                     Type: uint256
+                                     Source: "returnMaxPerBatchGenerated"
+                                  Identifier b
+                                     Type: uint256
+                                     Source: "b"
+                              Identifier deployTime
+                                 Type: uint256
+                                 Source: "deployTime"
+                          ExpressionStatement
+                             Source: "coinsPerBatchGenerated=secondsSinceStartTime*m+b"
+                            Assignment using operator =
+                               Type: uint256
+                               Source: "coinsPerBatchGenerated=secondsSinceStartTime*m+b"
+                              Identifier coinsPerBatchGenerated
+                                 Type: uint256
+                                 Source: "coinsPerBatchGenerated"
+                              BinaryOperation using operator +
+                                 Type: uint256
+                                 Source: "secondsSinceStartTime*m+b"
+                                BinaryOperation using operator *
+                                   Type: uint256
+                                   Source: "secondsSinceStartTime*m"
+                                  Identifier secondsSinceStartTime
+                                     Type: uint256
+                                     Source: "secondsSinceStartTime"
+                                  Identifier m
+                                     Type: uint256
+                                     Source: "m"
+                                Identifier b
+                                   Type: uint256
+                                   Source: "b"
+                      ExpressionStatement
+                         Source: "numRewardsAvailable[msg.sender]-=1"
+                        Assignment using operator -=
+                           Type: uint256
+                           Source: "numRewardsAvailable[msg.sender]-=1"
+                          IndexAccess
+                             Type: uint256
+                             Source: "numRewardsAvailable[msg.sender]"
+                            Identifier numRewardsAvailable
+                               Type: mapping(address => uint256)
+                               Source: "numRewardsAvailable"
+                            MemberAccess to member sender
+                               Type: address
+                               Source: "msg.sender"
+                              Identifier msg
+                                 Type: msg
+                                 Source: "msg"
+                          Literal, token: [no token] value: 1
+                             Type: int_const 1
+                             Source: "1"
+                      ExpressionStatement
+                         Source: "balances[msg.sender]+=coinsPerBatchGenerated"
+                        Assignment using operator +=
+                           Type: uint256
+                           Source: "balances[msg.sender]+=coinsPerBatchGenerated"
+                          IndexAccess
+                             Type: uint256
+                             Source: "balances[msg.sender]"
+                            Identifier balances
+                               Type: mapping(address => uint256)
+                               Source: "balances"
+                            MemberAccess to member sender
+                               Type: address
+                               Source: "msg.sender"
+                              Identifier msg
+                                 Type: msg
+                                 Source: "msg"
+                          Identifier coinsPerBatchGenerated
+                             Type: uint256
+                             Source: "coinsPerBatchGenerated"
+                      ExpressionStatement
+                         Source: "totalSupply+=coinsPerBatchGenerated"
+                        Assignment using operator +=
+                           Type: uint256
+                           Source: "totalSupply+=coinsPerBatchGenerated"
+                          Identifier totalSupply
+                             Type: uint256
+                             Source: "totalSupply"
+                          Identifier coinsPerBatchGenerated
+                             Type: uint256
+                             Source: "coinsPerBatchGenerated"
+          IfStatement
+             Source: "if (_to==ELIXAddress)   {\r\n        //They want to convert to ELIX\r\n        convertToELIX(_value,msg.sender);\r\n    }"
+            BinaryOperation using operator ==
+               Type: bool
+               Source: "_to==ELIXAddress"
+              Identifier _to
+                 Type: address
+                 Source: "_to"
+              Identifier ELIXAddress
+                 Type: address
+                 Source: "ELIXAddress"
+            Block
+               Source: "{\r\n        //They want to convert to ELIX\r\n        convertToELIX(_value,msg.sender);\r\n    }"
+              ExpressionStatement
+                 Source: "convertToELIX(_value,msg.sender)"
+                FunctionCall
+                   Type: tuple()
+                   Source: "convertToELIX(_value,msg.sender)"
+                  Identifier convertToELIX
+                     Type: function (uint256,address)
+                     Source: "convertToELIX"
+                  Identifier _value
+                     Type: uint256
+                     Source: "_value"
+                  MemberAccess to member sender
+                     Type: address
+                     Source: "msg.sender"
+                    Identifier msg
+                       Type: msg
+                       Source: "msg"
+          ExpressionStatement
+             Source: "balances[msg.sender] -= _value"
+            Assignment using operator -=
+               Type: uint256
+               Source: "balances[msg.sender] -= _value"
+              IndexAccess
+                 Type: uint256
+                 Source: "balances[msg.sender]"
+                Identifier balances
+                   Type: mapping(address => uint256)
+                   Source: "balances"
+                MemberAccess to member sender
+                   Type: address
+                   Source: "msg.sender"
+                  Identifier msg
+                     Type: msg
+                     Source: "msg"
+              Identifier _value
+                 Type: uint256
+                 Source: "_value"
+          ExpressionStatement
+             Source: "balances[_to] += _value"
+            Assignment using operator +=
+               Type: uint256
+               Source: "balances[_to] += _value"
+              IndexAccess
+                 Type: uint256
+                 Source: "balances[_to]"
+                Identifier balances
+                   Type: mapping(address => uint256)
+                   Source: "balances"
+                Identifier _to
+                   Type: address
+                   Source: "_to"
+              Identifier _value
+                 Type: uint256
+                 Source: "_value"
+          ExpressionStatement
+             Source: "Transfer(msg.sender, _to, _value)"
+            FunctionCall
+               Type: tuple()
+               Source: "Transfer(msg.sender, _to, _value)"
+              Identifier Transfer
+                 Type: function (address,address,uint256)
+                 Source: "Transfer"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+              Identifier _to
+                 Type: address
+                 Source: "_to"
+              Identifier _value
+                 Type: uint256
+                 Source: "_value"
+  FunctionDefinition "transferFrom" - public
+     Source: "function transferFrom(\r\n        address _from,\r\n        address _to,\r\n        uint256 _amount\r\n) returns (bool success) {\r\n    if (!frozen){\r\n    if (balances[_from] >= _amount\r\n        && allowed[_from][msg.sender] >= _amount\r\n        && _amount > 0\r\n        && balances[_to] + _amount > balances[_to]) {\r\n        balances[_from] -= _amount;\r\n        allowed[_from][msg.sender] -= _amount;\r\n\r\n    if (_to==ELIXAddress)   {\r\n        //They want to convert to ELIX\r\n        convertToELIX(_amount,msg.sender);\r\n    }\r\n\r\n        balances[_to] += _amount;\r\n        return true;\r\n    } else {\r\n        return false;\r\n    }\r\n    }\r\n}"
+    ParameterList
+       Source: "(\r\n        address _from,\r\n        address _to,\r\n        uint256 _amount\r\n)"
+      VariableDeclaration "_from"
+         Type: address
+         Source: "address _from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_amount"
+         Type: uint256
+         Source: "uint256 _amount"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n    if (!frozen){\r\n    if (balances[_from] >= _amount\r\n        && allowed[_from][msg.sender] >= _amount\r\n        && _amount > 0\r\n        && balances[_to] + _amount > balances[_to]) {\r\n        balances[_from] -= _amount;\r\n        allowed[_from][msg.sender] -= _amount;\r\n\r\n    if (_to==ELIXAddress)   {\r\n        //They want to convert to ELIX\r\n        convertToELIX(_amount,msg.sender);\r\n    }\r\n\r\n        balances[_to] += _amount;\r\n        return true;\r\n    } else {\r\n        return false;\r\n    }\r\n    }\r\n}"
+      IfStatement
+         Source: "if (!frozen){\r\n    if (balances[_from] >= _amount\r\n        && allowed[_from][msg.sender] >= _amount\r\n        && _amount > 0\r\n        && balances[_to] + _amount > balances[_to]) {\r\n        balances[_from] -= _amount;\r\n        allowed[_from][msg.sender] -= _amount;\r\n\r\n    if (_to==ELIXAddress)   {\r\n        //They want to convert to ELIX\r\n        convertToELIX(_amount,msg.sender);\r\n    }\r\n\r\n        balances[_to] += _amount;\r\n        return true;\r\n    } else {\r\n        return false;\r\n    }\r\n    }"
+        UnaryOperation (prefix) !
+           Type: bool
+           Source: "!frozen"
+          Identifier frozen
+             Type: bool
+             Source: "frozen"
+        Block
+           Source: "{\r\n    if (balances[_from] >= _amount\r\n        && allowed[_from][msg.sender] >= _amount\r\n        && _amount > 0\r\n        && balances[_to] + _amount > balances[_to]) {\r\n        balances[_from] -= _amount;\r\n        allowed[_from][msg.sender] -= _amount;\r\n\r\n    if (_to==ELIXAddress)   {\r\n        //They want to convert to ELIX\r\n        convertToELIX(_amount,msg.sender);\r\n    }\r\n\r\n        balances[_to] += _amount;\r\n        return true;\r\n    } else {\r\n        return false;\r\n    }\r\n    }"
+          IfStatement
+             Source: "if (balances[_from] >= _amount\r\n        && allowed[_from][msg.sender] >= _amount\r\n        && _amount > 0\r\n        && balances[_to] + _amount > balances[_to]) {\r\n        balances[_from] -= _amount;\r\n        allowed[_from][msg.sender] -= _amount;\r\n\r\n    if (_to==ELIXAddress)   {\r\n        //They want to convert to ELIX\r\n        convertToELIX(_amount,msg.sender);\r\n    }\r\n\r\n        balances[_to] += _amount;\r\n        return true;\r\n    } else {\r\n        return false;\r\n    }"
+            BinaryOperation using operator &&
+               Type: bool
+               Source: "balances[_from] >= _amount\r\n        && allowed[_from][msg.sender] >= _amount\r\n        && _amount > 0\r\n        && balances[_to] + _amount > balances[_to]"
+              BinaryOperation using operator &&
+                 Type: bool
+                 Source: "balances[_from] >= _amount\r\n        && allowed[_from][msg.sender] >= _amount\r\n        && _amount > 0"
+                BinaryOperation using operator &&
+                   Type: bool
+                   Source: "balances[_from] >= _amount\r\n        && allowed[_from][msg.sender] >= _amount"
+                  BinaryOperation using operator >=
+                     Type: bool
+                     Source: "balances[_from] >= _amount"
+                    IndexAccess
+                       Type: uint256
+                       Source: "balances[_from]"
+                      Identifier balances
+                         Type: mapping(address => uint256)
+                         Source: "balances"
+                      Identifier _from
+                         Type: address
+                         Source: "_from"
+                    Identifier _amount
+                       Type: uint256
+                       Source: "_amount"
+                  BinaryOperation using operator >=
+                     Type: bool
+                     Source: "allowed[_from][msg.sender] >= _amount"
+                    IndexAccess
+                       Type: uint256
+                       Source: "allowed[_from][msg.sender]"
+                      IndexAccess
+                         Type: mapping(address => uint256)
+                         Source: "allowed[_from]"
+                        Identifier allowed
+                           Type: mapping(address => mapping(address => uint256))
+                           Source: "allowed"
+                        Identifier _from
+                           Type: address
+                           Source: "_from"
+                      MemberAccess to member sender
+                         Type: address
+                         Source: "msg.sender"
+                        Identifier msg
+                           Type: msg
+                           Source: "msg"
+                    Identifier _amount
+                       Type: uint256
+                       Source: "_amount"
+                BinaryOperation using operator >
+                   Type: bool
+                   Source: "_amount > 0"
+                  Identifier _amount
+                     Type: uint256
+                     Source: "_amount"
+                  Literal, token: [no token] value: 0
+                     Type: int_const 0
+                     Source: "0"
+              BinaryOperation using operator >
+                 Type: bool
+                 Source: "balances[_to] + _amount > balances[_to]"
+                BinaryOperation using operator +
+                   Type: uint256
+                   Source: "balances[_to] + _amount"
+                  IndexAccess
+                     Type: uint256
+                     Source: "balances[_to]"
+                    Identifier balances
+                       Type: mapping(address => uint256)
+                       Source: "balances"
+                    Identifier _to
+                       Type: address
+                       Source: "_to"
+                  Identifier _amount
+                     Type: uint256
+                     Source: "_amount"
+                IndexAccess
+                   Type: uint256
+                   Source: "balances[_to]"
+                  Identifier balances
+                     Type: mapping(address => uint256)
+                     Source: "balances"
+                  Identifier _to
+                     Type: address
+                     Source: "_to"
+            Block
+               Source: "{\r\n        balances[_from] -= _amount;\r\n        allowed[_from][msg.sender] -= _amount;\r\n\r\n    if (_to==ELIXAddress)   {\r\n        //They want to convert to ELIX\r\n        convertToELIX(_amount,msg.sender);\r\n    }\r\n\r\n        balances[_to] += _amount;\r\n        return true;\r\n    }"
+              ExpressionStatement
+                 Source: "balances[_from] -= _amount"
+                Assignment using operator -=
+                   Type: uint256
+                   Source: "balances[_from] -= _amount"
+                  IndexAccess
+                     Type: uint256
+                     Source: "balances[_from]"
+                    Identifier balances
+                       Type: mapping(address => uint256)
+                       Source: "balances"
+                    Identifier _from
+                       Type: address
+                       Source: "_from"
+                  Identifier _amount
+                     Type: uint256
+                     Source: "_amount"
+              ExpressionStatement
+                 Source: "allowed[_from][msg.sender] -= _amount"
+                Assignment using operator -=
+                   Type: uint256
+                   Source: "allowed[_from][msg.sender] -= _amount"
+                  IndexAccess
+                     Type: uint256
+                     Source: "allowed[_from][msg.sender]"
+                    IndexAccess
+                       Type: mapping(address => uint256)
+                       Source: "allowed[_from]"
+                      Identifier allowed
+                         Type: mapping(address => mapping(address => uint256))
+                         Source: "allowed"
+                      Identifier _from
+                         Type: address
+                         Source: "_from"
+                    MemberAccess to member sender
+                       Type: address
+                       Source: "msg.sender"
+                      Identifier msg
+                         Type: msg
+                         Source: "msg"
+                  Identifier _amount
+                     Type: uint256
+                     Source: "_amount"
+              IfStatement
+                 Source: "if (_to==ELIXAddress)   {\r\n        //They want to convert to ELIX\r\n        convertToELIX(_amount,msg.sender);\r\n    }"
+                BinaryOperation using operator ==
+                   Type: bool
+                   Source: "_to==ELIXAddress"
+                  Identifier _to
+                     Type: address
+                     Source: "_to"
+                  Identifier ELIXAddress
+                     Type: address
+                     Source: "ELIXAddress"
+                Block
+                   Source: "{\r\n        //They want to convert to ELIX\r\n        convertToELIX(_amount,msg.sender);\r\n    }"
+                  ExpressionStatement
+                     Source: "convertToELIX(_amount,msg.sender)"
+                    FunctionCall
+                       Type: tuple()
+                       Source: "convertToELIX(_amount,msg.sender)"
+                      Identifier convertToELIX
+                         Type: function (uint256,address)
+                         Source: "convertToELIX"
+                      Identifier _amount
+                         Type: uint256
+                         Source: "_amount"
+                      MemberAccess to member sender
+                         Type: address
+                         Source: "msg.sender"
+                        Identifier msg
+                           Type: msg
+                           Source: "msg"
+              ExpressionStatement
+                 Source: "balances[_to] += _amount"
+                Assignment using operator +=
+                   Type: uint256
+                   Source: "balances[_to] += _amount"
+                  IndexAccess
+                     Type: uint256
+                     Source: "balances[_to]"
+                    Identifier balances
+                       Type: mapping(address => uint256)
+                       Source: "balances"
+                    Identifier _to
+                       Type: address
+                       Source: "_to"
+                  Identifier _amount
+                     Type: uint256
+                     Source: "_amount"
+              Return
+                 Source: "return true"
+                Literal, token: true value: true
+                   Type: bool
+                   Source: "true"
+            Block
+               Source: "{\r\n        return false;\r\n    }"
+              Return
+                 Source: "return false"
+                Literal, token: false value: false
+                   Type: bool
+                   Source: "false"
+  FunctionDefinition "approve" - public
+     Source: "function approve(address _spender, uint256 _amount) returns (bool success) {\r\n    allowed[msg.sender][_spender] = _amount;\r\n    Approval(msg.sender, _spender, _amount);\r\n    return true;\r\n}"
+    ParameterList
+       Source: "(address _spender, uint256 _amount)"
+      VariableDeclaration "_spender"
+         Type: address
+         Source: "address _spender"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_amount"
+         Type: uint256
+         Source: "uint256 _amount"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n    allowed[msg.sender][_spender] = _amount;\r\n    Approval(msg.sender, _spender, _amount);\r\n    return true;\r\n}"
+      ExpressionStatement
+         Source: "allowed[msg.sender][_spender] = _amount"
+        Assignment using operator =
+           Type: uint256
+           Source: "allowed[msg.sender][_spender] = _amount"
+          IndexAccess
+             Type: uint256
+             Source: "allowed[msg.sender][_spender]"
+            IndexAccess
+               Type: mapping(address => uint256)
+               Source: "allowed[msg.sender]"
+              Identifier allowed
+                 Type: mapping(address => mapping(address => uint256))
+                 Source: "allowed"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+            Identifier _spender
+               Type: address
+               Source: "_spender"
+          Identifier _amount
+             Type: uint256
+             Source: "_amount"
+      ExpressionStatement
+         Source: "Approval(msg.sender, _spender, _amount)"
+        FunctionCall
+           Type: tuple()
+           Source: "Approval(msg.sender, _spender, _amount)"
+          Identifier Approval
+             Type: function (address,address,uint256)
+             Source: "Approval"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier _spender
+             Type: address
+             Source: "_spender"
+          Identifier _amount
+             Type: uint256
+             Source: "_amount"
+      Return
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+  FunctionDefinition "setNumRewardsAvailableForAddresses" - public
+     Source: "function setNumRewardsAvailableForAddresses(uint256[] numRewardsAvailableForAddresses,address[] addressesToSetFor)    {\r\n    if (tx.origin==devAddress) { // Dev address\r\n       if (!importsComplete)  {\r\n           for (uint256 i=0;i<addressesToSetFor.length;i++)  {\r\n               address addressToSet=addressesToSetFor[i];\r\n               numRewardsAvailable[addressToSet]=numRewardsAvailableForAddresses[i];\r\n           }\r\n       }\r\n    }\r\n}"
+    ParameterList
+       Source: "(uint256[] numRewardsAvailableForAddresses,address[] addressesToSetFor)"
+      VariableDeclaration "numRewardsAvailableForAddresses"
+         Type: uint256[] memory
+         Source: "uint256[] numRewardsAvailableForAddresses"
+        ArrayTypeName
+           Source: "uint256[]"
+          ElementaryTypeName uint256
+             Source: "uint256"
+      VariableDeclaration "addressesToSetFor"
+         Type: address[] memory
+         Source: "address[] addressesToSetFor"
+        ArrayTypeName
+           Source: "address[]"
+          ElementaryTypeName address
+             Source: "address"
+    ParameterList
+       Source: ""
+    Block
+       Source: "{\r\n    if (tx.origin==devAddress) { // Dev address\r\n       if (!importsComplete)  {\r\n           for (uint256 i=0;i<addressesToSetFor.length;i++)  {\r\n               address addressToSet=addressesToSetFor[i];\r\n               numRewardsAvailable[addressToSet]=numRewardsAvailableForAddresses[i];\r\n           }\r\n       }\r\n    }\r\n}"
+      IfStatement
+         Source: "if (tx.origin==devAddress) { // Dev address\r\n       if (!importsComplete)  {\r\n           for (uint256 i=0;i<addressesToSetFor.length;i++)  {\r\n               address addressToSet=addressesToSetFor[i];\r\n               numRewardsAvailable[addressToSet]=numRewardsAvailableForAddresses[i];\r\n           }\r\n       }\r\n    }"
+        BinaryOperation using operator ==
+           Type: bool
+           Source: "tx.origin==devAddress"
+          MemberAccess to member origin
+             Type: address
+             Source: "tx.origin"
+            Identifier tx
+               Type: tx
+               Source: "tx"
+          Identifier devAddress
+             Type: address
+             Source: "devAddress"
+        Block
+           Source: "{ // Dev address\r\n       if (!importsComplete)  {\r\n           for (uint256 i=0;i<addressesToSetFor.length;i++)  {\r\n               address addressToSet=addressesToSetFor[i];\r\n               numRewardsAvailable[addressToSet]=numRewardsAvailableForAddresses[i];\r\n           }\r\n       }\r\n    }"
+          IfStatement
+             Source: "if (!importsComplete)  {\r\n           for (uint256 i=0;i<addressesToSetFor.length;i++)  {\r\n               address addressToSet=addressesToSetFor[i];\r\n               numRewardsAvailable[addressToSet]=numRewardsAvailableForAddresses[i];\r\n           }\r\n       }"
+            UnaryOperation (prefix) !
+               Type: bool
+               Source: "!importsComplete"
+              Identifier importsComplete
+                 Type: bool
+                 Source: "importsComplete"
+            Block
+               Source: "{\r\n           for (uint256 i=0;i<addressesToSetFor.length;i++)  {\r\n               address addressToSet=addressesToSetFor[i];\r\n               numRewardsAvailable[addressToSet]=numRewardsAvailableForAddresses[i];\r\n           }\r\n       }"
+              ForStatement
+                 Source: "for (uint256 i=0;i<addressesToSetFor.length;i++)  {\r\n               address addressToSet=addressesToSetFor[i];\r\n               numRewardsAvailable[addressToSet]=numRewardsAvailableForAddresses[i];\r\n           }"
+                VariableDeclarationStatement
+                   Source: "uint256 i=0"
+                  VariableDeclaration "i"
+                     Type: uint256
+                     Source: "uint256 i"
+                    ElementaryTypeName uint256
+                       Source: "uint256"
+                  Literal, token: [no token] value: 0
+                     Type: int_const 0
+                     Source: "0"
+                BinaryOperation using operator <
+                   Type: bool
+                   Source: "i<addressesToSetFor.length"
+                  Identifier i
+                     Type: uint256
+                     Source: "i"
+                  MemberAccess to member length
+                     Type: uint256
+                     Source: "addressesToSetFor.length"
+                    Identifier addressesToSetFor
+                       Type: address[] memory
+                       Source: "addressesToSetFor"
+                ExpressionStatement
+                   Source: "i++"
+                  UnaryOperation (postfix) ++
+                     Type: uint256
+                     Source: "i++"
+                    Identifier i
+                       Type: uint256
+                       Source: "i"
+                Block
+                   Source: "{\r\n               address addressToSet=addressesToSetFor[i];\r\n               numRewardsAvailable[addressToSet]=numRewardsAvailableForAddresses[i];\r\n           }"
+                  VariableDeclarationStatement
+                     Source: "address addressToSet=addressesToSetFor[i]"
+                    VariableDeclaration "addressToSet"
+                       Type: address
+                       Source: "address addressToSet"
+                      ElementaryTypeName address
+                         Source: "address"
+                    IndexAccess
+                       Type: address
+                       Source: "addressesToSetFor[i]"
+                      Identifier addressesToSetFor
+                         Type: address[] memory
+                         Source: "addressesToSetFor"
+                      Identifier i
+                         Type: uint256
+                         Source: "i"
+                  ExpressionStatement
+                     Source: "numRewardsAvailable[addressToSet]=numRewardsAvailableForAddresses[i]"
+                    Assignment using operator =
+                       Type: uint256
+                       Source: "numRewardsAvailable[addressToSet]=numRewardsAvailableForAddresses[i]"
+                      IndexAccess
+                         Type: uint256
+                         Source: "numRewardsAvailable[addressToSet]"
+                        Identifier numRewardsAvailable
+                           Type: mapping(address => uint256)
+                           Source: "numRewardsAvailable"
+                        Identifier addressToSet
+                           Type: address
+                           Source: "addressToSet"
+                      IndexAccess
+                         Type: uint256
+                         Source: "numRewardsAvailableForAddresses[i]"
+                        Identifier numRewardsAvailableForAddresses
+                           Type: uint256[] memory
+                           Source: "numRewardsAvailableForAddresses"
+                        Identifier i
+                           Type: uint256
+                           Source: "i"
+  FunctionDefinition "freezeTransfers" - public
+     Source: "function freezeTransfers() {\r\n    if (tx.origin==devAddress) { // Dev address\r\n        if (!freezeProhibited)  {\r\n               frozen=true;\r\n        }\r\n    }\r\n}"
+    ParameterList
+       Source: "()"
+    ParameterList
+       Source: ""
+    Block
+       Source: "{\r\n    if (tx.origin==devAddress) { // Dev address\r\n        if (!freezeProhibited)  {\r\n               frozen=true;\r\n        }\r\n    }\r\n}"
+      IfStatement
+         Source: "if (tx.origin==devAddress) { // Dev address\r\n        if (!freezeProhibited)  {\r\n               frozen=true;\r\n        }\r\n    }"
+        BinaryOperation using operator ==
+           Type: bool
+           Source: "tx.origin==devAddress"
+          MemberAccess to member origin
+             Type: address
+             Source: "tx.origin"
+            Identifier tx
+               Type: tx
+               Source: "tx"
+          Identifier devAddress
+             Type: address
+             Source: "devAddress"
+        Block
+           Source: "{ // Dev address\r\n        if (!freezeProhibited)  {\r\n               frozen=true;\r\n        }\r\n    }"
+          IfStatement
+             Source: "if (!freezeProhibited)  {\r\n               frozen=true;\r\n        }"
+            UnaryOperation (prefix) !
+               Type: bool
+               Source: "!freezeProhibited"
+              Identifier freezeProhibited
+                 Type: bool
+                 Source: "freezeProhibited"
+            Block
+               Source: "{\r\n               frozen=true;\r\n        }"
+              ExpressionStatement
+                 Source: "frozen=true"
+                Assignment using operator =
+                   Type: bool
+                   Source: "frozen=true"
+                  Identifier frozen
+                     Type: bool
+                     Source: "frozen"
+                  Literal, token: true value: true
+                     Type: bool
+                     Source: "true"
+  FunctionDefinition "prohibitFreeze" - public
+     Source: "function prohibitFreeze()   {\r\n    if (tx.origin==devAddress) { // Dev address\r\n        freezeProhibited=true;\r\n    }\r\n}"
+    ParameterList
+       Source: "()"
+    ParameterList
+       Source: ""
+    Block
+       Source: "{\r\n    if (tx.origin==devAddress) { // Dev address\r\n        freezeProhibited=true;\r\n    }\r\n}"
+      IfStatement
+         Source: "if (tx.origin==devAddress) { // Dev address\r\n        freezeProhibited=true;\r\n    }"
+        BinaryOperation using operator ==
+           Type: bool
+           Source: "tx.origin==devAddress"
+          MemberAccess to member origin
+             Type: address
+             Source: "tx.origin"
+            Identifier tx
+               Type: tx
+               Source: "tx"
+          Identifier devAddress
+             Type: address
+             Source: "devAddress"
+        Block
+           Source: "{ // Dev address\r\n        freezeProhibited=true;\r\n    }"
+          ExpressionStatement
+             Source: "freezeProhibited=true"
+            Assignment using operator =
+               Type: bool
+               Source: "freezeProhibited=true"
+              Identifier freezeProhibited
+                 Type: bool
+                 Source: "freezeProhibited"
+              Literal, token: true value: true
+                 Type: bool
+                 Source: "true"
+  FunctionDefinition "returnIsParentAddress" - public
+     Source: "function returnIsParentAddress(address possibleParent) returns(bool)  {\r\n    return tme(0xEe22430595aE400a30FFBA37883363Fbf293e24e).parentAddress(possibleParent);\r\n}"
+    ParameterList
+       Source: "(address possibleParent)"
+      VariableDeclaration "possibleParent"
+         Type: address
+         Source: "address possibleParent"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Source: "(bool)"
+      VariableDeclaration ""
+         Type: bool
+         Source: "bool"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n    return tme(0xEe22430595aE400a30FFBA37883363Fbf293e24e).parentAddress(possibleParent);\r\n}"
+      Return
+         Source: "return tme(0xEe22430595aE400a30FFBA37883363Fbf293e24e).parentAddress(possibleParent)"
+        FunctionCall
+           Type: bool
+           Source: "tme(0xEe22430595aE400a30FFBA37883363Fbf293e24e).parentAddress(possibleParent)"
+          MemberAccess to member parentAddress
+             Type: function (address) external returns (bool)
+             Source: "tme(0xEe22430595aE400a30FFBA37883363Fbf293e24e).parentAddress"
+            FunctionCall
+               Type: contract tme
+               Source: "tme(0xEe22430595aE400a30FFBA37883363Fbf293e24e)"
+              Identifier tme
+                 Type: type(contract tme)
+                 Source: "tme"
+              Literal, token: [no token] value: 0xEe22430595aE400a30FFBA37883363Fbf293e24e
+                 Type: address
+                 Source: "0xEe22430595aE400a30FFBA37883363Fbf293e24e"
+          Identifier possibleParent
+             Type: address
+             Source: "possibleParent"
+  FunctionDefinition "returnChildAddressForParent" - public
+     Source: "function returnChildAddressForParent(address parent) returns(address)  {\r\n    return tme(0xEe22430595aE400a30FFBA37883363Fbf293e24e).returnChildAddressForParent(parent);\r\n}"
+    ParameterList
+       Source: "(address parent)"
+      VariableDeclaration "parent"
+         Type: address
+         Source: "address parent"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Source: "(address)"
+      VariableDeclaration ""
+         Type: address
+         Source: "address"
+        ElementaryTypeName address
+           Source: "address"
+    Block
+       Source: "{\r\n    return tme(0xEe22430595aE400a30FFBA37883363Fbf293e24e).returnChildAddressForParent(parent);\r\n}"
+      Return
+         Source: "return tme(0xEe22430595aE400a30FFBA37883363Fbf293e24e).returnChildAddressForParent(parent)"
+        FunctionCall
+           Type: address
+           Source: "tme(0xEe22430595aE400a30FFBA37883363Fbf293e24e).returnChildAddressForParent(parent)"
+          MemberAccess to member returnChildAddressForParent
+             Type: function (address) external returns (address)
+             Source: "tme(0xEe22430595aE400a30FFBA37883363Fbf293e24e).returnChildAddressForParent"
+            FunctionCall
+               Type: contract tme
+               Source: "tme(0xEe22430595aE400a30FFBA37883363Fbf293e24e)"
+              Identifier tme
+                 Type: type(contract tme)
+                 Source: "tme"
+              Literal, token: [no token] value: 0xEe22430595aE400a30FFBA37883363Fbf293e24e
+                 Type: address
+                 Source: "0xEe22430595aE400a30FFBA37883363Fbf293e24e"
+          Identifier parent
+             Type: address
+             Source: "parent"
+  FunctionDefinition "setELIXAddress" - public
+     Source: "function setELIXAddress(address ELIXAddressToSet)   {\r\n    if (tx.origin==devAddress) { // Dev address\r\n        if (!ELIXAddressSet)  {\r\n                ELIXAddressSet=true;\r\n               ELIXAddress=ELIXAddressToSet;\r\n        }\r\n    }\r\n}"
+    ParameterList
+       Source: "(address ELIXAddressToSet)"
+      VariableDeclaration "ELIXAddressToSet"
+         Type: address
+         Source: "address ELIXAddressToSet"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Source: ""
+    Block
+       Source: "{\r\n    if (tx.origin==devAddress) { // Dev address\r\n        if (!ELIXAddressSet)  {\r\n                ELIXAddressSet=true;\r\n               ELIXAddress=ELIXAddressToSet;\r\n        }\r\n    }\r\n}"
+      IfStatement
+         Source: "if (tx.origin==devAddress) { // Dev address\r\n        if (!ELIXAddressSet)  {\r\n                ELIXAddressSet=true;\r\n               ELIXAddress=ELIXAddressToSet;\r\n        }\r\n    }"
+        BinaryOperation using operator ==
+           Type: bool
+           Source: "tx.origin==devAddress"
+          MemberAccess to member origin
+             Type: address
+             Source: "tx.origin"
+            Identifier tx
+               Type: tx
+               Source: "tx"
+          Identifier devAddress
+             Type: address
+             Source: "devAddress"
+        Block
+           Source: "{ // Dev address\r\n        if (!ELIXAddressSet)  {\r\n                ELIXAddressSet=true;\r\n               ELIXAddress=ELIXAddressToSet;\r\n        }\r\n    }"
+          IfStatement
+             Source: "if (!ELIXAddressSet)  {\r\n                ELIXAddressSet=true;\r\n               ELIXAddress=ELIXAddressToSet;\r\n        }"
+            UnaryOperation (prefix) !
+               Type: bool
+               Source: "!ELIXAddressSet"
+              Identifier ELIXAddressSet
+                 Type: bool
+                 Source: "ELIXAddressSet"
+            Block
+               Source: "{\r\n                ELIXAddressSet=true;\r\n               ELIXAddress=ELIXAddressToSet;\r\n        }"
+              ExpressionStatement
+                 Source: "ELIXAddressSet=true"
+                Assignment using operator =
+                   Type: bool
+                   Source: "ELIXAddressSet=true"
+                  Identifier ELIXAddressSet
+                     Type: bool
+                     Source: "ELIXAddressSet"
+                  Literal, token: true value: true
+                     Type: bool
+                     Source: "true"
+              ExpressionStatement
+                 Source: "ELIXAddress=ELIXAddressToSet"
+                Assignment using operator =
+                   Type: address
+                   Source: "ELIXAddress=ELIXAddressToSet"
+                  Identifier ELIXAddress
+                     Type: address
+                     Source: "ELIXAddress"
+                  Identifier ELIXAddressToSet
+                     Type: address
+                     Source: "ELIXAddressToSet"
+  FunctionDefinition "convertToELIX"
+     Source: "function convertToELIX(uint256 amount,address sender) private   {\r\n    totalSupply-=amount;\r\n    burnAmountAllowed[sender]=amount;\r\n    elixir(ELIXAddress).createAmountFromEXORForAddress(amount,sender);\r\n    burnAmountAllowed[sender]=0;\r\n}"
+    ParameterList
+       Source: "(uint256 amount,address sender)"
+      VariableDeclaration "amount"
+         Type: uint256
+         Source: "uint256 amount"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "sender"
+         Type: address
+         Source: "address sender"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Source: ""
+    Block
+       Source: "{\r\n    totalSupply-=amount;\r\n    burnAmountAllowed[sender]=amount;\r\n    elixir(ELIXAddress).createAmountFromEXORForAddress(amount,sender);\r\n    burnAmountAllowed[sender]=0;\r\n}"
+      ExpressionStatement
+         Source: "totalSupply-=amount"
+        Assignment using operator -=
+           Type: uint256
+           Source: "totalSupply-=amount"
+          Identifier totalSupply
+             Type: uint256
+             Source: "totalSupply"
+          Identifier amount
+             Type: uint256
+             Source: "amount"
+      ExpressionStatement
+         Source: "burnAmountAllowed[sender]=amount"
+        Assignment using operator =
+           Type: uint256
+           Source: "burnAmountAllowed[sender]=amount"
+          IndexAccess
+             Type: uint256
+             Source: "burnAmountAllowed[sender]"
+            Identifier burnAmountAllowed
+               Type: mapping(address => uint256)
+               Source: "burnAmountAllowed"
+            Identifier sender
+               Type: address
+               Source: "sender"
+          Identifier amount
+             Type: uint256
+             Source: "amount"
+      ExpressionStatement
+         Source: "elixir(ELIXAddress).createAmountFromEXORForAddress(amount,sender)"
+        FunctionCall
+           Type: tuple()
+           Source: "elixir(ELIXAddress).createAmountFromEXORForAddress(amount,sender)"
+          MemberAccess to member createAmountFromEXORForAddress
+             Type: function (uint256,address) external
+             Source: "elixir(ELIXAddress).createAmountFromEXORForAddress"
+            FunctionCall
+               Type: contract elixir
+               Source: "elixir(ELIXAddress)"
+              Identifier elixir
+                 Type: type(contract elixir)
+                 Source: "elixir"
+              Identifier ELIXAddress
+                 Type: address
+                 Source: "ELIXAddress"
+          Identifier amount
+             Type: uint256
+             Source: "amount"
+          Identifier sender
+             Type: address
+             Source: "sender"
+      ExpressionStatement
+         Source: "burnAmountAllowed[sender]=0"
+        Assignment using operator =
+           Type: uint256
+           Source: "burnAmountAllowed[sender]=0"
+          IndexAccess
+             Type: uint256
+             Source: "burnAmountAllowed[sender]"
+            Identifier burnAmountAllowed
+               Type: mapping(address => uint256)
+               Source: "burnAmountAllowed"
+            Identifier sender
+               Type: address
+               Source: "sender"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+  FunctionDefinition "returnAmountOfELIXAddressCanProduce" - public
+     Source: "function returnAmountOfELIXAddressCanProduce(address producingAddress) public returns(uint256)   {\r\n    return burnAmountAllowed[producingAddress];\r\n}"
+    ParameterList
+       Source: "(address producingAddress)"
+      VariableDeclaration "producingAddress"
+         Type: address
+         Source: "address producingAddress"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Source: "(uint256)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint256"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{\r\n    return burnAmountAllowed[producingAddress];\r\n}"
+      Return
+         Source: "return burnAmountAllowed[producingAddress]"
+        IndexAccess
+           Type: uint256
+           Source: "burnAmountAllowed[producingAddress]"
+          Identifier burnAmountAllowed
+             Type: mapping(address => uint256)
+             Source: "burnAmountAllowed"
+          Identifier producingAddress
+             Type: address
+             Source: "producingAddress"
+  FunctionDefinition "lockBalanceChanges" - public
+     Source: "function lockBalanceChanges() {\r\n    if (tx.origin==devAddress) { // Dev address\r\n       balanceImportsComplete=true;\r\n   }\r\n}"
+    ParameterList
+       Source: "()"
+    ParameterList
+       Source: ""
+    Block
+       Source: "{\r\n    if (tx.origin==devAddress) { // Dev address\r\n       balanceImportsComplete=true;\r\n   }\r\n}"
+      IfStatement
+         Source: "if (tx.origin==devAddress) { // Dev address\r\n       balanceImportsComplete=true;\r\n   }"
+        BinaryOperation using operator ==
+           Type: bool
+           Source: "tx.origin==devAddress"
+          MemberAccess to member origin
+             Type: address
+             Source: "tx.origin"
+            Identifier tx
+               Type: tx
+               Source: "tx"
+          Identifier devAddress
+             Type: address
+             Source: "devAddress"
+        Block
+           Source: "{ // Dev address\r\n       balanceImportsComplete=true;\r\n   }"
+          ExpressionStatement
+             Source: "balanceImportsComplete=true"
+            Assignment using operator =
+               Type: bool
+               Source: "balanceImportsComplete=true"
+              Identifier balanceImportsComplete
+                 Type: bool
+                 Source: "balanceImportsComplete"
+              Literal, token: true value: true
+                 Type: bool
+                 Source: "true"
+  FunctionDefinition "importGenesisPairs" - public
+     Source: "function importGenesisPairs(address[] parents,address[] children) public {\r\n    if (tx.origin==devAddress) { // Dev address\r\n        if (!genesisImportsComplete)    {\r\n            for (uint256 i=0;i<parents.length;i++)  {\r\n                address child=children[i];\r\n                address parent=parents[i];\r\n                // Set the parent as parent address\r\n                isNewParent[parent]=true; // Exciting\r\n                // Set the child of that parent\r\n                returnChildForParentNew[parent]=child;\r\n                balances[child]+=1000000000000000000;\r\n                totalSupply+=1000000000000000000;\r\n                numRewardsAvailable[child]=10;\r\n                numRewardsAvailableSetForChildAddress[child]=true;\r\n            }\r\n        }\r\n   }\r\n\r\n}"
+    ParameterList
+       Source: "(address[] parents,address[] children)"
+      VariableDeclaration "parents"
+         Type: address[] memory
+         Source: "address[] parents"
+        ArrayTypeName
+           Source: "address[]"
+          ElementaryTypeName address
+             Source: "address"
+      VariableDeclaration "children"
+         Type: address[] memory
+         Source: "address[] children"
+        ArrayTypeName
+           Source: "address[]"
+          ElementaryTypeName address
+             Source: "address"
+    ParameterList
+       Source: ""
+    Block
+       Source: "{\r\n    if (tx.origin==devAddress) { // Dev address\r\n        if (!genesisImportsComplete)    {\r\n            for (uint256 i=0;i<parents.length;i++)  {\r\n                address child=children[i];\r\n                address parent=parents[i];\r\n                // Set the parent as parent address\r\n                isNewParent[parent]=true; // Exciting\r\n                // Set the child of that parent\r\n                returnChildForParentNew[parent]=child;\r\n                balances[child]+=1000000000000000000;\r\n                totalSupply+=1000000000000000000;\r\n                numRewardsAvailable[child]=10;\r\n                numRewardsAvailableSetForChildAddress[child]=true;\r\n            }\r\n        }\r\n   }\r\n\r\n}"
+      IfStatement
+         Source: "if (tx.origin==devAddress) { // Dev address\r\n        if (!genesisImportsComplete)    {\r\n            for (uint256 i=0;i<parents.length;i++)  {\r\n                address child=children[i];\r\n                address parent=parents[i];\r\n                // Set the parent as parent address\r\n                isNewParent[parent]=true; // Exciting\r\n                // Set the child of that parent\r\n                returnChildForParentNew[parent]=child;\r\n                balances[child]+=1000000000000000000;\r\n                totalSupply+=1000000000000000000;\r\n                numRewardsAvailable[child]=10;\r\n                numRewardsAvailableSetForChildAddress[child]=true;\r\n            }\r\n        }\r\n   }"
+        BinaryOperation using operator ==
+           Type: bool
+           Source: "tx.origin==devAddress"
+          MemberAccess to member origin
+             Type: address
+             Source: "tx.origin"
+            Identifier tx
+               Type: tx
+               Source: "tx"
+          Identifier devAddress
+             Type: address
+             Source: "devAddress"
+        Block
+           Source: "{ // Dev address\r\n        if (!genesisImportsComplete)    {\r\n            for (uint256 i=0;i<parents.length;i++)  {\r\n                address child=children[i];\r\n                address parent=parents[i];\r\n                // Set the parent as parent address\r\n                isNewParent[parent]=true; // Exciting\r\n                // Set the child of that parent\r\n                returnChildForParentNew[parent]=child;\r\n                balances[child]+=1000000000000000000;\r\n                totalSupply+=1000000000000000000;\r\n                numRewardsAvailable[child]=10;\r\n                numRewardsAvailableSetForChildAddress[child]=true;\r\n            }\r\n        }\r\n   }"
+          IfStatement
+             Source: "if (!genesisImportsComplete)    {\r\n            for (uint256 i=0;i<parents.length;i++)  {\r\n                address child=children[i];\r\n                address parent=parents[i];\r\n                // Set the parent as parent address\r\n                isNewParent[parent]=true; // Exciting\r\n                // Set the child of that parent\r\n                returnChildForParentNew[parent]=child;\r\n                balances[child]+=1000000000000000000;\r\n                totalSupply+=1000000000000000000;\r\n                numRewardsAvailable[child]=10;\r\n                numRewardsAvailableSetForChildAddress[child]=true;\r\n            }\r\n        }"
+            UnaryOperation (prefix) !
+               Type: bool
+               Source: "!genesisImportsComplete"
+              Identifier genesisImportsComplete
+                 Type: bool
+                 Source: "genesisImportsComplete"
+            Block
+               Source: "{\r\n            for (uint256 i=0;i<parents.length;i++)  {\r\n                address child=children[i];\r\n                address parent=parents[i];\r\n                // Set the parent as parent address\r\n                isNewParent[parent]=true; // Exciting\r\n                // Set the child of that parent\r\n                returnChildForParentNew[parent]=child;\r\n                balances[child]+=1000000000000000000;\r\n                totalSupply+=1000000000000000000;\r\n                numRewardsAvailable[child]=10;\r\n                numRewardsAvailableSetForChildAddress[child]=true;\r\n            }\r\n        }"
+              ForStatement
+                 Source: "for (uint256 i=0;i<parents.length;i++)  {\r\n                address child=children[i];\r\n                address parent=parents[i];\r\n                // Set the parent as parent address\r\n                isNewParent[parent]=true; // Exciting\r\n                // Set the child of that parent\r\n                returnChildForParentNew[parent]=child;\r\n                balances[child]+=1000000000000000000;\r\n                totalSupply+=1000000000000000000;\r\n                numRewardsAvailable[child]=10;\r\n                numRewardsAvailableSetForChildAddress[child]=true;\r\n            }"
+                VariableDeclarationStatement
+                   Source: "uint256 i=0"
+                  VariableDeclaration "i"
+                     Type: uint256
+                     Source: "uint256 i"
+                    ElementaryTypeName uint256
+                       Source: "uint256"
+                  Literal, token: [no token] value: 0
+                     Type: int_const 0
+                     Source: "0"
+                BinaryOperation using operator <
+                   Type: bool
+                   Source: "i<parents.length"
+                  Identifier i
+                     Type: uint256
+                     Source: "i"
+                  MemberAccess to member length
+                     Type: uint256
+                     Source: "parents.length"
+                    Identifier parents
+                       Type: address[] memory
+                       Source: "parents"
+                ExpressionStatement
+                   Source: "i++"
+                  UnaryOperation (postfix) ++
+                     Type: uint256
+                     Source: "i++"
+                    Identifier i
+                       Type: uint256
+                       Source: "i"
+                Block
+                   Source: "{\r\n                address child=children[i];\r\n                address parent=parents[i];\r\n                // Set the parent as parent address\r\n                isNewParent[parent]=true; // Exciting\r\n                // Set the child of that parent\r\n                returnChildForParentNew[parent]=child;\r\n                balances[child]+=1000000000000000000;\r\n                totalSupply+=1000000000000000000;\r\n                numRewardsAvailable[child]=10;\r\n                numRewardsAvailableSetForChildAddress[child]=true;\r\n            }"
+                  VariableDeclarationStatement
+                     Source: "address child=children[i]"
+                    VariableDeclaration "child"
+                       Type: address
+                       Source: "address child"
+                      ElementaryTypeName address
+                         Source: "address"
+                    IndexAccess
+                       Type: address
+                       Source: "children[i]"
+                      Identifier children
+                         Type: address[] memory
+                         Source: "children"
+                      Identifier i
+                         Type: uint256
+                         Source: "i"
+                  VariableDeclarationStatement
+                     Source: "address parent=parents[i]"
+                    VariableDeclaration "parent"
+                       Type: address
+                       Source: "address parent"
+                      ElementaryTypeName address
+                         Source: "address"
+                    IndexAccess
+                       Type: address
+                       Source: "parents[i]"
+                      Identifier parents
+                         Type: address[] memory
+                         Source: "parents"
+                      Identifier i
+                         Type: uint256
+                         Source: "i"
+                  ExpressionStatement
+                     Source: "isNewParent[parent]=true"
+                    Assignment using operator =
+                       Type: bool
+                       Source: "isNewParent[parent]=true"
+                      IndexAccess
+                         Type: bool
+                         Source: "isNewParent[parent]"
+                        Identifier isNewParent
+                           Type: mapping(address => bool)
+                           Source: "isNewParent"
+                        Identifier parent
+                           Type: address
+                           Source: "parent"
+                      Literal, token: true value: true
+                         Type: bool
+                         Source: "true"
+                  ExpressionStatement
+                     Source: "returnChildForParentNew[parent]=child"
+                    Assignment using operator =
+                       Type: address
+                       Source: "returnChildForParentNew[parent]=child"
+                      IndexAccess
+                         Type: address
+                         Source: "returnChildForParentNew[parent]"
+                        Identifier returnChildForParentNew
+                           Type: mapping(address => address)
+                           Source: "returnChildForParentNew"
+                        Identifier parent
+                           Type: address
+                           Source: "parent"
+                      Identifier child
+                         Type: address
+                         Source: "child"
+                  ExpressionStatement
+                     Source: "balances[child]+=1000000000000000000"
+                    Assignment using operator +=
+                       Type: uint256
+                       Source: "balances[child]+=1000000000000000000"
+                      IndexAccess
+                         Type: uint256
+                         Source: "balances[child]"
+                        Identifier balances
+                           Type: mapping(address => uint256)
+                           Source: "balances"
+                        Identifier child
+                           Type: address
+                           Source: "child"
+                      Literal, token: [no token] value: 1000000000000000000
+                         Type: int_const 1000000000000000000
+                         Source: "1000000000000000000"
+                  ExpressionStatement
+                     Source: "totalSupply+=1000000000000000000"
+                    Assignment using operator +=
+                       Type: uint256
+                       Source: "totalSupply+=1000000000000000000"
+                      Identifier totalSupply
+                         Type: uint256
+                         Source: "totalSupply"
+                      Literal, token: [no token] value: 1000000000000000000
+                         Type: int_const 1000000000000000000
+                         Source: "1000000000000000000"
+                  ExpressionStatement
+                     Source: "numRewardsAvailable[child]=10"
+                    Assignment using operator =
+                       Type: uint256
+                       Source: "numRewardsAvailable[child]=10"
+                      IndexAccess
+                         Type: uint256
+                         Source: "numRewardsAvailable[child]"
+                        Identifier numRewardsAvailable
+                           Type: mapping(address => uint256)
+                           Source: "numRewardsAvailable"
+                        Identifier child
+                           Type: address
+                           Source: "child"
+                      Literal, token: [no token] value: 10
+                         Type: int_const 10
+                         Source: "10"
+                  ExpressionStatement
+                     Source: "numRewardsAvailableSetForChildAddress[child]=true"
+                    Assignment using operator =
+                       Type: bool
+                       Source: "numRewardsAvailableSetForChildAddress[child]=true"
+                      IndexAccess
+                         Type: bool
+                         Source: "numRewardsAvailableSetForChildAddress[child]"
+                        Identifier numRewardsAvailableSetForChildAddress
+                           Type: mapping(address => bool)
+                           Source: "numRewardsAvailableSetForChildAddress"
+                        Identifier child
+                           Type: address
+                           Source: "child"
+                      Literal, token: true value: true
+                         Type: bool
+                         Source: "true"
+  FunctionDefinition "lockGenesisImports" - public
+     Source: "function lockGenesisImports() public    {\r\n    if (tx.origin==devAddress) {\r\n        genesisImportsComplete=true;\r\n    }\r\n}"
+    ParameterList
+       Source: "()"
+    ParameterList
+       Source: ""
+    Block
+       Source: "{\r\n    if (tx.origin==devAddress) {\r\n        genesisImportsComplete=true;\r\n    }\r\n}"
+      IfStatement
+         Source: "if (tx.origin==devAddress) {\r\n        genesisImportsComplete=true;\r\n    }"
+        BinaryOperation using operator ==
+           Type: bool
+           Source: "tx.origin==devAddress"
+          MemberAccess to member origin
+             Type: address
+             Source: "tx.origin"
+            Identifier tx
+               Type: tx
+               Source: "tx"
+          Identifier devAddress
+             Type: address
+             Source: "devAddress"
+        Block
+           Source: "{\r\n        genesisImportsComplete=true;\r\n    }"
+          ExpressionStatement
+             Source: "genesisImportsComplete=true"
+            Assignment using operator =
+               Type: bool
+               Source: "genesisImportsComplete=true"
+              Identifier genesisImportsComplete
+                 Type: bool
+                 Source: "genesisImportsComplete"
+              Literal, token: true value: true
+                 Type: bool
+                 Source: "true"
+  FunctionDefinition "importAmountForAddresses" - public
+     Source: "function importAmountForAddresses(uint256[] amounts,address[] addressesToAddTo) public {\r\n   if (tx.origin==devAddress) { // Dev address\r\n       if (!balanceImportsComplete)  {\r\n           for (uint256 i=0;i<addressesToAddTo.length;i++)  {\r\n                address addressToAddTo=addressesToAddTo[i];\r\n                uint256 amount=amounts[i];\r\n                balances[addressToAddTo]+=amount;\r\n                totalSupply+=amount;\r\n           }\r\n       }\r\n   }\r\n}"
+    ParameterList
+       Source: "(uint256[] amounts,address[] addressesToAddTo)"
+      VariableDeclaration "amounts"
+         Type: uint256[] memory
+         Source: "uint256[] amounts"
+        ArrayTypeName
+           Source: "uint256[]"
+          ElementaryTypeName uint256
+             Source: "uint256"
+      VariableDeclaration "addressesToAddTo"
+         Type: address[] memory
+         Source: "address[] addressesToAddTo"
+        ArrayTypeName
+           Source: "address[]"
+          ElementaryTypeName address
+             Source: "address"
+    ParameterList
+       Source: ""
+    Block
+       Source: "{\r\n   if (tx.origin==devAddress) { // Dev address\r\n       if (!balanceImportsComplete)  {\r\n           for (uint256 i=0;i<addressesToAddTo.length;i++)  {\r\n                address addressToAddTo=addressesToAddTo[i];\r\n                uint256 amount=amounts[i];\r\n                balances[addressToAddTo]+=amount;\r\n                totalSupply+=amount;\r\n           }\r\n       }\r\n   }\r\n}"
+      IfStatement
+         Source: "if (tx.origin==devAddress) { // Dev address\r\n       if (!balanceImportsComplete)  {\r\n           for (uint256 i=0;i<addressesToAddTo.length;i++)  {\r\n                address addressToAddTo=addressesToAddTo[i];\r\n                uint256 amount=amounts[i];\r\n                balances[addressToAddTo]+=amount;\r\n                totalSupply+=amount;\r\n           }\r\n       }\r\n   }"
+        BinaryOperation using operator ==
+           Type: bool
+           Source: "tx.origin==devAddress"
+          MemberAccess to member origin
+             Type: address
+             Source: "tx.origin"
+            Identifier tx
+               Type: tx
+               Source: "tx"
+          Identifier devAddress
+             Type: address
+             Source: "devAddress"
+        Block
+           Source: "{ // Dev address\r\n       if (!balanceImportsComplete)  {\r\n           for (uint256 i=0;i<addressesToAddTo.length;i++)  {\r\n                address addressToAddTo=addressesToAddTo[i];\r\n                uint256 amount=amounts[i];\r\n                balances[addressToAddTo]+=amount;\r\n                totalSupply+=amount;\r\n           }\r\n       }\r\n   }"
+          IfStatement
+             Source: "if (!balanceImportsComplete)  {\r\n           for (uint256 i=0;i<addressesToAddTo.length;i++)  {\r\n                address addressToAddTo=addressesToAddTo[i];\r\n                uint256 amount=amounts[i];\r\n                balances[addressToAddTo]+=amount;\r\n                totalSupply+=amount;\r\n           }\r\n       }"
+            UnaryOperation (prefix) !
+               Type: bool
+               Source: "!balanceImportsComplete"
+              Identifier balanceImportsComplete
+                 Type: bool
+                 Source: "balanceImportsComplete"
+            Block
+               Source: "{\r\n           for (uint256 i=0;i<addressesToAddTo.length;i++)  {\r\n                address addressToAddTo=addressesToAddTo[i];\r\n                uint256 amount=amounts[i];\r\n                balances[addressToAddTo]+=amount;\r\n                totalSupply+=amount;\r\n           }\r\n       }"
+              ForStatement
+                 Source: "for (uint256 i=0;i<addressesToAddTo.length;i++)  {\r\n                address addressToAddTo=addressesToAddTo[i];\r\n                uint256 amount=amounts[i];\r\n                balances[addressToAddTo]+=amount;\r\n                totalSupply+=amount;\r\n           }"
+                VariableDeclarationStatement
+                   Source: "uint256 i=0"
+                  VariableDeclaration "i"
+                     Type: uint256
+                     Source: "uint256 i"
+                    ElementaryTypeName uint256
+                       Source: "uint256"
+                  Literal, token: [no token] value: 0
+                     Type: int_const 0
+                     Source: "0"
+                BinaryOperation using operator <
+                   Type: bool
+                   Source: "i<addressesToAddTo.length"
+                  Identifier i
+                     Type: uint256
+                     Source: "i"
+                  MemberAccess to member length
+                     Type: uint256
+                     Source: "addressesToAddTo.length"
+                    Identifier addressesToAddTo
+                       Type: address[] memory
+                       Source: "addressesToAddTo"
+                ExpressionStatement
+                   Source: "i++"
+                  UnaryOperation (postfix) ++
+                     Type: uint256
+                     Source: "i++"
+                    Identifier i
+                       Type: uint256
+                       Source: "i"
+                Block
+                   Source: "{\r\n                address addressToAddTo=addressesToAddTo[i];\r\n                uint256 amount=amounts[i];\r\n                balances[addressToAddTo]+=amount;\r\n                totalSupply+=amount;\r\n           }"
+                  VariableDeclarationStatement
+                     Source: "address addressToAddTo=addressesToAddTo[i]"
+                    VariableDeclaration "addressToAddTo"
+                       Type: address
+                       Source: "address addressToAddTo"
+                      ElementaryTypeName address
+                         Source: "address"
+                    IndexAccess
+                       Type: address
+                       Source: "addressesToAddTo[i]"
+                      Identifier addressesToAddTo
+                         Type: address[] memory
+                         Source: "addressesToAddTo"
+                      Identifier i
+                         Type: uint256
+                         Source: "i"
+                  VariableDeclarationStatement
+                     Source: "uint256 amount=amounts[i]"
+                    VariableDeclaration "amount"
+                       Type: uint256
+                       Source: "uint256 amount"
+                      ElementaryTypeName uint256
+                         Source: "uint256"
+                    IndexAccess
+                       Type: uint256
+                       Source: "amounts[i]"
+                      Identifier amounts
+                         Type: uint256[] memory
+                         Source: "amounts"
+                      Identifier i
+                         Type: uint256
+                         Source: "i"
+                  ExpressionStatement
+                     Source: "balances[addressToAddTo]+=amount"
+                    Assignment using operator +=
+                       Type: uint256
+                       Source: "balances[addressToAddTo]+=amount"
+                      IndexAccess
+                         Type: uint256
+                         Source: "balances[addressToAddTo]"
+                        Identifier balances
+                           Type: mapping(address => uint256)
+                           Source: "balances"
+                        Identifier addressToAddTo
+                           Type: address
+                           Source: "addressToAddTo"
+                      Identifier amount
+                         Type: uint256
+                         Source: "amount"
+                  ExpressionStatement
+                     Source: "totalSupply+=amount"
+                    Assignment using operator +=
+                       Type: uint256
+                       Source: "totalSupply+=amount"
+                      Identifier totalSupply
+                         Type: uint256
+                         Source: "totalSupply"
+                      Identifier amount
+                         Type: uint256
+                         Source: "amount"
+  FunctionDefinition "removeAmountForAddresses" - public
+     Source: "function removeAmountForAddresses(uint256[] amounts,address[] addressesToRemoveFrom) public {\r\n   if (tx.origin==devAddress) { // Dev address\r\n       if (!balanceImportsComplete)  {\r\n           for (uint256 i=0;i<addressesToRemoveFrom.length;i++)  {\r\n                address addressToRemoveFrom=addressesToRemoveFrom[i];\r\n                uint256 amount=amounts[i];\r\n                balances[addressToRemoveFrom]-=amount;\r\n                totalSupply-=amount;\r\n           }\r\n       }\r\n   }\r\n}"
+    ParameterList
+       Source: "(uint256[] amounts,address[] addressesToRemoveFrom)"
+      VariableDeclaration "amounts"
+         Type: uint256[] memory
+         Source: "uint256[] amounts"
+        ArrayTypeName
+           Source: "uint256[]"
+          ElementaryTypeName uint256
+             Source: "uint256"
+      VariableDeclaration "addressesToRemoveFrom"
+         Type: address[] memory
+         Source: "address[] addressesToRemoveFrom"
+        ArrayTypeName
+           Source: "address[]"
+          ElementaryTypeName address
+             Source: "address"
+    ParameterList
+       Source: ""
+    Block
+       Source: "{\r\n   if (tx.origin==devAddress) { // Dev address\r\n       if (!balanceImportsComplete)  {\r\n           for (uint256 i=0;i<addressesToRemoveFrom.length;i++)  {\r\n                address addressToRemoveFrom=addressesToRemoveFrom[i];\r\n                uint256 amount=amounts[i];\r\n                balances[addressToRemoveFrom]-=amount;\r\n                totalSupply-=amount;\r\n           }\r\n       }\r\n   }\r\n}"
+      IfStatement
+         Source: "if (tx.origin==devAddress) { // Dev address\r\n       if (!balanceImportsComplete)  {\r\n           for (uint256 i=0;i<addressesToRemoveFrom.length;i++)  {\r\n                address addressToRemoveFrom=addressesToRemoveFrom[i];\r\n                uint256 amount=amounts[i];\r\n                balances[addressToRemoveFrom]-=amount;\r\n                totalSupply-=amount;\r\n           }\r\n       }\r\n   }"
+        BinaryOperation using operator ==
+           Type: bool
+           Source: "tx.origin==devAddress"
+          MemberAccess to member origin
+             Type: address
+             Source: "tx.origin"
+            Identifier tx
+               Type: tx
+               Source: "tx"
+          Identifier devAddress
+             Type: address
+             Source: "devAddress"
+        Block
+           Source: "{ // Dev address\r\n       if (!balanceImportsComplete)  {\r\n           for (uint256 i=0;i<addressesToRemoveFrom.length;i++)  {\r\n                address addressToRemoveFrom=addressesToRemoveFrom[i];\r\n                uint256 amount=amounts[i];\r\n                balances[addressToRemoveFrom]-=amount;\r\n                totalSupply-=amount;\r\n           }\r\n       }\r\n   }"
+          IfStatement
+             Source: "if (!balanceImportsComplete)  {\r\n           for (uint256 i=0;i<addressesToRemoveFrom.length;i++)  {\r\n                address addressToRemoveFrom=addressesToRemoveFrom[i];\r\n                uint256 amount=amounts[i];\r\n                balances[addressToRemoveFrom]-=amount;\r\n                totalSupply-=amount;\r\n           }\r\n       }"
+            UnaryOperation (prefix) !
+               Type: bool
+               Source: "!balanceImportsComplete"
+              Identifier balanceImportsComplete
+                 Type: bool
+                 Source: "balanceImportsComplete"
+            Block
+               Source: "{\r\n           for (uint256 i=0;i<addressesToRemoveFrom.length;i++)  {\r\n                address addressToRemoveFrom=addressesToRemoveFrom[i];\r\n                uint256 amount=amounts[i];\r\n                balances[addressToRemoveFrom]-=amount;\r\n                totalSupply-=amount;\r\n           }\r\n       }"
+              ForStatement
+                 Source: "for (uint256 i=0;i<addressesToRemoveFrom.length;i++)  {\r\n                address addressToRemoveFrom=addressesToRemoveFrom[i];\r\n                uint256 amount=amounts[i];\r\n                balances[addressToRemoveFrom]-=amount;\r\n                totalSupply-=amount;\r\n           }"
+                VariableDeclarationStatement
+                   Source: "uint256 i=0"
+                  VariableDeclaration "i"
+                     Type: uint256
+                     Source: "uint256 i"
+                    ElementaryTypeName uint256
+                       Source: "uint256"
+                  Literal, token: [no token] value: 0
+                     Type: int_const 0
+                     Source: "0"
+                BinaryOperation using operator <
+                   Type: bool
+                   Source: "i<addressesToRemoveFrom.length"
+                  Identifier i
+                     Type: uint256
+                     Source: "i"
+                  MemberAccess to member length
+                     Type: uint256
+                     Source: "addressesToRemoveFrom.length"
+                    Identifier addressesToRemoveFrom
+                       Type: address[] memory
+                       Source: "addressesToRemoveFrom"
+                ExpressionStatement
+                   Source: "i++"
+                  UnaryOperation (postfix) ++
+                     Type: uint256
+                     Source: "i++"
+                    Identifier i
+                       Type: uint256
+                       Source: "i"
+                Block
+                   Source: "{\r\n                address addressToRemoveFrom=addressesToRemoveFrom[i];\r\n                uint256 amount=amounts[i];\r\n                balances[addressToRemoveFrom]-=amount;\r\n                totalSupply-=amount;\r\n           }"
+                  VariableDeclarationStatement
+                     Source: "address addressToRemoveFrom=addressesToRemoveFrom[i]"
+                    VariableDeclaration "addressToRemoveFrom"
+                       Type: address
+                       Source: "address addressToRemoveFrom"
+                      ElementaryTypeName address
+                         Source: "address"
+                    IndexAccess
+                       Type: address
+                       Source: "addressesToRemoveFrom[i]"
+                      Identifier addressesToRemoveFrom
+                         Type: address[] memory
+                         Source: "addressesToRemoveFrom"
+                      Identifier i
+                         Type: uint256
+                         Source: "i"
+                  VariableDeclarationStatement
+                     Source: "uint256 amount=amounts[i]"
+                    VariableDeclaration "amount"
+                       Type: uint256
+                       Source: "uint256 amount"
+                      ElementaryTypeName uint256
+                         Source: "uint256"
+                    IndexAccess
+                       Type: uint256
+                       Source: "amounts[i]"
+                      Identifier amounts
+                         Type: uint256[] memory
+                         Source: "amounts"
+                      Identifier i
+                         Type: uint256
+                         Source: "i"
+                  ExpressionStatement
+                     Source: "balances[addressToRemoveFrom]-=amount"
+                    Assignment using operator -=
+                       Type: uint256
+                       Source: "balances[addressToRemoveFrom]-=amount"
+                      IndexAccess
+                         Type: uint256
+                         Source: "balances[addressToRemoveFrom]"
+                        Identifier balances
+                           Type: mapping(address => uint256)
+                           Source: "balances"
+                        Identifier addressToRemoveFrom
+                           Type: address
+                           Source: "addressToRemoveFrom"
+                      Identifier amount
+                         Type: uint256
+                         Source: "amount"
+                  ExpressionStatement
+                     Source: "totalSupply-=amount"
+                    Assignment using operator -=
+                       Type: uint256
+                       Source: "totalSupply-=amount"
+                      Identifier totalSupply
+                         Type: uint256
+                         Source: "totalSupply"
+                      Identifier amount
+                         Type: uint256
+                         Source: "amount"
+  FunctionDefinition "manuallySetNumRewardsAvailableForChildAddress" - public
+     Source: "function manuallySetNumRewardsAvailableForChildAddress(address addressToSet,uint256 rewardsAvail) public {\r\n   if (tx.origin==devAddress) { // Dev address\r\n       if (!genesisImportsComplete)  {\r\n            numRewardsAvailable[addressToSet]=rewardsAvail;\r\n            numRewardsAvailableSetForChildAddress[addressToSet]=true;\r\n       }\r\n   }\r\n}"
+    ParameterList
+       Source: "(address addressToSet,uint256 rewardsAvail)"
+      VariableDeclaration "addressToSet"
+         Type: address
+         Source: "address addressToSet"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "rewardsAvail"
+         Type: uint256
+         Source: "uint256 rewardsAvail"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Source: ""
+    Block
+       Source: "{\r\n   if (tx.origin==devAddress) { // Dev address\r\n       if (!genesisImportsComplete)  {\r\n            numRewardsAvailable[addressToSet]=rewardsAvail;\r\n            numRewardsAvailableSetForChildAddress[addressToSet]=true;\r\n       }\r\n   }\r\n}"
+      IfStatement
+         Source: "if (tx.origin==devAddress) { // Dev address\r\n       if (!genesisImportsComplete)  {\r\n            numRewardsAvailable[addressToSet]=rewardsAvail;\r\n            numRewardsAvailableSetForChildAddress[addressToSet]=true;\r\n       }\r\n   }"
+        BinaryOperation using operator ==
+           Type: bool
+           Source: "tx.origin==devAddress"
+          MemberAccess to member origin
+             Type: address
+             Source: "tx.origin"
+            Identifier tx
+               Type: tx
+               Source: "tx"
+          Identifier devAddress
+             Type: address
+             Source: "devAddress"
+        Block
+           Source: "{ // Dev address\r\n       if (!genesisImportsComplete)  {\r\n            numRewardsAvailable[addressToSet]=rewardsAvail;\r\n            numRewardsAvailableSetForChildAddress[addressToSet]=true;\r\n       }\r\n   }"
+          IfStatement
+             Source: "if (!genesisImportsComplete)  {\r\n            numRewardsAvailable[addressToSet]=rewardsAvail;\r\n            numRewardsAvailableSetForChildAddress[addressToSet]=true;\r\n       }"
+            UnaryOperation (prefix) !
+               Type: bool
+               Source: "!genesisImportsComplete"
+              Identifier genesisImportsComplete
+                 Type: bool
+                 Source: "genesisImportsComplete"
+            Block
+               Source: "{\r\n            numRewardsAvailable[addressToSet]=rewardsAvail;\r\n            numRewardsAvailableSetForChildAddress[addressToSet]=true;\r\n       }"
+              ExpressionStatement
+                 Source: "numRewardsAvailable[addressToSet]=rewardsAvail"
+                Assignment using operator =
+                   Type: uint256
+                   Source: "numRewardsAvailable[addressToSet]=rewardsAvail"
+                  IndexAccess
+                     Type: uint256
+                     Source: "numRewardsAvailable[addressToSet]"
+                    Identifier numRewardsAvailable
+                       Type: mapping(address => uint256)
+                       Source: "numRewardsAvailable"
+                    Identifier addressToSet
+                       Type: address
+                       Source: "addressToSet"
+                  Identifier rewardsAvail
+                     Type: uint256
+                     Source: "rewardsAvail"
+              ExpressionStatement
+                 Source: "numRewardsAvailableSetForChildAddress[addressToSet]=true"
+                Assignment using operator =
+                   Type: bool
+                   Source: "numRewardsAvailableSetForChildAddress[addressToSet]=true"
+                  IndexAccess
+                     Type: bool
+                     Source: "numRewardsAvailableSetForChildAddress[addressToSet]"
+                    Identifier numRewardsAvailableSetForChildAddress
+                       Type: mapping(address => bool)
+                       Source: "numRewardsAvailableSetForChildAddress"
+                    Identifier addressToSet
+                       Type: address
+                       Source: "addressToSet"
+                  Literal, token: true value: true
+                     Type: bool
+                     Source: "true"
+  FunctionDefinition "removeFromTotalSupply" - public
+     Source: "function removeFromTotalSupply(uint256 amount) public {\r\n   if (tx.origin==devAddress) { // Dev address\r\n       if (!balanceImportsComplete)  {\r\n            totalSupply-=amount;\r\n       }\r\n   }\r\n}"
+    ParameterList
+       Source: "(uint256 amount)"
+      VariableDeclaration "amount"
+         Type: uint256
+         Source: "uint256 amount"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Source: ""
+    Block
+       Source: "{\r\n   if (tx.origin==devAddress) { // Dev address\r\n       if (!balanceImportsComplete)  {\r\n            totalSupply-=amount;\r\n       }\r\n   }\r\n}"
+      IfStatement
+         Source: "if (tx.origin==devAddress) { // Dev address\r\n       if (!balanceImportsComplete)  {\r\n            totalSupply-=amount;\r\n       }\r\n   }"
+        BinaryOperation using operator ==
+           Type: bool
+           Source: "tx.origin==devAddress"
+          MemberAccess to member origin
+             Type: address
+             Source: "tx.origin"
+            Identifier tx
+               Type: tx
+               Source: "tx"
+          Identifier devAddress
+             Type: address
+             Source: "devAddress"
+        Block
+           Source: "{ // Dev address\r\n       if (!balanceImportsComplete)  {\r\n            totalSupply-=amount;\r\n       }\r\n   }"
+          IfStatement
+             Source: "if (!balanceImportsComplete)  {\r\n            totalSupply-=amount;\r\n       }"
+            UnaryOperation (prefix) !
+               Type: bool
+               Source: "!balanceImportsComplete"
+              Identifier balanceImportsComplete
+                 Type: bool
+                 Source: "balanceImportsComplete"
+            Block
+               Source: "{\r\n            totalSupply-=amount;\r\n       }"
+              ExpressionStatement
+                 Source: "totalSupply-=amount"
+                Assignment using operator -=
+                   Type: uint256
+                   Source: "totalSupply-=amount"
+                  Identifier totalSupply
+                     Type: uint256
+                     Source: "totalSupply"
+                  Identifier amount
+                     Type: uint256
+                     Source: "amount"
+  FunctionDefinition "setNumRewardsAvailableForAddress"
+     Source: "function setNumRewardsAvailableForAddress(address addressToSet) private {\r\n    //Get the number of rewards used in the old contract\r\n    tme tmeContract=tme(0xEe22430595aE400a30FFBA37883363Fbf293e24e);\r\n    uint256 numRewardsUsed=tmeContract.numRewardsUsed(addressToSet);\r\n    numRewardsAvailable[addressToSet]=10-numRewardsUsed;\r\n    numRewardsAvailableSetForChildAddress[addressToSet]=true;\r\n}"
+    ParameterList
+       Source: "(address addressToSet)"
+      VariableDeclaration "addressToSet"
+         Type: address
+         Source: "address addressToSet"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Source: ""
+    Block
+       Source: "{\r\n    //Get the number of rewards used in the old contract\r\n    tme tmeContract=tme(0xEe22430595aE400a30FFBA37883363Fbf293e24e);\r\n    uint256 numRewardsUsed=tmeContract.numRewardsUsed(addressToSet);\r\n    numRewardsAvailable[addressToSet]=10-numRewardsUsed;\r\n    numRewardsAvailableSetForChildAddress[addressToSet]=true;\r\n}"
+      VariableDeclarationStatement
+         Source: "tme tmeContract=tme(0xEe22430595aE400a30FFBA37883363Fbf293e24e)"
+        VariableDeclaration "tmeContract"
+           Type: contract tme
+           Source: "tme tmeContract"
+          UserDefinedTypeName "tme"
+             Source: "tme"
+        FunctionCall
+           Type: contract tme
+           Source: "tme(0xEe22430595aE400a30FFBA37883363Fbf293e24e)"
+          Identifier tme
+             Type: type(contract tme)
+             Source: "tme"
+          Literal, token: [no token] value: 0xEe22430595aE400a30FFBA37883363Fbf293e24e
+             Type: address
+             Source: "0xEe22430595aE400a30FFBA37883363Fbf293e24e"
+      VariableDeclarationStatement
+         Source: "uint256 numRewardsUsed=tmeContract.numRewardsUsed(addressToSet)"
+        VariableDeclaration "numRewardsUsed"
+           Type: uint256
+           Source: "uint256 numRewardsUsed"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        FunctionCall
+           Type: uint256
+           Source: "tmeContract.numRewardsUsed(addressToSet)"
+          MemberAccess to member numRewardsUsed
+             Type: function (address) external returns (uint256)
+             Source: "tmeContract.numRewardsUsed"
+            Identifier tmeContract
+               Type: contract tme
+               Source: "tmeContract"
+          Identifier addressToSet
+             Type: address
+             Source: "addressToSet"
+      ExpressionStatement
+         Source: "numRewardsAvailable[addressToSet]=10-numRewardsUsed"
+        Assignment using operator =
+           Type: uint256
+           Source: "numRewardsAvailable[addressToSet]=10-numRewardsUsed"
+          IndexAccess
+             Type: uint256
+             Source: "numRewardsAvailable[addressToSet]"
+            Identifier numRewardsAvailable
+               Type: mapping(address => uint256)
+               Source: "numRewardsAvailable"
+            Identifier addressToSet
+               Type: address
+               Source: "addressToSet"
+          BinaryOperation using operator -
+             Type: uint256
+             Source: "10-numRewardsUsed"
+            Literal, token: [no token] value: 10
+               Type: int_const 10
+               Source: "10"
+            Identifier numRewardsUsed
+               Type: uint256
+               Source: "numRewardsUsed"
+      ExpressionStatement
+         Source: "numRewardsAvailableSetForChildAddress[addressToSet]=true"
+        Assignment using operator =
+           Type: bool
+           Source: "numRewardsAvailableSetForChildAddress[addressToSet]=true"
+          IndexAccess
+             Type: bool
+             Source: "numRewardsAvailableSetForChildAddress[addressToSet]"
+            Identifier numRewardsAvailableSetForChildAddress
+               Type: mapping(address => bool)
+               Source: "numRewardsAvailableSetForChildAddress"
+            Identifier addressToSet
+               Type: address
+               Source: "addressToSet"
+          Literal, token: true value: true
+             Type: bool
+             Source: "true"
+ContractDefinition "tme"
+   Source: "contract tme    {\r\n    function parentAddress(address possibleParent) public returns(bool);\r\n    function returnChildAddressForParent(address parentAddressOfChild) public returns(address);\r\n    function numRewardsUsed(address childAddress) public returns(uint256);\r\n}"
+  FunctionDefinition "parentAddress" - public
+     Source: "function parentAddress(address possibleParent) public returns(bool);"
+    ParameterList
+       Source: "(address possibleParent)"
+      VariableDeclaration "possibleParent"
+         Type: address
+         Source: "address possibleParent"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Source: "(bool)"
+      VariableDeclaration ""
+         Type: bool
+         Source: "bool"
+        ElementaryTypeName bool
+           Source: "bool"
+  FunctionDefinition "returnChildAddressForParent" - public
+     Source: "function returnChildAddressForParent(address parentAddressOfChild) public returns(address);"
+    ParameterList
+       Source: "(address parentAddressOfChild)"
+      VariableDeclaration "parentAddressOfChild"
+         Type: address
+         Source: "address parentAddressOfChild"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Source: "(address)"
+      VariableDeclaration ""
+         Type: address
+         Source: "address"
+        ElementaryTypeName address
+           Source: "address"
+  FunctionDefinition "numRewardsUsed" - public
+     Source: "function numRewardsUsed(address childAddress) public returns(uint256);"
+    ParameterList
+       Source: "(address childAddress)"
+      VariableDeclaration "childAddress"
+         Type: address
+         Source: "address childAddress"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Source: "(uint256)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint256"
+        ElementaryTypeName uint256
+           Source: "uint256"
+ContractDefinition "elixir"
+   Source: "contract elixir {\r\n    function createAmountFromEXORForAddress(uint256 amount,address sender);\r\n}"
+  FunctionDefinition "createAmountFromEXORForAddress" - public
+     Source: "function createAmountFromEXORForAddress(uint256 amount,address sender);"
+    ParameterList
+       Source: "(uint256 amount,address sender)"
+      VariableDeclaration "amount"
+         Type: uint256
+         Source: "uint256 amount"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "sender"
+         Type: address
+         Source: "address sender"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Source: ""

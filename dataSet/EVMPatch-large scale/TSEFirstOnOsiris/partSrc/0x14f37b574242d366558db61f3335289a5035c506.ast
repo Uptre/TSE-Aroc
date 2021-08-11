@@ -1,0 +1,1582 @@
+Syntax trees:
+
+
+======= /home/fabric/ArocRevision/Aroc/osirisData/contractSrc/0x14f37b574242d366558db61f3335289a5035c506.sol =======
+PragmaDirective
+   Gas costs: 0
+   Source: "pragma solidity ^ 0.4 .0;"
+ContractDefinition "TokenInterface"
+   Source: "contract TokenInterface {\r\n\r\n\r\n        // total amount of tokens\r\n        uint totalSupplyVar;\r\n\r\n\r\n        /**\r\n         *\r\n         * balanceOf() - constant function check concrete tokens balance  \r\n         *\r\n         *  @param owner - account owner\r\n         *  \r\n         *  @return the value of balance \r\n         */\r\n        function balanceOf(address owner) constant returns(uint256 balance);\r\n\r\n        function transfer(address to, uint256 value) returns(bool success);\r\n\r\n        function transferFrom(address from, address to, uint256 value) returns(bool success);\r\n\r\n        /**\r\n         *\r\n         * approve() - function approves to a person to spend some tokens from \r\n         *           owner balance. \r\n         *\r\n         *  @param spender - person whom this right been granted.\r\n         *  @param value   - value to spend.\r\n         * \r\n         *  @return true in case of succes, otherwise failure\r\n         * \r\n         */\r\n        function approve(address spender, uint256 value) returns(bool success);\r\n\r\n        /**\r\n         *\r\n         * allowance() - constant function to check how much is \r\n         *               permitted to spend to 3rd person from owner balance\r\n         *\r\n         *  @param owner   - owner of the balance\r\n         *  @param spender - permitted to spend from this balance person \r\n         *  \r\n         *  @return - remaining right to spend \r\n         * \r\n         */\r\n        function allowance(address owner, address spender) constant returns(uint256 remaining);\r\n\r\n        function totalSupply() constant returns(uint256 totalSupply) {\r\n                return totalSupplyVar;\r\n        }\r\n\r\n        // events notifications\r\n        event Transfer(address indexed from, address indexed to, uint256 value);\r\n        event Approval(address indexed owner, address indexed spender, uint256 value);\r\n}"
+  VariableDeclaration "totalSupplyVar"
+     Type: uint256
+     Gas costs: 0
+     Source: "uint totalSupplyVar"
+    ElementaryTypeName uint
+       Source: "uint"
+  FunctionDefinition "balanceOf" - public - const
+     Gas costs: 0
+     Source: "function balanceOf(address owner) constant returns(uint256 balance);"
+    ParameterList
+       Source: "(address owner)"
+      VariableDeclaration "owner"
+         Type: address
+         Source: "address owner"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Source: "(uint256 balance)"
+      VariableDeclaration "balance"
+         Type: uint256
+         Source: "uint256 balance"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  FunctionDefinition "transfer" - public
+     Gas costs: 0
+     Source: "function transfer(address to, uint256 value) returns(bool success);"
+    ParameterList
+       Source: "(address to, uint256 value)"
+      VariableDeclaration "to"
+         Type: address
+         Source: "address to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "value"
+         Type: uint256
+         Source: "uint256 value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+  FunctionDefinition "transferFrom" - public
+     Gas costs: 0
+     Source: "function transferFrom(address from, address to, uint256 value) returns(bool success);"
+    ParameterList
+       Source: "(address from, address to, uint256 value)"
+      VariableDeclaration "from"
+         Type: address
+         Source: "address from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "to"
+         Type: address
+         Source: "address to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "value"
+         Type: uint256
+         Source: "uint256 value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+  FunctionDefinition "approve" - public
+     Gas costs: 0
+     Source: "function approve(address spender, uint256 value) returns(bool success);"
+    ParameterList
+       Source: "(address spender, uint256 value)"
+      VariableDeclaration "spender"
+         Type: address
+         Source: "address spender"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "value"
+         Type: uint256
+         Source: "uint256 value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+  FunctionDefinition "allowance" - public - const
+     Gas costs: 0
+     Source: "function allowance(address owner, address spender) constant returns(uint256 remaining);"
+    ParameterList
+       Source: "(address owner, address spender)"
+      VariableDeclaration "owner"
+         Type: address
+         Source: "address owner"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "spender"
+         Type: address
+         Source: "address spender"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Source: "(uint256 remaining)"
+      VariableDeclaration "remaining"
+         Type: uint256
+         Source: "uint256 remaining"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  FunctionDefinition "totalSupply" - public - const
+     Source: "function totalSupply() constant returns(uint256 totalSupply) {\r\n                return totalSupplyVar;\r\n        }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint256 totalSupply)"
+      VariableDeclaration "totalSupply"
+         Type: uint256
+         Source: "uint256 totalSupply"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{\r\n                return totalSupplyVar;\r\n        }"
+      Return
+         Gas costs: 208
+         Source: "return totalSupplyVar"
+        Identifier totalSupplyVar
+           Type: uint256
+           Source: "totalSupplyVar"
+  EventDefinition "Transfer"
+     Gas costs: 0
+     Source: "event Transfer(address indexed from, address indexed to, uint256 value);"
+    ParameterList
+       Source: "(address indexed from, address indexed to, uint256 value)"
+      VariableDeclaration "from"
+         Type: address
+         Source: "address indexed from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "to"
+         Type: address
+         Source: "address indexed to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "value"
+         Type: uint256
+         Source: "uint256 value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  EventDefinition "Approval"
+     Gas costs: 0
+     Source: "event Approval(address indexed owner, address indexed spender, uint256 value);"
+    ParameterList
+       Source: "(address indexed owner, address indexed spender, uint256 value)"
+      VariableDeclaration "owner"
+         Type: address
+         Source: "address indexed owner"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "spender"
+         Type: address
+         Source: "address indexed spender"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "value"
+         Type: uint256
+         Source: "uint256 value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+PragmaDirective
+   Gas costs: 0
+   Source: "pragma solidity ^ 0.4 .2;"
+ContractDefinition "StandardToken"
+   Source: "contract StandardToken is TokenInterface {\r\n\r\n\r\n        // token ownership\r\n        mapping(address => uint256) balances;\r\n\r\n        // spending permision management\r\n        mapping(address => mapping(address => uint256)) allowed;\r\n\r\n\r\n\r\n        function StandardToken() {}\r\n\r\n\r\n        /**\r\n         * transfer() - transfer tokens from msg.sender balance \r\n         *              to requested account\r\n         *\r\n         *  @param to    - target address to transfer tokens\r\n         *  @param value - ammount of tokens to transfer\r\n         *\r\n         *  @return - success / failure of the transaction\r\n         */\r\n        function transfer(address to, uint256 value) returns(bool success) {\r\n\r\n\r\n                if (balances[msg.sender] >= value && value > 0) {\r\n\r\n                        // do actual tokens transfer       \r\n                        balances[msg.sender] -= value;\r\n                        balances[to] += value;\r\n\r\n                        // rise the Transfer event\r\n                        Transfer(msg.sender, to, value);\r\n                        return true;\r\n                } else {\r\n\r\n                        return false;\r\n                }\r\n        }\r\n\r\n\r\n\r\n\r\n        /**\r\n         * transferFrom() - used to move allowed funds from other owner\r\n         *                  account \r\n         *\r\n         *  @param from  - move funds from account\r\n         *  @param to    - move funds to account\r\n         *  @param value - move the value \r\n         *\r\n         *  @return - return true on success false otherwise \r\n         */\r\n        function transferFrom(address from, address to, uint256 value) returns(bool success) {\r\n\r\n                if (balances[from] >= value &&\r\n                        allowed[from][msg.sender] >= value &&\r\n                        value > 0) {\r\n\r\n\r\n                        // do the actual transfer\r\n                        balances[from] -= value;\r\n                        balances[to] += value;\r\n\r\n\r\n                        // addjust the permision, after part of \r\n                        // permited to spend value was used\r\n                        allowed[from][msg.sender] -= value;\r\n\r\n                        // rise the Transfer event\r\n                        Transfer(from, to, value);\r\n                        return true;\r\n                } else {\r\n\r\n                        return false;\r\n                }\r\n        }\r\n\r\n\r\n\r\n\r\n        /**\r\n         *\r\n         * balanceOf() - constant function check concrete tokens balance  \r\n         *\r\n         *  @param owner - account owner\r\n         *  \r\n         *  @return the value of balance \r\n         */\r\n        function balanceOf(address owner) constant returns(uint256 balance) {\r\n                return balances[owner];\r\n        }\r\n\r\n\r\n\r\n        /**\r\n         *\r\n         * approve() - function approves to a person to spend some tokens from \r\n         *           owner balance. \r\n         *\r\n         *  @param spender - person whom this right been granted.\r\n         *  @param value   - value to spend.\r\n         * \r\n         *  @return true in case of succes, otherwise failure\r\n         * \r\n         */\r\n        function approve(address spender, uint256 value) returns(bool success) {\r\n\r\n\r\n\r\n                // now spender can use balance in \r\n                // ammount of value from owner balance\r\n                allowed[msg.sender][spender] = value;\r\n\r\n                // rise event about the transaction\r\n                Approval(msg.sender, spender, value);\r\n\r\n                return true;\r\n        }\r\n\r\n\r\n        /**\r\n         *\r\n         * allowance() - constant function to check how mouch is \r\n         *               permited to spend to 3rd person from owner balance\r\n         *\r\n         *  @param owner   - owner of the balance\r\n         *  @param spender - permited to spend from this balance person \r\n         *  \r\n         *  @return - remaining right to spend \r\n         * \r\n         */\r\n        function allowance(address owner, address spender) constant returns(uint256 remaining) {\r\n                return allowed[owner][spender];\r\n        }\r\n\r\n}"
+  InheritanceSpecifier
+     Gas costs: 0
+     Source: "TokenInterface"
+    UserDefinedTypeName "TokenInterface"
+       Source: "TokenInterface"
+  VariableDeclaration "balances"
+     Type: mapping(address => uint256)
+     Gas costs: 0
+     Source: "mapping(address => uint256) balances"
+    Mapping
+       Source: "mapping(address => uint256)"
+      ElementaryTypeName address
+         Source: "address"
+      ElementaryTypeName uint256
+         Source: "uint256"
+  VariableDeclaration "allowed"
+     Type: mapping(address => mapping(address => uint256))
+     Gas costs: 0
+     Source: "mapping(address => mapping(address => uint256)) allowed"
+    Mapping
+       Source: "mapping(address => mapping(address => uint256))"
+      ElementaryTypeName address
+         Source: "address"
+      Mapping
+         Source: "mapping(address => uint256)"
+        ElementaryTypeName address
+           Source: "address"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  FunctionDefinition "StandardToken" - public
+     Source: "function StandardToken() {}"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Gas costs: 0
+       Source: "{}"
+  FunctionDefinition "transfer" - public
+     Source: "function transfer(address to, uint256 value) returns(bool success) {\r\n\r\n\r\n                if (balances[msg.sender] >= value && value > 0) {\r\n\r\n                        // do actual tokens transfer       \r\n                        balances[msg.sender] -= value;\r\n                        balances[to] += value;\r\n\r\n                        // rise the Transfer event\r\n                        Transfer(msg.sender, to, value);\r\n                        return true;\r\n                } else {\r\n\r\n                        return false;\r\n                }\r\n        }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address to, uint256 value)"
+      VariableDeclaration "to"
+         Type: address
+         Source: "address to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "value"
+         Type: uint256
+         Source: "uint256 value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n\r\n\r\n                if (balances[msg.sender] >= value && value > 0) {\r\n\r\n                        // do actual tokens transfer       \r\n                        balances[msg.sender] -= value;\r\n                        balances[to] += value;\r\n\r\n                        // rise the Transfer event\r\n                        Transfer(msg.sender, to, value);\r\n                        return true;\r\n                } else {\r\n\r\n                        return false;\r\n                }\r\n        }"
+      IfStatement
+         Source: "if (balances[msg.sender] >= value && value > 0) {\r\n\r\n                        // do actual tokens transfer       \r\n                        balances[msg.sender] -= value;\r\n                        balances[to] += value;\r\n\r\n                        // rise the Transfer event\r\n                        Transfer(msg.sender, to, value);\r\n                        return true;\r\n                } else {\r\n\r\n                        return false;\r\n                }"
+        BinaryOperation using operator &&
+           Type: bool
+           Gas costs: 338
+           Source: "balances[msg.sender] >= value && value > 0"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "balances[msg.sender] >= value"
+            IndexAccess
+               Type: uint256
+               Source: "balances[msg.sender]"
+              Identifier balances
+                 Type: mapping(address => uint256)
+                 Source: "balances"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+            Identifier value
+               Type: uint256
+               Source: "value"
+          BinaryOperation using operator >
+             Type: bool
+             Source: "value > 0"
+            Identifier value
+               Type: uint256
+               Source: "value"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+        Block
+           Source: "{\r\n\r\n                        // do actual tokens transfer       \r\n                        balances[msg.sender] -= value;\r\n                        balances[to] += value;\r\n\r\n                        // rise the Transfer event\r\n                        Transfer(msg.sender, to, value);\r\n                        return true;\r\n                }"
+          ExpressionStatement
+             Gas costs: 20328
+             Source: "balances[msg.sender] -= value"
+            Assignment using operator -=
+               Type: uint256
+               Source: "balances[msg.sender] -= value"
+              IndexAccess
+                 Type: uint256
+                 Source: "balances[msg.sender]"
+                Identifier balances
+                   Type: mapping(address => uint256)
+                   Source: "balances"
+                MemberAccess to member sender
+                   Type: address
+                   Source: "msg.sender"
+                  Identifier msg
+                     Type: msg
+                     Source: "msg"
+              Identifier value
+                 Type: uint256
+                 Source: "value"
+          ExpressionStatement
+             Gas costs: 20323
+             Source: "balances[to] += value"
+            Assignment using operator +=
+               Type: uint256
+               Source: "balances[to] += value"
+              IndexAccess
+                 Type: uint256
+                 Source: "balances[to]"
+                Identifier balances
+                   Type: mapping(address => uint256)
+                   Source: "balances"
+                Identifier to
+                   Type: address
+                   Source: "to"
+              Identifier value
+                 Type: uint256
+                 Source: "value"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "Transfer(msg.sender, to, value)"
+            FunctionCall
+               Type: tuple()
+               Source: "Transfer(msg.sender, to, value)"
+              Identifier Transfer
+                 Type: function (address,address,uint256)
+                 Source: "Transfer"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+              Identifier to
+                 Type: address
+                 Source: "to"
+              Identifier value
+                 Type: uint256
+                 Source: "value"
+          Return
+             Gas costs: 19
+             Source: "return true"
+            Literal, token: true value: true
+               Type: bool
+               Source: "true"
+        Block
+           Source: "{\r\n\r\n                        return false;\r\n                }"
+          Return
+             Gas costs: 8
+             Source: "return false"
+            Literal, token: false value: false
+               Type: bool
+               Source: "false"
+  FunctionDefinition "transferFrom" - public
+     Source: "function transferFrom(address from, address to, uint256 value) returns(bool success) {\r\n\r\n                if (balances[from] >= value &&\r\n                        allowed[from][msg.sender] >= value &&\r\n                        value > 0) {\r\n\r\n\r\n                        // do the actual transfer\r\n                        balances[from] -= value;\r\n                        balances[to] += value;\r\n\r\n\r\n                        // addjust the permision, after part of \r\n                        // permited to spend value was used\r\n                        allowed[from][msg.sender] -= value;\r\n\r\n                        // rise the Transfer event\r\n                        Transfer(from, to, value);\r\n                        return true;\r\n                } else {\r\n\r\n                        return false;\r\n                }\r\n        }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address from, address to, uint256 value)"
+      VariableDeclaration "from"
+         Type: address
+         Source: "address from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "to"
+         Type: address
+         Source: "address to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "value"
+         Type: uint256
+         Source: "uint256 value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n\r\n                if (balances[from] >= value &&\r\n                        allowed[from][msg.sender] >= value &&\r\n                        value > 0) {\r\n\r\n\r\n                        // do the actual transfer\r\n                        balances[from] -= value;\r\n                        balances[to] += value;\r\n\r\n\r\n                        // addjust the permision, after part of \r\n                        // permited to spend value was used\r\n                        allowed[from][msg.sender] -= value;\r\n\r\n                        // rise the Transfer event\r\n                        Transfer(from, to, value);\r\n                        return true;\r\n                } else {\r\n\r\n                        return false;\r\n                }\r\n        }"
+      IfStatement
+         Source: "if (balances[from] >= value &&\r\n                        allowed[from][msg.sender] >= value &&\r\n                        value > 0) {\r\n\r\n\r\n                        // do the actual transfer\r\n                        balances[from] -= value;\r\n                        balances[to] += value;\r\n\r\n\r\n                        // addjust the permision, after part of \r\n                        // permited to spend value was used\r\n                        allowed[from][msg.sender] -= value;\r\n\r\n                        // rise the Transfer event\r\n                        Transfer(from, to, value);\r\n                        return true;\r\n                } else {\r\n\r\n                        return false;\r\n                }"
+        BinaryOperation using operator &&
+           Type: bool
+           Gas costs: 758
+           Source: "balances[from] >= value &&\r\n                        allowed[from][msg.sender] >= value &&\r\n                        value > 0"
+          BinaryOperation using operator &&
+             Type: bool
+             Source: "balances[from] >= value &&\r\n                        allowed[from][msg.sender] >= value"
+            BinaryOperation using operator >=
+               Type: bool
+               Source: "balances[from] >= value"
+              IndexAccess
+                 Type: uint256
+                 Source: "balances[from]"
+                Identifier balances
+                   Type: mapping(address => uint256)
+                   Source: "balances"
+                Identifier from
+                   Type: address
+                   Source: "from"
+              Identifier value
+                 Type: uint256
+                 Source: "value"
+            BinaryOperation using operator >=
+               Type: bool
+               Source: "allowed[from][msg.sender] >= value"
+              IndexAccess
+                 Type: uint256
+                 Source: "allowed[from][msg.sender]"
+                IndexAccess
+                   Type: mapping(address => uint256)
+                   Source: "allowed[from]"
+                  Identifier allowed
+                     Type: mapping(address => mapping(address => uint256))
+                     Source: "allowed"
+                  Identifier from
+                     Type: address
+                     Source: "from"
+                MemberAccess to member sender
+                   Type: address
+                   Source: "msg.sender"
+                  Identifier msg
+                     Type: msg
+                     Source: "msg"
+              Identifier value
+                 Type: uint256
+                 Source: "value"
+          BinaryOperation using operator >
+             Type: bool
+             Source: "value > 0"
+            Identifier value
+               Type: uint256
+               Source: "value"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+        Block
+           Source: "{\r\n\r\n\r\n                        // do the actual transfer\r\n                        balances[from] -= value;\r\n                        balances[to] += value;\r\n\r\n\r\n                        // addjust the permision, after part of \r\n                        // permited to spend value was used\r\n                        allowed[from][msg.sender] -= value;\r\n\r\n                        // rise the Transfer event\r\n                        Transfer(from, to, value);\r\n                        return true;\r\n                }"
+          ExpressionStatement
+             Gas costs: 20329
+             Source: "balances[from] -= value"
+            Assignment using operator -=
+               Type: uint256
+               Source: "balances[from] -= value"
+              IndexAccess
+                 Type: uint256
+                 Source: "balances[from]"
+                Identifier balances
+                   Type: mapping(address => uint256)
+                   Source: "balances"
+                Identifier from
+                   Type: address
+                   Source: "from"
+              Identifier value
+                 Type: uint256
+                 Source: "value"
+          ExpressionStatement
+             Gas costs: 20323
+             Source: "balances[to] += value"
+            Assignment using operator +=
+               Type: uint256
+               Source: "balances[to] += value"
+              IndexAccess
+                 Type: uint256
+                 Source: "balances[to]"
+                Identifier balances
+                   Type: mapping(address => uint256)
+                   Source: "balances"
+                Identifier to
+                   Type: address
+                   Source: "to"
+              Identifier value
+                 Type: uint256
+                 Source: "value"
+          ExpressionStatement
+             Gas costs: 20412
+             Source: "allowed[from][msg.sender] -= value"
+            Assignment using operator -=
+               Type: uint256
+               Source: "allowed[from][msg.sender] -= value"
+              IndexAccess
+                 Type: uint256
+                 Source: "allowed[from][msg.sender]"
+                IndexAccess
+                   Type: mapping(address => uint256)
+                   Source: "allowed[from]"
+                  Identifier allowed
+                     Type: mapping(address => mapping(address => uint256))
+                     Source: "allowed"
+                  Identifier from
+                     Type: address
+                     Source: "from"
+                MemberAccess to member sender
+                   Type: address
+                   Source: "msg.sender"
+                  Identifier msg
+                     Type: msg
+                     Source: "msg"
+              Identifier value
+                 Type: uint256
+                 Source: "value"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "Transfer(from, to, value)"
+            FunctionCall
+               Type: tuple()
+               Source: "Transfer(from, to, value)"
+              Identifier Transfer
+                 Type: function (address,address,uint256)
+                 Source: "Transfer"
+              Identifier from
+                 Type: address
+                 Source: "from"
+              Identifier to
+                 Type: address
+                 Source: "to"
+              Identifier value
+                 Type: uint256
+                 Source: "value"
+          Return
+             Gas costs: 19
+             Source: "return true"
+            Literal, token: true value: true
+               Type: bool
+               Source: "true"
+        Block
+           Source: "{\r\n\r\n                        return false;\r\n                }"
+          Return
+             Gas costs: 8
+             Source: "return false"
+            Literal, token: false value: false
+               Type: bool
+               Source: "false"
+  FunctionDefinition "balanceOf" - public - const
+     Source: "function balanceOf(address owner) constant returns(uint256 balance) {\r\n                return balances[owner];\r\n        }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address owner)"
+      VariableDeclaration "owner"
+         Type: address
+         Source: "address owner"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint256 balance)"
+      VariableDeclaration "balance"
+         Type: uint256
+         Source: "uint256 balance"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{\r\n                return balances[owner];\r\n        }"
+      Return
+         Gas costs: 304
+         Source: "return balances[owner]"
+        IndexAccess
+           Type: uint256
+           Source: "balances[owner]"
+          Identifier balances
+             Type: mapping(address => uint256)
+             Source: "balances"
+          Identifier owner
+             Type: address
+             Source: "owner"
+  FunctionDefinition "approve" - public
+     Source: "function approve(address spender, uint256 value) returns(bool success) {\r\n\r\n\r\n\r\n                // now spender can use balance in \r\n                // ammount of value from owner balance\r\n                allowed[msg.sender][spender] = value;\r\n\r\n                // rise event about the transaction\r\n                Approval(msg.sender, spender, value);\r\n\r\n                return true;\r\n        }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address spender, uint256 value)"
+      VariableDeclaration "spender"
+         Type: address
+         Source: "address spender"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "value"
+         Type: uint256
+         Source: "uint256 value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n\r\n\r\n\r\n                // now spender can use balance in \r\n                // ammount of value from owner balance\r\n                allowed[msg.sender][spender] = value;\r\n\r\n                // rise event about the transaction\r\n                Approval(msg.sender, spender, value);\r\n\r\n                return true;\r\n        }"
+      ExpressionStatement
+         Gas costs: 20199
+         Source: "allowed[msg.sender][spender] = value"
+        Assignment using operator =
+           Type: uint256
+           Source: "allowed[msg.sender][spender] = value"
+          IndexAccess
+             Type: uint256
+             Source: "allowed[msg.sender][spender]"
+            IndexAccess
+               Type: mapping(address => uint256)
+               Source: "allowed[msg.sender]"
+              Identifier allowed
+                 Type: mapping(address => mapping(address => uint256))
+                 Source: "allowed"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+            Identifier spender
+               Type: address
+               Source: "spender"
+          Identifier value
+             Type: uint256
+             Source: "value"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "Approval(msg.sender, spender, value)"
+        FunctionCall
+           Type: tuple()
+           Source: "Approval(msg.sender, spender, value)"
+          Identifier Approval
+             Type: function (address,address,uint256)
+             Source: "Approval"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier spender
+             Type: address
+             Source: "spender"
+          Identifier value
+             Type: uint256
+             Source: "value"
+      Return
+         Gas costs: 8
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+  FunctionDefinition "allowance" - public - const
+     Source: "function allowance(address owner, address spender) constant returns(uint256 remaining) {\r\n                return allowed[owner][spender];\r\n        }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address owner, address spender)"
+      VariableDeclaration "owner"
+         Type: address
+         Source: "address owner"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "spender"
+         Type: address
+         Source: "address spender"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint256 remaining)"
+      VariableDeclaration "remaining"
+         Type: uint256
+         Source: "uint256 remaining"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{\r\n                return allowed[owner][spender];\r\n        }"
+      Return
+         Gas costs: 394
+         Source: "return allowed[owner][spender]"
+        IndexAccess
+           Type: uint256
+           Source: "allowed[owner][spender]"
+          IndexAccess
+             Type: mapping(address => uint256)
+             Source: "allowed[owner]"
+            Identifier allowed
+               Type: mapping(address => mapping(address => uint256))
+               Source: "allowed"
+            Identifier owner
+               Type: address
+               Source: "owner"
+          Identifier spender
+             Type: address
+             Source: "spender"
+PragmaDirective
+   Gas costs: 0
+   Source: "pragma solidity ^ 0.4 .0;"
+ContractDefinition "HackerGold"
+   Source: "contract HackerGold is StandardToken {\r\n\r\n        // Name of the token    \r\n        string public name = \"HackerGold\";\r\n\r\n        // Decimal places\r\n        uint8 public decimals = 3;\r\n        // Token abbreviation        \r\n        string public symbol = \"HKG\";\r\n\r\n        // 1 ether = 200 hkg\r\n        uint BASE_PRICE = 200;\r\n        // 1 ether = 150 hkg\r\n        uint MID_PRICE = 150;\r\n        // 1 ether = 100 hkg\r\n        uint FIN_PRICE = 100;\r\n        // Safety cap\r\n        uint SAFETY_LIMIT = 4000000 ether;\r\n        // Zeros after the point\r\n        uint DECIMAL_ZEROS = 1000;\r\n\r\n        // Total value in wei\r\n        uint totalValue;\r\n\r\n        // Address of multisig wallet holding ether from sale\r\n        address wallet;\r\n\r\n        // Structure of sale increase milestones\r\n        struct milestones_struct {\r\n                uint p1;\r\n                uint p2;\r\n                uint p3;\r\n                uint p4;\r\n                uint p5;\r\n                uint p6;\r\n        }\r\n        // Milestones instance\r\n        milestones_struct milestones;\r\n\r\n        /**\r\n         * Constructor of the contract.\r\n         * \r\n         * Passes address of the account holding the value.\r\n         * HackerGold contract itself does not hold any value\r\n         * \r\n         * @param multisig address of MultiSig wallet which will hold the value\r\n         */\r\n        function HackerGold(address multisig) {\r\n\r\n                wallet = multisig;\r\n\r\n                // set time periods for sale\r\n                milestones = milestones_struct(\r\n\r\n                        1476972000, // P1: GMT: 20-Oct-2016 14:00  => The Sale Starts\r\n                        1478181600, // P2: GMT: 03-Nov-2016 14:00  => 1st Price Ladder \r\n                        1479391200, // P3: GMT: 17-Nov-2016 14:00  => Price Stable, \r\n                        //                                Hackathon Starts\r\n                        1480600800, // P4: GMT: 01-Dec-2016 14:00  => 2nd Price Ladder\r\n                        1481810400, // P5: GMT: 15-Dec-2016 14:00  => Price Stable\r\n                        1482415200 // P6: GMT: 22-Dec-2016 14:00  => Sale Ends, Hackathon Ends\r\n                );\r\n\r\n                // assign recovery balance\r\n                totalSupplyVar = 16110893000;\r\n                balances[0x342e62732b76875da9305083ea8ae63125a4e667] = 16110893000;\r\n                totalValue = 85362 ether;\r\n        }\r\n\r\n\r\n        /**\r\n         * Fallback function: called on ether sent.\r\n         * \r\n         * It calls to createHKG function with msg.sender \r\n         * as a value for holder argument\r\n         */\r\n        function() payable {\r\n                createHKG(msg.sender);\r\n        }\r\n\r\n        /**\r\n         * Creates HKG tokens.\r\n         * \r\n         * Runs sanity checks including safety cap\r\n         * Then calculates current price by getPrice() function, creates HKG tokens\r\n         * Finally sends a value of transaction to the wallet\r\n         * \r\n         * Note: due to lack of floating point types in Solidity,\r\n         * contract assumes that last 3 digits in tokens amount are stood after the point.\r\n         * It means that if stored HKG balance is 100000, then its real value is 100 HKG\r\n         * \r\n         * @param holder token holder\r\n         */\r\n        function createHKG(address holder) payable {\r\n\r\n                if (now < milestones.p1) throw;\r\n                if (now >= milestones.p6) throw;\r\n                if (msg.value == 0) throw;\r\n\r\n                // safety cap\r\n                if (getTotalValue() + msg.value > SAFETY_LIMIT) throw;\r\n\r\n                uint tokens = msg.value * getPrice() * DECIMAL_ZEROS / 1 ether;\r\n\r\n                totalSupplyVar += tokens;\r\n                balances[holder] += tokens;\r\n                totalValue += msg.value;\r\n\r\n                if (!wallet.send(msg.value)) throw;\r\n        }\r\n\r\n        /**\r\n         * Denotes complete price structure during the sale.\r\n         *\r\n         * @return HKG amount per 1 ETH for the current moment in time\r\n         */\r\n        function getPrice() constant returns(uint result) {\r\n\r\n                if (now < milestones.p1) return 0;\r\n\r\n                if (now >= milestones.p1 && now < milestones.p2) {\r\n\r\n                        return BASE_PRICE;\r\n                }\r\n\r\n                if (now >= milestones.p2 && now < milestones.p3) {\r\n\r\n                        uint days_in = 1 + (now - milestones.p2) / 1 days;\r\n                        return BASE_PRICE - days_in * 25 / 7; // daily decrease 3.5\r\n                }\r\n\r\n                if (now >= milestones.p3 && now < milestones.p4) {\r\n\r\n                        return MID_PRICE;\r\n                }\r\n\r\n                if (now >= milestones.p4 && now < milestones.p5) {\r\n\r\n                        days_in = 1 + (now - milestones.p4) / 1 days;\r\n                        return MID_PRICE - days_in * 25 / 7; // daily decrease 3.5\r\n                }\r\n\r\n                if (now >= milestones.p5 && now < milestones.p6) {\r\n\r\n                        return FIN_PRICE;\r\n                }\r\n\r\n                if (now >= milestones.p6) {\r\n\r\n                        return 0;\r\n                }\r\n\r\n        }\r\n\r\n        /**\r\n         * Returns total stored HKG amount.\r\n         * \r\n         * Contract assumes that last 3 digits of this value are behind the decimal place. i.e. 10001 is 10.001\r\n         * Thus, result of this function should be divided by 1000 to get HKG value\r\n         * \r\n         * @return result stored HKG amount\r\n         */\r\n        function getTotalSupply() constant returns(uint result) {\r\n                return totalSupplyVar;\r\n        }\r\n\r\n        /**\r\n         * It is used for test purposes.\r\n         * \r\n         * Returns the result of 'now' statement of Solidity language\r\n         * \r\n         * @return unix timestamp for current moment in time\r\n         */\r\n        function getNow() constant returns(uint result) {\r\n                return now;\r\n        }\r\n\r\n        /**\r\n         * Returns total value passed through the contract\r\n         * \r\n         * @return result total value in wei\r\n         */\r\n        function getTotalValue() constant returns(uint result) {\r\n                return totalValue;\r\n        }\r\n}"
+  InheritanceSpecifier
+     Gas costs: 0
+     Source: "StandardToken"
+    UserDefinedTypeName "StandardToken"
+       Source: "StandardToken"
+  VariableDeclaration "name"
+     Type: string storage ref
+     Gas costs: [???]
+     Source: "string public name = \"HackerGold\""
+    ElementaryTypeName string
+       Source: "string"
+    Literal, token: [no token] value: HackerGold
+       Type: literal_string "HackerGold"
+       Source: "\"HackerGold\""
+  VariableDeclaration "decimals"
+     Type: uint8
+     Gas costs: [???]
+     Source: "uint8 public decimals = 3"
+    ElementaryTypeName uint8
+       Source: "uint8"
+    Literal, token: [no token] value: 3
+       Type: int_const 3
+       Source: "3"
+  VariableDeclaration "symbol"
+     Type: string storage ref
+     Gas costs: [???]
+     Source: "string public symbol = \"HKG\""
+    ElementaryTypeName string
+       Source: "string"
+    Literal, token: [no token] value: HKG
+       Type: literal_string "HKG"
+       Source: "\"HKG\""
+  VariableDeclaration "BASE_PRICE"
+     Type: uint256
+     Gas costs: 0
+     Source: "uint BASE_PRICE = 200"
+    ElementaryTypeName uint
+       Source: "uint"
+    Literal, token: [no token] value: 200
+       Type: int_const 200
+       Source: "200"
+  VariableDeclaration "MID_PRICE"
+     Type: uint256
+     Gas costs: 0
+     Source: "uint MID_PRICE = 150"
+    ElementaryTypeName uint
+       Source: "uint"
+    Literal, token: [no token] value: 150
+       Type: int_const 150
+       Source: "150"
+  VariableDeclaration "FIN_PRICE"
+     Type: uint256
+     Gas costs: 0
+     Source: "uint FIN_PRICE = 100"
+    ElementaryTypeName uint
+       Source: "uint"
+    Literal, token: [no token] value: 100
+       Type: int_const 100
+       Source: "100"
+  VariableDeclaration "SAFETY_LIMIT"
+     Type: uint256
+     Gas costs: 0
+     Source: "uint SAFETY_LIMIT = 4000000 ether"
+    ElementaryTypeName uint
+       Source: "uint"
+    Literal, token: [no token] value: 4000000
+       Type: int_const 4000000000000000000000000
+       Source: "4000000 ether"
+  VariableDeclaration "DECIMAL_ZEROS"
+     Type: uint256
+     Gas costs: 0
+     Source: "uint DECIMAL_ZEROS = 1000"
+    ElementaryTypeName uint
+       Source: "uint"
+    Literal, token: [no token] value: 1000
+       Type: int_const 1000
+       Source: "1000"
+  VariableDeclaration "totalValue"
+     Type: uint256
+     Gas costs: 0
+     Source: "uint totalValue"
+    ElementaryTypeName uint
+       Source: "uint"
+  VariableDeclaration "wallet"
+     Type: address
+     Gas costs: 0
+     Source: "address wallet"
+    ElementaryTypeName address
+       Source: "address"
+  StructDefinition "milestones_struct"
+     Gas costs: 0
+     Source: "struct milestones_struct {\r\n                uint p1;\r\n                uint p2;\r\n                uint p3;\r\n                uint p4;\r\n                uint p5;\r\n                uint p6;\r\n        }"
+    VariableDeclaration "p1"
+       Type: uint256
+       Source: "uint p1"
+      ElementaryTypeName uint
+         Source: "uint"
+    VariableDeclaration "p2"
+       Type: uint256
+       Source: "uint p2"
+      ElementaryTypeName uint
+         Source: "uint"
+    VariableDeclaration "p3"
+       Type: uint256
+       Source: "uint p3"
+      ElementaryTypeName uint
+         Source: "uint"
+    VariableDeclaration "p4"
+       Type: uint256
+       Source: "uint p4"
+      ElementaryTypeName uint
+         Source: "uint"
+    VariableDeclaration "p5"
+       Type: uint256
+       Source: "uint p5"
+      ElementaryTypeName uint
+         Source: "uint"
+    VariableDeclaration "p6"
+       Type: uint256
+       Source: "uint p6"
+      ElementaryTypeName uint
+         Source: "uint"
+  VariableDeclaration "milestones"
+     Type: struct HackerGold.milestones_struct storage ref
+     Gas costs: 0
+     Source: "milestones_struct milestones"
+    UserDefinedTypeName "milestones_struct"
+       Source: "milestones_struct"
+  FunctionDefinition "HackerGold" - public
+     Source: "function HackerGold(address multisig) {\r\n\r\n                wallet = multisig;\r\n\r\n                // set time periods for sale\r\n                milestones = milestones_struct(\r\n\r\n                        1476972000, // P1: GMT: 20-Oct-2016 14:00  => The Sale Starts\r\n                        1478181600, // P2: GMT: 03-Nov-2016 14:00  => 1st Price Ladder \r\n                        1479391200, // P3: GMT: 17-Nov-2016 14:00  => Price Stable, \r\n                        //                                Hackathon Starts\r\n                        1480600800, // P4: GMT: 01-Dec-2016 14:00  => 2nd Price Ladder\r\n                        1481810400, // P5: GMT: 15-Dec-2016 14:00  => Price Stable\r\n                        1482415200 // P6: GMT: 22-Dec-2016 14:00  => Sale Ends, Hackathon Ends\r\n                );\r\n\r\n                // assign recovery balance\r\n                totalSupplyVar = 16110893000;\r\n                balances[0x342e62732b76875da9305083ea8ae63125a4e667] = 16110893000;\r\n                totalValue = 85362 ether;\r\n        }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address multisig)"
+      VariableDeclaration "multisig"
+         Type: address
+         Source: "address multisig"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n\r\n                wallet = multisig;\r\n\r\n                // set time periods for sale\r\n                milestones = milestones_struct(\r\n\r\n                        1476972000, // P1: GMT: 20-Oct-2016 14:00  => The Sale Starts\r\n                        1478181600, // P2: GMT: 03-Nov-2016 14:00  => 1st Price Ladder \r\n                        1479391200, // P3: GMT: 17-Nov-2016 14:00  => Price Stable, \r\n                        //                                Hackathon Starts\r\n                        1480600800, // P4: GMT: 01-Dec-2016 14:00  => 2nd Price Ladder\r\n                        1481810400, // P5: GMT: 15-Dec-2016 14:00  => Price Stable\r\n                        1482415200 // P6: GMT: 22-Dec-2016 14:00  => Sale Ends, Hackathon Ends\r\n                );\r\n\r\n                // assign recovery balance\r\n                totalSupplyVar = 16110893000;\r\n                balances[0x342e62732b76875da9305083ea8ae63125a4e667] = 16110893000;\r\n                totalValue = 85362 ether;\r\n        }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "wallet = multisig"
+        Assignment using operator =
+           Type: address
+           Source: "wallet = multisig"
+          Identifier wallet
+             Type: address
+             Source: "wallet"
+          Identifier multisig
+             Type: address
+             Source: "multisig"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "milestones = milestones_struct(\r\n\r\n                        1476972000, // P1: GMT: 20-Oct-2016 14:00  => The Sale Starts\r\n                        1478181600, // P2: GMT: 03-Nov-2016 14:00  => 1st Price Ladder \r\n                        1479391200, // P3: GMT: 17-Nov-2016 14:00  => Price Stable, \r\n                        //                                Hackathon Starts\r\n                        1480600800, // P4: GMT: 01-Dec-2016 14:00  => 2nd Price Ladder\r\n                        1481810400, // P5: GMT: 15-Dec-2016 14:00  => Price Stable\r\n                        1482415200 // P6: GMT: 22-Dec-2016 14:00  => Sale Ends, Hackathon Ends\r\n                )"
+        Assignment using operator =
+           Type: struct HackerGold.milestones_struct storage ref
+           Source: "milestones = milestones_struct(\r\n\r\n                        1476972000, // P1: GMT: 20-Oct-2016 14:00  => The Sale Starts\r\n                        1478181600, // P2: GMT: 03-Nov-2016 14:00  => 1st Price Ladder \r\n                        1479391200, // P3: GMT: 17-Nov-2016 14:00  => Price Stable, \r\n                        //                                Hackathon Starts\r\n                        1480600800, // P4: GMT: 01-Dec-2016 14:00  => 2nd Price Ladder\r\n                        1481810400, // P5: GMT: 15-Dec-2016 14:00  => Price Stable\r\n                        1482415200 // P6: GMT: 22-Dec-2016 14:00  => Sale Ends, Hackathon Ends\r\n                )"
+          Identifier milestones
+             Type: struct HackerGold.milestones_struct storage ref
+             Source: "milestones"
+          FunctionCall
+             Type: struct HackerGold.milestones_struct memory
+             Source: "milestones_struct(\r\n\r\n                        1476972000, // P1: GMT: 20-Oct-2016 14:00  => The Sale Starts\r\n                        1478181600, // P2: GMT: 03-Nov-2016 14:00  => 1st Price Ladder \r\n                        1479391200, // P3: GMT: 17-Nov-2016 14:00  => Price Stable, \r\n                        //                                Hackathon Starts\r\n                        1480600800, // P4: GMT: 01-Dec-2016 14:00  => 2nd Price Ladder\r\n                        1481810400, // P5: GMT: 15-Dec-2016 14:00  => Price Stable\r\n                        1482415200 // P6: GMT: 22-Dec-2016 14:00  => Sale Ends, Hackathon Ends\r\n                )"
+            Identifier milestones_struct
+               Type: type(struct HackerGold.milestones_struct storage pointer)
+               Source: "milestones_struct"
+            Literal, token: [no token] value: 1476972000
+               Type: int_const 1476972000
+               Source: "1476972000"
+            Literal, token: [no token] value: 1478181600
+               Type: int_const 1478181600
+               Source: "1478181600"
+            Literal, token: [no token] value: 1479391200
+               Type: int_const 1479391200
+               Source: "1479391200"
+            Literal, token: [no token] value: 1480600800
+               Type: int_const 1480600800
+               Source: "1480600800"
+            Literal, token: [no token] value: 1481810400
+               Type: int_const 1481810400
+               Source: "1481810400"
+            Literal, token: [no token] value: 1482415200
+               Type: int_const 1482415200
+               Source: "1482415200"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "totalSupplyVar = 16110893000"
+        Assignment using operator =
+           Type: uint256
+           Source: "totalSupplyVar = 16110893000"
+          Identifier totalSupplyVar
+             Type: uint256
+             Source: "totalSupplyVar"
+          Literal, token: [no token] value: 16110893000
+             Type: int_const 16110893000
+             Source: "16110893000"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "balances[0x342e62732b76875da9305083ea8ae63125a4e667] = 16110893000"
+        Assignment using operator =
+           Type: uint256
+           Source: "balances[0x342e62732b76875da9305083ea8ae63125a4e667] = 16110893000"
+          IndexAccess
+             Type: uint256
+             Source: "balances[0x342e62732b76875da9305083ea8ae63125a4e667]"
+            Identifier balances
+               Type: mapping(address => uint256)
+               Source: "balances"
+            Literal, token: [no token] value: 0x342e62732b76875da9305083ea8ae63125a4e667
+               Type: int_const 2979...(40 digits omitted)...3703
+               Source: "0x342e62732b76875da9305083ea8ae63125a4e667"
+          Literal, token: [no token] value: 16110893000
+             Type: int_const 16110893000
+             Source: "16110893000"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "totalValue = 85362 ether"
+        Assignment using operator =
+           Type: uint256
+           Source: "totalValue = 85362 ether"
+          Identifier totalValue
+             Type: uint256
+             Source: "totalValue"
+          Literal, token: [no token] value: 85362
+             Type: int_const 85362000000000000000000
+             Source: "85362 ether"
+  FunctionDefinition "" - public
+     Source: "function() payable {\r\n                createHKG(msg.sender);\r\n        }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n                createHKG(msg.sender);\r\n        }"
+      ExpressionStatement
+         Gas costs: 6
+         Source: "createHKG(msg.sender)"
+        FunctionCall
+           Type: tuple()
+           Source: "createHKG(msg.sender)"
+          Identifier createHKG
+             Type: function (address)
+             Source: "createHKG"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+  FunctionDefinition "createHKG" - public
+     Source: "function createHKG(address holder) payable {\r\n\r\n                if (now < milestones.p1) throw;\r\n                if (now >= milestones.p6) throw;\r\n                if (msg.value == 0) throw;\r\n\r\n                // safety cap\r\n                if (getTotalValue() + msg.value > SAFETY_LIMIT) throw;\r\n\r\n                uint tokens = msg.value * getPrice() * DECIMAL_ZEROS / 1 ether;\r\n\r\n                totalSupplyVar += tokens;\r\n                balances[holder] += tokens;\r\n                totalValue += msg.value;\r\n\r\n                if (!wallet.send(msg.value)) throw;\r\n        }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address holder)"
+      VariableDeclaration "holder"
+         Type: address
+         Source: "address holder"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n\r\n                if (now < milestones.p1) throw;\r\n                if (now >= milestones.p6) throw;\r\n                if (msg.value == 0) throw;\r\n\r\n                // safety cap\r\n                if (getTotalValue() + msg.value > SAFETY_LIMIT) throw;\r\n\r\n                uint tokens = msg.value * getPrice() * DECIMAL_ZEROS / 1 ether;\r\n\r\n                totalSupplyVar += tokens;\r\n                balances[holder] += tokens;\r\n                totalValue += msg.value;\r\n\r\n                if (!wallet.send(msg.value)) throw;\r\n        }"
+      IfStatement
+         Source: "if (now < milestones.p1) throw"
+        BinaryOperation using operator <
+           Type: bool
+           Gas costs: 214
+           Source: "now < milestones.p1"
+          Identifier now
+             Type: uint256
+             Source: "now"
+          MemberAccess to member p1
+             Type: uint256
+             Source: "milestones.p1"
+            Identifier milestones
+               Type: struct HackerGold.milestones_struct storage ref
+               Source: "milestones"
+        Throw
+           Gas costs: 6
+           Source: "throw"
+      IfStatement
+         Source: "if (now >= milestones.p6) throw"
+        BinaryOperation using operator >=
+           Type: bool
+           Gas costs: 217
+           Source: "now >= milestones.p6"
+          Identifier now
+             Type: uint256
+             Source: "now"
+          MemberAccess to member p6
+             Type: uint256
+             Source: "milestones.p6"
+            Identifier milestones
+               Type: struct HackerGold.milestones_struct storage ref
+               Source: "milestones"
+        Throw
+           Gas costs: 6
+           Source: "throw"
+      IfStatement
+         Source: "if (msg.value == 0) throw"
+        BinaryOperation using operator ==
+           Type: bool
+           Gas costs: 8
+           Source: "msg.value == 0"
+          MemberAccess to member value
+             Type: uint256
+             Source: "msg.value"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        Throw
+           Gas costs: 6
+           Source: "throw"
+      IfStatement
+         Source: "if (getTotalValue() + msg.value > SAFETY_LIMIT) throw"
+        BinaryOperation using operator >
+           Type: bool
+           Gas costs: 226
+           Source: "getTotalValue() + msg.value > SAFETY_LIMIT"
+          BinaryOperation using operator +
+             Type: uint256
+             Source: "getTotalValue() + msg.value"
+            FunctionCall
+               Type: uint256
+               Source: "getTotalValue()"
+              Identifier getTotalValue
+                 Type: function () view returns (uint256)
+                 Source: "getTotalValue"
+            MemberAccess to member value
+               Type: uint256
+               Source: "msg.value"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Identifier SAFETY_LIMIT
+             Type: uint256
+             Source: "SAFETY_LIMIT"
+        Throw
+           Gas costs: 6
+           Source: "throw"
+      VariableDeclarationStatement
+         Gas costs: 269
+         Source: "uint tokens = msg.value * getPrice() * DECIMAL_ZEROS / 1 ether"
+        VariableDeclaration "tokens"
+           Type: uint256
+           Source: "uint tokens"
+          ElementaryTypeName uint
+             Source: "uint"
+        BinaryOperation using operator /
+           Type: uint256
+           Source: "msg.value * getPrice() * DECIMAL_ZEROS / 1 ether"
+          BinaryOperation using operator *
+             Type: uint256
+             Source: "msg.value * getPrice() * DECIMAL_ZEROS"
+            BinaryOperation using operator *
+               Type: uint256
+               Source: "msg.value * getPrice()"
+              MemberAccess to member value
+                 Type: uint256
+                 Source: "msg.value"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+              FunctionCall
+                 Type: uint256
+                 Source: "getPrice()"
+                Identifier getPrice
+                   Type: function () view returns (uint256)
+                   Source: "getPrice"
+            Identifier DECIMAL_ZEROS
+               Type: uint256
+               Source: "DECIMAL_ZEROS"
+          Literal, token: [no token] value: 1
+             Type: int_const 1000000000000000000
+             Source: "1 ether"
+      ExpressionStatement
+         Gas costs: 20233
+         Source: "totalSupplyVar += tokens"
+        Assignment using operator +=
+           Type: uint256
+           Source: "totalSupplyVar += tokens"
+          Identifier totalSupplyVar
+             Type: uint256
+             Source: "totalSupplyVar"
+          Identifier tokens
+             Type: uint256
+             Source: "tokens"
+      ExpressionStatement
+         Gas costs: 20329
+         Source: "balances[holder] += tokens"
+        Assignment using operator +=
+           Type: uint256
+           Source: "balances[holder] += tokens"
+          IndexAccess
+             Type: uint256
+             Source: "balances[holder]"
+            Identifier balances
+               Type: mapping(address => uint256)
+               Source: "balances"
+            Identifier holder
+               Type: address
+               Source: "holder"
+          Identifier tokens
+             Type: uint256
+             Source: "tokens"
+      ExpressionStatement
+         Gas costs: 20232
+         Source: "totalValue += msg.value"
+        Assignment using operator +=
+           Type: uint256
+           Source: "totalValue += msg.value"
+          Identifier totalValue
+             Type: uint256
+             Source: "totalValue"
+          MemberAccess to member value
+             Type: uint256
+             Source: "msg.value"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+      IfStatement
+         Source: "if (!wallet.send(msg.value)) throw"
+        UnaryOperation (prefix) !
+           Type: bool
+           Gas costs: [???]
+           Source: "!wallet.send(msg.value)"
+          FunctionCall
+             Type: bool
+             Source: "wallet.send(msg.value)"
+            MemberAccess to member send
+               Type: function (uint256) returns (bool)
+               Source: "wallet.send"
+              Identifier wallet
+                 Type: address
+                 Source: "wallet"
+            MemberAccess to member value
+               Type: uint256
+               Source: "msg.value"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+        Throw
+           Gas costs: 6
+           Source: "throw"
+  FunctionDefinition "getPrice" - public - const
+     Source: "function getPrice() constant returns(uint result) {\r\n\r\n                if (now < milestones.p1) return 0;\r\n\r\n                if (now >= milestones.p1 && now < milestones.p2) {\r\n\r\n                        return BASE_PRICE;\r\n                }\r\n\r\n                if (now >= milestones.p2 && now < milestones.p3) {\r\n\r\n                        uint days_in = 1 + (now - milestones.p2) / 1 days;\r\n                        return BASE_PRICE - days_in * 25 / 7; // daily decrease 3.5\r\n                }\r\n\r\n                if (now >= milestones.p3 && now < milestones.p4) {\r\n\r\n                        return MID_PRICE;\r\n                }\r\n\r\n                if (now >= milestones.p4 && now < milestones.p5) {\r\n\r\n                        days_in = 1 + (now - milestones.p4) / 1 days;\r\n                        return MID_PRICE - days_in * 25 / 7; // daily decrease 3.5\r\n                }\r\n\r\n                if (now >= milestones.p5 && now < milestones.p6) {\r\n\r\n                        return FIN_PRICE;\r\n                }\r\n\r\n                if (now >= milestones.p6) {\r\n\r\n                        return 0;\r\n                }\r\n\r\n        }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint result)"
+      VariableDeclaration "result"
+         Type: uint256
+         Source: "uint result"
+        ElementaryTypeName uint
+           Source: "uint"
+    Block
+       Source: "{\r\n\r\n                if (now < milestones.p1) return 0;\r\n\r\n                if (now >= milestones.p1 && now < milestones.p2) {\r\n\r\n                        return BASE_PRICE;\r\n                }\r\n\r\n                if (now >= milestones.p2 && now < milestones.p3) {\r\n\r\n                        uint days_in = 1 + (now - milestones.p2) / 1 days;\r\n                        return BASE_PRICE - days_in * 25 / 7; // daily decrease 3.5\r\n                }\r\n\r\n                if (now >= milestones.p3 && now < milestones.p4) {\r\n\r\n                        return MID_PRICE;\r\n                }\r\n\r\n                if (now >= milestones.p4 && now < milestones.p5) {\r\n\r\n                        days_in = 1 + (now - milestones.p4) / 1 days;\r\n                        return MID_PRICE - days_in * 25 / 7; // daily decrease 3.5\r\n                }\r\n\r\n                if (now >= milestones.p5 && now < milestones.p6) {\r\n\r\n                        return FIN_PRICE;\r\n                }\r\n\r\n                if (now >= milestones.p6) {\r\n\r\n                        return 0;\r\n                }\r\n\r\n        }"
+      IfStatement
+         Source: "if (now < milestones.p1) return 0"
+        BinaryOperation using operator <
+           Type: bool
+           Gas costs: 214
+           Source: "now < milestones.p1"
+          Identifier now
+             Type: uint256
+             Source: "now"
+          MemberAccess to member p1
+             Type: uint256
+             Source: "milestones.p1"
+            Identifier milestones
+               Type: struct HackerGold.milestones_struct storage ref
+               Source: "milestones"
+        Return
+           Gas costs: 19
+           Source: "return 0"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+      IfStatement
+         Source: "if (now >= milestones.p1 && now < milestones.p2) {\r\n\r\n                        return BASE_PRICE;\r\n                }"
+        BinaryOperation using operator &&
+           Type: bool
+           Gas costs: 453
+           Source: "now >= milestones.p1 && now < milestones.p2"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "now >= milestones.p1"
+            Identifier now
+               Type: uint256
+               Source: "now"
+            MemberAccess to member p1
+               Type: uint256
+               Source: "milestones.p1"
+              Identifier milestones
+                 Type: struct HackerGold.milestones_struct storage ref
+                 Source: "milestones"
+          BinaryOperation using operator <
+             Type: bool
+             Source: "now < milestones.p2"
+            Identifier now
+               Type: uint256
+               Source: "now"
+            MemberAccess to member p2
+               Type: uint256
+               Source: "milestones.p2"
+              Identifier milestones
+                 Type: struct HackerGold.milestones_struct storage ref
+                 Source: "milestones"
+        Block
+           Source: "{\r\n\r\n                        return BASE_PRICE;\r\n                }"
+          Return
+             Gas costs: 219
+             Source: "return BASE_PRICE"
+            Identifier BASE_PRICE
+               Type: uint256
+               Source: "BASE_PRICE"
+      IfStatement
+         Source: "if (now >= milestones.p2 && now < milestones.p3) {\r\n\r\n                        uint days_in = 1 + (now - milestones.p2) / 1 days;\r\n                        return BASE_PRICE - days_in * 25 / 7; // daily decrease 3.5\r\n                }"
+        BinaryOperation using operator &&
+           Type: bool
+           Gas costs: 453
+           Source: "now >= milestones.p2 && now < milestones.p3"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "now >= milestones.p2"
+            Identifier now
+               Type: uint256
+               Source: "now"
+            MemberAccess to member p2
+               Type: uint256
+               Source: "milestones.p2"
+              Identifier milestones
+                 Type: struct HackerGold.milestones_struct storage ref
+                 Source: "milestones"
+          BinaryOperation using operator <
+             Type: bool
+             Source: "now < milestones.p3"
+            Identifier now
+               Type: uint256
+               Source: "now"
+            MemberAccess to member p3
+               Type: uint256
+               Source: "milestones.p3"
+              Identifier milestones
+                 Type: struct HackerGold.milestones_struct storage ref
+                 Source: "milestones"
+        Block
+           Source: "{\r\n\r\n                        uint days_in = 1 + (now - milestones.p2) / 1 days;\r\n                        return BASE_PRICE - days_in * 25 / 7; // daily decrease 3.5\r\n                }"
+          VariableDeclarationStatement
+             Gas costs: 259
+             Source: "uint days_in = 1 + (now - milestones.p2) / 1 days"
+            VariableDeclaration "days_in"
+               Type: uint256
+               Source: "uint days_in"
+              ElementaryTypeName uint
+                 Source: "uint"
+            BinaryOperation using operator +
+               Type: uint256
+               Source: "1 + (now - milestones.p2) / 1 days"
+              Literal, token: [no token] value: 1
+                 Type: int_const 1
+                 Source: "1"
+              BinaryOperation using operator /
+                 Type: uint256
+                 Source: "(now - milestones.p2) / 1 days"
+                TupleExpression
+                   Type: uint256
+                   Source: "(now - milestones.p2)"
+                  BinaryOperation using operator -
+                     Type: uint256
+                     Source: "now - milestones.p2"
+                    Identifier now
+                       Type: uint256
+                       Source: "now"
+                    MemberAccess to member p2
+                       Type: uint256
+                       Source: "milestones.p2"
+                      Identifier milestones
+                         Type: struct HackerGold.milestones_struct storage ref
+                         Source: "milestones"
+                Literal, token: [no token] value: 1
+                   Type: int_const 86400
+                   Source: "1 days"
+          Return
+             Gas costs: 264
+             Source: "return BASE_PRICE - days_in * 25 / 7"
+            BinaryOperation using operator -
+               Type: uint256
+               Source: "BASE_PRICE - days_in * 25 / 7"
+              Identifier BASE_PRICE
+                 Type: uint256
+                 Source: "BASE_PRICE"
+              BinaryOperation using operator /
+                 Type: uint256
+                 Source: "days_in * 25 / 7"
+                BinaryOperation using operator *
+                   Type: uint256
+                   Source: "days_in * 25"
+                  Identifier days_in
+                     Type: uint256
+                     Source: "days_in"
+                  Literal, token: [no token] value: 25
+                     Type: int_const 25
+                     Source: "25"
+                Literal, token: [no token] value: 7
+                   Type: int_const 7
+                   Source: "7"
+      IfStatement
+         Source: "if (now >= milestones.p3 && now < milestones.p4) {\r\n\r\n                        return MID_PRICE;\r\n                }"
+        BinaryOperation using operator &&
+           Type: bool
+           Gas costs: 453
+           Source: "now >= milestones.p3 && now < milestones.p4"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "now >= milestones.p3"
+            Identifier now
+               Type: uint256
+               Source: "now"
+            MemberAccess to member p3
+               Type: uint256
+               Source: "milestones.p3"
+              Identifier milestones
+                 Type: struct HackerGold.milestones_struct storage ref
+                 Source: "milestones"
+          BinaryOperation using operator <
+             Type: bool
+             Source: "now < milestones.p4"
+            Identifier now
+               Type: uint256
+               Source: "now"
+            MemberAccess to member p4
+               Type: uint256
+               Source: "milestones.p4"
+              Identifier milestones
+                 Type: struct HackerGold.milestones_struct storage ref
+                 Source: "milestones"
+        Block
+           Source: "{\r\n\r\n                        return MID_PRICE;\r\n                }"
+          Return
+             Gas costs: 219
+             Source: "return MID_PRICE"
+            Identifier MID_PRICE
+               Type: uint256
+               Source: "MID_PRICE"
+      IfStatement
+         Source: "if (now >= milestones.p4 && now < milestones.p5) {\r\n\r\n                        days_in = 1 + (now - milestones.p4) / 1 days;\r\n                        return MID_PRICE - days_in * 25 / 7; // daily decrease 3.5\r\n                }"
+        BinaryOperation using operator &&
+           Type: bool
+           Gas costs: 453
+           Source: "now >= milestones.p4 && now < milestones.p5"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "now >= milestones.p4"
+            Identifier now
+               Type: uint256
+               Source: "now"
+            MemberAccess to member p4
+               Type: uint256
+               Source: "milestones.p4"
+              Identifier milestones
+                 Type: struct HackerGold.milestones_struct storage ref
+                 Source: "milestones"
+          BinaryOperation using operator <
+             Type: bool
+             Source: "now < milestones.p5"
+            Identifier now
+               Type: uint256
+               Source: "now"
+            MemberAccess to member p5
+               Type: uint256
+               Source: "milestones.p5"
+              Identifier milestones
+                 Type: struct HackerGold.milestones_struct storage ref
+                 Source: "milestones"
+        Block
+           Source: "{\r\n\r\n                        days_in = 1 + (now - milestones.p4) / 1 days;\r\n                        return MID_PRICE - days_in * 25 / 7; // daily decrease 3.5\r\n                }"
+          ExpressionStatement
+             Gas costs: 256
+             Source: "days_in = 1 + (now - milestones.p4) / 1 days"
+            Assignment using operator =
+               Type: uint256
+               Source: "days_in = 1 + (now - milestones.p4) / 1 days"
+              Identifier days_in
+                 Type: uint256
+                 Source: "days_in"
+              BinaryOperation using operator +
+                 Type: uint256
+                 Source: "1 + (now - milestones.p4) / 1 days"
+                Literal, token: [no token] value: 1
+                   Type: int_const 1
+                   Source: "1"
+                BinaryOperation using operator /
+                   Type: uint256
+                   Source: "(now - milestones.p4) / 1 days"
+                  TupleExpression
+                     Type: uint256
+                     Source: "(now - milestones.p4)"
+                    BinaryOperation using operator -
+                       Type: uint256
+                       Source: "now - milestones.p4"
+                      Identifier now
+                         Type: uint256
+                         Source: "now"
+                      MemberAccess to member p4
+                         Type: uint256
+                         Source: "milestones.p4"
+                        Identifier milestones
+                           Type: struct HackerGold.milestones_struct storage ref
+                           Source: "milestones"
+                  Literal, token: [no token] value: 1
+                     Type: int_const 86400
+                     Source: "1 days"
+          Return
+             Gas costs: 264
+             Source: "return MID_PRICE - days_in * 25 / 7"
+            BinaryOperation using operator -
+               Type: uint256
+               Source: "MID_PRICE - days_in * 25 / 7"
+              Identifier MID_PRICE
+                 Type: uint256
+                 Source: "MID_PRICE"
+              BinaryOperation using operator /
+                 Type: uint256
+                 Source: "days_in * 25 / 7"
+                BinaryOperation using operator *
+                   Type: uint256
+                   Source: "days_in * 25"
+                  Identifier days_in
+                     Type: uint256
+                     Source: "days_in"
+                  Literal, token: [no token] value: 25
+                     Type: int_const 25
+                     Source: "25"
+                Literal, token: [no token] value: 7
+                   Type: int_const 7
+                   Source: "7"
+      IfStatement
+         Source: "if (now >= milestones.p5 && now < milestones.p6) {\r\n\r\n                        return FIN_PRICE;\r\n                }"
+        BinaryOperation using operator &&
+           Type: bool
+           Gas costs: 453
+           Source: "now >= milestones.p5 && now < milestones.p6"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "now >= milestones.p5"
+            Identifier now
+               Type: uint256
+               Source: "now"
+            MemberAccess to member p5
+               Type: uint256
+               Source: "milestones.p5"
+              Identifier milestones
+                 Type: struct HackerGold.milestones_struct storage ref
+                 Source: "milestones"
+          BinaryOperation using operator <
+             Type: bool
+             Source: "now < milestones.p6"
+            Identifier now
+               Type: uint256
+               Source: "now"
+            MemberAccess to member p6
+               Type: uint256
+               Source: "milestones.p6"
+              Identifier milestones
+                 Type: struct HackerGold.milestones_struct storage ref
+                 Source: "milestones"
+        Block
+           Source: "{\r\n\r\n                        return FIN_PRICE;\r\n                }"
+          Return
+             Gas costs: 219
+             Source: "return FIN_PRICE"
+            Identifier FIN_PRICE
+               Type: uint256
+               Source: "FIN_PRICE"
+      IfStatement
+         Source: "if (now >= milestones.p6) {\r\n\r\n                        return 0;\r\n                }"
+        BinaryOperation using operator >=
+           Type: bool
+           Gas costs: 217
+           Source: "now >= milestones.p6"
+          Identifier now
+             Type: uint256
+             Source: "now"
+          MemberAccess to member p6
+             Type: uint256
+             Source: "milestones.p6"
+            Identifier milestones
+               Type: struct HackerGold.milestones_struct storage ref
+               Source: "milestones"
+        Block
+           Source: "{\r\n\r\n                        return 0;\r\n                }"
+          Return
+             Gas costs: 19
+             Source: "return 0"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+  FunctionDefinition "getTotalSupply" - public - const
+     Source: "function getTotalSupply() constant returns(uint result) {\r\n                return totalSupplyVar;\r\n        }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint result)"
+      VariableDeclaration "result"
+         Type: uint256
+         Source: "uint result"
+        ElementaryTypeName uint
+           Source: "uint"
+    Block
+       Source: "{\r\n                return totalSupplyVar;\r\n        }"
+      Return
+         Gas costs: 208
+         Source: "return totalSupplyVar"
+        Identifier totalSupplyVar
+           Type: uint256
+           Source: "totalSupplyVar"
+  FunctionDefinition "getNow" - public - const
+     Source: "function getNow() constant returns(uint result) {\r\n                return now;\r\n        }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint result)"
+      VariableDeclaration "result"
+         Type: uint256
+         Source: "uint result"
+        ElementaryTypeName uint
+           Source: "uint"
+    Block
+       Source: "{\r\n                return now;\r\n        }"
+      Return
+         Gas costs: 7
+         Source: "return now"
+        Identifier now
+           Type: uint256
+           Source: "now"
+  FunctionDefinition "getTotalValue" - public - const
+     Source: "function getTotalValue() constant returns(uint result) {\r\n                return totalValue;\r\n        }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint result)"
+      VariableDeclaration "result"
+         Type: uint256
+         Source: "uint result"
+        ElementaryTypeName uint
+           Source: "uint"
+    Block
+       Source: "{\r\n                return totalValue;\r\n        }"
+      Return
+         Gas costs: 208
+         Source: "return totalValue"
+        Identifier totalValue
+           Type: uint256
+           Source: "totalValue"

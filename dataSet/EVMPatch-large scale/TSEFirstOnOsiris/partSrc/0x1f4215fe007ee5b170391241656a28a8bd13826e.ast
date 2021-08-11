@@ -1,0 +1,3519 @@
+Syntax trees:
+
+
+======= /home/fabric/ArocRevision/Aroc/osirisData/contractSrc/0x1f4215fe007ee5b170391241656a28a8bd13826e.sol =======
+PragmaDirective
+   Gas costs: 0
+   Source: "pragma solidity ^0.4.15;"
+ContractDefinition "MultiOwner"
+   Source: "contract MultiOwner {\r\n    /* Constructor */\r\n    event OwnerAdded(address newOwner);\r\n    event OwnerRemoved(address oldOwner);\r\n\tevent RequirementChanged(uint256 newRequirement);\r\n\t\r\n    uint256 public ownerRequired;\r\n    mapping (address => bool) public isOwner;\r\n\tmapping (address => bool) public RequireDispose;\r\n\taddress[] owners;\r\n\t\r\n\tfunction MultiOwner(address[] _owners, uint256 _required) public {\r\n        ownerRequired = _required;\r\n        isOwner[msg.sender] = true;\r\n        owners.push(msg.sender);\r\n        \r\n        for (uint256 i = 0; i < _owners.length; ++i){\r\n\t\t\trequire(!isOwner[_owners[i]]);\r\n\t\t\tisOwner[_owners[i]] = true;\r\n\t\t\towners.push(_owners[i]);\r\n        }\r\n    }\r\n    \r\n\tmodifier onlyOwner {\r\n\t    require(isOwner[msg.sender]);\r\n        _;\r\n    }\r\n    \r\n\tmodifier ownerDoesNotExist(address owner) {\r\n\t\trequire(!isOwner[owner]);\r\n        _;\r\n    }\r\n\r\n    modifier ownerExists(address owner) {\r\n\t\trequire(isOwner[owner]);\r\n        _;\r\n    }\r\n    \r\n    function addOwner(address owner) onlyOwner ownerDoesNotExist(owner) external{\r\n        isOwner[owner] = true;\r\n        owners.push(owner);\r\n        OwnerAdded(owner);\r\n    }\r\n    \r\n\tfunction numberOwners() public constant returns (uint256 NumberOwners){\r\n\t    NumberOwners = owners.length;\r\n\t}\r\n\t\r\n    function removeOwner(address owner) onlyOwner ownerExists(owner) external{\r\n\t\trequire(owners.length > 2);\r\n        isOwner[owner] = false;\r\n\t\tRequireDispose[owner] = false;\r\n        for (uint256 i=0; i<owners.length - 1; i++){\r\n            if (owners[i] == owner) {\r\n\t\t\t\towners[i] = owners[owners.length - 1];\r\n                break;\r\n            }\r\n\t\t}\r\n\t\towners.length -= 1;\r\n        OwnerRemoved(owner);\r\n    }\r\n    \r\n\tfunction changeRequirement(uint _newRequired) onlyOwner external {\r\n\t\trequire(_newRequired >= owners.length);\r\n        ownerRequired = _newRequired;\r\n        RequirementChanged(_newRequired);\r\n    }\r\n\t\r\n\tfunction ConfirmDispose() onlyOwner() returns (bool){\r\n\t\tuint count = 0;\r\n\t\tfor (uint i=0; i<owners.length - 1; i++)\r\n            if (RequireDispose[owners[i]])\r\n                count += 1;\r\n            if (count == ownerRequired)\r\n                return true;\r\n\t}\r\n\t\r\n\tfunction kill() onlyOwner(){\r\n\t\tRequireDispose[msg.sender] = true;\r\n\t\tif(ConfirmDispose()){\r\n\t\t\tselfdestruct(msg.sender);\r\n\t\t}\r\n    }\r\n}"
+  EventDefinition "OwnerAdded"
+     Gas costs: 0
+     Source: "event OwnerAdded(address newOwner);"
+    ParameterList
+       Source: "(address newOwner)"
+      VariableDeclaration "newOwner"
+         Type: address
+         Source: "address newOwner"
+        ElementaryTypeName address
+           Source: "address"
+  EventDefinition "OwnerRemoved"
+     Gas costs: 0
+     Source: "event OwnerRemoved(address oldOwner);"
+    ParameterList
+       Source: "(address oldOwner)"
+      VariableDeclaration "oldOwner"
+         Type: address
+         Source: "address oldOwner"
+        ElementaryTypeName address
+           Source: "address"
+  EventDefinition "RequirementChanged"
+     Gas costs: 0
+     Source: "event RequirementChanged(uint256 newRequirement);"
+    ParameterList
+       Source: "(uint256 newRequirement)"
+      VariableDeclaration "newRequirement"
+         Type: uint256
+         Source: "uint256 newRequirement"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  VariableDeclaration "ownerRequired"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint256 public ownerRequired"
+    ElementaryTypeName uint256
+       Source: "uint256"
+  VariableDeclaration "isOwner"
+     Type: mapping(address => bool)
+     Gas costs: [???]
+     Source: "mapping (address => bool) public isOwner"
+    Mapping
+       Source: "mapping (address => bool)"
+      ElementaryTypeName address
+         Source: "address"
+      ElementaryTypeName bool
+         Source: "bool"
+  VariableDeclaration "RequireDispose"
+     Type: mapping(address => bool)
+     Gas costs: [???]
+     Source: "mapping (address => bool) public RequireDispose"
+    Mapping
+       Source: "mapping (address => bool)"
+      ElementaryTypeName address
+         Source: "address"
+      ElementaryTypeName bool
+         Source: "bool"
+  VariableDeclaration "owners"
+     Type: address[] storage ref
+     Gas costs: 0
+     Source: "address[] owners"
+    ArrayTypeName
+       Source: "address[]"
+      ElementaryTypeName address
+         Source: "address"
+  FunctionDefinition "MultiOwner" - public
+     Source: "function MultiOwner(address[] _owners, uint256 _required) public {\r\n        ownerRequired = _required;\r\n        isOwner[msg.sender] = true;\r\n        owners.push(msg.sender);\r\n        \r\n        for (uint256 i = 0; i < _owners.length; ++i){\r\n\t\t\trequire(!isOwner[_owners[i]]);\r\n\t\t\tisOwner[_owners[i]] = true;\r\n\t\t\towners.push(_owners[i]);\r\n        }\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address[] _owners, uint256 _required)"
+      VariableDeclaration "_owners"
+         Type: address[] memory
+         Source: "address[] _owners"
+        ArrayTypeName
+           Source: "address[]"
+          ElementaryTypeName address
+             Source: "address"
+      VariableDeclaration "_required"
+         Type: uint256
+         Source: "uint256 _required"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        ownerRequired = _required;\r\n        isOwner[msg.sender] = true;\r\n        owners.push(msg.sender);\r\n        \r\n        for (uint256 i = 0; i < _owners.length; ++i){\r\n\t\t\trequire(!isOwner[_owners[i]]);\r\n\t\t\tisOwner[_owners[i]] = true;\r\n\t\t\towners.push(_owners[i]);\r\n        }\r\n    }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "ownerRequired = _required"
+        Assignment using operator =
+           Type: uint256
+           Source: "ownerRequired = _required"
+          Identifier ownerRequired
+             Type: uint256
+             Source: "ownerRequired"
+          Identifier _required
+             Type: uint256
+             Source: "_required"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "isOwner[msg.sender] = true"
+        Assignment using operator =
+           Type: bool
+           Source: "isOwner[msg.sender] = true"
+          IndexAccess
+             Type: bool
+             Source: "isOwner[msg.sender]"
+            Identifier isOwner
+               Type: mapping(address => bool)
+               Source: "isOwner"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Literal, token: true value: true
+             Type: bool
+             Source: "true"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "owners.push(msg.sender)"
+        FunctionCall
+           Type: uint256
+           Source: "owners.push(msg.sender)"
+          MemberAccess to member push
+             Type: function (address) returns (uint256)
+             Source: "owners.push"
+            Identifier owners
+               Type: address[] storage ref
+               Source: "owners"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+      ForStatement
+         Source: "for (uint256 i = 0; i < _owners.length; ++i){\r\n\t\t\trequire(!isOwner[_owners[i]]);\r\n\t\t\tisOwner[_owners[i]] = true;\r\n\t\t\towners.push(_owners[i]);\r\n        }"
+        VariableDeclarationStatement
+           Gas costs: 0
+           Source: "uint256 i = 0"
+          VariableDeclaration "i"
+             Type: uint256
+             Source: "uint256 i"
+            ElementaryTypeName uint256
+               Source: "uint256"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        BinaryOperation using operator <
+           Type: bool
+           Gas costs: 0
+           Source: "i < _owners.length"
+          Identifier i
+             Type: uint256
+             Source: "i"
+          MemberAccess to member length
+             Type: uint256
+             Source: "_owners.length"
+            Identifier _owners
+               Type: address[] memory
+               Source: "_owners"
+        ExpressionStatement
+           Gas costs: 0
+           Source: "++i"
+          UnaryOperation (prefix) ++
+             Type: uint256
+             Source: "++i"
+            Identifier i
+               Type: uint256
+               Source: "i"
+        Block
+           Source: "{\r\n\t\t\trequire(!isOwner[_owners[i]]);\r\n\t\t\tisOwner[_owners[i]] = true;\r\n\t\t\towners.push(_owners[i]);\r\n        }"
+          ExpressionStatement
+             Gas costs: 0
+             Source: "require(!isOwner[_owners[i]])"
+            FunctionCall
+               Type: tuple()
+               Source: "require(!isOwner[_owners[i]])"
+              Identifier require
+                 Type: function (bool) pure
+                 Source: "require"
+              UnaryOperation (prefix) !
+                 Type: bool
+                 Source: "!isOwner[_owners[i]]"
+                IndexAccess
+                   Type: bool
+                   Source: "isOwner[_owners[i]]"
+                  Identifier isOwner
+                     Type: mapping(address => bool)
+                     Source: "isOwner"
+                  IndexAccess
+                     Type: address
+                     Source: "_owners[i]"
+                    Identifier _owners
+                       Type: address[] memory
+                       Source: "_owners"
+                    Identifier i
+                       Type: uint256
+                       Source: "i"
+          ExpressionStatement
+             Gas costs: 0
+             Source: "isOwner[_owners[i]] = true"
+            Assignment using operator =
+               Type: bool
+               Source: "isOwner[_owners[i]] = true"
+              IndexAccess
+                 Type: bool
+                 Source: "isOwner[_owners[i]]"
+                Identifier isOwner
+                   Type: mapping(address => bool)
+                   Source: "isOwner"
+                IndexAccess
+                   Type: address
+                   Source: "_owners[i]"
+                  Identifier _owners
+                     Type: address[] memory
+                     Source: "_owners"
+                  Identifier i
+                     Type: uint256
+                     Source: "i"
+              Literal, token: true value: true
+                 Type: bool
+                 Source: "true"
+          ExpressionStatement
+             Gas costs: 0
+             Source: "owners.push(_owners[i])"
+            FunctionCall
+               Type: uint256
+               Source: "owners.push(_owners[i])"
+              MemberAccess to member push
+                 Type: function (address) returns (uint256)
+                 Source: "owners.push"
+                Identifier owners
+                   Type: address[] storage ref
+                   Source: "owners"
+              IndexAccess
+                 Type: address
+                 Source: "_owners[i]"
+                Identifier _owners
+                   Type: address[] memory
+                   Source: "_owners"
+                Identifier i
+                   Type: uint256
+                   Source: "i"
+  ModifierDefinition "onlyOwner"
+     Source: "modifier onlyOwner {\r\n\t    require(isOwner[msg.sender]);\r\n        _;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n\t    require(isOwner[msg.sender]);\r\n        _;\r\n    }"
+      ExpressionStatement
+         Gas costs: 5400
+         Source: "require(isOwner[msg.sender])"
+        FunctionCall
+           Type: tuple()
+           Source: "require(isOwner[msg.sender])"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          IndexAccess
+             Type: bool
+             Source: "isOwner[msg.sender]"
+            Identifier isOwner
+               Type: mapping(address => bool)
+               Source: "isOwner"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+      PlaceholderStatement
+         Gas costs: 7
+         Source: "_"
+  ModifierDefinition "ownerDoesNotExist"
+     Source: "modifier ownerDoesNotExist(address owner) {\r\n\t\trequire(!isOwner[owner]);\r\n        _;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address owner)"
+      VariableDeclaration "owner"
+         Type: address
+         Source: "address owner"
+        ElementaryTypeName address
+           Source: "address"
+    Block
+       Source: "{\r\n\t\trequire(!isOwner[owner]);\r\n        _;\r\n    }"
+      ExpressionStatement
+         Gas costs: 364
+         Source: "require(!isOwner[owner])"
+        FunctionCall
+           Type: tuple()
+           Source: "require(!isOwner[owner])"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          UnaryOperation (prefix) !
+             Type: bool
+             Source: "!isOwner[owner]"
+            IndexAccess
+               Type: bool
+               Source: "isOwner[owner]"
+              Identifier isOwner
+                 Type: mapping(address => bool)
+                 Source: "isOwner"
+              Identifier owner
+                 Type: address
+                 Source: "owner"
+      PlaceholderStatement
+         Gas costs: 0
+         Source: "_"
+  ModifierDefinition "ownerExists"
+     Source: "modifier ownerExists(address owner) {\r\n\t\trequire(isOwner[owner]);\r\n        _;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address owner)"
+      VariableDeclaration "owner"
+         Type: address
+         Source: "address owner"
+        ElementaryTypeName address
+           Source: "address"
+    Block
+       Source: "{\r\n\t\trequire(isOwner[owner]);\r\n        _;\r\n    }"
+      ExpressionStatement
+         Gas costs: 361
+         Source: "require(isOwner[owner])"
+        FunctionCall
+           Type: tuple()
+           Source: "require(isOwner[owner])"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          IndexAccess
+             Type: bool
+             Source: "isOwner[owner]"
+            Identifier isOwner
+               Type: mapping(address => bool)
+               Source: "isOwner"
+            Identifier owner
+               Type: address
+               Source: "owner"
+      PlaceholderStatement
+         Gas costs: 0
+         Source: "_"
+  FunctionDefinition "addOwner" - public
+     Source: "function addOwner(address owner) onlyOwner ownerDoesNotExist(owner) external{\r\n        isOwner[owner] = true;\r\n        owners.push(owner);\r\n        OwnerAdded(owner);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address owner)"
+      VariableDeclaration "owner"
+         Type: address
+         Source: "address owner"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    ModifierInvocation "ownerDoesNotExist"
+       Gas costs: 3
+       Source: "ownerDoesNotExist(owner)"
+      Identifier ownerDoesNotExist
+         Type: modifier (address)
+         Source: "ownerDoesNotExist"
+      Identifier owner
+         Type: address
+         Source: "owner"
+    Block
+       Source: "{\r\n        isOwner[owner] = true;\r\n        owners.push(owner);\r\n        OwnerAdded(owner);\r\n    }"
+      ExpressionStatement
+         Gas costs: 20363
+         Source: "isOwner[owner] = true"
+        Assignment using operator =
+           Type: bool
+           Source: "isOwner[owner] = true"
+          IndexAccess
+             Type: bool
+             Source: "isOwner[owner]"
+            Identifier isOwner
+               Type: mapping(address => bool)
+               Source: "isOwner"
+            Identifier owner
+               Type: address
+               Source: "owner"
+          Literal, token: true value: true
+             Type: bool
+             Source: "true"
+      ExpressionStatement
+         Gas costs: 20362
+         Source: "owners.push(owner)"
+        FunctionCall
+           Type: uint256
+           Source: "owners.push(owner)"
+          MemberAccess to member push
+             Type: function (address) returns (uint256)
+             Source: "owners.push"
+            Identifier owners
+               Type: address[] storage ref
+               Source: "owners"
+          Identifier owner
+             Type: address
+             Source: "owner"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "OwnerAdded(owner)"
+        FunctionCall
+           Type: tuple()
+           Source: "OwnerAdded(owner)"
+          Identifier OwnerAdded
+             Type: function (address)
+             Source: "OwnerAdded"
+          Identifier owner
+             Type: address
+             Source: "owner"
+  FunctionDefinition "numberOwners" - public - const
+     Source: "function numberOwners() public constant returns (uint256 NumberOwners){\r\n\t    NumberOwners = owners.length;\r\n\t}"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint256 NumberOwners)"
+      VariableDeclaration "NumberOwners"
+         Type: uint256
+         Source: "uint256 NumberOwners"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{\r\n\t    NumberOwners = owners.length;\r\n\t}"
+      ExpressionStatement
+         Gas costs: 216
+         Source: "NumberOwners = owners.length"
+        Assignment using operator =
+           Type: uint256
+           Source: "NumberOwners = owners.length"
+          Identifier NumberOwners
+             Type: uint256
+             Source: "NumberOwners"
+          MemberAccess to member length
+             Type: uint256
+             Source: "owners.length"
+            Identifier owners
+               Type: address[] storage ref
+               Source: "owners"
+  FunctionDefinition "removeOwner" - public
+     Source: "function removeOwner(address owner) onlyOwner ownerExists(owner) external{\r\n\t\trequire(owners.length > 2);\r\n        isOwner[owner] = false;\r\n\t\tRequireDispose[owner] = false;\r\n        for (uint256 i=0; i<owners.length - 1; i++){\r\n            if (owners[i] == owner) {\r\n\t\t\t\towners[i] = owners[owners.length - 1];\r\n                break;\r\n            }\r\n\t\t}\r\n\t\towners.length -= 1;\r\n        OwnerRemoved(owner);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address owner)"
+      VariableDeclaration "owner"
+         Type: address
+         Source: "address owner"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    ModifierInvocation "ownerExists"
+       Gas costs: 3
+       Source: "ownerExists(owner)"
+      Identifier ownerExists
+         Type: modifier (address)
+         Source: "ownerExists"
+      Identifier owner
+         Type: address
+         Source: "owner"
+    Block
+       Source: "{\r\n\t\trequire(owners.length > 2);\r\n        isOwner[owner] = false;\r\n\t\tRequireDispose[owner] = false;\r\n        for (uint256 i=0; i<owners.length - 1; i++){\r\n            if (owners[i] == owner) {\r\n\t\t\t\towners[i] = owners[owners.length - 1];\r\n                break;\r\n            }\r\n\t\t}\r\n\t\towners.length -= 1;\r\n        OwnerRemoved(owner);\r\n    }"
+      ExpressionStatement
+         Gas costs: 243
+         Source: "require(owners.length > 2)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(owners.length > 2)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >
+             Type: bool
+             Source: "owners.length > 2"
+            MemberAccess to member length
+               Type: uint256
+               Source: "owners.length"
+              Identifier owners
+                 Type: address[] storage ref
+                 Source: "owners"
+            Literal, token: [no token] value: 2
+               Type: int_const 2
+               Source: "2"
+      ExpressionStatement
+         Gas costs: 20363
+         Source: "isOwner[owner] = false"
+        Assignment using operator =
+           Type: bool
+           Source: "isOwner[owner] = false"
+          IndexAccess
+             Type: bool
+             Source: "isOwner[owner]"
+            Identifier isOwner
+               Type: mapping(address => bool)
+               Source: "isOwner"
+            Identifier owner
+               Type: address
+               Source: "owner"
+          Literal, token: false value: false
+             Type: bool
+             Source: "false"
+      ExpressionStatement
+         Gas costs: 20357
+         Source: "RequireDispose[owner] = false"
+        Assignment using operator =
+           Type: bool
+           Source: "RequireDispose[owner] = false"
+          IndexAccess
+             Type: bool
+             Source: "RequireDispose[owner]"
+            Identifier RequireDispose
+               Type: mapping(address => bool)
+               Source: "RequireDispose"
+            Identifier owner
+               Type: address
+               Source: "owner"
+          Literal, token: false value: false
+             Type: bool
+             Source: "false"
+      ForStatement
+         Source: "for (uint256 i=0; i<owners.length - 1; i++){\r\n            if (owners[i] == owner) {\r\n\t\t\t\towners[i] = owners[owners.length - 1];\r\n                break;\r\n            }\r\n\t\t}"
+        VariableDeclarationStatement
+           Gas costs: 11
+           Source: "uint256 i=0"
+          VariableDeclaration "i"
+             Type: uint256
+             Source: "uint256 i"
+            ElementaryTypeName uint256
+               Source: "uint256"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        BinaryOperation using operator <
+           Type: bool
+           Gas costs: 223
+           Source: "i<owners.length - 1"
+          Identifier i
+             Type: uint256
+             Source: "i"
+          BinaryOperation using operator -
+             Type: uint256
+             Source: "owners.length - 1"
+            MemberAccess to member length
+               Type: uint256
+               Source: "owners.length"
+              Identifier owners
+                 Type: address[] storage ref
+                 Source: "owners"
+            Literal, token: [no token] value: 1
+               Type: int_const 1
+               Source: "1"
+        ExpressionStatement
+           Gas costs: 19
+           Source: "i++"
+          UnaryOperation (postfix) ++
+             Type: uint256
+             Source: "i++"
+            Identifier i
+               Type: uint256
+               Source: "i"
+        Block
+           Source: "{\r\n            if (owners[i] == owner) {\r\n\t\t\t\towners[i] = owners[owners.length - 1];\r\n                break;\r\n            }\r\n\t\t}"
+          IfStatement
+             Source: "if (owners[i] == owner) {\r\n\t\t\t\towners[i] = owners[owners.length - 1];\r\n                break;\r\n            }"
+            BinaryOperation using operator ==
+               Type: bool
+               Gas costs: 546
+               Source: "owners[i] == owner"
+              IndexAccess
+                 Type: address
+                 Source: "owners[i]"
+                Identifier owners
+                   Type: address[] storage ref
+                   Source: "owners"
+                Identifier i
+                   Type: uint256
+                   Source: "i"
+              Identifier owner
+                 Type: address
+                 Source: "owner"
+            Block
+               Source: "{\r\n\t\t\t\towners[i] = owners[owners.length - 1];\r\n                break;\r\n            }"
+              ExpressionStatement
+                 Gas costs: 21295
+                 Source: "owners[i] = owners[owners.length - 1]"
+                Assignment using operator =
+                   Type: address
+                   Source: "owners[i] = owners[owners.length - 1]"
+                  IndexAccess
+                     Type: address
+                     Source: "owners[i]"
+                    Identifier owners
+                       Type: address[] storage ref
+                       Source: "owners"
+                    Identifier i
+                       Type: uint256
+                       Source: "i"
+                  IndexAccess
+                     Type: address
+                     Source: "owners[owners.length - 1]"
+                    Identifier owners
+                       Type: address[] storage ref
+                       Source: "owners"
+                    BinaryOperation using operator -
+                       Type: uint256
+                       Source: "owners.length - 1"
+                      MemberAccess to member length
+                         Type: uint256
+                         Source: "owners.length"
+                        Identifier owners
+                           Type: address[] storage ref
+                           Source: "owners"
+                      Literal, token: [no token] value: 1
+                         Type: int_const 1
+                         Source: "1"
+              Break
+                 Gas costs: 0
+                 Source: "break"
+      ExpressionStatement
+         Gas costs: 243
+         Source: "owners.length -= 1"
+        Assignment using operator -=
+           Type: uint256
+           Source: "owners.length -= 1"
+          MemberAccess to member length
+             Type: uint256
+             Source: "owners.length"
+            Identifier owners
+               Type: address[] storage ref
+               Source: "owners"
+          Literal, token: [no token] value: 1
+             Type: int_const 1
+             Source: "1"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "OwnerRemoved(owner)"
+        FunctionCall
+           Type: tuple()
+           Source: "OwnerRemoved(owner)"
+          Identifier OwnerRemoved
+             Type: function (address)
+             Source: "OwnerRemoved"
+          Identifier owner
+             Type: address
+             Source: "owner"
+  FunctionDefinition "changeRequirement" - public
+     Source: "function changeRequirement(uint _newRequired) onlyOwner external {\r\n\t\trequire(_newRequired >= owners.length);\r\n        ownerRequired = _newRequired;\r\n        RequirementChanged(_newRequired);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint _newRequired)"
+      VariableDeclaration "_newRequired"
+         Type: uint256
+         Source: "uint _newRequired"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n\t\trequire(_newRequired >= owners.length);\r\n        ownerRequired = _newRequired;\r\n        RequirementChanged(_newRequired);\r\n    }"
+      ExpressionStatement
+         Gas costs: 246
+         Source: "require(_newRequired >= owners.length)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(_newRequired >= owners.length)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "_newRequired >= owners.length"
+            Identifier _newRequired
+               Type: uint256
+               Source: "_newRequired"
+            MemberAccess to member length
+               Type: uint256
+               Source: "owners.length"
+              Identifier owners
+                 Type: address[] storage ref
+                 Source: "owners"
+      ExpressionStatement
+         Gas costs: 20014
+         Source: "ownerRequired = _newRequired"
+        Assignment using operator =
+           Type: uint256
+           Source: "ownerRequired = _newRequired"
+          Identifier ownerRequired
+             Type: uint256
+             Source: "ownerRequired"
+          Identifier _newRequired
+             Type: uint256
+             Source: "_newRequired"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "RequirementChanged(_newRequired)"
+        FunctionCall
+           Type: tuple()
+           Source: "RequirementChanged(_newRequired)"
+          Identifier RequirementChanged
+             Type: function (uint256)
+             Source: "RequirementChanged"
+          Identifier _newRequired
+             Type: uint256
+             Source: "_newRequired"
+  FunctionDefinition "ConfirmDispose" - public
+     Source: "function ConfirmDispose() onlyOwner() returns (bool){\r\n\t\tuint count = 0;\r\n\t\tfor (uint i=0; i<owners.length - 1; i++)\r\n            if (RequireDispose[owners[i]])\r\n                count += 1;\r\n            if (count == ownerRequired)\r\n                return true;\r\n\t}"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool)"
+      VariableDeclaration ""
+         Type: bool
+         Source: "bool"
+        ElementaryTypeName bool
+           Source: "bool"
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner()"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n\t\tuint count = 0;\r\n\t\tfor (uint i=0; i<owners.length - 1; i++)\r\n            if (RequireDispose[owners[i]])\r\n                count += 1;\r\n            if (count == ownerRequired)\r\n                return true;\r\n\t}"
+      VariableDeclarationStatement
+         Gas costs: 11
+         Source: "uint count = 0"
+        VariableDeclaration "count"
+           Type: uint256
+           Source: "uint count"
+          ElementaryTypeName uint
+             Source: "uint"
+        Literal, token: [no token] value: 0
+           Type: int_const 0
+           Source: "0"
+      ForStatement
+         Source: "for (uint i=0; i<owners.length - 1; i++)\r\n            if (RequireDispose[owners[i]])\r\n                count += 1"
+        VariableDeclarationStatement
+           Gas costs: 11
+           Source: "uint i=0"
+          VariableDeclaration "i"
+             Type: uint256
+             Source: "uint i"
+            ElementaryTypeName uint
+               Source: "uint"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        BinaryOperation using operator <
+           Type: bool
+           Gas costs: 223
+           Source: "i<owners.length - 1"
+          Identifier i
+             Type: uint256
+             Source: "i"
+          BinaryOperation using operator -
+             Type: uint256
+             Source: "owners.length - 1"
+            MemberAccess to member length
+               Type: uint256
+               Source: "owners.length"
+              Identifier owners
+                 Type: address[] storage ref
+                 Source: "owners"
+            Literal, token: [no token] value: 1
+               Type: int_const 1
+               Source: "1"
+        ExpressionStatement
+           Gas costs: 19
+           Source: "i++"
+          UnaryOperation (postfix) ++
+             Type: uint256
+             Source: "i++"
+            Identifier i
+               Type: uint256
+               Source: "i"
+        IfStatement
+           Source: "if (RequireDispose[owners[i]])\r\n                count += 1"
+          IndexAccess
+             Type: bool
+             Gas costs: [???]
+             Source: "RequireDispose[owners[i]]"
+            Identifier RequireDispose
+               Type: mapping(address => bool)
+               Source: "RequireDispose"
+            IndexAccess
+               Type: address
+               Source: "owners[i]"
+              Identifier owners
+                 Type: address[] storage ref
+                 Source: "owners"
+              Identifier i
+                 Type: uint256
+                 Source: "i"
+          ExpressionStatement
+             Gas costs: 14
+             Source: "count += 1"
+            Assignment using operator +=
+               Type: uint256
+               Source: "count += 1"
+              Identifier count
+                 Type: uint256
+                 Source: "count"
+              Literal, token: [no token] value: 1
+                 Type: int_const 1
+                 Source: "1"
+      IfStatement
+         Source: "if (count == ownerRequired)\r\n                return true"
+        BinaryOperation using operator ==
+           Type: bool
+           Gas costs: 209
+           Source: "count == ownerRequired"
+          Identifier count
+             Type: uint256
+             Source: "count"
+          Identifier ownerRequired
+             Type: uint256
+             Source: "ownerRequired"
+        Return
+           Gas costs: 19
+           Source: "return true"
+          Literal, token: true value: true
+             Type: bool
+             Source: "true"
+  FunctionDefinition "kill" - public
+     Source: "function kill() onlyOwner(){\r\n\t\tRequireDispose[msg.sender] = true;\r\n\t\tif(ConfirmDispose()){\r\n\t\t\tselfdestruct(msg.sender);\r\n\t\t}\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner()"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n\t\tRequireDispose[msg.sender] = true;\r\n\t\tif(ConfirmDispose()){\r\n\t\t\tselfdestruct(msg.sender);\r\n\t\t}\r\n    }"
+      ExpressionStatement
+         Gas costs: 20362
+         Source: "RequireDispose[msg.sender] = true"
+        Assignment using operator =
+           Type: bool
+           Source: "RequireDispose[msg.sender] = true"
+          IndexAccess
+             Type: bool
+             Source: "RequireDispose[msg.sender]"
+            Identifier RequireDispose
+               Type: mapping(address => bool)
+               Source: "RequireDispose"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Literal, token: true value: true
+             Type: bool
+             Source: "true"
+      IfStatement
+         Source: "if(ConfirmDispose()){\r\n\t\t\tselfdestruct(msg.sender);\r\n\t\t}"
+        FunctionCall
+           Type: bool
+           Gas costs: 15
+           Source: "ConfirmDispose()"
+          Identifier ConfirmDispose
+             Type: function () returns (bool)
+             Source: "ConfirmDispose"
+        Block
+           Source: "{\r\n\t\t\tselfdestruct(msg.sender);\r\n\t\t}"
+          ExpressionStatement
+             Gas costs: 30008
+             Source: "selfdestruct(msg.sender)"
+            FunctionCall
+               Type: tuple()
+               Source: "selfdestruct(msg.sender)"
+              Identifier selfdestruct
+                 Type: function (address)
+                 Source: "selfdestruct"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+ContractDefinition "VVToken"
+   Source: "contract VVToken is MultiOwner{\r\n\tevent SubmitTransaction(bytes32 transactionHash);\r\n\tevent Confirmation(address sender, bytes32 transactionHash);\r\n\tevent Execution(bytes32 transactionHash);\r\n\tevent FrozenFunds(address target, bool frozen);\r\n\tevent Transfer(address indexed from, address indexed to, uint256 value);\r\n\tevent FeePaid(address indexed from, address indexed to, uint256 value);\r\n\tevent VoidAccount(address indexed from, address indexed to, uint256 value);\r\n\tevent Bonus(uint256 value);\r\n\tevent Burn(uint256 value);\r\n\t\r\n\tstring public name = \"VV Coin\";\r\n\tstring public symbol = \"VVI\";\r\n\tuint8 public decimals = 8;\r\n\tuint256 public totalSupply = 3000000000 * 10 ** uint256(decimals);\r\n\tuint256 public EthPerToken = 300000;\r\n\tuint256 public ChargeFee = 2;\r\n\t\r\n\tmapping(address => uint256) public balanceOf;\r\n\tmapping(address => bool) public frozenAccount;\r\n\tmapping (bytes32 => mapping (address => bool)) public Confirmations;\r\n\tmapping (bytes32 => Transaction) public Transactions;\r\n\t\r\n\tstruct Transaction {\r\n\t\taddress destination;\r\n\t\tuint value;\r\n\t\tbytes data;\r\n\t\tbool executed;\r\n    }\r\n\t\r\n\tmodifier notNull(address destination) {\r\n\t\trequire (destination != 0x0);\r\n        _;\r\n    }\r\n\t\r\n\tmodifier confirmed(bytes32 transactionHash) {\r\n\t\trequire (Confirmations[transactionHash][msg.sender]);\r\n        _;\r\n    }\r\n\r\n    modifier notConfirmed(bytes32 transactionHash) {\r\n\t\trequire (!Confirmations[transactionHash][msg.sender]);\r\n        _;\r\n    }\r\n\t\r\n\tmodifier notExecuted(bytes32 TransHash) {\r\n\t\trequire (!Transactions[TransHash].executed);\r\n        _;\r\n    }\r\n    \r\n\tfunction VVToken(address[] _owners, uint256 _required) MultiOwner(_owners, _required) public {\r\n\t\tbalanceOf[msg.sender] = totalSupply;                    \r\n    }\r\n\t\r\n\t/* Internal transfer, only can be called by this contract */\r\n    function _transfer(address _from, address _to, uint256 _value) internal {\r\n        require (_to != 0x0);                               // Prevent transfer to 0x0 address. Use burn() instead\r\n        require (balanceOf[_from] >= _value);                // Check if the sender has enough\r\n        require (balanceOf[_to] + _value >= balanceOf[_to]); // Check for overflows\r\n        require(!frozenAccount[_from]);                     // Check if sender is frozen\r\n\t\tuint256 previousBalances = balanceOf[_from] + balanceOf[_to];\r\n        balanceOf[_from] -= _value;                         // Subtract from the sender\r\n        balanceOf[_to] += _value;                           // Add the same to the recipient\r\n        Transfer(_from, _to, _value);\r\n\t\tassert(balanceOf[_from] + balanceOf[_to] == previousBalances);\r\n    }\r\n\t\r\n\t/* Internal transfer, only can be called by this contract */\r\n    function _collect_fee(address _from, address _to, uint256 _value) internal {\r\n        require (_to != 0x0);                               // Prevent transfer to 0x0 address. Use burn() instead\r\n        require (balanceOf[_from] >= _value);                // Check if the sender has enough\r\n        require (balanceOf[_to] + _value >= balanceOf[_to]); // Check for overflows\r\n        require(!frozenAccount[_from]);                     // Check if sender is frozen\r\n\t\tuint256 previousBalances = balanceOf[_from] + balanceOf[_to];\r\n        balanceOf[_from] -= _value;                         // Subtract from the sender\r\n        balanceOf[_to] += _value;                           // Add the same to the recipient\r\n\t\tFeePaid(_from, _to, _value);\r\n\t\tassert(balanceOf[_from] + balanceOf[_to] == previousBalances);\r\n    }\r\n\t\r\n\tfunction transfer(address _to, uint256 _value) public {\r\n\t\t_transfer(msg.sender, _to, _value);\r\n\t}\r\n\t\t\r\n\tfunction transferFrom(address _from, address _to, uint256 _value, bool _fee) onlyOwner public returns (bool success) {\r\n\t\tuint256 charge = 0 ;\r\n\t\tuint256 t_value = _value;\r\n\t\tif(_fee){\r\n\t\t\tcharge = _value * ChargeFee / 100;\r\n\t\t}else{\r\n\t\t\tcharge = _value - (_value / (ChargeFee + 100) * 100);\r\n\t\t}\r\n\t\tt_value = _value - charge;\r\n\t\trequire(t_value + charge == _value);\r\n        _transfer(_from, _to, t_value);\r\n\t\t_collect_fee(_from, this, charge);\r\n        return true;\r\n    }\r\n\t\r\n\tfunction setPrices(uint256 newValue) onlyOwner public {\r\n        EthPerToken = newValue;\r\n    }\r\n    \r\n\tfunction setFee(uint256 newValue) onlyOwner public {\r\n        ChargeFee = newValue;\r\n    }\r\n\t\r\n    function freezeAccount(address target, bool freeze) onlyOwner public {\r\n        frozenAccount[target] = freeze;\r\n        FrozenFunds(target, freeze);\r\n    }\r\n\t\r\n\tfunction() payable {\r\n\t\trequire(msg.value > 0);\r\n\t\tuint amount = msg.value * 10 ** uint256(decimals) * EthPerToken / 1 ether;\r\n        _transfer(this, msg.sender, amount);\r\n    }\r\n\t\r\n\tfunction remainBalanced() public constant returns (uint256){\r\n        return balanceOf[this];\r\n    }\r\n\t\r\n\t/*Transfer Eth */\r\n\tfunction execute(address _to, uint _value, bytes _data) notNull(_to) onlyOwner external returns (bytes32 _r) {\r\n\t\t_r = addTransaction(_to, _value, _data);\r\n\t\tconfirmTransaction(_r);\r\n    }\r\n\t\r\n\tfunction addTransaction(address destination, uint value, bytes data) private notNull(destination) returns (bytes32 TransHash){\r\n        TransHash = sha3(destination, value, data);\r\n        if (Transactions[TransHash].destination == 0) {\r\n            Transactions[TransHash] = Transaction({\r\n                destination: destination,\r\n                value: value,\r\n                data: data,\r\n                executed: false\r\n            });\r\n            SubmitTransaction(TransHash);\r\n        }\r\n    }\r\n\t\r\n\tfunction addConfirmation(bytes32 TransHash) private onlyOwner notConfirmed(TransHash){\r\n        Confirmations[TransHash][msg.sender] = true;\r\n        Confirmation(msg.sender, TransHash);\r\n    }\r\n\t\r\n\tfunction isConfirmed(bytes32 TransHash) public constant returns (bool){\r\n        uint count = 0;\r\n        for (uint i=0; i<owners.length; i++)\r\n            if (Confirmations[TransHash][owners[i]])\r\n                count += 1;\r\n            if (count == ownerRequired)\r\n                return true;\r\n    }\r\n\t\r\n\tfunction confirmationCount(bytes32 TransHash) external constant returns (uint count){\r\n        for (uint i=0; i<owners.length; i++)\r\n            if (Confirmations[TransHash][owners[i]])\r\n                count += 1;\r\n    }\r\n    \r\n    function confirmTransaction(bytes32 TransHash) public onlyOwner(){\r\n        addConfirmation(TransHash);\r\n        executeTransaction(TransHash);\r\n    }\r\n    \r\n    function executeTransaction(bytes32 TransHash) public notExecuted(TransHash){\r\n        if (isConfirmed(TransHash)) {\r\n\t\t\tTransactions[TransHash].executed = true;\r\n            require(Transactions[TransHash].destination.call.value(Transactions[TransHash].value)(Transactions[TransHash].data));\r\n            Execution(TransHash);\r\n        }\r\n    }\r\n\t\r\n\tfunction AccountVoid(address _from) onlyOwner public{\r\n\t\trequire (balanceOf[_from] > 0); \r\n\t\tuint256 CurrentBalances = balanceOf[_from];\r\n\t\tuint256 previousBalances = balanceOf[_from] + balanceOf[msg.sender];\r\n        balanceOf[_from] -= CurrentBalances;                         \r\n        balanceOf[msg.sender] += CurrentBalances;\r\n\t\tVoidAccount(_from, msg.sender, CurrentBalances);\r\n\t\tassert(balanceOf[_from] + balanceOf[msg.sender] == previousBalances);\t\r\n\t}\r\n\t\r\n\tfunction burn(uint amount) onlyOwner{\r\n\t\tuint BurnValue = amount * 10 ** uint256(decimals);\r\n\t\trequire(balanceOf[this] >= BurnValue);\r\n\t\tbalanceOf[this] -= BurnValue;\r\n\t\ttotalSupply -= BurnValue;\r\n\t\tBurn(BurnValue);\r\n\t}\r\n\t\r\n\tfunction bonus(uint amount) onlyOwner{\r\n\t\tuint BonusValue = amount * 10 ** uint256(decimals);\r\n\t\trequire(balanceOf[this] + BonusValue > balanceOf[this]);\r\n\t\tbalanceOf[this] += BonusValue;\r\n\t\ttotalSupply += BonusValue;\r\n\t\tBonus(BonusValue);\r\n\t}\r\n}"
+  InheritanceSpecifier
+     Gas costs: 0
+     Source: "MultiOwner"
+    UserDefinedTypeName "MultiOwner"
+       Source: "MultiOwner"
+  EventDefinition "SubmitTransaction"
+     Gas costs: 0
+     Source: "event SubmitTransaction(bytes32 transactionHash);"
+    ParameterList
+       Source: "(bytes32 transactionHash)"
+      VariableDeclaration "transactionHash"
+         Type: bytes32
+         Source: "bytes32 transactionHash"
+        ElementaryTypeName bytes32
+           Source: "bytes32"
+  EventDefinition "Confirmation"
+     Gas costs: 0
+     Source: "event Confirmation(address sender, bytes32 transactionHash);"
+    ParameterList
+       Source: "(address sender, bytes32 transactionHash)"
+      VariableDeclaration "sender"
+         Type: address
+         Source: "address sender"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "transactionHash"
+         Type: bytes32
+         Source: "bytes32 transactionHash"
+        ElementaryTypeName bytes32
+           Source: "bytes32"
+  EventDefinition "Execution"
+     Gas costs: 0
+     Source: "event Execution(bytes32 transactionHash);"
+    ParameterList
+       Source: "(bytes32 transactionHash)"
+      VariableDeclaration "transactionHash"
+         Type: bytes32
+         Source: "bytes32 transactionHash"
+        ElementaryTypeName bytes32
+           Source: "bytes32"
+  EventDefinition "FrozenFunds"
+     Gas costs: 0
+     Source: "event FrozenFunds(address target, bool frozen);"
+    ParameterList
+       Source: "(address target, bool frozen)"
+      VariableDeclaration "target"
+         Type: address
+         Source: "address target"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "frozen"
+         Type: bool
+         Source: "bool frozen"
+        ElementaryTypeName bool
+           Source: "bool"
+  EventDefinition "Transfer"
+     Gas costs: 0
+     Source: "event Transfer(address indexed from, address indexed to, uint256 value);"
+    ParameterList
+       Source: "(address indexed from, address indexed to, uint256 value)"
+      VariableDeclaration "from"
+         Type: address
+         Source: "address indexed from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "to"
+         Type: address
+         Source: "address indexed to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "value"
+         Type: uint256
+         Source: "uint256 value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  EventDefinition "FeePaid"
+     Gas costs: 0
+     Source: "event FeePaid(address indexed from, address indexed to, uint256 value);"
+    ParameterList
+       Source: "(address indexed from, address indexed to, uint256 value)"
+      VariableDeclaration "from"
+         Type: address
+         Source: "address indexed from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "to"
+         Type: address
+         Source: "address indexed to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "value"
+         Type: uint256
+         Source: "uint256 value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  EventDefinition "VoidAccount"
+     Gas costs: 0
+     Source: "event VoidAccount(address indexed from, address indexed to, uint256 value);"
+    ParameterList
+       Source: "(address indexed from, address indexed to, uint256 value)"
+      VariableDeclaration "from"
+         Type: address
+         Source: "address indexed from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "to"
+         Type: address
+         Source: "address indexed to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "value"
+         Type: uint256
+         Source: "uint256 value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  EventDefinition "Bonus"
+     Gas costs: 0
+     Source: "event Bonus(uint256 value);"
+    ParameterList
+       Source: "(uint256 value)"
+      VariableDeclaration "value"
+         Type: uint256
+         Source: "uint256 value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  EventDefinition "Burn"
+     Gas costs: 0
+     Source: "event Burn(uint256 value);"
+    ParameterList
+       Source: "(uint256 value)"
+      VariableDeclaration "value"
+         Type: uint256
+         Source: "uint256 value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+  VariableDeclaration "name"
+     Type: string storage ref
+     Gas costs: [???]
+     Source: "string public name = \"VV Coin\""
+    ElementaryTypeName string
+       Source: "string"
+    Literal, token: [no token] value: VV Coin
+       Type: literal_string "VV Coin"
+       Source: "\"VV Coin\""
+  VariableDeclaration "symbol"
+     Type: string storage ref
+     Gas costs: [???]
+     Source: "string public symbol = \"VVI\""
+    ElementaryTypeName string
+       Source: "string"
+    Literal, token: [no token] value: VVI
+       Type: literal_string "VVI"
+       Source: "\"VVI\""
+  VariableDeclaration "decimals"
+     Type: uint8
+     Gas costs: [???]
+     Source: "uint8 public decimals = 8"
+    ElementaryTypeName uint8
+       Source: "uint8"
+    Literal, token: [no token] value: 8
+       Type: int_const 8
+       Source: "8"
+  VariableDeclaration "totalSupply"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint256 public totalSupply = 3000000000 * 10 ** uint256(decimals)"
+    ElementaryTypeName uint256
+       Source: "uint256"
+    BinaryOperation using operator *
+       Type: uint256
+       Source: "3000000000 * 10 ** uint256(decimals)"
+      Literal, token: [no token] value: 3000000000
+         Type: int_const 3000000000
+         Source: "3000000000"
+      BinaryOperation using operator **
+         Type: uint256
+         Source: "10 ** uint256(decimals)"
+        Literal, token: [no token] value: 10
+           Type: int_const 10
+           Source: "10"
+        FunctionCall
+           Type: uint256
+           Source: "uint256(decimals)"
+          ElementaryTypeNameExpression uint256
+             Type: type(uint256)
+             Source: "uint256"
+          Identifier decimals
+             Type: uint8
+             Source: "decimals"
+  VariableDeclaration "EthPerToken"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint256 public EthPerToken = 300000"
+    ElementaryTypeName uint256
+       Source: "uint256"
+    Literal, token: [no token] value: 300000
+       Type: int_const 300000
+       Source: "300000"
+  VariableDeclaration "ChargeFee"
+     Type: uint256
+     Gas costs: [???]
+     Source: "uint256 public ChargeFee = 2"
+    ElementaryTypeName uint256
+       Source: "uint256"
+    Literal, token: [no token] value: 2
+       Type: int_const 2
+       Source: "2"
+  VariableDeclaration "balanceOf"
+     Type: mapping(address => uint256)
+     Gas costs: [???]
+     Source: "mapping(address => uint256) public balanceOf"
+    Mapping
+       Source: "mapping(address => uint256)"
+      ElementaryTypeName address
+         Source: "address"
+      ElementaryTypeName uint256
+         Source: "uint256"
+  VariableDeclaration "frozenAccount"
+     Type: mapping(address => bool)
+     Gas costs: [???]
+     Source: "mapping(address => bool) public frozenAccount"
+    Mapping
+       Source: "mapping(address => bool)"
+      ElementaryTypeName address
+         Source: "address"
+      ElementaryTypeName bool
+         Source: "bool"
+  VariableDeclaration "Confirmations"
+     Type: mapping(bytes32 => mapping(address => bool))
+     Gas costs: [???]
+     Source: "mapping (bytes32 => mapping (address => bool)) public Confirmations"
+    Mapping
+       Source: "mapping (bytes32 => mapping (address => bool))"
+      ElementaryTypeName bytes32
+         Source: "bytes32"
+      Mapping
+         Source: "mapping (address => bool)"
+        ElementaryTypeName address
+           Source: "address"
+        ElementaryTypeName bool
+           Source: "bool"
+  VariableDeclaration "Transactions"
+     Type: mapping(bytes32 => struct VVToken.Transaction storage ref)
+     Gas costs: [???]
+     Source: "mapping (bytes32 => Transaction) public Transactions"
+    Mapping
+       Source: "mapping (bytes32 => Transaction)"
+      ElementaryTypeName bytes32
+         Source: "bytes32"
+      UserDefinedTypeName "Transaction"
+         Source: "Transaction"
+  StructDefinition "Transaction"
+     Gas costs: 0
+     Source: "struct Transaction {\r\n\t\taddress destination;\r\n\t\tuint value;\r\n\t\tbytes data;\r\n\t\tbool executed;\r\n    }"
+    VariableDeclaration "destination"
+       Type: address
+       Source: "address destination"
+      ElementaryTypeName address
+         Source: "address"
+    VariableDeclaration "value"
+       Type: uint256
+       Source: "uint value"
+      ElementaryTypeName uint
+         Source: "uint"
+    VariableDeclaration "data"
+       Type: bytes storage pointer
+       Source: "bytes data"
+      ElementaryTypeName bytes
+         Source: "bytes"
+    VariableDeclaration "executed"
+       Type: bool
+       Source: "bool executed"
+      ElementaryTypeName bool
+         Source: "bool"
+  ModifierDefinition "notNull"
+     Source: "modifier notNull(address destination) {\r\n\t\trequire (destination != 0x0);\r\n        _;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address destination)"
+      VariableDeclaration "destination"
+         Type: address
+         Source: "address destination"
+        ElementaryTypeName address
+           Source: "address"
+    Block
+       Source: "{\r\n\t\trequire (destination != 0x0);\r\n        _;\r\n    }"
+      ExpressionStatement
+         Gas costs: 88
+         Source: "require (destination != 0x0)"
+        FunctionCall
+           Type: tuple()
+           Source: "require (destination != 0x0)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator !=
+             Type: bool
+             Source: "destination != 0x0"
+            Identifier destination
+               Type: address
+               Source: "destination"
+            Literal, token: [no token] value: 0x0
+               Type: int_const 0
+               Source: "0x0"
+      PlaceholderStatement
+         Gas costs: 0
+         Source: "_"
+  ModifierDefinition "confirmed"
+     Source: "modifier confirmed(bytes32 transactionHash) {\r\n\t\trequire (Confirmations[transactionHash][msg.sender]);\r\n        _;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(bytes32 transactionHash)"
+      VariableDeclaration "transactionHash"
+         Type: bytes32
+         Source: "bytes32 transactionHash"
+        ElementaryTypeName bytes32
+           Source: "bytes32"
+    Block
+       Source: "{\r\n\t\trequire (Confirmations[transactionHash][msg.sender]);\r\n        _;\r\n    }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "require (Confirmations[transactionHash][msg.sender])"
+        FunctionCall
+           Type: tuple()
+           Source: "require (Confirmations[transactionHash][msg.sender])"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          IndexAccess
+             Type: bool
+             Source: "Confirmations[transactionHash][msg.sender]"
+            IndexAccess
+               Type: mapping(address => bool)
+               Source: "Confirmations[transactionHash]"
+              Identifier Confirmations
+                 Type: mapping(bytes32 => mapping(address => bool))
+                 Source: "Confirmations"
+              Identifier transactionHash
+                 Type: bytes32
+                 Source: "transactionHash"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+      PlaceholderStatement
+         Gas costs: 0
+         Source: "_"
+  ModifierDefinition "notConfirmed"
+     Source: "modifier notConfirmed(bytes32 transactionHash) {\r\n\t\trequire (!Confirmations[transactionHash][msg.sender]);\r\n        _;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(bytes32 transactionHash)"
+      VariableDeclaration "transactionHash"
+         Type: bytes32
+         Source: "bytes32 transactionHash"
+        ElementaryTypeName bytes32
+           Source: "bytes32"
+    Block
+       Source: "{\r\n\t\trequire (!Confirmations[transactionHash][msg.sender]);\r\n        _;\r\n    }"
+      ExpressionStatement
+         Gas costs: 459
+         Source: "require (!Confirmations[transactionHash][msg.sender])"
+        FunctionCall
+           Type: tuple()
+           Source: "require (!Confirmations[transactionHash][msg.sender])"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          UnaryOperation (prefix) !
+             Type: bool
+             Source: "!Confirmations[transactionHash][msg.sender]"
+            IndexAccess
+               Type: bool
+               Source: "Confirmations[transactionHash][msg.sender]"
+              IndexAccess
+                 Type: mapping(address => bool)
+                 Source: "Confirmations[transactionHash]"
+                Identifier Confirmations
+                   Type: mapping(bytes32 => mapping(address => bool))
+                   Source: "Confirmations"
+                Identifier transactionHash
+                   Type: bytes32
+                   Source: "transactionHash"
+              MemberAccess to member sender
+                 Type: address
+                 Source: "msg.sender"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+      PlaceholderStatement
+         Gas costs: 0
+         Source: "_"
+  ModifierDefinition "notExecuted"
+     Source: "modifier notExecuted(bytes32 TransHash) {\r\n\t\trequire (!Transactions[TransHash].executed);\r\n        _;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(bytes32 TransHash)"
+      VariableDeclaration "TransHash"
+         Type: bytes32
+         Source: "bytes32 TransHash"
+        ElementaryTypeName bytes32
+           Source: "bytes32"
+    Block
+       Source: "{\r\n\t\trequire (!Transactions[TransHash].executed);\r\n        _;\r\n    }"
+      ExpressionStatement
+         Gas costs: 376
+         Source: "require (!Transactions[TransHash].executed)"
+        FunctionCall
+           Type: tuple()
+           Source: "require (!Transactions[TransHash].executed)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          UnaryOperation (prefix) !
+             Type: bool
+             Source: "!Transactions[TransHash].executed"
+            MemberAccess to member executed
+               Type: bool
+               Source: "Transactions[TransHash].executed"
+              IndexAccess
+                 Type: struct VVToken.Transaction storage ref
+                 Source: "Transactions[TransHash]"
+                Identifier Transactions
+                   Type: mapping(bytes32 => struct VVToken.Transaction storage ref)
+                   Source: "Transactions"
+                Identifier TransHash
+                   Type: bytes32
+                   Source: "TransHash"
+      PlaceholderStatement
+         Gas costs: 0
+         Source: "_"
+  FunctionDefinition "VVToken" - public
+     Source: "function VVToken(address[] _owners, uint256 _required) MultiOwner(_owners, _required) public {\r\n\t\tbalanceOf[msg.sender] = totalSupply;                    \r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address[] _owners, uint256 _required)"
+      VariableDeclaration "_owners"
+         Type: address[] memory
+         Source: "address[] _owners"
+        ArrayTypeName
+           Source: "address[]"
+          ElementaryTypeName address
+             Source: "address"
+      VariableDeclaration "_required"
+         Type: uint256
+         Source: "uint256 _required"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "MultiOwner"
+       Gas costs: 0
+       Source: "MultiOwner(_owners, _required)"
+      Identifier MultiOwner
+         Type: type(contract MultiOwner)
+         Source: "MultiOwner"
+      Identifier _owners
+         Type: address[] memory
+         Source: "_owners"
+      Identifier _required
+         Type: uint256
+         Source: "_required"
+    Block
+       Source: "{\r\n\t\tbalanceOf[msg.sender] = totalSupply;                    \r\n    }"
+      ExpressionStatement
+         Gas costs: 0
+         Source: "balanceOf[msg.sender] = totalSupply"
+        Assignment using operator =
+           Type: uint256
+           Source: "balanceOf[msg.sender] = totalSupply"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[msg.sender]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Identifier totalSupply
+             Type: uint256
+             Source: "totalSupply"
+  FunctionDefinition "_transfer"
+     Source: "function _transfer(address _from, address _to, uint256 _value) internal {\r\n        require (_to != 0x0);                               // Prevent transfer to 0x0 address. Use burn() instead\r\n        require (balanceOf[_from] >= _value);                // Check if the sender has enough\r\n        require (balanceOf[_to] + _value >= balanceOf[_to]); // Check for overflows\r\n        require(!frozenAccount[_from]);                     // Check if sender is frozen\r\n\t\tuint256 previousBalances = balanceOf[_from] + balanceOf[_to];\r\n        balanceOf[_from] -= _value;                         // Subtract from the sender\r\n        balanceOf[_to] += _value;                           // Add the same to the recipient\r\n        Transfer(_from, _to, _value);\r\n\t\tassert(balanceOf[_from] + balanceOf[_to] == previousBalances);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _from, address _to, uint256 _value)"
+      VariableDeclaration "_from"
+         Type: address
+         Source: "address _from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        require (_to != 0x0);                               // Prevent transfer to 0x0 address. Use burn() instead\r\n        require (balanceOf[_from] >= _value);                // Check if the sender has enough\r\n        require (balanceOf[_to] + _value >= balanceOf[_to]); // Check for overflows\r\n        require(!frozenAccount[_from]);                     // Check if sender is frozen\r\n\t\tuint256 previousBalances = balanceOf[_from] + balanceOf[_to];\r\n        balanceOf[_from] -= _value;                         // Subtract from the sender\r\n        balanceOf[_to] += _value;                           // Add the same to the recipient\r\n        Transfer(_from, _to, _value);\r\n\t\tassert(balanceOf[_from] + balanceOf[_to] == previousBalances);\r\n    }"
+      ExpressionStatement
+         Gas costs: 44
+         Source: "require (_to != 0x0)"
+        FunctionCall
+           Type: tuple()
+           Source: "require (_to != 0x0)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator !=
+             Type: bool
+             Source: "_to != 0x0"
+            Identifier _to
+               Type: address
+               Source: "_to"
+            Literal, token: [no token] value: 0x0
+               Type: int_const 0
+               Source: "0x0"
+      ExpressionStatement
+         Gas costs: 334
+         Source: "require (balanceOf[_from] >= _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "require (balanceOf[_from] >= _value)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "balanceOf[_from] >= _value"
+            IndexAccess
+               Type: uint256
+               Source: "balanceOf[_from]"
+              Identifier balanceOf
+                 Type: mapping(address => uint256)
+                 Source: "balanceOf"
+              Identifier _from
+                 Type: address
+                 Source: "_from"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+      ExpressionStatement
+         Gas costs: 630
+         Source: "require (balanceOf[_to] + _value >= balanceOf[_to])"
+        FunctionCall
+           Type: tuple()
+           Source: "require (balanceOf[_to] + _value >= balanceOf[_to])"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "balanceOf[_to] + _value >= balanceOf[_to]"
+            BinaryOperation using operator +
+               Type: uint256
+               Source: "balanceOf[_to] + _value"
+              IndexAccess
+                 Type: uint256
+                 Source: "balanceOf[_to]"
+                Identifier balanceOf
+                   Type: mapping(address => uint256)
+                   Source: "balanceOf"
+                Identifier _to
+                   Type: address
+                   Source: "_to"
+              Identifier _value
+                 Type: uint256
+                 Source: "_value"
+            IndexAccess
+               Type: uint256
+               Source: "balanceOf[_to]"
+              Identifier balanceOf
+                 Type: mapping(address => uint256)
+                 Source: "balanceOf"
+              Identifier _to
+                 Type: address
+                 Source: "_to"
+      ExpressionStatement
+         Gas costs: 364
+         Source: "require(!frozenAccount[_from])"
+        FunctionCall
+           Type: tuple()
+           Source: "require(!frozenAccount[_from])"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          UnaryOperation (prefix) !
+             Type: bool
+             Source: "!frozenAccount[_from]"
+            IndexAccess
+               Type: bool
+               Source: "frozenAccount[_from]"
+              Identifier frozenAccount
+                 Type: mapping(address => bool)
+                 Source: "frozenAccount"
+              Identifier _from
+                 Type: address
+                 Source: "_from"
+      VariableDeclarationStatement
+         Gas costs: 603
+         Source: "uint256 previousBalances = balanceOf[_from] + balanceOf[_to]"
+        VariableDeclaration "previousBalances"
+           Type: uint256
+           Source: "uint256 previousBalances"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        BinaryOperation using operator +
+           Type: uint256
+           Source: "balanceOf[_from] + balanceOf[_to]"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[_from]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            Identifier _from
+               Type: address
+               Source: "_from"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[_to]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            Identifier _to
+               Type: address
+               Source: "_to"
+      ExpressionStatement
+         Gas costs: 20323
+         Source: "balanceOf[_from] -= _value"
+        Assignment using operator -=
+           Type: uint256
+           Source: "balanceOf[_from] -= _value"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[_from]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            Identifier _from
+               Type: address
+               Source: "_from"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: 20323
+         Source: "balanceOf[_to] += _value"
+        Assignment using operator +=
+           Type: uint256
+           Source: "balanceOf[_to] += _value"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[_to]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            Identifier _to
+               Type: address
+               Source: "_to"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "Transfer(_from, _to, _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "Transfer(_from, _to, _value)"
+          Identifier Transfer
+             Type: function (address,address,uint256)
+             Source: "Transfer"
+          Identifier _from
+             Type: address
+             Source: "_from"
+          Identifier _to
+             Type: address
+             Source: "_to"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: 615
+         Source: "assert(balanceOf[_from] + balanceOf[_to] == previousBalances)"
+        FunctionCall
+           Type: tuple()
+           Source: "assert(balanceOf[_from] + balanceOf[_to] == previousBalances)"
+          Identifier assert
+             Type: function (bool) pure
+             Source: "assert"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "balanceOf[_from] + balanceOf[_to] == previousBalances"
+            BinaryOperation using operator +
+               Type: uint256
+               Source: "balanceOf[_from] + balanceOf[_to]"
+              IndexAccess
+                 Type: uint256
+                 Source: "balanceOf[_from]"
+                Identifier balanceOf
+                   Type: mapping(address => uint256)
+                   Source: "balanceOf"
+                Identifier _from
+                   Type: address
+                   Source: "_from"
+              IndexAccess
+                 Type: uint256
+                 Source: "balanceOf[_to]"
+                Identifier balanceOf
+                   Type: mapping(address => uint256)
+                   Source: "balanceOf"
+                Identifier _to
+                   Type: address
+                   Source: "_to"
+            Identifier previousBalances
+               Type: uint256
+               Source: "previousBalances"
+  FunctionDefinition "_collect_fee"
+     Source: "function _collect_fee(address _from, address _to, uint256 _value) internal {\r\n        require (_to != 0x0);                               // Prevent transfer to 0x0 address. Use burn() instead\r\n        require (balanceOf[_from] >= _value);                // Check if the sender has enough\r\n        require (balanceOf[_to] + _value >= balanceOf[_to]); // Check for overflows\r\n        require(!frozenAccount[_from]);                     // Check if sender is frozen\r\n\t\tuint256 previousBalances = balanceOf[_from] + balanceOf[_to];\r\n        balanceOf[_from] -= _value;                         // Subtract from the sender\r\n        balanceOf[_to] += _value;                           // Add the same to the recipient\r\n\t\tFeePaid(_from, _to, _value);\r\n\t\tassert(balanceOf[_from] + balanceOf[_to] == previousBalances);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _from, address _to, uint256 _value)"
+      VariableDeclaration "_from"
+         Type: address
+         Source: "address _from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n        require (_to != 0x0);                               // Prevent transfer to 0x0 address. Use burn() instead\r\n        require (balanceOf[_from] >= _value);                // Check if the sender has enough\r\n        require (balanceOf[_to] + _value >= balanceOf[_to]); // Check for overflows\r\n        require(!frozenAccount[_from]);                     // Check if sender is frozen\r\n\t\tuint256 previousBalances = balanceOf[_from] + balanceOf[_to];\r\n        balanceOf[_from] -= _value;                         // Subtract from the sender\r\n        balanceOf[_to] += _value;                           // Add the same to the recipient\r\n\t\tFeePaid(_from, _to, _value);\r\n\t\tassert(balanceOf[_from] + balanceOf[_to] == previousBalances);\r\n    }"
+      ExpressionStatement
+         Gas costs: 44
+         Source: "require (_to != 0x0)"
+        FunctionCall
+           Type: tuple()
+           Source: "require (_to != 0x0)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator !=
+             Type: bool
+             Source: "_to != 0x0"
+            Identifier _to
+               Type: address
+               Source: "_to"
+            Literal, token: [no token] value: 0x0
+               Type: int_const 0
+               Source: "0x0"
+      ExpressionStatement
+         Gas costs: 334
+         Source: "require (balanceOf[_from] >= _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "require (balanceOf[_from] >= _value)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "balanceOf[_from] >= _value"
+            IndexAccess
+               Type: uint256
+               Source: "balanceOf[_from]"
+              Identifier balanceOf
+                 Type: mapping(address => uint256)
+                 Source: "balanceOf"
+              Identifier _from
+                 Type: address
+                 Source: "_from"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+      ExpressionStatement
+         Gas costs: 630
+         Source: "require (balanceOf[_to] + _value >= balanceOf[_to])"
+        FunctionCall
+           Type: tuple()
+           Source: "require (balanceOf[_to] + _value >= balanceOf[_to])"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "balanceOf[_to] + _value >= balanceOf[_to]"
+            BinaryOperation using operator +
+               Type: uint256
+               Source: "balanceOf[_to] + _value"
+              IndexAccess
+                 Type: uint256
+                 Source: "balanceOf[_to]"
+                Identifier balanceOf
+                   Type: mapping(address => uint256)
+                   Source: "balanceOf"
+                Identifier _to
+                   Type: address
+                   Source: "_to"
+              Identifier _value
+                 Type: uint256
+                 Source: "_value"
+            IndexAccess
+               Type: uint256
+               Source: "balanceOf[_to]"
+              Identifier balanceOf
+                 Type: mapping(address => uint256)
+                 Source: "balanceOf"
+              Identifier _to
+                 Type: address
+                 Source: "_to"
+      ExpressionStatement
+         Gas costs: 364
+         Source: "require(!frozenAccount[_from])"
+        FunctionCall
+           Type: tuple()
+           Source: "require(!frozenAccount[_from])"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          UnaryOperation (prefix) !
+             Type: bool
+             Source: "!frozenAccount[_from]"
+            IndexAccess
+               Type: bool
+               Source: "frozenAccount[_from]"
+              Identifier frozenAccount
+                 Type: mapping(address => bool)
+                 Source: "frozenAccount"
+              Identifier _from
+                 Type: address
+                 Source: "_from"
+      VariableDeclarationStatement
+         Gas costs: 603
+         Source: "uint256 previousBalances = balanceOf[_from] + balanceOf[_to]"
+        VariableDeclaration "previousBalances"
+           Type: uint256
+           Source: "uint256 previousBalances"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        BinaryOperation using operator +
+           Type: uint256
+           Source: "balanceOf[_from] + balanceOf[_to]"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[_from]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            Identifier _from
+               Type: address
+               Source: "_from"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[_to]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            Identifier _to
+               Type: address
+               Source: "_to"
+      ExpressionStatement
+         Gas costs: 20323
+         Source: "balanceOf[_from] -= _value"
+        Assignment using operator -=
+           Type: uint256
+           Source: "balanceOf[_from] -= _value"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[_from]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            Identifier _from
+               Type: address
+               Source: "_from"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: 20323
+         Source: "balanceOf[_to] += _value"
+        Assignment using operator +=
+           Type: uint256
+           Source: "balanceOf[_to] += _value"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[_to]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            Identifier _to
+               Type: address
+               Source: "_to"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "FeePaid(_from, _to, _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "FeePaid(_from, _to, _value)"
+          Identifier FeePaid
+             Type: function (address,address,uint256)
+             Source: "FeePaid"
+          Identifier _from
+             Type: address
+             Source: "_from"
+          Identifier _to
+             Type: address
+             Source: "_to"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+      ExpressionStatement
+         Gas costs: 615
+         Source: "assert(balanceOf[_from] + balanceOf[_to] == previousBalances)"
+        FunctionCall
+           Type: tuple()
+           Source: "assert(balanceOf[_from] + balanceOf[_to] == previousBalances)"
+          Identifier assert
+             Type: function (bool) pure
+             Source: "assert"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "balanceOf[_from] + balanceOf[_to] == previousBalances"
+            BinaryOperation using operator +
+               Type: uint256
+               Source: "balanceOf[_from] + balanceOf[_to]"
+              IndexAccess
+                 Type: uint256
+                 Source: "balanceOf[_from]"
+                Identifier balanceOf
+                   Type: mapping(address => uint256)
+                   Source: "balanceOf"
+                Identifier _from
+                   Type: address
+                   Source: "_from"
+              IndexAccess
+                 Type: uint256
+                 Source: "balanceOf[_to]"
+                Identifier balanceOf
+                   Type: mapping(address => uint256)
+                   Source: "balanceOf"
+                Identifier _to
+                   Type: address
+                   Source: "_to"
+            Identifier previousBalances
+               Type: uint256
+               Source: "previousBalances"
+  FunctionDefinition "transfer" - public
+     Source: "function transfer(address _to, uint256 _value) public {\r\n\t\t_transfer(msg.sender, _to, _value);\r\n\t}"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _to, uint256 _value)"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n\t\t_transfer(msg.sender, _to, _value);\r\n\t}"
+      ExpressionStatement
+         Gas costs: 23
+         Source: "_transfer(msg.sender, _to, _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "_transfer(msg.sender, _to, _value)"
+          Identifier _transfer
+             Type: function (address,address,uint256)
+             Source: "_transfer"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier _to
+             Type: address
+             Source: "_to"
+          Identifier _value
+             Type: uint256
+             Source: "_value"
+  FunctionDefinition "transferFrom" - public
+     Source: "function transferFrom(address _from, address _to, uint256 _value, bool _fee) onlyOwner public returns (bool success) {\r\n\t\tuint256 charge = 0 ;\r\n\t\tuint256 t_value = _value;\r\n\t\tif(_fee){\r\n\t\t\tcharge = _value * ChargeFee / 100;\r\n\t\t}else{\r\n\t\t\tcharge = _value - (_value / (ChargeFee + 100) * 100);\r\n\t\t}\r\n\t\tt_value = _value - charge;\r\n\t\trequire(t_value + charge == _value);\r\n        _transfer(_from, _to, t_value);\r\n\t\t_collect_fee(_from, this, charge);\r\n        return true;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _from, address _to, uint256 _value, bool _fee)"
+      VariableDeclaration "_from"
+         Type: address
+         Source: "address _from"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint256 _value"
+        ElementaryTypeName uint256
+           Source: "uint256"
+      VariableDeclaration "_fee"
+         Type: bool
+         Source: "bool _fee"
+        ElementaryTypeName bool
+           Source: "bool"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool success)"
+      VariableDeclaration "success"
+         Type: bool
+         Source: "bool success"
+        ElementaryTypeName bool
+           Source: "bool"
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n\t\tuint256 charge = 0 ;\r\n\t\tuint256 t_value = _value;\r\n\t\tif(_fee){\r\n\t\t\tcharge = _value * ChargeFee / 100;\r\n\t\t}else{\r\n\t\t\tcharge = _value - (_value / (ChargeFee + 100) * 100);\r\n\t\t}\r\n\t\tt_value = _value - charge;\r\n\t\trequire(t_value + charge == _value);\r\n        _transfer(_from, _to, t_value);\r\n\t\t_collect_fee(_from, this, charge);\r\n        return true;\r\n    }"
+      VariableDeclarationStatement
+         Gas costs: 11
+         Source: "uint256 charge = 0"
+        VariableDeclaration "charge"
+           Type: uint256
+           Source: "uint256 charge"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        Literal, token: [no token] value: 0
+           Type: int_const 0
+           Source: "0"
+      VariableDeclarationStatement
+         Gas costs: 11
+         Source: "uint256 t_value = _value"
+        VariableDeclaration "t_value"
+           Type: uint256
+           Source: "uint256 t_value"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        Identifier _value
+           Type: uint256
+           Source: "_value"
+      IfStatement
+         Source: "if(_fee){\r\n\t\t\tcharge = _value * ChargeFee / 100;\r\n\t\t}else{\r\n\t\t\tcharge = _value - (_value / (ChargeFee + 100) * 100);\r\n\t\t}"
+        Identifier _fee
+           Type: bool
+           Gas costs: 3
+           Source: "_fee"
+        Block
+           Source: "{\r\n\t\t\tcharge = _value * ChargeFee / 100;\r\n\t\t}"
+          ExpressionStatement
+             Gas costs: 247
+             Source: "charge = _value * ChargeFee / 100"
+            Assignment using operator =
+               Type: uint256
+               Source: "charge = _value * ChargeFee / 100"
+              Identifier charge
+                 Type: uint256
+                 Source: "charge"
+              BinaryOperation using operator /
+                 Type: uint256
+                 Source: "_value * ChargeFee / 100"
+                BinaryOperation using operator *
+                   Type: uint256
+                   Source: "_value * ChargeFee"
+                  Identifier _value
+                     Type: uint256
+                     Source: "_value"
+                  Identifier ChargeFee
+                     Type: uint256
+                     Source: "ChargeFee"
+                Literal, token: [no token] value: 100
+                   Type: int_const 100
+                   Source: "100"
+        Block
+           Source: "{\r\n\t\t\tcharge = _value - (_value / (ChargeFee + 100) * 100);\r\n\t\t}"
+          ExpressionStatement
+             Gas costs: 259
+             Source: "charge = _value - (_value / (ChargeFee + 100) * 100)"
+            Assignment using operator =
+               Type: uint256
+               Source: "charge = _value - (_value / (ChargeFee + 100) * 100)"
+              Identifier charge
+                 Type: uint256
+                 Source: "charge"
+              BinaryOperation using operator -
+                 Type: uint256
+                 Source: "_value - (_value / (ChargeFee + 100) * 100)"
+                Identifier _value
+                   Type: uint256
+                   Source: "_value"
+                TupleExpression
+                   Type: uint256
+                   Source: "(_value / (ChargeFee + 100) * 100)"
+                  BinaryOperation using operator *
+                     Type: uint256
+                     Source: "_value / (ChargeFee + 100) * 100"
+                    BinaryOperation using operator /
+                       Type: uint256
+                       Source: "_value / (ChargeFee + 100)"
+                      Identifier _value
+                         Type: uint256
+                         Source: "_value"
+                      TupleExpression
+                         Type: uint256
+                         Source: "(ChargeFee + 100)"
+                        BinaryOperation using operator +
+                           Type: uint256
+                           Source: "ChargeFee + 100"
+                          Identifier ChargeFee
+                             Type: uint256
+                             Source: "ChargeFee"
+                          Literal, token: [no token] value: 100
+                             Type: int_const 100
+                             Source: "100"
+                    Literal, token: [no token] value: 100
+                       Type: int_const 100
+                       Source: "100"
+      ExpressionStatement
+         Gas costs: 14
+         Source: "t_value = _value - charge"
+        Assignment using operator =
+           Type: uint256
+           Source: "t_value = _value - charge"
+          Identifier t_value
+             Type: uint256
+             Source: "t_value"
+          BinaryOperation using operator -
+             Type: uint256
+             Source: "_value - charge"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+            Identifier charge
+               Type: uint256
+               Source: "charge"
+      ExpressionStatement
+         Gas costs: 41
+         Source: "require(t_value + charge == _value)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(t_value + charge == _value)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "t_value + charge == _value"
+            BinaryOperation using operator +
+               Type: uint256
+               Source: "t_value + charge"
+              Identifier t_value
+                 Type: uint256
+                 Source: "t_value"
+              Identifier charge
+                 Type: uint256
+                 Source: "charge"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+      ExpressionStatement
+         Gas costs: 24
+         Source: "_transfer(_from, _to, t_value)"
+        FunctionCall
+           Type: tuple()
+           Source: "_transfer(_from, _to, t_value)"
+          Identifier _transfer
+             Type: function (address,address,uint256)
+             Source: "_transfer"
+          Identifier _from
+             Type: address
+             Source: "_from"
+          Identifier _to
+             Type: address
+             Source: "_to"
+          Identifier t_value
+             Type: uint256
+             Source: "t_value"
+      ExpressionStatement
+         Gas costs: 12
+         Source: "_collect_fee(_from, this, charge)"
+        FunctionCall
+           Type: tuple()
+           Source: "_collect_fee(_from, this, charge)"
+          Identifier _collect_fee
+             Type: function (address,address,uint256)
+             Source: "_collect_fee"
+          Identifier _from
+             Type: address
+             Source: "_from"
+          Identifier this
+             Type: contract VVToken
+             Source: "this"
+          Identifier charge
+             Type: uint256
+             Source: "charge"
+      Return
+         Gas costs: 8
+         Source: "return true"
+        Literal, token: true value: true
+           Type: bool
+           Source: "true"
+  FunctionDefinition "setPrices" - public
+     Source: "function setPrices(uint256 newValue) onlyOwner public {\r\n        EthPerToken = newValue;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 newValue)"
+      VariableDeclaration "newValue"
+         Type: uint256
+         Source: "uint256 newValue"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n        EthPerToken = newValue;\r\n    }"
+      ExpressionStatement
+         Gas costs: 20014
+         Source: "EthPerToken = newValue"
+        Assignment using operator =
+           Type: uint256
+           Source: "EthPerToken = newValue"
+          Identifier EthPerToken
+             Type: uint256
+             Source: "EthPerToken"
+          Identifier newValue
+             Type: uint256
+             Source: "newValue"
+  FunctionDefinition "setFee" - public
+     Source: "function setFee(uint256 newValue) onlyOwner public {\r\n        ChargeFee = newValue;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint256 newValue)"
+      VariableDeclaration "newValue"
+         Type: uint256
+         Source: "uint256 newValue"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n        ChargeFee = newValue;\r\n    }"
+      ExpressionStatement
+         Gas costs: 20014
+         Source: "ChargeFee = newValue"
+        Assignment using operator =
+           Type: uint256
+           Source: "ChargeFee = newValue"
+          Identifier ChargeFee
+             Type: uint256
+             Source: "ChargeFee"
+          Identifier newValue
+             Type: uint256
+             Source: "newValue"
+  FunctionDefinition "freezeAccount" - public
+     Source: "function freezeAccount(address target, bool freeze) onlyOwner public {\r\n        frozenAccount[target] = freeze;\r\n        FrozenFunds(target, freeze);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address target, bool freeze)"
+      VariableDeclaration "target"
+         Type: address
+         Source: "address target"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "freeze"
+         Type: bool
+         Source: "bool freeze"
+        ElementaryTypeName bool
+           Source: "bool"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n        frozenAccount[target] = freeze;\r\n        FrozenFunds(target, freeze);\r\n    }"
+      ExpressionStatement
+         Gas costs: 20363
+         Source: "frozenAccount[target] = freeze"
+        Assignment using operator =
+           Type: bool
+           Source: "frozenAccount[target] = freeze"
+          IndexAccess
+             Type: bool
+             Source: "frozenAccount[target]"
+            Identifier frozenAccount
+               Type: mapping(address => bool)
+               Source: "frozenAccount"
+            Identifier target
+               Type: address
+               Source: "target"
+          Identifier freeze
+             Type: bool
+             Source: "freeze"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "FrozenFunds(target, freeze)"
+        FunctionCall
+           Type: tuple()
+           Source: "FrozenFunds(target, freeze)"
+          Identifier FrozenFunds
+             Type: function (address,bool)
+             Source: "FrozenFunds"
+          Identifier target
+             Type: address
+             Source: "target"
+          Identifier freeze
+             Type: bool
+             Source: "freeze"
+  FunctionDefinition "" - public
+     Source: "function() payable {\r\n\t\trequire(msg.value > 0);\r\n\t\tuint amount = msg.value * 10 ** uint256(decimals) * EthPerToken / 1 ether;\r\n        _transfer(this, msg.sender, amount);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    Block
+       Source: "{\r\n\t\trequire(msg.value > 0);\r\n\t\tuint amount = msg.value * 10 ** uint256(decimals) * EthPerToken / 1 ether;\r\n        _transfer(this, msg.sender, amount);\r\n    }"
+      ExpressionStatement
+         Gas costs: 34
+         Source: "require(msg.value > 0)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(msg.value > 0)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >
+             Type: bool
+             Source: "msg.value > 0"
+            MemberAccess to member value
+               Type: uint256
+               Source: "msg.value"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+      VariableDeclarationStatement
+         Gas costs: 2112
+         Source: "uint amount = msg.value * 10 ** uint256(decimals) * EthPerToken / 1 ether"
+        VariableDeclaration "amount"
+           Type: uint256
+           Source: "uint amount"
+          ElementaryTypeName uint
+             Source: "uint"
+        BinaryOperation using operator /
+           Type: uint256
+           Source: "msg.value * 10 ** uint256(decimals) * EthPerToken / 1 ether"
+          BinaryOperation using operator *
+             Type: uint256
+             Source: "msg.value * 10 ** uint256(decimals) * EthPerToken"
+            BinaryOperation using operator *
+               Type: uint256
+               Source: "msg.value * 10 ** uint256(decimals)"
+              MemberAccess to member value
+                 Type: uint256
+                 Source: "msg.value"
+                Identifier msg
+                   Type: msg
+                   Source: "msg"
+              BinaryOperation using operator **
+                 Type: uint256
+                 Source: "10 ** uint256(decimals)"
+                Literal, token: [no token] value: 10
+                   Type: int_const 10
+                   Source: "10"
+                FunctionCall
+                   Type: uint256
+                   Source: "uint256(decimals)"
+                  ElementaryTypeNameExpression uint256
+                     Type: type(uint256)
+                     Source: "uint256"
+                  Identifier decimals
+                     Type: uint8
+                     Source: "decimals"
+            Identifier EthPerToken
+               Type: uint256
+               Source: "EthPerToken"
+          Literal, token: [no token] value: 1
+             Type: int_const 1000000000000000000
+             Source: "1 ether"
+      ExpressionStatement
+         Gas costs: 11
+         Source: "_transfer(this, msg.sender, amount)"
+        FunctionCall
+           Type: tuple()
+           Source: "_transfer(this, msg.sender, amount)"
+          Identifier _transfer
+             Type: function (address,address,uint256)
+             Source: "_transfer"
+          Identifier this
+             Type: contract VVToken
+             Source: "this"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier amount
+             Type: uint256
+             Source: "amount"
+  FunctionDefinition "remainBalanced" - public - const
+     Source: "function remainBalanced() public constant returns (uint256){\r\n        return balanceOf[this];\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "()"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint256)"
+      VariableDeclaration ""
+         Type: uint256
+         Source: "uint256"
+        ElementaryTypeName uint256
+           Source: "uint256"
+    Block
+       Source: "{\r\n        return balanceOf[this];\r\n    }"
+      Return
+         Gas costs: 303
+         Source: "return balanceOf[this]"
+        IndexAccess
+           Type: uint256
+           Source: "balanceOf[this]"
+          Identifier balanceOf
+             Type: mapping(address => uint256)
+             Source: "balanceOf"
+          Identifier this
+             Type: contract VVToken
+             Source: "this"
+  FunctionDefinition "execute" - public
+     Source: "function execute(address _to, uint _value, bytes _data) notNull(_to) onlyOwner external returns (bytes32 _r) {\r\n\t\t_r = addTransaction(_to, _value, _data);\r\n\t\tconfirmTransaction(_r);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _to, uint _value, bytes _data)"
+      VariableDeclaration "_to"
+         Type: address
+         Source: "address _to"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "_value"
+         Type: uint256
+         Source: "uint _value"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "_data"
+         Type: bytes calldata
+         Source: "bytes _data"
+        ElementaryTypeName bytes
+           Source: "bytes"
+    ParameterList
+       Gas costs: 3
+       Source: "(bytes32 _r)"
+      VariableDeclaration "_r"
+         Type: bytes32
+         Source: "bytes32 _r"
+        ElementaryTypeName bytes32
+           Source: "bytes32"
+    ModifierInvocation "notNull"
+       Gas costs: 3
+       Source: "notNull(_to)"
+      Identifier notNull
+         Type: modifier (address)
+         Source: "notNull"
+      Identifier _to
+         Type: address
+         Source: "_to"
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n\t\t_r = addTransaction(_to, _value, _data);\r\n\t\tconfirmTransaction(_r);\r\n    }"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "_r = addTransaction(_to, _value, _data)"
+        Assignment using operator =
+           Type: bytes32
+           Source: "_r = addTransaction(_to, _value, _data)"
+          Identifier _r
+             Type: bytes32
+             Source: "_r"
+          FunctionCall
+             Type: bytes32
+             Source: "addTransaction(_to, _value, _data)"
+            Identifier addTransaction
+               Type: function (address,uint256,bytes memory) returns (bytes32)
+               Source: "addTransaction"
+            Identifier _to
+               Type: address
+               Source: "_to"
+            Identifier _value
+               Type: uint256
+               Source: "_value"
+            Identifier _data
+               Type: bytes calldata
+               Source: "_data"
+      ExpressionStatement
+         Gas costs: 18
+         Source: "confirmTransaction(_r)"
+        FunctionCall
+           Type: tuple()
+           Source: "confirmTransaction(_r)"
+          Identifier confirmTransaction
+             Type: function (bytes32)
+             Source: "confirmTransaction"
+          Identifier _r
+             Type: bytes32
+             Source: "_r"
+  FunctionDefinition "addTransaction"
+     Source: "function addTransaction(address destination, uint value, bytes data) private notNull(destination) returns (bytes32 TransHash){\r\n        TransHash = sha3(destination, value, data);\r\n        if (Transactions[TransHash].destination == 0) {\r\n            Transactions[TransHash] = Transaction({\r\n                destination: destination,\r\n                value: value,\r\n                data: data,\r\n                executed: false\r\n            });\r\n            SubmitTransaction(TransHash);\r\n        }\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(address destination, uint value, bytes data)"
+      VariableDeclaration "destination"
+         Type: address
+         Source: "address destination"
+        ElementaryTypeName address
+           Source: "address"
+      VariableDeclaration "value"
+         Type: uint256
+         Source: "uint value"
+        ElementaryTypeName uint
+           Source: "uint"
+      VariableDeclaration "data"
+         Type: bytes memory
+         Source: "bytes data"
+        ElementaryTypeName bytes
+           Source: "bytes"
+    ParameterList
+       Gas costs: 3
+       Source: "(bytes32 TransHash)"
+      VariableDeclaration "TransHash"
+         Type: bytes32
+         Source: "bytes32 TransHash"
+        ElementaryTypeName bytes32
+           Source: "bytes32"
+    ModifierInvocation "notNull"
+       Gas costs: 3
+       Source: "notNull(destination)"
+      Identifier notNull
+         Type: modifier (address)
+         Source: "notNull"
+      Identifier destination
+         Type: address
+         Source: "destination"
+    Block
+       Source: "{\r\n        TransHash = sha3(destination, value, data);\r\n        if (Transactions[TransHash].destination == 0) {\r\n            Transactions[TransHash] = Transaction({\r\n                destination: destination,\r\n                value: value,\r\n                data: data,\r\n                executed: false\r\n            });\r\n            SubmitTransaction(TransHash);\r\n        }\r\n    }"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "TransHash = sha3(destination, value, data)"
+        Assignment using operator =
+           Type: bytes32
+           Source: "TransHash = sha3(destination, value, data)"
+          Identifier TransHash
+             Type: bytes32
+             Source: "TransHash"
+          FunctionCall
+             Type: bytes32
+             Source: "sha3(destination, value, data)"
+            Identifier sha3
+               Type: function () pure returns (bytes32)
+               Source: "sha3"
+            Identifier destination
+               Type: address
+               Source: "destination"
+            Identifier value
+               Type: uint256
+               Source: "value"
+            Identifier data
+               Type: bytes memory
+               Source: "data"
+      IfStatement
+         Source: "if (Transactions[TransHash].destination == 0) {\r\n            Transactions[TransHash] = Transaction({\r\n                destination: destination,\r\n                value: value,\r\n                data: data,\r\n                executed: false\r\n            });\r\n            SubmitTransaction(TransHash);\r\n        }"
+        BinaryOperation using operator ==
+           Type: bool
+           Gas costs: 353
+           Source: "Transactions[TransHash].destination == 0"
+          MemberAccess to member destination
+             Type: address
+             Source: "Transactions[TransHash].destination"
+            IndexAccess
+               Type: struct VVToken.Transaction storage ref
+               Source: "Transactions[TransHash]"
+              Identifier Transactions
+                 Type: mapping(bytes32 => struct VVToken.Transaction storage ref)
+                 Source: "Transactions"
+              Identifier TransHash
+                 Type: bytes32
+                 Source: "TransHash"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        Block
+           Source: "{\r\n            Transactions[TransHash] = Transaction({\r\n                destination: destination,\r\n                value: value,\r\n                data: data,\r\n                executed: false\r\n            });\r\n            SubmitTransaction(TransHash);\r\n        }"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "Transactions[TransHash] = Transaction({\r\n                destination: destination,\r\n                value: value,\r\n                data: data,\r\n                executed: false\r\n            })"
+            Assignment using operator =
+               Type: struct VVToken.Transaction storage ref
+               Source: "Transactions[TransHash] = Transaction({\r\n                destination: destination,\r\n                value: value,\r\n                data: data,\r\n                executed: false\r\n            })"
+              IndexAccess
+                 Type: struct VVToken.Transaction storage ref
+                 Source: "Transactions[TransHash]"
+                Identifier Transactions
+                   Type: mapping(bytes32 => struct VVToken.Transaction storage ref)
+                   Source: "Transactions"
+                Identifier TransHash
+                   Type: bytes32
+                   Source: "TransHash"
+              FunctionCall
+                 Type: struct VVToken.Transaction memory
+                 Source: "Transaction({\r\n                destination: destination,\r\n                value: value,\r\n                data: data,\r\n                executed: false\r\n            })"
+                Identifier Transaction
+                   Type: type(struct VVToken.Transaction storage pointer)
+                   Source: "Transaction"
+                Identifier destination
+                   Type: address
+                   Source: "destination"
+                Identifier value
+                   Type: uint256
+                   Source: "value"
+                Identifier data
+                   Type: bytes memory
+                   Source: "data"
+                Literal, token: false value: false
+                   Type: bool
+                   Source: "false"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "SubmitTransaction(TransHash)"
+            FunctionCall
+               Type: tuple()
+               Source: "SubmitTransaction(TransHash)"
+              Identifier SubmitTransaction
+                 Type: function (bytes32)
+                 Source: "SubmitTransaction"
+              Identifier TransHash
+                 Type: bytes32
+                 Source: "TransHash"
+  FunctionDefinition "addConfirmation"
+     Source: "function addConfirmation(bytes32 TransHash) private onlyOwner notConfirmed(TransHash){\r\n        Confirmations[TransHash][msg.sender] = true;\r\n        Confirmation(msg.sender, TransHash);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(bytes32 TransHash)"
+      VariableDeclaration "TransHash"
+         Type: bytes32
+         Source: "bytes32 TransHash"
+        ElementaryTypeName bytes32
+           Source: "bytes32"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    ModifierInvocation "notConfirmed"
+       Gas costs: 3
+       Source: "notConfirmed(TransHash)"
+      Identifier notConfirmed
+         Type: modifier (bytes32)
+         Source: "notConfirmed"
+      Identifier TransHash
+         Type: bytes32
+         Source: "TransHash"
+    Block
+       Source: "{\r\n        Confirmations[TransHash][msg.sender] = true;\r\n        Confirmation(msg.sender, TransHash);\r\n    }"
+      ExpressionStatement
+         Gas costs: 20458
+         Source: "Confirmations[TransHash][msg.sender] = true"
+        Assignment using operator =
+           Type: bool
+           Source: "Confirmations[TransHash][msg.sender] = true"
+          IndexAccess
+             Type: bool
+             Source: "Confirmations[TransHash][msg.sender]"
+            IndexAccess
+               Type: mapping(address => bool)
+               Source: "Confirmations[TransHash]"
+              Identifier Confirmations
+                 Type: mapping(bytes32 => mapping(address => bool))
+                 Source: "Confirmations"
+              Identifier TransHash
+                 Type: bytes32
+                 Source: "TransHash"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Literal, token: true value: true
+             Type: bool
+             Source: "true"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "Confirmation(msg.sender, TransHash)"
+        FunctionCall
+           Type: tuple()
+           Source: "Confirmation(msg.sender, TransHash)"
+          Identifier Confirmation
+             Type: function (address,bytes32)
+             Source: "Confirmation"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier TransHash
+             Type: bytes32
+             Source: "TransHash"
+  FunctionDefinition "isConfirmed" - public - const
+     Source: "function isConfirmed(bytes32 TransHash) public constant returns (bool){\r\n        uint count = 0;\r\n        for (uint i=0; i<owners.length; i++)\r\n            if (Confirmations[TransHash][owners[i]])\r\n                count += 1;\r\n            if (count == ownerRequired)\r\n                return true;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(bytes32 TransHash)"
+      VariableDeclaration "TransHash"
+         Type: bytes32
+         Source: "bytes32 TransHash"
+        ElementaryTypeName bytes32
+           Source: "bytes32"
+    ParameterList
+       Gas costs: 3
+       Source: "(bool)"
+      VariableDeclaration ""
+         Type: bool
+         Source: "bool"
+        ElementaryTypeName bool
+           Source: "bool"
+    Block
+       Source: "{\r\n        uint count = 0;\r\n        for (uint i=0; i<owners.length; i++)\r\n            if (Confirmations[TransHash][owners[i]])\r\n                count += 1;\r\n            if (count == ownerRequired)\r\n                return true;\r\n    }"
+      VariableDeclarationStatement
+         Gas costs: 11
+         Source: "uint count = 0"
+        VariableDeclaration "count"
+           Type: uint256
+           Source: "uint count"
+          ElementaryTypeName uint
+             Source: "uint"
+        Literal, token: [no token] value: 0
+           Type: int_const 0
+           Source: "0"
+      ForStatement
+         Source: "for (uint i=0; i<owners.length; i++)\r\n            if (Confirmations[TransHash][owners[i]])\r\n                count += 1"
+        VariableDeclarationStatement
+           Gas costs: 11
+           Source: "uint i=0"
+          VariableDeclaration "i"
+             Type: uint256
+             Source: "uint i"
+            ElementaryTypeName uint
+               Source: "uint"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        BinaryOperation using operator <
+           Type: bool
+           Gas costs: 217
+           Source: "i<owners.length"
+          Identifier i
+             Type: uint256
+             Source: "i"
+          MemberAccess to member length
+             Type: uint256
+             Source: "owners.length"
+            Identifier owners
+               Type: address[] storage ref
+               Source: "owners"
+        ExpressionStatement
+           Gas costs: 19
+           Source: "i++"
+          UnaryOperation (postfix) ++
+             Type: uint256
+             Source: "i++"
+            Identifier i
+               Type: uint256
+               Source: "i"
+        IfStatement
+           Source: "if (Confirmations[TransHash][owners[i]])\r\n                count += 1"
+          IndexAccess
+             Type: bool
+             Gas costs: [???]
+             Source: "Confirmations[TransHash][owners[i]]"
+            IndexAccess
+               Type: mapping(address => bool)
+               Source: "Confirmations[TransHash]"
+              Identifier Confirmations
+                 Type: mapping(bytes32 => mapping(address => bool))
+                 Source: "Confirmations"
+              Identifier TransHash
+                 Type: bytes32
+                 Source: "TransHash"
+            IndexAccess
+               Type: address
+               Source: "owners[i]"
+              Identifier owners
+                 Type: address[] storage ref
+                 Source: "owners"
+              Identifier i
+                 Type: uint256
+                 Source: "i"
+          ExpressionStatement
+             Gas costs: 14
+             Source: "count += 1"
+            Assignment using operator +=
+               Type: uint256
+               Source: "count += 1"
+              Identifier count
+                 Type: uint256
+                 Source: "count"
+              Literal, token: [no token] value: 1
+                 Type: int_const 1
+                 Source: "1"
+      IfStatement
+         Source: "if (count == ownerRequired)\r\n                return true"
+        BinaryOperation using operator ==
+           Type: bool
+           Gas costs: 209
+           Source: "count == ownerRequired"
+          Identifier count
+             Type: uint256
+             Source: "count"
+          Identifier ownerRequired
+             Type: uint256
+             Source: "ownerRequired"
+        Return
+           Gas costs: 19
+           Source: "return true"
+          Literal, token: true value: true
+             Type: bool
+             Source: "true"
+  FunctionDefinition "confirmationCount" - public - const
+     Source: "function confirmationCount(bytes32 TransHash) external constant returns (uint count){\r\n        for (uint i=0; i<owners.length; i++)\r\n            if (Confirmations[TransHash][owners[i]])\r\n                count += 1;\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(bytes32 TransHash)"
+      VariableDeclaration "TransHash"
+         Type: bytes32
+         Source: "bytes32 TransHash"
+        ElementaryTypeName bytes32
+           Source: "bytes32"
+    ParameterList
+       Gas costs: 3
+       Source: "(uint count)"
+      VariableDeclaration "count"
+         Type: uint256
+         Source: "uint count"
+        ElementaryTypeName uint
+           Source: "uint"
+    Block
+       Source: "{\r\n        for (uint i=0; i<owners.length; i++)\r\n            if (Confirmations[TransHash][owners[i]])\r\n                count += 1;\r\n    }"
+      ForStatement
+         Source: "for (uint i=0; i<owners.length; i++)\r\n            if (Confirmations[TransHash][owners[i]])\r\n                count += 1"
+        VariableDeclarationStatement
+           Gas costs: 11
+           Source: "uint i=0"
+          VariableDeclaration "i"
+             Type: uint256
+             Source: "uint i"
+            ElementaryTypeName uint
+               Source: "uint"
+          Literal, token: [no token] value: 0
+             Type: int_const 0
+             Source: "0"
+        BinaryOperation using operator <
+           Type: bool
+           Gas costs: 217
+           Source: "i<owners.length"
+          Identifier i
+             Type: uint256
+             Source: "i"
+          MemberAccess to member length
+             Type: uint256
+             Source: "owners.length"
+            Identifier owners
+               Type: address[] storage ref
+               Source: "owners"
+        ExpressionStatement
+           Gas costs: 19
+           Source: "i++"
+          UnaryOperation (postfix) ++
+             Type: uint256
+             Source: "i++"
+            Identifier i
+               Type: uint256
+               Source: "i"
+        IfStatement
+           Source: "if (Confirmations[TransHash][owners[i]])\r\n                count += 1"
+          IndexAccess
+             Type: bool
+             Gas costs: [???]
+             Source: "Confirmations[TransHash][owners[i]]"
+            IndexAccess
+               Type: mapping(address => bool)
+               Source: "Confirmations[TransHash]"
+              Identifier Confirmations
+                 Type: mapping(bytes32 => mapping(address => bool))
+                 Source: "Confirmations"
+              Identifier TransHash
+                 Type: bytes32
+                 Source: "TransHash"
+            IndexAccess
+               Type: address
+               Source: "owners[i]"
+              Identifier owners
+                 Type: address[] storage ref
+                 Source: "owners"
+              Identifier i
+                 Type: uint256
+                 Source: "i"
+          ExpressionStatement
+             Gas costs: 14
+             Source: "count += 1"
+            Assignment using operator +=
+               Type: uint256
+               Source: "count += 1"
+              Identifier count
+                 Type: uint256
+                 Source: "count"
+              Literal, token: [no token] value: 1
+                 Type: int_const 1
+                 Source: "1"
+  FunctionDefinition "confirmTransaction" - public
+     Source: "function confirmTransaction(bytes32 TransHash) public onlyOwner(){\r\n        addConfirmation(TransHash);\r\n        executeTransaction(TransHash);\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(bytes32 TransHash)"
+      VariableDeclaration "TransHash"
+         Type: bytes32
+         Source: "bytes32 TransHash"
+        ElementaryTypeName bytes32
+           Source: "bytes32"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner()"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n        addConfirmation(TransHash);\r\n        executeTransaction(TransHash);\r\n    }"
+      ExpressionStatement
+         Gas costs: 7
+         Source: "addConfirmation(TransHash)"
+        FunctionCall
+           Type: tuple()
+           Source: "addConfirmation(TransHash)"
+          Identifier addConfirmation
+             Type: function (bytes32)
+             Source: "addConfirmation"
+          Identifier TransHash
+             Type: bytes32
+             Source: "TransHash"
+      ExpressionStatement
+         Gas costs: 18
+         Source: "executeTransaction(TransHash)"
+        FunctionCall
+           Type: tuple()
+           Source: "executeTransaction(TransHash)"
+          Identifier executeTransaction
+             Type: function (bytes32)
+             Source: "executeTransaction"
+          Identifier TransHash
+             Type: bytes32
+             Source: "TransHash"
+  FunctionDefinition "executeTransaction" - public
+     Source: "function executeTransaction(bytes32 TransHash) public notExecuted(TransHash){\r\n        if (isConfirmed(TransHash)) {\r\n\t\t\tTransactions[TransHash].executed = true;\r\n            require(Transactions[TransHash].destination.call.value(Transactions[TransHash].value)(Transactions[TransHash].data));\r\n            Execution(TransHash);\r\n        }\r\n    }"
+    ParameterList
+       Gas costs: 0
+       Source: "(bytes32 TransHash)"
+      VariableDeclaration "TransHash"
+         Type: bytes32
+         Source: "bytes32 TransHash"
+        ElementaryTypeName bytes32
+           Source: "bytes32"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "notExecuted"
+       Gas costs: 3
+       Source: "notExecuted(TransHash)"
+      Identifier notExecuted
+         Type: modifier (bytes32)
+         Source: "notExecuted"
+      Identifier TransHash
+         Type: bytes32
+         Source: "TransHash"
+    Block
+       Source: "{\r\n        if (isConfirmed(TransHash)) {\r\n\t\t\tTransactions[TransHash].executed = true;\r\n            require(Transactions[TransHash].destination.call.value(Transactions[TransHash].value)(Transactions[TransHash].data));\r\n            Execution(TransHash);\r\n        }\r\n    }"
+      IfStatement
+         Source: "if (isConfirmed(TransHash)) {\r\n\t\t\tTransactions[TransHash].executed = true;\r\n            require(Transactions[TransHash].destination.call.value(Transactions[TransHash].value)(Transactions[TransHash].data));\r\n            Execution(TransHash);\r\n        }"
+        FunctionCall
+           Type: bool
+           Gas costs: 18
+           Source: "isConfirmed(TransHash)"
+          Identifier isConfirmed
+             Type: function (bytes32) view returns (bool)
+             Source: "isConfirmed"
+          Identifier TransHash
+             Type: bytes32
+             Source: "TransHash"
+        Block
+           Source: "{\r\n\t\t\tTransactions[TransHash].executed = true;\r\n            require(Transactions[TransHash].destination.call.value(Transactions[TransHash].value)(Transactions[TransHash].data));\r\n            Execution(TransHash);\r\n        }"
+          ExpressionStatement
+             Gas costs: 20375
+             Source: "Transactions[TransHash].executed = true"
+            Assignment using operator =
+               Type: bool
+               Source: "Transactions[TransHash].executed = true"
+              MemberAccess to member executed
+                 Type: bool
+                 Source: "Transactions[TransHash].executed"
+                IndexAccess
+                   Type: struct VVToken.Transaction storage ref
+                   Source: "Transactions[TransHash]"
+                  Identifier Transactions
+                     Type: mapping(bytes32 => struct VVToken.Transaction storage ref)
+                     Source: "Transactions"
+                  Identifier TransHash
+                     Type: bytes32
+                     Source: "TransHash"
+              Literal, token: true value: true
+                 Type: bool
+                 Source: "true"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "require(Transactions[TransHash].destination.call.value(Transactions[TransHash].value)(Transactions[TransHash].data))"
+            FunctionCall
+               Type: tuple()
+               Source: "require(Transactions[TransHash].destination.call.value(Transactions[TransHash].value)(Transactions[TransHash].data))"
+              Identifier require
+                 Type: function (bool) pure
+                 Source: "require"
+              FunctionCall
+                 Type: bool
+                 Source: "Transactions[TransHash].destination.call.value(Transactions[TransHash].value)(Transactions[TransHash].data)"
+                FunctionCall
+                   Type: function () payable returns (bool)
+                   Source: "Transactions[TransHash].destination.call.value(Transactions[TransHash].value)"
+                  MemberAccess to member value
+                     Type: function (uint256) returns (function () payable returns (bool))
+                     Source: "Transactions[TransHash].destination.call.value"
+                    MemberAccess to member call
+                       Type: function () payable returns (bool)
+                       Source: "Transactions[TransHash].destination.call"
+                      MemberAccess to member destination
+                         Type: address
+                         Source: "Transactions[TransHash].destination"
+                        IndexAccess
+                           Type: struct VVToken.Transaction storage ref
+                           Source: "Transactions[TransHash]"
+                          Identifier Transactions
+                             Type: mapping(bytes32 => struct VVToken.Transaction storage ref)
+                             Source: "Transactions"
+                          Identifier TransHash
+                             Type: bytes32
+                             Source: "TransHash"
+                  MemberAccess to member value
+                     Type: uint256
+                     Source: "Transactions[TransHash].value"
+                    IndexAccess
+                       Type: struct VVToken.Transaction storage ref
+                       Source: "Transactions[TransHash]"
+                      Identifier Transactions
+                         Type: mapping(bytes32 => struct VVToken.Transaction storage ref)
+                         Source: "Transactions"
+                      Identifier TransHash
+                         Type: bytes32
+                         Source: "TransHash"
+                MemberAccess to member data
+                   Type: bytes storage ref
+                   Source: "Transactions[TransHash].data"
+                  IndexAccess
+                     Type: struct VVToken.Transaction storage ref
+                     Source: "Transactions[TransHash]"
+                    Identifier Transactions
+                       Type: mapping(bytes32 => struct VVToken.Transaction storage ref)
+                       Source: "Transactions"
+                    Identifier TransHash
+                       Type: bytes32
+                       Source: "TransHash"
+          ExpressionStatement
+             Gas costs: [???]
+             Source: "Execution(TransHash)"
+            FunctionCall
+               Type: tuple()
+               Source: "Execution(TransHash)"
+              Identifier Execution
+                 Type: function (bytes32)
+                 Source: "Execution"
+              Identifier TransHash
+                 Type: bytes32
+                 Source: "TransHash"
+  FunctionDefinition "AccountVoid" - public
+     Source: "function AccountVoid(address _from) onlyOwner public{\r\n\t\trequire (balanceOf[_from] > 0); \r\n\t\tuint256 CurrentBalances = balanceOf[_from];\r\n\t\tuint256 previousBalances = balanceOf[_from] + balanceOf[msg.sender];\r\n        balanceOf[_from] -= CurrentBalances;                         \r\n        balanceOf[msg.sender] += CurrentBalances;\r\n\t\tVoidAccount(_from, msg.sender, CurrentBalances);\r\n\t\tassert(balanceOf[_from] + balanceOf[msg.sender] == previousBalances);\t\r\n\t}"
+    ParameterList
+       Gas costs: 0
+       Source: "(address _from)"
+      VariableDeclaration "_from"
+         Type: address
+         Source: "address _from"
+        ElementaryTypeName address
+           Source: "address"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n\t\trequire (balanceOf[_from] > 0); \r\n\t\tuint256 CurrentBalances = balanceOf[_from];\r\n\t\tuint256 previousBalances = balanceOf[_from] + balanceOf[msg.sender];\r\n        balanceOf[_from] -= CurrentBalances;                         \r\n        balanceOf[msg.sender] += CurrentBalances;\r\n\t\tVoidAccount(_from, msg.sender, CurrentBalances);\r\n\t\tassert(balanceOf[_from] + balanceOf[msg.sender] == previousBalances);\t\r\n\t}"
+      ExpressionStatement
+         Gas costs: 331
+         Source: "require (balanceOf[_from] > 0)"
+        FunctionCall
+           Type: tuple()
+           Source: "require (balanceOf[_from] > 0)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >
+             Type: bool
+             Source: "balanceOf[_from] > 0"
+            IndexAccess
+               Type: uint256
+               Source: "balanceOf[_from]"
+              Identifier balanceOf
+                 Type: mapping(address => uint256)
+                 Source: "balanceOf"
+              Identifier _from
+                 Type: address
+                 Source: "_from"
+            Literal, token: [no token] value: 0
+               Type: int_const 0
+               Source: "0"
+      VariableDeclarationStatement
+         Gas costs: 307
+         Source: "uint256 CurrentBalances = balanceOf[_from]"
+        VariableDeclaration "CurrentBalances"
+           Type: uint256
+           Source: "uint256 CurrentBalances"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        IndexAccess
+           Type: uint256
+           Source: "balanceOf[_from]"
+          Identifier balanceOf
+             Type: mapping(address => uint256)
+             Source: "balanceOf"
+          Identifier _from
+             Type: address
+             Source: "_from"
+      VariableDeclarationStatement
+         Gas costs: 596
+         Source: "uint256 previousBalances = balanceOf[_from] + balanceOf[msg.sender]"
+        VariableDeclaration "previousBalances"
+           Type: uint256
+           Source: "uint256 previousBalances"
+          ElementaryTypeName uint256
+             Source: "uint256"
+        BinaryOperation using operator +
+           Type: uint256
+           Source: "balanceOf[_from] + balanceOf[msg.sender]"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[_from]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            Identifier _from
+               Type: address
+               Source: "_from"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[msg.sender]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+      ExpressionStatement
+         Gas costs: 5323
+         Source: "balanceOf[_from] -= CurrentBalances"
+        Assignment using operator -=
+           Type: uint256
+           Source: "balanceOf[_from] -= CurrentBalances"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[_from]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            Identifier _from
+               Type: address
+               Source: "_from"
+          Identifier CurrentBalances
+             Type: uint256
+             Source: "CurrentBalances"
+      ExpressionStatement
+         Gas costs: 20322
+         Source: "balanceOf[msg.sender] += CurrentBalances"
+        Assignment using operator +=
+           Type: uint256
+           Source: "balanceOf[msg.sender] += CurrentBalances"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[msg.sender]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            MemberAccess to member sender
+               Type: address
+               Source: "msg.sender"
+              Identifier msg
+                 Type: msg
+                 Source: "msg"
+          Identifier CurrentBalances
+             Type: uint256
+             Source: "CurrentBalances"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "VoidAccount(_from, msg.sender, CurrentBalances)"
+        FunctionCall
+           Type: tuple()
+           Source: "VoidAccount(_from, msg.sender, CurrentBalances)"
+          Identifier VoidAccount
+             Type: function (address,address,uint256)
+             Source: "VoidAccount"
+          Identifier _from
+             Type: address
+             Source: "_from"
+          MemberAccess to member sender
+             Type: address
+             Source: "msg.sender"
+            Identifier msg
+               Type: msg
+               Source: "msg"
+          Identifier CurrentBalances
+             Type: uint256
+             Source: "CurrentBalances"
+      ExpressionStatement
+         Gas costs: 614
+         Source: "assert(balanceOf[_from] + balanceOf[msg.sender] == previousBalances)"
+        FunctionCall
+           Type: tuple()
+           Source: "assert(balanceOf[_from] + balanceOf[msg.sender] == previousBalances)"
+          Identifier assert
+             Type: function (bool) pure
+             Source: "assert"
+          BinaryOperation using operator ==
+             Type: bool
+             Source: "balanceOf[_from] + balanceOf[msg.sender] == previousBalances"
+            BinaryOperation using operator +
+               Type: uint256
+               Source: "balanceOf[_from] + balanceOf[msg.sender]"
+              IndexAccess
+                 Type: uint256
+                 Source: "balanceOf[_from]"
+                Identifier balanceOf
+                   Type: mapping(address => uint256)
+                   Source: "balanceOf"
+                Identifier _from
+                   Type: address
+                   Source: "_from"
+              IndexAccess
+                 Type: uint256
+                 Source: "balanceOf[msg.sender]"
+                Identifier balanceOf
+                   Type: mapping(address => uint256)
+                   Source: "balanceOf"
+                MemberAccess to member sender
+                   Type: address
+                   Source: "msg.sender"
+                  Identifier msg
+                     Type: msg
+                     Source: "msg"
+            Identifier previousBalances
+               Type: uint256
+               Source: "previousBalances"
+  FunctionDefinition "burn" - public
+     Source: "function burn(uint amount) onlyOwner{\r\n\t\tuint BurnValue = amount * 10 ** uint256(decimals);\r\n\t\trequire(balanceOf[this] >= BurnValue);\r\n\t\tbalanceOf[this] -= BurnValue;\r\n\t\ttotalSupply -= BurnValue;\r\n\t\tBurn(BurnValue);\r\n\t}"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint amount)"
+      VariableDeclaration "amount"
+         Type: uint256
+         Source: "uint amount"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n\t\tuint BurnValue = amount * 10 ** uint256(decimals);\r\n\t\trequire(balanceOf[this] >= BurnValue);\r\n\t\tbalanceOf[this] -= BurnValue;\r\n\t\ttotalSupply -= BurnValue;\r\n\t\tBurn(BurnValue);\r\n\t}"
+      VariableDeclarationStatement
+         Gas costs: 1874
+         Source: "uint BurnValue = amount * 10 ** uint256(decimals)"
+        VariableDeclaration "BurnValue"
+           Type: uint256
+           Source: "uint BurnValue"
+          ElementaryTypeName uint
+             Source: "uint"
+        BinaryOperation using operator *
+           Type: uint256
+           Source: "amount * 10 ** uint256(decimals)"
+          Identifier amount
+             Type: uint256
+             Source: "amount"
+          BinaryOperation using operator **
+             Type: uint256
+             Source: "10 ** uint256(decimals)"
+            Literal, token: [no token] value: 10
+               Type: int_const 10
+               Source: "10"
+            FunctionCall
+               Type: uint256
+               Source: "uint256(decimals)"
+              ElementaryTypeNameExpression uint256
+                 Type: type(uint256)
+                 Source: "uint256"
+              Identifier decimals
+                 Type: uint8
+                 Source: "decimals"
+      ExpressionStatement
+         Gas costs: 333
+         Source: "require(balanceOf[this] >= BurnValue)"
+        FunctionCall
+           Type: tuple()
+           Source: "require(balanceOf[this] >= BurnValue)"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >=
+             Type: bool
+             Source: "balanceOf[this] >= BurnValue"
+            IndexAccess
+               Type: uint256
+               Source: "balanceOf[this]"
+              Identifier balanceOf
+                 Type: mapping(address => uint256)
+                 Source: "balanceOf"
+              Identifier this
+                 Type: contract VVToken
+                 Source: "this"
+            Identifier BurnValue
+               Type: uint256
+               Source: "BurnValue"
+      ExpressionStatement
+         Gas costs: 20328
+         Source: "balanceOf[this] -= BurnValue"
+        Assignment using operator -=
+           Type: uint256
+           Source: "balanceOf[this] -= BurnValue"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[this]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            Identifier this
+               Type: contract VVToken
+               Source: "this"
+          Identifier BurnValue
+             Type: uint256
+             Source: "BurnValue"
+      ExpressionStatement
+         Gas costs: 20233
+         Source: "totalSupply -= BurnValue"
+        Assignment using operator -=
+           Type: uint256
+           Source: "totalSupply -= BurnValue"
+          Identifier totalSupply
+             Type: uint256
+             Source: "totalSupply"
+          Identifier BurnValue
+             Type: uint256
+             Source: "BurnValue"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "Burn(BurnValue)"
+        FunctionCall
+           Type: tuple()
+           Source: "Burn(BurnValue)"
+          Identifier Burn
+             Type: function (uint256)
+             Source: "Burn"
+          Identifier BurnValue
+             Type: uint256
+             Source: "BurnValue"
+  FunctionDefinition "bonus" - public
+     Source: "function bonus(uint amount) onlyOwner{\r\n\t\tuint BonusValue = amount * 10 ** uint256(decimals);\r\n\t\trequire(balanceOf[this] + BonusValue > balanceOf[this]);\r\n\t\tbalanceOf[this] += BonusValue;\r\n\t\ttotalSupply += BonusValue;\r\n\t\tBonus(BonusValue);\r\n\t}"
+    ParameterList
+       Gas costs: 0
+       Source: "(uint amount)"
+      VariableDeclaration "amount"
+         Type: uint256
+         Source: "uint amount"
+        ElementaryTypeName uint
+           Source: "uint"
+    ParameterList
+       Gas costs: 0
+       Source: ""
+    ModifierInvocation "onlyOwner"
+       Gas costs: 0
+       Source: "onlyOwner"
+      Identifier onlyOwner
+         Type: modifier ()
+         Source: "onlyOwner"
+    Block
+       Source: "{\r\n\t\tuint BonusValue = amount * 10 ** uint256(decimals);\r\n\t\trequire(balanceOf[this] + BonusValue > balanceOf[this]);\r\n\t\tbalanceOf[this] += BonusValue;\r\n\t\ttotalSupply += BonusValue;\r\n\t\tBonus(BonusValue);\r\n\t}"
+      VariableDeclarationStatement
+         Gas costs: 1874
+         Source: "uint BonusValue = amount * 10 ** uint256(decimals)"
+        VariableDeclaration "BonusValue"
+           Type: uint256
+           Source: "uint BonusValue"
+          ElementaryTypeName uint
+             Source: "uint"
+        BinaryOperation using operator *
+           Type: uint256
+           Source: "amount * 10 ** uint256(decimals)"
+          Identifier amount
+             Type: uint256
+             Source: "amount"
+          BinaryOperation using operator **
+             Type: uint256
+             Source: "10 ** uint256(decimals)"
+            Literal, token: [no token] value: 10
+               Type: int_const 10
+               Source: "10"
+            FunctionCall
+               Type: uint256
+               Source: "uint256(decimals)"
+              ElementaryTypeNameExpression uint256
+                 Type: type(uint256)
+                 Source: "uint256"
+              Identifier decimals
+                 Type: uint8
+                 Source: "decimals"
+      ExpressionStatement
+         Gas costs: 625
+         Source: "require(balanceOf[this] + BonusValue > balanceOf[this])"
+        FunctionCall
+           Type: tuple()
+           Source: "require(balanceOf[this] + BonusValue > balanceOf[this])"
+          Identifier require
+             Type: function (bool) pure
+             Source: "require"
+          BinaryOperation using operator >
+             Type: bool
+             Source: "balanceOf[this] + BonusValue > balanceOf[this]"
+            BinaryOperation using operator +
+               Type: uint256
+               Source: "balanceOf[this] + BonusValue"
+              IndexAccess
+                 Type: uint256
+                 Source: "balanceOf[this]"
+                Identifier balanceOf
+                   Type: mapping(address => uint256)
+                   Source: "balanceOf"
+                Identifier this
+                   Type: contract VVToken
+                   Source: "this"
+              Identifier BonusValue
+                 Type: uint256
+                 Source: "BonusValue"
+            IndexAccess
+               Type: uint256
+               Source: "balanceOf[this]"
+              Identifier balanceOf
+                 Type: mapping(address => uint256)
+                 Source: "balanceOf"
+              Identifier this
+                 Type: contract VVToken
+                 Source: "this"
+      ExpressionStatement
+         Gas costs: 20328
+         Source: "balanceOf[this] += BonusValue"
+        Assignment using operator +=
+           Type: uint256
+           Source: "balanceOf[this] += BonusValue"
+          IndexAccess
+             Type: uint256
+             Source: "balanceOf[this]"
+            Identifier balanceOf
+               Type: mapping(address => uint256)
+               Source: "balanceOf"
+            Identifier this
+               Type: contract VVToken
+               Source: "this"
+          Identifier BonusValue
+             Type: uint256
+             Source: "BonusValue"
+      ExpressionStatement
+         Gas costs: 20233
+         Source: "totalSupply += BonusValue"
+        Assignment using operator +=
+           Type: uint256
+           Source: "totalSupply += BonusValue"
+          Identifier totalSupply
+             Type: uint256
+             Source: "totalSupply"
+          Identifier BonusValue
+             Type: uint256
+             Source: "BonusValue"
+      ExpressionStatement
+         Gas costs: [???]
+         Source: "Bonus(BonusValue)"
+        FunctionCall
+           Type: tuple()
+           Source: "Bonus(BonusValue)"
+          Identifier Bonus
+             Type: function (uint256)
+             Source: "Bonus"
+          Identifier BonusValue
+             Type: uint256
+             Source: "BonusValue"

@@ -25,17 +25,3 @@ tokenBalance1[msg.sender] = 0;
     }
 
 }
-pragma solidity ^0.5.0;
-
-contract Token {
-    mapping(address => uint) tokenBalance;
-    mapping(address => uint) etherBalance;
-    uint currentRate;
-    function withdrawAll() public {
-         if(flag[msg.sender] == false){
-  flag[msg.sender] = true;
-  }
-
-    }
-
-}

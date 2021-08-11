@@ -22,16 +22,3 @@ balances1[msg.sender] -= amount;
 
 }
 
-contract Intermediary{}pragma solidity ^0.4.21;
-
-contract Bank {
-    mapping(address => uint) balances;
-    mapping(address => Intermediary) subs;
-    function withdraw(uint amount) public {
-         if(flag[msg.sender] == false){
-  flag[msg.sender] = true;
-  }
-
-    }
-
-}

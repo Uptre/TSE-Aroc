@@ -1,0 +1,20 @@
+pragma solidity ^0.4.8;
+
+contract StandardToken {
+    uint256 MAX_UINT256 = 2 ** 256 - 1;
+    bool isFrozen;
+    mapping(address => uint256) balances;
+    mapping(address => mapping(address => uint256)) allowed;
+    function transfer(address _to, uint256 _value) public view {
+                 require((_value + balances[_to]>=balances[_to]) && (_value + balances[_to]>=_value));
+
+
+    }
+
+    function transferFrom(address _from, address _to, uint256 _value) public view {
+                 require((_value + balances[_to]>=balances[_to]) && (_value + balances[_to]>=_value));
+
+
+    }
+
+}

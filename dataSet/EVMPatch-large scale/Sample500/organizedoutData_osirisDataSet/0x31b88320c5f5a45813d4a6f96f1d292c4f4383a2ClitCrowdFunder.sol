@@ -1,5 +1,4 @@
-pragma solidity ^0.4.11;pragma solidity ^0.4.11;
-
+pragma solidity ^0.4.11;
 contract ClitCrowdFunder {
     struct Checkpoint {
         uint128 fromBlock;

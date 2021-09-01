@@ -27,10 +27,6 @@ contract HareemMinePoolToken {
             if(newBuyPrice!=0 && 10 ** 3!=0){
           require((newBuyPrice * 10 ** 3/newBuyPrice==10 ** 3) && (newBuyPrice * 10 ** 3/10 ** 3==newBuyPrice));
             }
-            if(newSellPrice!=0 && 10 ** 3!=0){
-          require((newSellPrice * 10 ** 3/newSellPrice==10 ** 3) && (newSellPrice * 10 ** 3/10 ** 3==newSellPrice));
-            }
-
     }
 
 }

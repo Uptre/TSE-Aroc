@@ -17,12 +17,4 @@ contract AntraPrePre {
         }
     }
 
-    function burn(uint256 _value) public view {
-        
-    }
-
-    function burnFrom(address _from, uint256 _value) public view {
-        
-    }
-
 }

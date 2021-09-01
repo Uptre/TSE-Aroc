@@ -51,5 +51,3 @@ contract Utils {
     }
 
 }
-
-contract ERC20{}

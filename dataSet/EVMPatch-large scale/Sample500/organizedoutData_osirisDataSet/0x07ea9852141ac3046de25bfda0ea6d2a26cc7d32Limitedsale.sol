@@ -12,15 +12,3 @@ contract Limitedsale {
     }
 
 }
-pragma solidity ^0.4.18;
-
-contract Limitedsale {
-    uint256 totalSupply;
-    mapping(address => uint256) balanceOf;
-}
-pragma solidity ^0.4.18;
-
-contract Limitedsale {
-    uint256 totalSupply;
-    mapping(address => uint256) balanceOf;
-}

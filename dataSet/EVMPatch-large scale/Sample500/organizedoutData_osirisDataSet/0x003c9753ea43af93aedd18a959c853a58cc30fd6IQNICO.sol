@@ -21,7 +21,3 @@ contract IQNICO {
     }
 
 }
-
-contract token{
-    
-}
